@@ -1,0 +1,130 @@
+﻿@using Microsoft.EntityFrameworkCore
+@using VehicleManagement.Models.DB
+@inject ApplicationDbContext DbContext
+@inject IToastService toastService
+
+<div class="row">
+    <div class="col-xl-3 col-sm-6 mb-xl-0 mb-4">
+        <div class="card bg-gradient-primary" style="color: white;">
+            <div class="card-body p-3">
+                <div class="row">
+                    <div class="col-8">
+                        <div class="numbers">
+                            <p class="text-sm mb-0 text-uppercase font-weight-bold">Available</p>
+                            <h5 class="font-weight-bolder" style="color:white;">
+                                @TotalAvailable.ToString()
+                            </h5>
+                         
+                        </div>
+                    </div>
+                    <div class="col-4 text-end">
+                        <div class="icon icon-shape bg-gradient-primary shadow-primary text-center rounded-circle">
+                            <i class="fa fa-truck text-lg opacity-10" aria-hidden="true"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-xl-3 col-sm-6 mb-xl-0 mb-4">
+        <div class="card bg-gradient-danger" style="color: white;">
+            <div class="card-body p-3">
+                <div class="row">
+                    <div class="col-8">
+                        <div class="numbers">
+                            <p class="text-sm mb-0 text-uppercase font-weight-bold">On Trip </p>
+                            <h5 class="font-weight-bolder" style="color: white;">
+                                @TotalOntrip.ToString()
+                            </h5>
+                           @*  <p class="mb-0">
+                                <span class="text-success text-sm font-weight-bolder">+3%</span>
+                                since last week
+                            </p> *@
+                        </div>
+                    </div>
+                    <div class="col-4 text-end">
+                        <div class="icon icon-shape bg-gradient-danger shadow-danger text-center rounded-circle">
+                            <i class="fa fa-suitcase text-lg opacity-10" aria-hidden="true"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-xl-3 col-sm-6 mb-xl-0 mb-4">
+        <div class="card bg-gradient-success" style="color: white;">
+            <div class="card-body p-3">
+                <div class="row">
+                    <div class="col-8">
+                        <div class="numbers">
+                            <p class="text-sm mb-0 text-uppercase font-weight-bold">On Maintenance</p>
+                            <h5 class="font-weight-bolder" style="color: white;">
+                                @TotalMaintainance.ToString()
+                            </h5>
+                       @*      <p class="mb-0">
+                                <span class="text-danger text-sm font-weight-bolder">-2%</span>
+                                since last quarter
+                            </p> *@
+                        </div>
+                    </div>
+                    <div class="col-4 text-end">
+                        <div class="icon icon-shape bg-gradient-success shadow-success text-center rounded-circle">
+                            <i class="fa fa-ambulance text-lg opacity-10" aria-hidden="true"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-xl-3 col-sm-6">
+        <div class="card bg-gradient-warning" style="color: white;">
+            <div class="card-body p-3">
+                <div class="row">
+                    <div class="col-8">
+                        <div class="numbers">
+                            <p class="text-sm mb-0 text-uppercase font-weight-bold">Total Vehicles</p>
+                            <h5 class="font-weight-bolder" style="color: white;">
+                                @Total.ToString()
+                            </h5>
+                          @*   <p class="mb-0">
+                                <span class="text-success text-sm font-weight-bolder">+5%</span> than last month
+                            </p> *@
+                        </div>
+                    </div>
+                    <div class="col-4 text-end">
+                        <div class="icon icon-shape bg-gradient-warning shadow-warning text-center rounded-circle">
+                            <i class="fa fa-globe text-lg opacity-10" aria-hidden="true"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+
+    public int TotalAvailable;
+    public int TotalOntrip;
+    public int TotalMaintainance;
+    public int Total;
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            TotalAvailable = DbContext.tblvehicle.Where(p => p.statusid == 1).ToList().Count;
+            TotalOntrip = DbContext.tblvehicle.Where(p => p.statusid == 3).ToList().Count;
+            TotalMaintainance = DbContext.tblvehicle.Where(p => p.statusid == 2).ToList().Count;
+            Total = DbContext.tblvehicle.ToList().Count;
+        }
+        catch(Exception ex)
+        {
+            toastService.ShowError(ex.Message);
+        }
+
+
+    }
+
+
+}

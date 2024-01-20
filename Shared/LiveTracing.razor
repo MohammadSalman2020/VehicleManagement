@@ -1,0 +1,91 @@
+﻿@page "/livetracing"
+@using Microsoft.AspNetCore.WebUtilities
+@using VehicleManagement.Models.General
+@using VehicleManagement.Pages
+@using VehicleManagement.Pages.Redirects
+@inject NavigationManager NavigationManager
+ @inject IJSRuntime JSRuntime
+
+<AuthorizeView>
+    <Authorized>
+        <Nav PageName="Live Tracing" />
+        <div class="container-fluid py-4">
+            <div class="row">
+                <div class="col-12">
+                    <div class="card mb-4">
+                        <div class="card-header pb-0">
+                            <h6>Live Tracing</h6>
+                        </div>
+                    
+                            <iframe width="100%"
+                                    height="550"
+                                    frameborder="0" style="border:0"
+                                    src="@Src"
+                                    allowfullscreen>
+                            </iframe>
+                        
+
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </Authorized>
+    <NotAuthorized>
+        <_403/>
+    </NotAuthorized>
+</AuthorizeView>
+
+
+
+@code {
+
+    public string CurrentLatitide { get; set; } = "";
+    public string CurrentLongitude { get; set; } = "";
+    public string StartLongitude { get; set; } = "";
+    public string StartLatitude { get; set; } = "";
+    public string EndLatitude { get; set; } = "";
+    public string EndLongitude { get; set; } = "";
+    public string Src { get; set; } = "";
+
+   
+    protected override async Task OnInitializedAsync()
+    {
+        var uri = new Uri(NavigationManager.Uri);
+        var queryStrings = QueryHelpers.ParseQuery(uri.Query);
+        if (queryStrings.TryGetValue("CurrentLatitide", out var name))
+        {
+            CurrentLatitide = name;
+            // Src = $"https://www.google.com/maps/embed/v1/directions?key=AIzaSyCIpUSvLELTdnC8yQ5gOi_t1AztYattmyM&origin={Location1}&destination={Location2}";
+        }
+        if (queryStrings.TryGetValue("CurrentLongitude", out var name1))
+        {
+            CurrentLongitude = name1;
+        }
+        if (queryStrings.TryGetValue("StartLongitude", out var name2))
+        {
+            StartLongitude = name2;
+        }
+        if (queryStrings.TryGetValue("StartLatitude", out var name3))
+        {
+            StartLatitude = name3;
+        }
+        if (queryStrings.TryGetValue("EndLongitude", out var name4))
+        {
+            EndLongitude = name4;
+        }
+        if (queryStrings.TryGetValue("EndLatitude", out var name5))
+        {
+            EndLatitude = name5;
+        }
+        if (StartLongitude != "" && EndLongitude != "")
+        {
+            Src = $"https://www.google.com/maps/embed/v1/directions?key=AIzaSyCIpUSvLELTdnC8yQ5gOi_t1AztYattmyM&origin=24.8607,67.0011&destination=31.5497,74.3436";
+
+        }
+        else if (CurrentLatitide != "" && CurrentLongitude != "")
+        {
+            Src = $"https://www.google.com/maps/embed/v1/place?key=AIzaSyCIpUSvLELTdnC8yQ5gOi_t1AztYattmyM&q={CurrentLongitude},{CurrentLatitide}";
+        }
+    }
+}

@@ -1,0 +1,487 @@
+﻿@using VehicleManagement.Models.General
+@inject NavigationManager NavigationManager
+@using VehicleManagement.Models.DB
+@inject ApplicationDbContext DbContext
+<div class="container-fluid py-4">
+    <div class="row">
+        <div class="col-12">
+            <div class="card mb-4">
+                <div class="card-header pb-0">
+                    <h6>@Name</h6>
+                </div>
+                @if (ShowDrop)
+                {
+                    <div class="card-header pb-0">
+                        <select class="form-control" @onchange="HandleStatusChange">
+                            <option value="T">All</option>
+                            <option value="OT">On Trip</option>
+                            <option value="M">Maintenance</option>
+                            <option value="A">Available</option>
+                        </select>
+                    </div>
+                }
+
+
+                <div class="card-body px-0 pt-0 pb-2">
+                    <div class="table-responsive p-0">
+                        <table class="table align-items-center mb-0">
+                            <thead>
+                                @if (IsAvailable)
+                                {
+                                    <tr>
+                                        <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Vehicle #</th>
+                                        <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Last Update</th>
+                                        <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Location</th>
+                                        <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Capacity</th>
+                                        <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Chamber SEQ</th>
+                                        <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Status</th>
+
+                                        <th class="text-secondary opacity-7"></th>
+                                    </tr>
+                                }
+                                @if (IsMaintainance)
+                                {
+                                    <tr>
+                                        <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Vehicle #</th>
+                                        <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Work Description</th>
+                                        <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Work Start Date</th>
+                                        <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Expected End Date</th>
+                                        <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Location</th>
+                                        <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Status</th>
+
+                                        <th class="text-secondary opacity-7"></th>
+                                    </tr>
+                                }
+                                @if (IsOnTrip)
+                                {
+                                    <tr>
+                                        <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Vehicle #</th>
+                                        <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Trip Start Location</th>
+                                        <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Trip End Location</th>
+                                        <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Current Location</th>
+
+                                        <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Status</th>
+
+                                        <th class="text-secondary opacity-7"></th>
+                                    </tr>
+                                }
+                                @if (IsTotal)
+                                {
+                                    <tr>
+                                        <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Vehicle #</th>
+                                        <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2" style="text-align:center;">Status</th>
+                                        <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Location</th>
+
+                                        <th class="text-secondary opacity-7"></th>
+                                    </tr>
+                                }
+                            </thead>
+                            <tbody>
+                                @if (IsAvailable)
+                                {
+                                    @if (AvailableList.Count > 0)
+                                    {
+                                        foreach (var item in AvailableList)
+                                        {
+                                            <tr>
+                                                <td>
+                                                    <div class="d-flex px-2 py-1">
+                                                        <div>
+                                                            <img src="css/assets/Truck.jpg" class="avatar avatar-sm me-3" alt="user1">
+                                                        </div>
+                                                        <div class="d-flex flex-column justify-content-center">
+                                                            <h6 class="mb-0 text-sm">@item.VehicleNumber</h6>
+
+                                                        </div>
+                                                    </div>
+                                                </td>
+                                                <td>
+                                                    <p class="text-xs font-weight-bold mb-0">@item.LastUpdate</p>
+
+                                                </td>
+
+                                                <td class="align-middle text-center">
+                                                    <span class="text-secondary text-xs font-weight-bold">@item.Location</span>
+                                                </td>
+                                                   <td class="align-middle text-center">
+                                                    <span class="text-secondary text-xs font-weight-bold">48KL</span>
+                                                </td>
+                                                <td class="align-middle text-center">
+                                                    <span class="text-secondary text-xs font-weight-bold">8+8+16+8+8</span>
+                                                </td>
+                                                <td class="align-middle text-center text-sm">
+                                                    <span class="badge badge-sm bg-gradient-success">@item.Status</span>
+                                                </td>
+                                                <td class="align-middle">
+                                                    <a @onclick="@(()=> NavigateToLiveTracing(item.Currentlatitude,item.Currentlongitude))" class="text-secondary font-weight-bold text-xs cursor-pointer" data-toggle="tooltip" data-original-title="Edit user">
+                                                        Live Tracing
+                                                    </a>
+                                                </td>
+                                            </tr>
+                                        }
+                                    }
+
+
+                                }
+                                @if (IsMaintainance)
+                                {
+                                    @if (MaintainanceList.Count > 0)
+                                    {
+                                        foreach (var item in MaintainanceList)
+                                        {
+
+                                            <tr>
+                                                <td>
+                                                    <div class="d-flex px-2 py-1">
+                                                        <div>
+                                                            <img src="css/assets/Truck.jpg" class="avatar avatar-sm me-3" alt="user1">
+                                                        </div>
+                                                        <div class="d-flex flex-column justify-content-center">
+                                                            <h6 class="mb-0 text-sm">@item.VehicleNumber</h6>
+
+                                                        </div>
+                                                    </div>
+                                                </td>
+                                                <td>
+                                                    <p class="text-xs font-weight-bold mb-0">@item.Work</p>
+
+                                                </td>
+
+                                                <td class="align-middle text-center">
+                                                    <span class="text-secondary text-xs font-weight-bold">@item.WorkStartDate</span>
+                                                </td>
+                                                <td class="align-middle text-center">
+                                                    <span class="text-secondary text-xs font-weight-bold">@item.ExpEndDate</span>
+                                                </td>
+                                                <td class="align-middle text-center">
+                                                    <span class="text-secondary text-xs font-weight-bold">@item.Location</span>
+                                                </td>
+                                                <td class="align-middle text-center text-sm">
+                                                    <span class="badge badge-sm bg-gradient-danger">@item.Status</span>
+                                                </td>
+                                                <td class="align-middle">
+                                                    <a @onclick="@(()=> NavigateToLiveTracing(item.Currentlatitude,item.Currentlongitude))" class="text-secondary font-weight-bold text-xs cursor-pointer" data-toggle="tooltip" data-original-title="Edit user">
+                                                        Live Tracing
+                                                    </a>
+                                                </td>
+                                            </tr>
+                                        }
+                                    }
+                                }
+                                @if (IsOnTrip)
+                                {
+                                    @if (OntripList.Count > 0)
+                                    {
+                                        foreach (var item in OntripList)
+                                        {
+
+                                            <tr>
+                                                <td>
+                                                    <div class="d-flex px-2 py-1">
+                                                        <div>
+                                                            <img src="css/assets/Truck.jpg" class="avatar avatar-sm me-3" alt="user1">
+                                                        </div>
+                                                        <div class="d-flex flex-column justify-content-center">
+                                                            <h6 class="mb-0 text-sm">@item.VehicleNumber</h6>
+
+                                                        </div>
+                                                    </div>
+                                                </td>
+
+
+                                                <td class="align-middle text-center">
+                                                    <span class="text-secondary text-xs font-weight-bold">@item.TripStart</span>
+                                                </td>
+                                                <td class="align-middle text-center">
+                                                    <span class="text-secondary text-xs font-weight-bold">@item.TripEnd</span>
+                                                </td>
+                                                <td class="align-middle text-center">
+                                                    <span class="text-secondary text-xs font-weight-bold">@item.CurrentLocation</span>
+                                                </td>
+                                                <td class="align-middle text-center text-sm">
+                                                    <span class="badge badge-sm bg-gradient-warning">@item.Status</span>
+                                                </td>
+                                                <td class="align-middle">
+                                                    <a @onclick="@(()=> NavigateToLiveTracing(item.Currentlatitude,item.Currentlongitude,item.Startlongitude,item.Startlatitude,item.Endlongitude,item.Endlatitude))" class="text-secondary font-weight-bold text-xs cursor-pointer" data-toggle="tooltip" data-original-title="Edit user">
+                                                        Live Tracing
+                                                    </a>
+                                                </td>
+                                            </tr>
+                                        }
+                                    }
+                                }
+                                @if (IsTotal)
+                                {
+                                    @if (AllVehicles.Count > 0)
+                                    {
+                                        foreach (var item in AllVehicles)
+                                        {
+
+                                            <tr>
+                                                <td>
+                                                    <div class="d-flex px-2 py-1">
+                                                        <div>
+                                                            <img src="css/assets/Truck.jpg" class="avatar avatar-sm me-3" alt="user1">
+                                                        </div>
+                                                        <div class="d-flex flex-column justify-content-center">
+                                                            <h6 class="mb-0 text-sm">@item.VehicleNumber</h6>
+
+                                                        </div>
+                                                    </div>
+                                                </td>
+
+
+                                                <td class="align-middle text-center text-sm">
+                                                    <span class="badge badge-sm @(GetBadgeColor(item.Status))">@item.Status</span>
+                                                </td>
+
+                                                <td class="align-middle text-center">
+                                                    <span class="text-secondary text-xs font-weight-bold">@item.Location</span>
+                                                </td>
+
+                                                <td class="align-middle">
+                                                    <a @onclick="@(()=> NavigateToLiveTracing(item.Location,"Lahore"))" class="text-secondary font-weight-bold text-xs cursor-pointer" data-toggle="tooltip" data-original-title="Edit user">
+                                                        Live Tracing
+                                                    </a>
+                                                </td>
+                                            </tr>
+
+
+                                        }
+                                    }
+                                }
+
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+</div>
+
+@code {
+    [Parameter]
+    public bool IsMaintainance { get; set; } = false;
+    [Parameter]
+    public bool IsAvailable { get; set; } = false;
+    [Parameter]
+    public bool IsOnTrip { get; set; } = false;
+    [Parameter]
+    public bool IsTotal { get; set; } = false;
+    [Parameter]
+    public string? Name { get; set; }
+
+
+    public List<AvailableVehicle> AvailableList { get; set; }
+    public List<MaintainanceVehicle> MaintainanceList { get; set; }
+    public List<OntripVehicles> OntripList { get; set; }
+    public List<TotalVehicles> AllVehicles { get; set; }
+
+    private string selectedStatus;
+    private bool ShowDrop;
+
+    string GetBadgeColor(string status)
+    {
+        switch (status)
+        {
+            case "Available":
+                return "bg-gradient-success";
+            case "OnTrip":
+                return "bg-gradient-warning";
+            case "On Maintenance":
+                return "bg-gradient-danger";
+            default:
+                return "bg-secondary";
+        }
+    }
+
+    protected override void OnInitialized()
+    {
+        ShowDrop = IsTotal ? true : false;
+
+        var rec = (from a in DbContext.tblvehicle
+                   join
+            y in DbContext.tblstatus
+            on a.statusid equals y.statusid
+                   where a.statusid == 1
+                   select new
+                   {
+                       a.vehicleID,
+                       a.LastUpdate,
+                       a.currentlocation,
+                       y.statusdesc,
+                       a.Currentlatitude,
+                       a.Currentlongitude
+
+                   }).ToList();
+        if (rec.Count > 0)
+        {
+            AvailableList = new List<AvailableVehicle>();
+            foreach (var item in rec)
+            {
+
+                AvailableList.Add(new AvailableVehicle
+                    {
+                        LastUpdate = item.LastUpdate,
+                        Location = item.currentlocation,
+                        Status = item.statusdesc,
+                        VehicleNumber = item.vehicleID,
+                        Currentlatitude = item.Currentlatitude,
+                        Currentlongitude = item.Currentlongitude
+                    });
+            }
+        }
+        var rec2 = (from a in DbContext.tblvehicle
+                    join
+             y in DbContext.tblstatus
+             on a.statusid equals y.statusid
+                    where a.statusid == 2
+                    select new
+                    {
+                        a.vehicleID,
+                        a.workDesc,
+                        a.WorkstartDate,
+                        a.WorkEndingDatetime,
+                        a.currentlocation,
+                        y.statusdesc,
+                        a.Currentlatitude,
+                        a.Currentlongitude
+
+                    }).ToList();
+        if (rec2.Count > 0)
+        {
+            MaintainanceList = new List<MaintainanceVehicle>();
+            foreach (var item in rec2)
+            {
+
+                MaintainanceList.Add(new MaintainanceVehicle
+                    {
+                        Work = item.workDesc,
+                        Location = item.currentlocation,
+                        ExpEndDate = item.WorkEndingDatetime,
+                        WorkStartDate = item.WorkstartDate,
+                        Status = item.statusdesc,
+                        VehicleNumber = item.vehicleID,
+                        Currentlatitude = item.Currentlatitude,
+                        Currentlongitude = item.Currentlongitude
+                    });
+            }
+        }
+        var rec3 = (from a in DbContext.tblvehicle
+                    join
+             y in DbContext.tblstatus
+             on a.statusid equals y.statusid
+                    where a.statusid == 3
+                    select new
+                    {
+                        a.vehicleID,
+                        a.loadingpoint,
+                        a.decanting_point,
+                        a.currentlocation,
+                        y.statusdesc,
+                        a.Currentlatitude,
+                        a.Currentlongitude,
+                        a.StartLatitude,
+                        a.StartLongitude,
+                        a.EndLatitude,
+                        a.EndLongitude
+
+                    }).ToList();
+        if (rec3.Count > 0)
+        {
+            OntripList = new List<OntripVehicles>();
+            foreach (var item in rec3)
+            {
+
+                OntripList.Add(new OntripVehicles
+                    {
+                        CurrentLocation = item.currentlocation,
+                        TripEnd = item.decanting_point,
+                        TripStart = item.loadingpoint,
+                        Status = item.statusdesc,
+                        VehicleNumber = item.vehicleID,
+                        Currentlatitude = item.Currentlatitude,
+                        Currentlongitude = item.Currentlongitude,
+                        Endlatitude = item.EndLatitude,
+                        Endlongitude = item.EndLongitude,
+                        Startlatitude = item.StartLatitude,
+                        Startlongitude = item.StartLongitude
+                    });
+            }
+        }
+        var rec4 = (from a in DbContext.tblvehicle
+                    join
+             y in DbContext.tblstatus
+             on a.statusid equals y.statusid
+                    select new
+                    {
+                        a.vehicleID,
+                        a.currentlocation,
+                        y.statusdesc
+
+                    }).OrderBy(a => a.statusdesc).ToList();
+        if (rec4.Count > 0)
+        {
+            AllVehicles = new List<TotalVehicles>();
+            foreach (var item in rec4)
+            {
+
+                AllVehicles.Add(new TotalVehicles
+                    {
+                        Location = item.currentlocation,
+                        Status = item.statusdesc,
+                        VehicleNumber = item.vehicleID
+                    });
+            }
+        }
+    }
+
+    private void NavigateToLiveTracing(string CurrentLatitide, string CurrentLongitude, string StartLongitude = null,
+
+      string StartLatitude = null,string EndLongitude = null,string EndLatitude = null)
+    {
+        NavigationManager.NavigateTo($"/livetracing?CurrentLatitide={CurrentLatitide}&CurrentLongitude={CurrentLongitude}&StartLongitude={StartLongitude}&StartLatitude={StartLatitude}&EndLongitude={EndLongitude}&EndLatitude={EndLatitude}", true);
+
+    }
+
+    private void HandleStatusChange(ChangeEventArgs e)
+    {
+        selectedStatus = e.Value.ToString();
+
+        if (selectedStatus == "M")
+        {
+            IsMaintainance = true;
+            IsTotal = false;
+            IsAvailable = false;
+            IsOnTrip = false;
+
+        }
+        if (selectedStatus == "A")
+        {
+            IsMaintainance = false;
+            IsTotal = false;
+            IsAvailable = true;
+            IsOnTrip = false;
+
+        }
+        if (selectedStatus == "OT")
+        {
+            IsMaintainance = false;
+            IsTotal = false;
+            IsAvailable = false;
+            IsOnTrip = true;
+
+        }
+        if (selectedStatus == "T")
+        {
+            IsMaintainance = false;
+            IsTotal = true;
+            IsAvailable = false;
+            IsOnTrip = false;
+
+        }
+    }
+}

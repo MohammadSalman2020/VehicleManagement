@@ -1,0 +1,61 @@
+﻿@using Microsoft.AspNetCore.Components.Web
+@namespace VehicleManagement.Pages
+@addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <base href="~/" />
+    <link rel="apple-touch-icon" sizes="76x76" href="css/assets/img/apple-icon.png">
+    <link rel="icon" type="image/png" href="css/assets/img/favicon.png">
+    <link rel="stylesheet" href="css/bootstrap/bootstrap.min.css" />
+    <link href="css/site.css" rel="stylesheet" />
+    <link href="VehicleManagement.styles.css" rel="stylesheet" /> 
+    <!--     Fonts and icons     -->
+    <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,400,600,700" rel="stylesheet" />
+    <!-- Nucleo Icons -->
+    <link href="css/assets/css/nucleo-icons.css" rel="stylesheet" />
+    <link href="css/assets/css/nucleo-svg.css" rel="stylesheet" />
+    <!-- Font Awesome Icons -->
+    <script src="https://kit.fontawesome.com/42d5adcbca.js" crossorigin="anonymous"></script>
+    <link href="css/assets/css/nucleo-svg.css" rel="stylesheet" />
+    <link href="css/Customstyle.css" rel="stylesheet" />
+    <!-- CSS Files -->
+    <link id="pagestyle" href="css/assets/css/argon-dashboard.css?v=2.0.4" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    
+    <component type="typeof(HeadOutlet)" render-mode="ServerPrerendered" />
+</head>
+<body class="g-sidenav-show bg-gray-100" id="bod">
+    <div class="min-height-300 bg-primary position-absolute w-100"></div>
+    @RenderBody()
+
+   
+    <!--   Core JS Files   -->
+ @*    <script src="css/clipboard.js"></script> *@
+    <script src="css/assets/js/core/popper.min.js"></script>
+    <script src="css/assets/js/core/bootstrap.min.js"></script>
+    <script src="css/assets/js/plugins/perfect-scrollbar.min.js"></script>
+    <script src="css/assets/js/plugins/smooth-scrollbar.min.js"></script>
+    <script src="css/assets/js/plugins/chartjs.min.js"></script>
+
+    <script>
+        function myFunction() {
+            var x = document.getElementById("myTopnav");
+            if (x.className === "topnav") {
+                x.className += " responsive";
+            } else {
+                x.className = "topnav";
+            }
+        }
+    </script>
+   
+    <!-- Github buttons -->
+    <script async defer src="https://buttons.github.io/buttons.js"></script>
+    <!-- Control Center for Soft Dashboard: parallax effects, scripts for the example pages etc -->
+    <script src="css/assets/js/argon-dashboard.min.js"></script>
+    <script src="_framework/blazor.server.js"></script>
+</body>
+</html>

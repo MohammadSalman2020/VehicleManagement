@@ -1,0 +1,66 @@
+﻿@page "/fleet"
+
+@inject NavigationManager NavigationManager
+@using Microsoft.AspNetCore.WebUtilities
+@using VehicleManagement.Pages.Fleets
+@using VehicleManagement.Pages.Redirects
+<PageTitle>Fleet</PageTitle>
+<AuthorizeView>
+    <Authorized>
+
+        <Nav PageName="Fleet" />
+
+        <FleetDetailTable IsAvailable="@IsAvailable" IsMaintainance="@IsMaintainance" IsOnTrip="@IsOnTrip" IsTotal="@IsTotal" Name="@Name"/>
+
+    </Authorized>
+    <NotAuthorized>
+      <_403/>
+    </NotAuthorized>
+</AuthorizeView>
+
+
+@code {
+    public string ISFrom { get; set; } = "";
+
+    public bool IsMaintainance { get; set; } = false;
+
+    public bool IsAvailable { get; set; } = false;
+
+    public bool IsOnTrip { get; set; } = false;
+
+    public bool IsTotal { get; set; } = true;
+    public string? Name { get; set; } = "Total";
+    protected override void OnInitialized()
+    {
+        var uri = new Uri(NavigationManager.Uri);
+        var queryStrings = QueryHelpers.ParseQuery(uri.Query);
+        if (queryStrings.TryGetValue("IsFrom", out var name))
+        {
+            ISFrom = name;
+        }
+
+        if (ISFrom == "A")
+        {
+            IsAvailable = true;
+            IsTotal = false;
+            Name = "Available";
+        }
+        else if (ISFrom == "T")
+        {
+            IsTotal = true;
+            Name = "Total";
+        }
+        else if (ISFrom == "M")
+        {
+            IsMaintainance = true;
+            IsTotal = false;
+            Name = "Maintainance";
+        }
+        else if (ISFrom == "OT")
+        {
+            IsOnTrip = true;
+            IsTotal = false;
+            Name = "On Trip";
+        }
+    }
+}

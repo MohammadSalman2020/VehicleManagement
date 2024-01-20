@@ -1,0 +1,10 @@
+﻿<!-- Loader.razor -->
+<div class="loader-container" style="display: @(isLoading ? "" : "none")">
+    <div class="loader"></div>
+</div>
+
+@code {
+    [Parameter] public bool isLoading { get; set; }
+}
+
+

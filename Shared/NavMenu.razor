@@ -1,0 +1,86 @@
+﻿@using VehicleManagement.Authentication
+@inject AuthenticationStateProvider AuthStateProvider
+@inject NavigationManager Nav
+@inject IJSRuntime JSRuntime
+<AuthorizeView>
+    <Authorized>
+        <div class="topnav" id="myTopnav">
+            <a href="/">Fleetiva</a>
+            <a href="/" class="@GetActiveClass("Home")" @onclick=@(()=>OnClick("Home"))>Home</a>
+            <a href="/fleet" class="@GetActiveClass("Fleet")" @onclick=@(()=>OnClick("Fleet"))>Fleet</a>
+            <a href="/addinvoice" class="@GetActiveClass("Invoice")" @onclick=@(()=>OnClick("Invoice"))>Invoice</a>
+            <div class="dropdown">
+                <button class="dropbtn">
+                    Dropdown
+                    <i class="fa fa-caret-down"></i>
+                </button>
+                <div class="dropdown-content">
+                    <a href="#">Link 1</a>
+                    <a href="#">Link 2</a>
+                    <a href="#">Link 3</a>
+                </div>
+            </div>
+            <a href="#about" class="@GetActiveClass("About")" @onclick=@(()=>OnClick("About"))>About</a>
+            <a href="/" @onclick="Logout" style="float:right;">Logout</a>
+            <a href="javascript:void(0);" style="font-size:15px;" class="icon" onclick="myFunction()">&#9776;</a>
+        </div>
+    </Authorized>
+</AuthorizeView>
+
+
+
+@code {
+    private Dictionary<string, bool> linkStates = new Dictionary<string, bool>
+    {
+        { "Home", false },
+        { "Fleet", false },
+        { "Invoice", false },
+        { "About", false }
+    };
+    private async Task ReloadPage()
+    {
+        await JSRuntime.InvokeVoidAsync("location.reload", true);
+    }
+    private string GetActiveClass(string link)
+    {
+        return linkStates[link] ? "active" : "";
+    }
+
+    private void OnClick(string link)
+    {
+        foreach (var key in linkStates.Keys.ToList())
+        {
+            linkStates[key] = (key == link);
+        }
+        if (link == "Fleet")
+        {
+            JSRuntime.InvokeVoidAsync("location.reload", true);
+        }
+       
+    }
+
+    // private bool IsLogin { get; set; }
+    // [CascadingParameter]
+    // private Task<AuthenticationState> Authentication { get; set; }
+    // private ElementReference sidenavCollapseMain;
+
+    // private string ShowNav { get; set; } = "";
+    protected  async Task Logout()
+    {
+        var CustomAuth = (CustomAuthenticationStateProvider)AuthStateProvider;
+        await CustomAuth.UpdateAuthenticationState(null);
+       
+        Nav.NavigateTo("/", true);
+
+    }
+    // protected override async Task OnAfterRenderAsync(bool firstRender)
+    // {
+    //     if (firstRender)
+    //     {
+    //         // Use JSInterop to initialize the toggleNavigation JavaScript function
+    //         await JSRuntime.InvokeVoidAsync("initializeToggleNavigation");
+    //     }
+    // }
+
+
+}

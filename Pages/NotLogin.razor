@@ -1,0 +1,164 @@
+﻿@using Microsoft.EntityFrameworkCore
+@using VehicleManagement.Authentication
+@inject NavigationManager Nav
+@using VehicleManagement.Service
+@inject UserAccountService useraccountservice
+@inject AuthenticationStateProvider AuthStateProvider
+@inject IToastService toastService
+@using VehicleManagement.Models.DB
+@inject ApplicationDbContext DbContext
+@inject IJSRuntime JSRuntime
+
+<div class="login-screen" @onkeydown="HandleKeyPress">
+
+
+    <div class="parent clearfix">
+        <div class="bg-illustration">
+            <img src="https://i.ibb.co/Pcg0Pk1/logo.png" alt="logo">
+
+            <div class="burger-btn">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+
+        </div>
+
+        <div class="login">
+            <div class="container">
+                <h1>Login to access to<br />your account</h1>
+
+                <div class="login-form">
+                    <div class="form">
+                        <input type="text" @bind="@Username" placeholder="Username" >
+                        <input type="password" @bind="@Password" placeholder="Password">
+
+                        <div class="remember-form">
+                            <input @bind-value="@rememberMe" type="checkbox">
+                            <span>Remember me</span>
+                        </div>
+                      @*   <div class="forget-pass">
+                            <a href="#">Forgot Password ?</a>
+                        </div> *@
+
+                        <button class="btn-auth" @onclick="Authenticate" @onkeydown="HandleKeyPress">LOG-IN</button>
+
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+<Loader isLoading="@isLoading"/>
+@* <div class="container" style="background:white;">
+
+        <div class="col-xl-12 col-lg-12 col-md-7 d-flex flex-column mx-lg-0 mx-auto">
+            <div class="card card-plain">
+                <div class="card-header pb-0 text-start">
+                    <h4 class="font-weight-bolder">Sign In</h4>
+                    <p class="mb-0">Enter your email and password to sign in</p>
+                </div>
+                <div class="card-body">
+                    <form role="form">
+                        <div class="mb-3">
+                            <input type="email" class="form-control form-control-lg" @bind-value="@Username" placeholder="Email" aria-label="Email">
+                        </div>
+                        <div class="mb-3">
+                            <input type="password" class="form-control form-control-lg" @bind-value="@Password" placeholder="Password" aria-label="Password">
+                        </div>
+
+                        <div class="text-center">
+                            <button type="button" @onclick="Authenticate" class="btn btn-lg btn-primary btn-lg w-100 mt-4 mb-0">Sign in</button>
+                        </div>
+                    </form>
+                </div>
+
+            </div>
+        </div>
+
+
+</div> *@
+@code {
+    public string Username { get; set; }
+    public string Password { get; set; }
+    public bool isLoading { get; set; } = false;
+    private bool rememberMe;
+    private async void HandleKeyPress(KeyboardEventArgs e)
+    {
+        if (e.Key == "Enter")
+        {
+            // Handle the Enter key press
+            await Authenticate();
+        }
+    }
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            // Check if remembered credentials exist
+            var storedUsername = await JSRuntime.InvokeAsync<string>("localStorage.getItem", "username");
+            var storedPassword = await JSRuntime.InvokeAsync<string>("localStorage.getItem", "password");
+
+            if (!string.IsNullOrEmpty(storedUsername) && !string.IsNullOrEmpty(storedPassword))
+            {
+                Username = storedUsername;
+                Password = storedPassword;
+                StateHasChanged();
+            }
+
+        }
+    }
+
+    private async Task Authenticate()
+    {
+        try
+        {
+            isLoading = true;
+            var useraccount = await DbContext.tbluser.FirstOrDefaultAsync(p => p.username == Username && p.password == Password);
+            if (useraccount != null)
+            {
+                var userRole = await DbContext.tblRole.Where(p => p.RoleID == useraccount.RoleID).FirstOrDefaultAsync();
+
+                var CustomAuth = (CustomAuthenticationStateProvider)AuthStateProvider;
+                await CustomAuth.UpdateAuthenticationState(new UserSession
+                    {
+                        Username = Username,
+                        Role = userRole.RoleDesc,
+                    });
+                if (rememberMe)
+                {
+                    // Store user credentials securely (e.g., using JavaScript interop)
+                    await JSRuntime.InvokeVoidAsync("localStorage.setItem", "username", Username);
+                    await JSRuntime.InvokeVoidAsync("localStorage.setItem", "password", Password);
+                }
+                toastService.ShowSuccess("Login Success");
+                isLoading = false;
+                Nav.NavigateTo("/", true);
+            }
+            else
+            {
+                isLoading = false;
+                toastService.ShowError("Invalid Credentials");
+                StateHasChanged();
+
+
+            }
+        }
+        catch (Exception ex)
+        {
+            isLoading = false;
+            if (ex.Message.Contains("A second operation was started on this context"))
+            {
+                toastService.ShowInfo("Please wait we are logging you in...");
+            }
+            else
+            {
+                toastService.ShowError(ex.Message);
+            }
+            
+        }
+
+    }
+}

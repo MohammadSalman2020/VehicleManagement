@@ -1,0 +1,41 @@
+﻿@page "/"
+@inject IJSRuntime JSRuntime
+@using VehicleManagement.Models.DB
+@using VehicleManagement.Authentication
+@using VehicleManagement.Shared
+@using VehicleManagement.Service
+@inject UserAccountService useraccountservice
+@inject IJSRuntime js
+@inject AuthenticationStateProvider AuthStateProvider
+@inject NavigationManager NavManager
+
+
+
+<PageTitle>Home</PageTitle>
+
+<AuthorizeView>
+    <Authorized>
+        <Nav PageName="Home" />
+        <DataCards />
+        <DataChart />
+
+    </Authorized>
+    <Authorizing>
+        <h1>You are Authorizing</h1>
+    </Authorizing>
+    <NotAuthorized>
+        <NotLogin />
+    </NotAuthorized>
+</AuthorizeView>
+
+@code {
+ 
+
+
+    protected override async Task OnInitializedAsync()
+    {
+       
+    }
+   
+  
+}

@@ -1,0 +1,19 @@
+﻿@page "/addinvoice"
+@using VehicleManagement.Pages.Redirects
+<AuthorizeView>
+    <Authorized>
+        <Nav PageName="Add Invoice"/>
+        <InvoiceSeprator/>
+
+      @*   <InvoiceTable/> *@
+
+    </Authorized>
+    <NotAuthorized>
+       <_403/>
+    </NotAuthorized>
+</AuthorizeView>
+
+
+@code {
+
+}
