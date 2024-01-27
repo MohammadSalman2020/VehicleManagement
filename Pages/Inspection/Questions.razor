@@ -1,0 +1,684 @@
+﻿@page "/questions"
+
+@using VehicleManagement.Models.General
+@inject IToastService toastService
+@using VehicleManagement.Models.DB
+@inject ApplicationDbContext DbContext
+
+<div class="col-md-12">
+    <div class="card">
+
+        <div class="card-body">
+
+            <div class="row">
+                <div class="col-md-4">
+                    <div class="form-group">
+                        <label for="example-text-input" class="form-control-label">Add Question Here</label>
+                        <input type="text" class="form-control" @onkeydown="HandleKeyPress" @bind-value="@questiontext"></input>
+
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="form-group">
+                        <label for="example-text-input" class="form-control-label"  >Question Scope</label>
+                        <select id="myCombobox" class="form-control" name="scope" @onchange="HandleStatusChange">
+                            <option value=""></option>
+                            <option value="Driver">Driver</option>
+                            <option value="Documentation/Certificate">Documentation/Certificate</option>
+                            <option value="Tyre Condition">Tyre Condition</option>
+                            <option value="Typre Rims">Typre Rims</option>
+                            <option value="Product Tank">Product Tank</option>
+                            <option value="Fire Extinguisher">Fire Extinguisher</option>
+                            <option value="Cabin Checks">Cabin Checks</option>
+                            <option value="Cabin Accessories">Cabin Accessories</option>
+                            <option value="Brakes">Brakes</option>
+                            <option value="Lights and Horns">Lights and Horns</option>
+                            <option value="Mirrors">Mirrors</option>
+                            <option value="Engine And Chasis">Engine And Chasis</option>
+                            <option value="Exhaust">Exhaust</option>
+                            <option value="Color / Signage">Color / Signage</option>
+                        </select>
+
+                    </div>
+                </div>
+                <div class="col-md-4" style="padding-top: 40px;text-align:center;">
+                    <div class="form-group">
+                        <button class="btn btn-primary  btn-sm ms-auto" @onclick=@(()=>AddQuestion(questiontext,scope))>Submit</button>
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<div class="container-fluid py-4">
+    <div class="row">
+        <div class="col-12">
+            <div class="card mb-4">
+                <div class="card-header pb-0">
+                    <h6>Inspection Questions</h6>
+                </div>
+                <div class="card-body px-0 pt-0 pb-2">
+                    <div class="table-responsive p-0">
+                        <table class="table align-items-center mb-0">
+                            <thead>
+                                <tr>
+                                    <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">QuestionID</th>
+                                    <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Scope</th>
+                                    <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">QuestionDesc</th>
+                                    <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Edit</th>
+
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @if (questionsList.Count > 0)
+                                {
+                                    @foreach (var item in questionsList)
+                                    {
+
+
+                                        <tr class="question">
+                                            <td>
+                                                <p class="text-xs font-weight-bold mb-0">@item.QuestionID</p>
+                                            </td>
+                                            <td>
+                                                <p class="text-xs font-weight-bold mb-0">@item.scope</p>
+
+                                            </td>
+                                            <td>
+                                                <p class="text-xs font-weight-bold mb-0">@item.QuestionDescription</p>
+
+                                            </td>
+
+                                            <td class="align-middle allign-item-center">
+                                                <a @onclick=@(()=>ShowMessage("Please Edit Values")) class="text-secondary font-weight-bold text-xs cursor-pointer btnhoo">
+                                                    Edit
+                                                </a>
+                                                &nbsp;
+                                                <a @onclick=@(()=>ShowMessage("Please Edit Values")) class="text-secondary font-weight-bold text-xs cursor-pointer btnhoo">
+                                                    Delete
+                                                </a>
+                                            </td>
+                                        </tr>
+                                    }
+                                }
+
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+</div>
+
+@code {
+
+    private string? questiontext;
+    private string? scope;
+
+    public List<InvoiceList> _InvoiceList { get; set; }
+
+    public List<masterQuestions> questionsList = new List<masterQuestions>();
+    public async Task AddQuestion(string ques,string scope)
+    {
+
+        questionsList.Add(new masterQuestions { QuestionDescription = ques,scope=scope });
+        questiontext = string.Empty;
+        scope = string.Empty;
+        ShowMessage("Question Added Successfully");
+
+    }
+    private async void HandleKeyPress(KeyboardEventArgs e)
+    {
+        if (e.Key == "Enter")
+        {
+            await AddQuestion(questiontext,scope);
+        }
+    }
+    protected override async Task OnInitializedAsync()
+    {
+        LoadData();
+    }
+
+    private void HandleStatusChange(ChangeEventArgs e)
+    {
+        scope = e.Value.ToString();
+       
+    }
+
+    public async Task ShowMessage(string s)
+    {
+        toastService.ShowSuccess(s);
+    }
+    public async Task LoadData()
+    {
+        _InvoiceList = new List<InvoiceList>();
+        var rec = (from a in DbContext.tblInvoice
+                   select new
+                   {
+                       a.InvoiceNo,
+                       a.FillingDate,
+                       a.DecentingPoint,
+                       a.VehicleNumber
+                   }).ToList();
+        if (rec.Count > 0)
+        {
+
+            foreach (var item in rec)
+            {
+
+                _InvoiceList.Add(new InvoiceList
+                    {
+                        DecentingPoint = item.DecentingPoint,
+                        FillingDate = item.FillingDate,
+                        InvoiceNo = item.InvoiceNo,
+                        VehicleNumber = item.VehicleNumber
+                    });
+            }
+        }
+    }
+    // public async Task GetExcelFormat()
+    // {
+    //     try
+    //     {
+    //         StockTransfer stock = new StockTransfer();
+
+    //         if (clipboardText != null || clipboardText != "")
+    //         {
+
+
+    //             string[] dataLines = clipboardText.Split(new[] { '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries);
+    //             DispatchSummary summary = new DispatchSummary();
+    //             ReceivingDispatchSummary R_Summary = new ReceivingDispatchSummary();
+
+    //             if (dataLines[0].Contains("Hi-Tech Lubricants Limited"))
+    //             {
+    //                 for (int i = 0; i < dataLines.Length; i++)
+
+    //                 {
+
+    //                     // Split each line into field and value
+    //                     string[] parts = dataLines[i].Split(new[] { '\t' }, StringSplitOptions.RemoveEmptyEntries);
+    //                     if (parts.Length != 0)
+    //                     {
+    //                         #region General Details
+
+    //                         if (i == 4)
+    //                         {
+    //                             stock.STONumber = parts[1];
+    //                             stock.FillingDate = Convert.ToDateTime(parts[3]);
+    //                         }
+    //                         else if (i == 5)
+    //                         {
+    //                             stock.ShippingLocation = parts[1];
+    //                             stock.ReceivingLocation = parts[3];
+    //                         }
+    //                         else if (i == 6)
+    //                         {
+    //                             stock.VehicleNumber = parts[1];
+    //                             stock.CarriageContractor = parts[3];
+    //                         }
+    //                         else if (i == 7)
+    //                         {
+    //                             stock.DispatchDateTime = parts[1];
+    //                             stock.TotalCapacity = parts[3];
+    //                         }
+    //                         else if (i == 8)
+    //                         {
+
+    //                             if (parts[0] == "Product Name")
+    //                             {
+    //                                 stock.ProductName = parts[1];
+    //                                 stock.DriverNameContact = parts[3];
+    //                             }
+
+
+    //                         }
+
+    //                         #endregion
+
+    //                         #region Disptach Details
+    //                         else if (i == 12)
+    //                         {
+    //                             string[] rowData = dataLines[i].Split('\t');
+
+    //                             for (int col = 1; col < rowData.Length && col <= 13; col += 3)
+    //                             {
+    //                                 int chamberIndex = (col - 1) / 3;
+
+    //                                 switch (chamberIndex)
+    //                                 {
+    //                                     case 0:
+    //                                         stock.Chamber1.ProductVolume = string.IsNullOrEmpty(rowData[col]) ? "0" : rowData[col];
+    //                                         break;
+
+    //                                     case 1:
+    //                                         stock.Chamber2.ProductVolume = string.IsNullOrEmpty(rowData[col]) ? "0" : rowData[col];
+    //                                         break;
+
+    //                                     case 2:
+    //                                         stock.Chamber3.ProductVolume = string.IsNullOrEmpty(rowData[col]) ? "0" : rowData[col];
+    //                                         break;
+
+    //                                     case 3:
+    //                                         stock.Chamber4.ProductVolume = string.IsNullOrEmpty(rowData[col]) ? "0" : rowData[col];
+    //                                         break;
+
+    //                                     case 4:
+    //                                         stock.Chamber5.ProductVolume = string.IsNullOrEmpty(rowData[col]) ? "0" : rowData[col];
+    //                                         break;
+    //                                 }
+    //                             }
+
+
+
+
+
+    //                         }
+    //                         else if (i == 13)
+    //                         {
+    //                             string[] rowData = dataLines[i].Split('\t');
+
+    //                             for (int col = 1; col < rowData.Length && col <= 13; col += 3)
+    //                             {
+    //                                 int chamberIndex = (col - 1) / 3;
+
+    //                                 switch (chamberIndex)
+    //                                 {
+    //                                     case 0:
+    //                                         stock.Chamber1.ProductDip = string.IsNullOrEmpty(rowData[col]) ? "0" : rowData[col];
+    //                                         break;
+
+    //                                     case 1:
+    //                                         stock.Chamber2.ProductDip = string.IsNullOrEmpty(rowData[col]) ? "0" : rowData[col];
+    //                                         break;
+
+    //                                     case 2:
+    //                                         stock.Chamber3.ProductDip = string.IsNullOrEmpty(rowData[col]) ? "0" : rowData[col];
+    //                                         break;
+
+    //                                     case 3:
+    //                                         stock.Chamber4.ProductDip = string.IsNullOrEmpty(rowData[col]) ? "0" : rowData[col];
+    //                                         break;
+
+    //                                     case 4:
+    //                                         stock.Chamber5.ProductDip = string.IsNullOrEmpty(rowData[col]) ? "0" : rowData[col];
+    //                                         break;
+    //                                 }
+    //                             }
+
+
+
+    //                         }
+
+    //                         else if (i == 14)
+    //                         {
+
+    //                             string[] rowData = dataLines[i].Split('\t');
+
+    //                             for (int col = 1; col < rowData.Length && col <= 13; col += 3)
+    //                             {
+    //                                 int chamberIndex = (col - 1) / 3;
+
+    //                                 switch (chamberIndex)
+    //                                 {
+    //                                     case 0:
+    //                                         stock.Chamber1.RefDip = string.IsNullOrEmpty(rowData[col]) ? "0" : rowData[col];
+    //                                         break;
+
+    //                                     case 1:
+    //                                         stock.Chamber2.RefDip = string.IsNullOrEmpty(rowData[col]) ? "0" : rowData[col];
+    //                                         break;
+
+    //                                     case 2:
+    //                                         stock.Chamber3.RefDip = string.IsNullOrEmpty(rowData[col]) ? "0" : rowData[col];
+    //                                         break;
+
+    //                                     case 3:
+    //                                         stock.Chamber4.RefDip = string.IsNullOrEmpty(rowData[col]) ? "0" : rowData[col];
+    //                                         break;
+
+    //                                     case 4:
+    //                                         stock.Chamber5.RefDip = string.IsNullOrEmpty(rowData[col]) ? "0" : rowData[col];
+    //                                         break;
+    //                                 }
+    //                             }
+
+
+
+    //                         }
+    //                         else if (i == 16)
+    //                         {
+    //                             stock.SealNo = parts[1];
+    //                             stock.TotalSeals = parts[3];
+
+    //                         }
+
+    //                         #endregion
+
+    //                         #region Dispatch Summary
+
+    //                         else if (i == 20)
+    //                         {
+
+    //                             summary.Product = parts[0];
+    //                             summary.QuantityNat = parts[1];
+    //                             summary.QuantityL85 = parts[2];
+    //                             summary.Temp = parts[3];
+    //                             summary.SG = parts[4];
+
+
+
+    //                         }
+
+    //                         #endregion
+
+    //                         #region Receiving Details
+    //                         else if (i == 24)
+    //                         {
+    //                             string[] rowData = dataLines[i].Split('\t');
+
+    //                             for (int col = 1; col < rowData.Length && col <= 13; col += 3)
+    //                             {
+    //                                 int chamberIndex = (col - 1) / 3;
+
+    //                                 switch (chamberIndex)
+    //                                 {
+    //                                     case 0:
+    //                                         stock.R_Chamber1.ProductVolume = string.IsNullOrEmpty(rowData[col]) ? "0" : rowData[col];
+    //                                         break;
+
+    //                                     case 1:
+    //                                         stock.R_Chamber2.ProductVolume = string.IsNullOrEmpty(rowData[col]) ? "0" : rowData[col];
+    //                                         break;
+
+    //                                     case 2:
+    //                                         stock.R_Chamber3.ProductVolume = string.IsNullOrEmpty(rowData[col]) ? "0" : rowData[col];
+    //                                         break;
+
+    //                                     case 3:
+    //                                         stock.R_Chamber4.ProductVolume = string.IsNullOrEmpty(rowData[col]) ? "0" : rowData[col];
+    //                                         break;
+
+    //                                     case 4:
+    //                                         stock.R_Chamber5.ProductVolume = string.IsNullOrEmpty(rowData[col]) ? "0" : rowData[col];
+    //                                         break;
+    //                                 }
+    //                             }
+
+    //                         }
+
+    //                         else if (i == 25)
+    //                         {
+    //                             string[] rowData = dataLines[i].Split('\t');
+
+    //                             for (int col = 1; col < rowData.Length && col <= 13; col += 3)
+    //                             {
+    //                                 int chamberIndex = (col - 1) / 3;
+
+    //                                 switch (chamberIndex)
+    //                                 {
+    //                                     case 0:
+    //                                         stock.R_Chamber1.ProductDip = string.IsNullOrEmpty(rowData[col]) ? "0" : rowData[col];
+    //                                         break;
+
+    //                                     case 1:
+    //                                         stock.R_Chamber2.ProductDip = string.IsNullOrEmpty(rowData[col]) ? "0" : rowData[col];
+    //                                         break;
+
+    //                                     case 2:
+    //                                         stock.R_Chamber3.ProductDip = string.IsNullOrEmpty(rowData[col]) ? "0" : rowData[col];
+    //                                         break;
+
+    //                                     case 3:
+    //                                         stock.R_Chamber4.ProductDip = string.IsNullOrEmpty(rowData[col]) ? "0" : rowData[col];
+    //                                         break;
+
+    //                                     case 4:
+    //                                         stock.R_Chamber5.ProductDip = string.IsNullOrEmpty(rowData[col]) ? "0" : rowData[col];
+    //                                         break;
+    //                                 }
+    //                             }
+
+    //                         }
+
+    //                         else if (i == 26)
+    //                         {
+    //                             string[] rowData = dataLines[i].Split('\t');
+
+    //                             for (int col = 1; col < rowData.Length && col <= 13; col += 3)
+    //                             {
+    //                                 int chamberIndex = (col - 1) / 3;
+
+    //                                 switch (chamberIndex)
+    //                                 {
+    //                                     case 0:
+    //                                         stock.R_Chamber1.Product_Diff_MM = string.IsNullOrEmpty(rowData[col]) ? "0" : rowData[col];
+    //                                         break;
+
+    //                                     case 1:
+    //                                         stock.R_Chamber2.Product_Diff_MM = string.IsNullOrEmpty(rowData[col]) ? "0" : rowData[col];
+    //                                         break;
+
+    //                                     case 2:
+    //                                         stock.R_Chamber3.Product_Diff_MM = string.IsNullOrEmpty(rowData[col]) ? "0" : rowData[col];
+    //                                         break;
+
+    //                                     case 3:
+    //                                         stock.R_Chamber4.Product_Diff_MM = string.IsNullOrEmpty(rowData[col]) ? "0" : rowData[col];
+    //                                         break;
+
+    //                                     case 4:
+    //                                         stock.R_Chamber5.Product_Diff_MM = string.IsNullOrEmpty(rowData[col]) ? "0" : rowData[col];
+    //                                         break;
+    //                                 }
+    //                             }
+
+    //                         }
+    //                         else if (i == 27)
+    //                         {
+    //                             string[] rowData = dataLines[i].Split('\t');
+
+    //                             for (int col = 1; col < rowData.Length && col <= 13; col += 3)
+    //                             {
+    //                                 int chamberIndex = (col - 1) / 3;
+
+    //                                 switch (chamberIndex)
+    //                                 {
+    //                                     case 0:
+    //                                         stock.R_Chamber1.Product_Diff_LTR = string.IsNullOrEmpty(rowData[col]) ? "0" : rowData[col];
+    //                                         break;
+
+    //                                     case 1:
+    //                                         stock.R_Chamber2.Product_Diff_LTR = string.IsNullOrEmpty(rowData[col]) ? "0" : rowData[col];
+    //                                         break;
+
+    //                                     case 2:
+    //                                         stock.R_Chamber3.Product_Diff_LTR = string.IsNullOrEmpty(rowData[col]) ? "0" : rowData[col];
+    //                                         break;
+
+    //                                     case 3:
+    //                                         stock.R_Chamber4.Product_Diff_LTR = string.IsNullOrEmpty(rowData[col]) ? "0" : rowData[col];
+    //                                         break;
+
+    //                                     case 4:
+    //                                         stock.R_Chamber5.Product_Diff_LTR = string.IsNullOrEmpty(rowData[col]) ? "0" : rowData[col];
+    //                                         break;
+    //                                 }
+    //                             }
+
+    //                         }
+    //                         #endregion
+
+    //                         #region Receiving Summary
+
+    //                         else if (i == 31)
+    //                         {
+    //                             string[] rowData = dataLines[i].Split('\t');
+
+    //                             for (int col = 1; col < rowData.Length && col <= 13; col += 3)
+    //                             {
+    //                                 int chamberIndex = (col - 1) / 3;
+    //                                 R_Summary.Product = rowData[0];
+    //                                 switch (chamberIndex)
+    //                                 {
+    //                                     case 1:
+    //                                         R_Summary.QuantityNat = string.IsNullOrEmpty(rowData[col]) ? "0" : rowData[col];
+    //                                         break;
+
+    //                                     case 2:
+    //                                         R_Summary.QuantityL85 = string.IsNullOrEmpty(rowData[col]) ? "0" : rowData[col];
+    //                                         break;
+
+    //                                     case 3:
+    //                                         R_Summary.Temp = string.IsNullOrEmpty(rowData[col]) ? "0" : rowData[col];
+    //                                         break;
+
+    //                                     case 4:
+    //                                         R_Summary.SG = string.IsNullOrEmpty(rowData[col]) ? "0" : rowData[col];
+    //                                         break;
+    //                                 }
+    //                             }
+
+
+    //                         }
+    //                         #endregion
+
+    //                         #region Shortage Calculation
+    //                         else if (i == 35)
+    //                         {
+    //                             string[] rowData = dataLines[i].Split('\t');
+
+    //                             for (int col = 1; col < rowData.Length && col <= 7; col += 3)
+    //                             {
+    //                                 int chamberIndex = (col - 1) / 3;
+    //                                 R_Summary.Product = rowData[0];
+    //                                 switch (chamberIndex)
+    //                                 {
+    //                                     case 1:
+    //                                         stock.DisQty.Natural = string.IsNullOrEmpty(rowData[col]) ? "0" : rowData[col];
+    //                                         break;
+
+    //                                     case 2:
+    //                                         stock.DisQty.F85 = string.IsNullOrEmpty(rowData[col]) ? "0" : rowData[col];
+    //                                         break;
+
+
+    //                                 }
+    //                             }
+
+
+    //                         }
+    //                         else if (i == 36)
+    //                         {
+    //                             string[] rowData = dataLines[i].Split('\t');
+
+    //                             for (int col = 1; col < rowData.Length && col <= 7; col += 3)
+    //                             {
+    //                                 int chamberIndex = (col - 1) / 3;
+    //                                 R_Summary.Product = rowData[0];
+    //                                 switch (chamberIndex)
+    //                                 {
+    //                                     case 1:
+    //                                         stock.R_Qty.Natural = string.IsNullOrEmpty(rowData[col]) ? "0" : rowData[col];
+    //                                         break;
+
+    //                                     case 2:
+    //                                         stock.R_Qty.F85 = string.IsNullOrEmpty(rowData[col]) ? "0" : rowData[col];
+    //                                         break;
+
+
+    //                                 }
+    //                             }
+
+
+    //                         }
+    //                         else if (i == 37)
+    //                         {
+    //                             string[] rowData = dataLines[i].Split('\t');
+
+    //                             for (int col = 1; col < rowData.Length && col <= 7; col += 3)
+    //                             {
+    //                                 int chamberIndex = (col - 1) / 3;
+    //                                 R_Summary.Product = rowData[0];
+    //                                 switch (chamberIndex)
+    //                                 {
+    //                                     case 1:
+    //                                         stock.ShortageLtrs.Natural = string.IsNullOrEmpty(rowData[col]) ? "0" : rowData[col];
+    //                                         break;
+
+    //                                     case 2:
+    //                                         stock.ShortageLtrs.F85 = string.IsNullOrEmpty(rowData[col]) ? "0" : rowData[col];
+    //                                         break;
+
+
+    //                                 }
+    //                             }
+
+
+    //                         }
+    //                         else if (i == 38 && parts.Length > 1)
+    //                         {
+    //                             stock.ShortageMM = parts[1];
+    //                         }
+    //                         else if (i == 39 && parts.Length > 1)
+    //                         {
+    //                             stock.ShortageExempt = parts[1];
+    //                         }
+    //                         else if (i == 40 && parts.Length > 1)
+    //                         {
+    //                             stock.ShortageCharge = parts[1];
+    //                         }
+    //                         else if (i == 41 && parts.Length > 1)
+    //                         {
+    //                             stock.OtherShortage = parts[1];
+    //                         }
+    //                         else if (i == 42 && parts.Length > 1)
+    //                         {
+    //                             stock.TotalShortage = parts[1];
+    //                         }
+    //                         else if (i == 54)
+    //                         {
+    //                             stock.ShippingAddress = parts[0];
+    //                         }
+    //                         #endregion
+
+
+
+    //                     }
+
+    //                 }
+    //                 tblInvoice obj = new tblInvoice();
+    //                 obj.DecentingPoint = stock.ReceivingLocation;
+    //                 obj.InvoiceNo = stock.STONumber;
+    //                 obj.VehicleNumber = stock.VehicleNumber;
+    //                 obj.FillingDate = stock.FillingDate.ToShortDateString();
+
+    //                 DbContext.tblInvoice.Add(obj);
+
+    //                 await DbContext.SaveChangesAsync();
+    //                 toastService.ShowSuccess("Invoice Added Success");
+    //                 await LoadData();
+    //                 clipboardText = string.Empty;
+    //             }
+    //             else
+    //             {
+    //                 toastService.ShowError("Please copy the correct format");
+
+    //             }
+    //         }
+    //     }
+    //     catch (Exception ex)
+    //     {
+    //         toastService.ShowError("Internal Error While Mapping");
+    //     }
+
+    // }
+
+}
+
