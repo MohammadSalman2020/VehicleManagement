@@ -1,0 +1,568 @@
+﻿@page "/invoicedisplay"
+@inject NavigationManager NavigationManager
+@using VehicleManagement.Pages.Redirects
+
+<AuthorizeView>
+    <Authorized>
+        <Nav PageName="Invoice Display" />
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col-lg-6">
+                    <div class="card">
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-12" style="text-align:center;">
+                                    <label for="example-text-input" class="form-control-label" style="font-weight:bolder;font-size:larger;">
+                                        General Details
+                                    </label>
+                                </div>
+                                <div class="col-md-6">
+
+                                    <label for="example-text-input" class="form-control-label">
+                                        STO No :
+                                    </label>
+                                    <label for="example-text-input" class="form-control-label" style="color:#3f55d1">Driver ID</label>
+
+                                </div>
+                                <div class="col-md-6">
+
+                                    <label for="example-text-input" class="form-control-label">
+                                        Filling Date :
+                                    </label>
+                                    <label for="example-text-input" class="form-control-label" style="color:#3f55d1">Driver ID</label>
+
+                                </div>
+                                <div class="col-md-6">
+
+                                    <label for="example-text-input" class="form-control-label">
+                                        Shipping Location :
+                                    </label>
+                                    <label for="example-text-input" class="form-control-label" style="color:#3f55d1">Driver ID</label>
+
+                                </div>
+                                <div class="col-md-6">
+
+                                    <label for="example-text-input" class="form-control-label">
+                                        Receiving Location :
+                                    </label>
+                                    <label for="example-text-input" class="form-control-label" style="color:#3f55d1">Driver ID</label>
+
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="example-text-input" class="form-control-label">
+                                        Vehicle No :
+                                    </label>
+                                    <label for="example-text-input" class="form-control-label" style="color:#3f55d1">Driver ID</label>
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="example-text-input" class="form-control-label">
+                                        Total Capacity :
+                                    </label>
+                                    <label for="example-text-input" class="form-control-label" style="color:#3f55d1">Driver ID</label>
+                                </div>
+
+
+
+
+
+
+                                <div class="col-md-12" style="text-align:center;padding-top:10px;">
+                                    <label for="example-text-input" class="form-control-label" style="font-weight:bolder;font-size:larger;">
+                                        Disptach Details
+                                    </label>
+                                </div>
+
+
+                                <div class="col-md-6 form-control" style="margin-top: 7px;">
+                                    <div class="row">
+
+
+                                        <div class="col-md-12">
+                                            <label for="example-text-input" class="form-control-label" style="font-weight:bolder;font-size:medium;color:#3f55d1;">
+                                                Chamber 1
+                                            </label>
+                                        </div>
+                                        <div class="col-md-6">
+
+                                            <label for="example-text-input" class="form-control-label">
+                                                Product Vol (Ltrs.):
+
+                                            </label>
+                                            <label for="example-text-input" class="form-control-label" style="color:#3f55d1">Driver ID</label>
+
+
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label for="example-text-input" class="form-control-label">
+                                                Product Dip (MM) :
+                                            </label>
+                                            <label for="example-text-input" class="form-control-label" style="color:#3f55d1">Driver ID</label>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label for="example-text-input" class="form-control-label">
+                                                Ref Dip (MM) :
+                                            </label>
+                                            <label for="example-text-input" class="form-control-label" style="color:#3f55d1">Driver ID</label>
+                                        </div>
+                                    </div>
+                                </div>
+
+
+
+
+                                <div class="col-md-12 form-control" style="margin-top: 7px;">
+                                    <div class="row">
+
+
+                                        <div class="col-md-12">
+                                            <label for="example-text-input" class="form-control-label" style="font-weight:bolder;font-size:medium;color:#3f55d1;">
+                                                Chamber 2
+                                            </label>
+                                        </div>
+                                        <div class="col-md-6">
+
+                                            <label for="example-text-input" class="form-control-label">
+                                                Product Vol (Ltrs.):
+
+                                            </label>
+                                            <label for="example-text-input" class="form-control-label" style="color:#3f55d1">Driver ID</label>
+
+
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label for="example-text-input" class="form-control-label">
+                                                Product Dip (MM) :
+                                            </label>
+                                            <label for="example-text-input" class="form-control-label" style="color:#3f55d1">Driver ID</label>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label for="example-text-input" class="form-control-label">
+                                                Ref Dip (MM) :
+                                            </label>
+                                            <label for="example-text-input" class="form-control-label" style="color:#3f55d1">Driver ID</label>
+                                        </div>
+                                    </div>
+                                </div>
+
+
+
+
+                                <div class="col-md-12 form-control" style="margin-top: 7px;">
+                                    <div class="row">
+
+
+                                        <div class="col-md-12">
+                                            <label for="example-text-input" class="form-control-label" style="font-weight:bolder;font-size:medium;color:#3f55d1;">
+                                                Chamber 3
+                                            </label>
+                                        </div>
+                                        <div class="col-md-6">
+
+                                            <label for="example-text-input" class="form-control-label">
+                                                Product Vol (Ltrs.):
+
+                                            </label>
+                                            <label for="example-text-input" class="form-control-label" style="color:#3f55d1">Driver ID</label>
+
+
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label for="example-text-input" class="form-control-label">
+                                                Product Dip (MM) :
+                                            </label>
+                                            <label for="example-text-input" class="form-control-label" style="color:#3f55d1">Driver ID</label>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label for="example-text-input" class="form-control-label">
+                                                Ref Dip (MM) :
+                                            </label>
+                                            <label for="example-text-input" class="form-control-label" style="color:#3f55d1">Driver ID</label>
+                                        </div>
+                                    </div>
+                                </div>
+
+
+
+                                <div class="col-md-12 form-control" style="margin-top: 7px;">
+                                    <div class="row">
+
+
+                                        <div class="col-md-12">
+                                            <label for="example-text-input" class="form-control-label" style="font-weight:bolder;font-size:medium;color:#3f55d1;">
+                                                Chamber 4
+                                            </label>
+                                        </div>
+                                        <div class="col-md-6">
+
+                                            <label for="example-text-input" class="form-control-label">
+                                                Product Vol (Ltrs.):
+
+                                            </label>
+                                            <label for="example-text-input" class="form-control-label" style="color:#3f55d1">Driver ID</label>
+
+
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label for="example-text-input" class="form-control-label">
+                                                Product Dip (MM) :
+                                            </label>
+                                            <label for="example-text-input" class="form-control-label" style="color:#3f55d1">Driver ID</label>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label for="example-text-input" class="form-control-label">
+                                                Ref Dip (MM) :
+                                            </label>
+                                            <label for="example-text-input" class="form-control-label" style="color:#3f55d1">Driver ID</label>
+                                        </div>
+                                    </div>
+                                </div>
+
+
+
+
+                                <div class="col-md-12 form-control" style="margin-top: 7px;">
+                                    <div class="row">
+
+
+                                        <div class="col-md-12">
+                                            <label for="example-text-input" class="form-control-label" style="font-weight:bolder;font-size:medium;color:#3f55d1;">
+                                                Chamber 5
+                                            </label>
+                                        </div>
+                                        <div class="col-md-6">
+
+                                            <label for="example-text-input" class="form-control-label">
+                                                Product Vol (Ltrs.):
+
+                                            </label>
+                                            <label for="example-text-input" class="form-control-label" style="color:#3f55d1">Driver ID</label>
+
+
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label for="example-text-input" class="form-control-label">
+                                                Product Dip (MM) :
+                                            </label>
+                                            <label for="example-text-input" class="form-control-label" style="color:#3f55d1">Driver ID</label>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label for="example-text-input" class="form-control-label">
+                                                Ref Dip (MM) :
+                                            </label>
+                                            <label for="example-text-input" class="form-control-label" style="color:#3f55d1">Driver ID</label>
+                                        </div>
+                                    </div>
+                                </div>
+
+
+
+                                <div class="col-md-12" style="text-align:center;padding-top:10px;">
+                                    <label for="example-text-input" class="form-control-label" style="font-weight:bolder;font-size:larger;">
+                                        Receiving Details
+                                    </label>
+                                </div>
+
+
+                                <div class="col-md-6 form-control" style="margin-top: 7px;">
+                                    <div class="row">
+
+
+                                        <div class="col-md-12">
+                                            <label for="example-text-input" class="form-control-label" style="font-weight:bolder;font-size:medium;color:#3f55d1;">
+                                                Chamber 1
+                                            </label>
+                                        </div>
+                                        <div class="col-md-6">
+
+                                            <label for="example-text-input" class="form-control-label">
+                                                Product Vol (Ltrs.):
+
+                                            </label>
+                                            <label for="example-text-input" class="form-control-label" style="color:#3f55d1">Driver ID</label>
+
+
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label for="example-text-input" class="form-control-label">
+                                                Product Dip (MM) :
+                                            </label>
+                                            <label for="example-text-input" class="form-control-label" style="color:#3f55d1">Driver ID</label>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label for="example-text-input" class="form-control-label">
+                                                Prod. Difference (MM) :
+                                            </label>
+                                            <label for="example-text-input" class="form-control-label" style="color:#3f55d1">Driver ID</label>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label for="example-text-input" class="form-control-label">
+                                                Prod. Difference (Ltrs.) :
+                                            </label>
+                                            <label for="example-text-input" class="form-control-label" style="color:#3f55d1">Driver ID</label>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="col-md-6 form-control" style="margin-top: 7px;">
+                                    <div class="row">
+
+
+                                        <div class="col-md-12">
+                                            <label for="example-text-input" class="form-control-label" style="font-weight:bolder;font-size:medium;color:#3f55d1;">
+                                                Chamber 2
+                                            </label>
+                                        </div>
+                                        <div class="col-md-6">
+
+                                            <label for="example-text-input" class="form-control-label">
+                                                Product Vol (Ltrs.):
+
+                                            </label>
+                                            <label for="example-text-input" class="form-control-label" style="color:#3f55d1">Driver ID</label>
+
+
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label for="example-text-input" class="form-control-label">
+                                                Product Dip (MM) :
+                                            </label>
+                                            <label for="example-text-input" class="form-control-label" style="color:#3f55d1">Driver ID</label>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label for="example-text-input" class="form-control-label">
+                                                Prod. Difference (MM) :
+                                            </label>
+                                            <label for="example-text-input" class="form-control-label" style="color:#3f55d1">Driver ID</label>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label for="example-text-input" class="form-control-label">
+                                                Prod. Difference (Ltrs.) :
+                                            </label>
+                                            <label for="example-text-input" class="form-control-label" style="color:#3f55d1">Driver ID</label>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="col-md-6 form-control" style="margin-top: 7px;">
+                                    <div class="row">
+
+
+                                        <div class="col-md-12">
+                                            <label for="example-text-input" class="form-control-label" style="font-weight:bolder;font-size:medium;color:#3f55d1;">
+                                                Chamber 3
+                                            </label>
+                                        </div>
+                                        <div class="col-md-6">
+
+                                            <label for="example-text-input" class="form-control-label">
+                                                Product Vol (Ltrs.):
+
+                                            </label>
+                                            <label for="example-text-input" class="form-control-label" style="color:#3f55d1">Driver ID</label>
+
+
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label for="example-text-input" class="form-control-label">
+                                                Product Dip (MM) :
+                                            </label>
+                                            <label for="example-text-input" class="form-control-label" style="color:#3f55d1">Driver ID</label>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label for="example-text-input" class="form-control-label">
+                                                Prod. Difference (MM) :
+                                            </label>
+                                            <label for="example-text-input" class="form-control-label" style="color:#3f55d1">Driver ID</label>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label for="example-text-input" class="form-control-label">
+                                                Prod. Difference (Ltrs.) :
+                                            </label>
+                                            <label for="example-text-input" class="form-control-label" style="color:#3f55d1">Driver ID</label>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="col-md-6 form-control" style="margin-top: 7px;">
+                                    <div class="row">
+
+
+                                        <div class="col-md-12">
+                                            <label for="example-text-input" class="form-control-label" style="font-weight:bolder;font-size:medium;color:#3f55d1;">
+                                                Chamber 4
+                                            </label>
+                                        </div>
+                                        <div class="col-md-6">
+
+                                            <label for="example-text-input" class="form-control-label">
+                                                Product Vol (Ltrs.):
+
+                                            </label>
+                                            <label for="example-text-input" class="form-control-label" style="color:#3f55d1">Driver ID</label>
+
+
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label for="example-text-input" class="form-control-label">
+                                                Product Dip (MM) :
+                                            </label>
+                                            <label for="example-text-input" class="form-control-label" style="color:#3f55d1">Driver ID</label>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label for="example-text-input" class="form-control-label">
+                                                Prod. Difference (MM) :
+                                            </label>
+                                            <label for="example-text-input" class="form-control-label" style="color:#3f55d1">Driver ID</label>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label for="example-text-input" class="form-control-label">
+                                                Prod. Difference (Ltrs.) :
+                                            </label>
+                                            <label for="example-text-input" class="form-control-label" style="color:#3f55d1">Driver ID</label>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="col-md-6 form-control" style="margin-top: 7px;">
+                                    <div class="row">
+
+
+                                        <div class="col-md-12">
+                                            <label for="example-text-input" class="form-control-label" style="font-weight:bolder;font-size:medium;color:#3f55d1;">
+                                                Chamber 5
+                                            </label>
+                                        </div>
+                                        <div class="col-md-6">
+
+                                            <label for="example-text-input" class="form-control-label">
+                                                Product Vol (Ltrs.) :
+
+                                            </label>
+                                            <label for="example-text-input" class="form-control-label" style="color:#3f55d1">Driver ID</label>
+
+
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label for="example-text-input" class="form-control-label">
+                                                Product Dip (MM) :
+                                            </label>
+                                            <label for="example-text-input" class="form-control-label" style="color:#3f55d1">Driver ID</label>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label for="example-text-input" class="form-control-label">
+                                                Prod. Difference (MM) :
+                                            </label>
+                                            <label for="example-text-input" class="form-control-label" style="color:#3f55d1">Driver ID</label>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label for="example-text-input" class="form-control-label">
+                                                Prod. Difference (Ltrs.) :
+                                            </label>
+                                            <label for="example-text-input" class="form-control-label" style="color:#3f55d1">Driver ID</label>
+                                        </div>
+                                    </div>
+                                </div>
+
+
+                                <div class="col-md-12" style="text-align:center;padding-top:10px;">
+                                    <label for="example-text-input" class="form-control-label" style="font-weight:bolder;font-size:larger;">
+                                        Shortage Calculation
+                                    </label>
+                                </div>
+
+
+                                <div class="col-md-6 form-control" style="margin-top: 7px;">
+                                    <div class="row">
+
+
+                                        <div class="col-md-6">
+
+                                            <label for="example-text-input" class="form-control-label">
+                                                Shortage in Ltrs :
+
+                                            </label>
+                                            <label for="example-text-input" class="form-control-label" style="color:#3f55d1">Driver ID</label>
+
+
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label for="example-text-input" class="form-control-label">
+                                                Shortage in MM :
+                                            </label>
+                                            <label for="example-text-input" class="form-control-label" style="color:#3f55d1">Driver ID</label>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label for="example-text-input" class="form-control-label">
+                                                Shortage Excempted onTemp °F :
+                                            </label>
+                                            <label for="example-text-input" class="form-control-label" style="color:#3f55d1">Driver ID</label>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label for="example-text-input" class="form-control-label">
+                                                Shortage Charge to Carriage :
+                                            </label>
+                                            <label for="example-text-input" class="form-control-label" style="color:#3f55d1">Driver ID</label>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label for="example-text-input" class="form-control-label">
+                                                Other Shortage :
+                                            </label>
+                                            <label for="example-text-input" class="form-control-label" style="color:#3f55d1">Driver ID</label>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label for="example-text-input" class="form-control-label">
+                                                Total Shortage :
+                                            </label>
+                                            <label for="example-text-input" class="form-control-label" style="color:#3f55d1">Driver ID</label>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="col-md-12" style="margin-top: 7px;">
+                                    <div class="row">
+
+
+                                        <div class="col-md-12">
+                                            <div class="form-group" style="text-align:center;">
+                                                <button class="btn btn-warning btn-sm ms-auto" @onclick="EditButton">Edit</button>
+                                                <button class="btn btn-primary btn-sm ms-auto">Submit</button>
+                                            </div>
+
+
+                                        </div>
+
+                                    </div>
+                                </div>
+
+
+
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-6">
+
+                    <div class="table-responsive inv-img">
+                        <img src="css/invoice.png" style="width:480px;" />
+                    </div>
+
+                </div>
+            </div>
+        </div>
+
+
+    </Authorized>
+    <NotAuthorized>
+        <_403 />
+    </NotAuthorized>
+</AuthorizeView>
+
+
+@code {
+    private async Task EditButton()
+    {
+
+        NavigationManager.NavigateTo("/invoicepanel");
+
+    }
+    }
