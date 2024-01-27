@@ -308,7 +308,7 @@ img {
         }
 
         .login .container .login-form {
-           /* margin-top: 112px;*/
+            /* margin-top: 112px;*/
         }
 
             .login .container .login-form .form {
@@ -525,7 +525,7 @@ img {
             }
 
             .login .container .login-form {
-              /*  margin-top: 90px;*/
+                /*  margin-top: 90px;*/
             }
 
                 .login .container .login-form .form input {
@@ -585,7 +585,9 @@ img {
                 opacity: 1;
             }
 }
+
 @import url(https://fonts.googleapis.com/css?family=Raleway:700);
+
 .error {
     box-sizing: border-box;
     height: 100%;
@@ -594,15 +596,16 @@ img {
     height: 100%;
     padding: 10px;
     a
+
 {
     color: #212529 !important;
     text-decoration: none;
 }
 
-    a:hover {
-        color: #FFFFFF !important;
-        text-decoration: none;
-    }
+a:hover {
+    color: #FFFFFF !important;
+    text-decoration: none;
+}
 
 .text-wrapper {
     height: 100%;
@@ -644,13 +647,23 @@ img {
     transition: all 0.2s ease-in-out;
     display: inline-block;
     .buttons:hover
+
 {
     background-color: #EE4B5E;
     color: white;
     transition: all 0.2s ease-in-out;
 }
 
+}
+}
 
-    
+.question {
+    .allign-item-center
+
+{
+    text-align: center !important;
+}
+.btnhoo:hover{
+    color:blue !important;
 }
 }
