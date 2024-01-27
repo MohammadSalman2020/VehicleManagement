@@ -2,7 +2,7 @@
 @inject IToastService toastService
 @using VehicleManagement.Models.DB
 @inject ApplicationDbContext DbContext
-
+@inject NavigationManager NavigationManager
 <div class="col-md-12">
     <div class="card">
 
@@ -110,7 +110,8 @@
     }
     public async Task ShowMessage()
     {
-        toastService.ShowInfo("In-Progress");
+        NavigationManager.NavigateTo("/invoicedisplay");
+        // toastService.ShowInfo("In-Progress");
     }
     public async Task LoadData()
     {

@@ -5,10 +5,31 @@
 <AuthorizeView>
     <Authorized>
         <div class="topnav" id="myTopnav">
-            <a href="/">Fleetiva</a>
+            <a href="/">SACL</a>
             <a href="/" class="@GetActiveClass("Home")" @onclick=@(()=>OnClick("Home"))>Home</a>
-            <a href="/fleet" class="@GetActiveClass("Fleet")" @onclick=@(()=>OnClick("Fleet"))>Fleet</a>
-            <a href="/addinvoice" class="@GetActiveClass("Invoice")" @onclick=@(()=>OnClick("Invoice"))>Invoice</a>
+            <div class="dropdown">
+                <button class="dropbtn">
+                    Manage 
+                    <i class="fa fa-caret-down"></i>
+                </button>
+                <div class="dropdown-content">
+                    <a href="/fleet" class="@GetActiveClass("Fleet")" @onclick=@(()=>OnClick("Fleet"))>Fleet</a>
+                    <a href="/avail">Availability</a>
+                    <a href="/driver">Drivers</a>
+                </div>
+            </div>
+            <div class="dropdown">
+                <button class="dropbtn">
+                    Invoice
+                    <i class="fa fa-caret-down"></i>
+                </button>
+                <div class="dropdown-content">
+                    <a href="/addinvoice">Invoice List</a>
+                    <a href="/invoicepanel">Add Invoice</a>
+                    @* <a href="#">Link 3</a> *@
+                </div>
+            </div>
+          @*   <a href="/addinvoice" class="@GetActiveClass("Invoice")" @onclick=@(()=>OnClick("Invoice"))>Invoice</a> *@
             <div class="dropdown">
                 <button class="dropbtn">
                     Dropdown

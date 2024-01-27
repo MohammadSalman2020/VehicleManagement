@@ -1,0 +1,150 @@
+﻿@page "/driver"
+@using VehicleManagement.Pages.Redirects
+
+<AuthorizeView>
+    <Authorized>
+        <Nav PageName="Drivers" />
+
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col-12">
+                    <div class="card mb-4">
+                        <div class="card-header pb-0">
+
+                            <div class="form-group">
+                                <button class="btn btn-primary btn-sm ms-auto" @onclick="OpenModal">Add New</button>
+
+                            </div>
+
+                        </div>
+
+
+                        <div class="card-body px-0 pt-0 pb-2">
+                            <div class="table-responsive p-0">
+                                <table class="table align-items-center mb-0">
+                                    <thead>
+                                        <tr>
+                                            <th class="text-uppercase font-colors  text-xxs font-weight-bolder opacity-7">Driver ID</th>
+                                            <th class="text-uppercase font-colors  text-xxs font-weight-bolder opacity-7 ps-2">Driver Full Name</th>
+                                            <th class="text-center font-colors text-uppercase  text-xxs font-weight-bolder opacity-7">Contact</th>
+                                            <th class="text-center font-colors text-uppercase  text-xxs font-weight-bolder opacity-7">Designation</th>
+                                            <th class="text-center font-colors text-uppercase  text-xxs font-weight-bolder opacity-7">Status</th>
+
+
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td>
+                                                <div class="d-flex px-2 py-1">
+                                                    <div>
+                                                        <img src="css/assets/Truck.jpg" class="avatar avatar-sm me-3" alt="user1">
+                                                    </div>
+                                                    <div class="d-flex flex-column justify-content-center">
+                                                        <h6 class="mb-0 text-sm">12201554</h6>
+
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <p class="text-xs font-weight-bold mb-0">Abdul Ghafoor</p>
+
+                                            </td>
+                                            <td class="align-middle text-center">
+                                                <span class="text-secondary text-xs font-weight-bold">090078601</span>
+                                            </td>
+                                            <td class="align-middle text-center">
+                                                <span class="text-secondary text-xs font-weight-bold">Senior</span>
+                                            </td>
+                                            <td class="align-middle text-center text-sm">
+                                                <span class="badge badge-sm bg-gradient-success">Active</span>
+                                            </td>
+
+
+                                        </tr>
+
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <Modal @ref="modal" Title="Add Driver">
+            <Body>
+                <div class="col-md-12">
+                    <div class="card">
+
+                        <div class="card-body">
+
+                            <div class="row">
+                              
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label for="example-text-input" class="form-control-label">Driver ID</label>
+                                        <input type="text" placeholder="Driver ID" class="form-control">
+
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label for="example-text-input" class="form-control-label">Full Name</label>
+                                        <input type="text" placeholder="Full Name" class="form-control">
+
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label for="example-text-input" class="form-control-label">Contact</label>
+                                        <input type="text" placeholder="Contact" class="form-control">
+
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label for="example-text-input" class="form-control-label">Designation</label>
+                                        <input type="text" placeholder="Designation" class="form-control">
+
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <div class="form-control">
+                                            <input checked="checked" type="checkbox">
+                                            <span class="form-control-label">Active</span>
+                                        </div>
+
+                                    </div>
+                                </div>
+                          
+                                <div class="col-md-12">
+                                    <div class="form-group" style="text-align:center;">
+                                        <button class="btn btn-primary btn-sm ms-auto">Submit</button>
+
+                                    </div>
+                                </div>
+
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+            </Body>
+        </Modal>
+
+    </Authorized>
+    <NotAuthorized>
+        <_403 />
+    </NotAuthorized>
+</AuthorizeView>
+
+
+
+@code {
+    private Modal modal;
+    private void OpenModal()
+    {
+        modal.Show();
+    }
+}

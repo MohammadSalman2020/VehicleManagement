@@ -1,0 +1,93 @@
+﻿@page "/invoicepreview"
+
+@using System
+@using System.IO
+@using Microsoft.AspNetCore.Hosting
+@inject IWebHostEnvironment Environment
+
+<h3>Upload Files</h3>
+
+<p>
+    <label>
+        Max file size:
+        <input type="number" @bind="maxFileSize" />
+    </label>
+</p>
+
+<p>
+    <label>
+        Max allowed files:
+        <input type="number" @bind="maxAllowedFiles" />
+    </label>
+</p>
+
+<p>
+    <label>
+        Upload up to @maxAllowedFiles of up to @maxFileSize bytes:
+        <InputFile OnChange="@LoadFiles" multiple />
+    </label>
+</p>
+
+@if (isLoading)
+{
+    <p>Uploading...</p>
+}
+else
+{
+    <ul>
+        @foreach (var file in loadedFiles)
+        {
+            <li>
+                <ul>
+                    <li>Name: @file.Name</li>
+                    <li>Last modified: @file.LastModified.ToString()</li>
+                    <li>Size (bytes): @file.Size</li>
+                    <li>Content type: @file.ContentType</li>
+                </ul>
+            </li>
+        }
+    </ul>
+}
+
+@code {
+    private List<IBrowserFile> loadedFiles = new();
+    private long maxFileSize = 1024 * 15;
+    private int maxAllowedFiles = 3;
+    private bool isLoading;
+
+    private async Task LoadFiles(InputFileChangeEventArgs e)
+    {
+        isLoading = true;
+        loadedFiles.Clear();
+        
+        foreach (var file in e.GetMultipleFiles())
+        {
+            try
+            {
+                loadedFiles.Add(file);
+
+                var trustedFileNameForFileStorage = file.Name;
+                var folderPath = Path.Combine(Environment.ContentRootPath,
+                                               Environment.EnvironmentName, "unsafe_uploads");
+
+                // Create the directory if it doesn't exist
+                if (!Directory.Exists(folderPath))
+                {
+                    Directory.CreateDirectory(folderPath);
+                }
+
+                var filePath = Path.Combine(folderPath, trustedFileNameForFileStorage);
+
+                await using FileStream fs = new(filePath, FileMode.Create);
+                await file.OpenReadStream().CopyToAsync(fs);
+
+            }
+            catch (Exception ex)
+            {
+                
+            }
+        }
+
+        isLoading = false;
+    }
+}
