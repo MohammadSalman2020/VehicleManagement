@@ -5,57 +5,27 @@
 @using VehicleManagement.Models.DB
 @inject ApplicationDbContext DbContext
 
-<div class="col-md-12">
-    <div class="card">
-
-        <div class="card-body">
-
-            <div class="row">
-                <div class="col-md-4">
-                    <div class="form-group">
-                        <label for="example-text-input" class="form-control-label">Add Question Here</label>
-                        <input type="text" class="form-control" @onkeydown="HandleKeyPress" @bind-value="@questiontext"></input>
-
-                    </div>
-                </div>
-                <div class="col-md-4">
-                    <div class="form-group">
-                        <label for="example-text-input" class="form-control-label"  >Question Scope</label>
-                        <select id="myCombobox" class="form-control" name="scope" @onchange="HandleStatusChange">
-                            <option value=""></option>
-                            <option value="Driver">Driver</option>
-                            <option value="Documentation/Certificate">Documentation/Certificate</option>
-                            <option value="Tyre Condition">Tyre Condition</option>
-                            <option value="Typre Rims">Typre Rims</option>
-                            <option value="Product Tank">Product Tank</option>
-                            <option value="Fire Extinguisher">Fire Extinguisher</option>
-                            <option value="Cabin Checks">Cabin Checks</option>
-                            <option value="Cabin Accessories">Cabin Accessories</option>
-                            <option value="Brakes">Brakes</option>
-                            <option value="Lights and Horns">Lights and Horns</option>
-                            <option value="Mirrors">Mirrors</option>
-                            <option value="Engine And Chasis">Engine And Chasis</option>
-                            <option value="Exhaust">Exhaust</option>
-                            <option value="Color / Signage">Color / Signage</option>
-                        </select>
-
-                    </div>
-                </div>
-                <div class="col-md-4" style="padding-top: 40px;text-align:center;">
-                    <div class="form-group">
-                        <button class="btn btn-primary  btn-sm ms-auto" @onclick=@(()=>AddQuestion(questiontext,scope))>Submit</button>
-                    </div>
-                </div>
-
-            </div>
-
-        </div>
-    </div>
-</div>
 
 <div class="container-fluid py-4">
     <div class="row">
         <div class="col-12">
+            <div class="row">
+
+                <div class="col-4">
+                    <div class="form-group">
+                        <button class="btn btn-primary btn-sm ms-auto" @onclick="OpenModal">Add New</button>
+                    </div>
+                </div>
+                <div class="col-4">
+                    
+                </div>
+                <div class="col-4">
+                    <div class="form-group">
+                        <button class="btn btn-primary btn-sm ms-auto" @onclick="OpenModal2">Create Template</button>
+                    </div>
+                </div>
+
+            </div>
             <div class="card mb-4">
                 <div class="card-header pb-0">
                     <h6>Inspection Questions</h6>
@@ -69,7 +39,7 @@
                                     <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Scope</th>
                                     <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">QuestionDesc</th>
                                     <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Edit</th>
-
+                                    <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Select</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -101,6 +71,9 @@
                                                     Delete
                                                 </a>
                                             </td>
+                                            <td class="align-middle allign-item-center">
+                                                <input class="text-xs font-weight-bold mb-0" type="checkbox" id="myCheckbox" name="select">
+                                            </td>
                                         </tr>
                                     }
                                 }
@@ -115,29 +88,138 @@
 
 
 </div>
+<Modal @ref="modal" Title="Add Driver">
+    <Body>
+        <div class="col-md-12">
+            <div class="card">
+
+                <div class="card-body">
+
+                    <div class="row">
+
+                        <div class="col-md-12">
+                            <div class="form-group">
+                                <label for="example-text-input" class="form-control-label">Add Question Here</label>
+                                <input type="text" class="form-control" required @onkeydown="HandleKeyPress" @bind-value="@questiontext"></input>
+
+                            </div>
+
+                            <div class="form-group">
+                                <label for="example-text-input" class="form-control-label">Question Scope</label>
+                                <select id="myCombobox" class="form-control" name="scope" @onchange="HandleStatusChange">
+                                    <option value=""></option>
+                                    <option value="Driver">Driver</option>
+                                    <option value="Documentation/Certificate">Documentation/Certificate</option>
+                                    <option value="Tyre Condition">Tyre Condition</option>
+                                    <option value="Typre Rims">Typre Rims</option>
+                                    <option value="Product Tank">Product Tank</option>
+                                    <option value="Fire Extinguisher">Fire Extinguisher</option>
+                                    <option value="Cabin Checks">Cabin Checks</option>
+                                    <option value="Cabin Accessories">Cabin Accessories</option>
+                                    <option value="Brakes">Brakes</option>
+                                    <option value="Lights and Horns">Lights and Horns</option>
+                                    <option value="Mirrors">Mirrors</option>
+                                    <option value="Engine And Chasis">Engine And Chasis</option>
+                                    <option value="Exhaust">Exhaust</option>
+                                    <option value="Color / Signage">Color / Signage</option>
+                                </select>
+
+                            </div>
+
+                            <div class="form-group">
+                                <button class="btn btn-primary  btn-sm ms-auto" @onclick=@(()=>AddQuestion(questiontext,scope))>Submit</button>
+                            </div>
+                        </div>
+
+
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </Body>
+</Modal>
+<Modal @ref="modal2" Title="Add Inspection Template">
+    <Body>
+        <div class="col-md-12">
+            <div class="card">
+
+                <div class="card-body">
+
+                    <div class="row">
+
+                        <div class="col-md-12">
+                            <div class="form-group">
+                                <label for="example-text-input" class="form-control-label">Inspection Template Name</label>
+                                <input type="text" class="form-control" required @onkeydown="HandleKeyPress" @bind-value="@templatename"></input>
+
+                            </div>
+
+                            <div class="form-group">
+                                <label for="example-text-input" class="form-control-label">Select Fleet</label>
+                                <select id="myCombobox" class="form-control" name="scope" @onchange="HandleStatusChange">
+                                    <option value=""></option>
+                                    <option value="Driver">UEP</option>
+                                    <option value="Documentation/Certificate">HTL</option>
+                                    <option value="Tyre Condition">PSO</option>
+                                    <option value="Typre Rims">Unity</option>
+                                    <option value="Product Tank">Caustic</option>
+                                    <option value="Fire Extinguisher">PUMA</option>
+                                    <option value="Cabin Checks">UEP Ware House</option>                                   
+                                </select>
+
+                            </div>
+
+                            <div class="form-group">
+                                <button class="btn btn-primary  btn-sm ms-auto" @onclick=@(()=>AddQuestion(questiontext,scope))>Submit</button>
+                            </div>
+                        </div>
+
+
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </Body>
+</Modal>
+
 
 @code {
 
+
     private string? questiontext;
     private string? scope;
+    private string? templatename;
 
     public List<InvoiceList> _InvoiceList { get; set; }
 
     public List<masterQuestions> questionsList = new List<masterQuestions>();
-    public async Task AddQuestion(string ques,string scope)
+    private Modal modal;
+    private Modal modal2;
+    private void OpenModal()
+    {
+        modal.Show();
+    }
+    private void OpenModal2()
+    {
+        modal2.Show();
+    }
+    public async Task AddQuestion(string ques, string scope)
     {
 
-        questionsList.Add(new masterQuestions { QuestionDescription = ques,scope=scope });
+        questionsList.Add(new masterQuestions { QuestionDescription = ques, scope = scope });
         questiontext = string.Empty;
         scope = string.Empty;
         ShowMessage("Question Added Successfully");
+        modal.CloseModal();
 
     }
     private async void HandleKeyPress(KeyboardEventArgs e)
     {
         if (e.Key == "Enter")
         {
-            await AddQuestion(questiontext,scope);
+            await AddQuestion(questiontext, scope);
         }
     }
     protected override async Task OnInitializedAsync()
@@ -148,7 +230,7 @@
     private void HandleStatusChange(ChangeEventArgs e)
     {
         scope = e.Value.ToString();
-       
+
     }
 
     public async Task ShowMessage(string s)

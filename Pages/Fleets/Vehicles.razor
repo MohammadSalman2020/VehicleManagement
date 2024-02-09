@@ -1,0 +1,265 @@
+﻿@page "/vehicles"
+@using VehicleManagement.Pages.Redirects
+
+<AuthorizeView>
+    <Authorized>
+        <Nav PageName="Vehicles" />
+
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col-12">
+                    <div class="card mb-4">
+                        <div class="card-header pb-0">
+
+                            <div class="form-group">
+                                <button class="btn btn-primary btn-sm ms-auto" @onclick="OpenModal">Add New</button>
+
+                            </div>
+
+                        </div>
+
+
+                        <div class="card-body px-0 pt-0 pb-2">
+                            <div class="table-responsive p-0">
+                                <table class="table align-items-center mb-0">
+                                    <thead>
+                                        <tr>
+                                            <th class="text-center font-colors text-uppercase  text-xxs font-weight-bolder opacity-7">VehicleID</th>
+                                            <th class="text-center font-colors text-uppercase  text-xxs font-weight-bolder opacity-7">Fleet</th>
+                                            <th class="text-center font-colors text-uppercase  text-xxs font-weight-bolder opacity-7">Capacity (KL)</th>
+                                            <th class="text-center font-colors text-uppercase  text-xxs font-weight-bolder opacity-7">Chamber Sequence</th>
+                                            <th class="text-center font-colors text-uppercase  text-xxs font-weight-bolder opacity-7">isActive</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td class="align-middle text-center">
+                                                <p class="text-secondary text-xs font-weight-bold">TLK-920</p>
+
+                                            </td>
+                                            <td class="align-middle text-center">
+                                                <p class="text-secondary text-xs font-weight-bold">HTL</p>
+
+                                            </td>
+                                            <td class="align-middle text-center">
+                                                <span class="text-secondary text-xs font-weight-bold">48</span>
+                                            </td>
+                                            <td class="align-middle text-center">
+                                                <span class="text-secondary text-xs font-weight-bold">8,8,5,5,8,8,8</span>
+                                            </td>
+                                            <td class="align-middle text-center text-sm">                                               
+                                                <input type="checkbox" checked="checked"/>
+                                            </td>
+
+                                        </tr>
+                                        <tr>
+                                            <td class="align-middle text-center">
+                                                <p class="text-secondary text-xs font-weight-bold">TLK-920</p>
+
+                                            </td>
+                                            <td class="align-middle text-center">
+                                                <p class="text-secondary text-xs font-weight-bold">HTL</p>
+
+                                            </td>
+                                            <td class="align-middle text-center">
+                                                <span class="text-secondary text-xs font-weight-bold">48</span>
+                                            </td>
+                                            <td class="align-middle text-center">
+                                                <span class="text-secondary text-xs font-weight-bold">8,8,5,5,8,8,8</span>
+                                            </td>
+                                            <td class="align-middle text-center text-sm">                                               
+                                                <input type="checkbox" checked="checked"/>
+                                            </td>
+
+                                        </tr>
+                                        <tr>
+                                            <td class="align-middle text-center">
+                                                <p class="text-secondary text-xs font-weight-bold">TLK-920</p>
+
+                                            </td>
+                                            <td class="align-middle text-center">
+                                                <p class="text-secondary text-xs font-weight-bold">HTL</p>
+
+                                            </td>
+                                            <td class="align-middle text-center">
+                                                <span class="text-secondary text-xs font-weight-bold">48</span>
+                                            </td>
+                                            <td class="align-middle text-center">
+                                                <span class="text-secondary text-xs font-weight-bold">8,8,5,5,8,8,8</span>
+                                            </td>
+                                            <td class="align-middle text-center text-sm">
+                                                <input type="checkbox" checked="checked" />
+                                            </td>
+
+                                        </tr>
+                                        <tr>
+                                            <td class="align-middle text-center">
+                                                <p class="text-secondary text-xs font-weight-bold">TLK-920</p>
+
+                                            </td>
+                                            <td class="align-middle text-center">
+                                                <p class="text-secondary text-xs font-weight-bold">HTL</p>
+
+                                            </td>
+                                            <td class="align-middle text-center">
+                                                <span class="text-secondary text-xs font-weight-bold">48</span>
+                                            </td>
+                                            <td class="align-middle text-center">
+                                                <span class="text-secondary text-xs font-weight-bold">8,8,5,5,8,8,8</span>
+                                            </td>
+                                            <td class="align-middle text-center text-sm">
+                                                <input type="checkbox" checked="checked" />
+                                            </td>
+
+                                        </tr>
+                                        <tr>
+                                            <td class="align-middle text-center">
+                                                <p class="text-secondary text-xs font-weight-bold">TLK-920</p>
+
+                                            </td>
+                                            <td class="align-middle text-center">
+                                                <p class="text-secondary text-xs font-weight-bold">HTL</p>
+
+                                            </td>
+                                            <td class="align-middle text-center">
+                                                <span class="text-secondary text-xs font-weight-bold">48</span>
+                                            </td>
+                                            <td class="align-middle text-center">
+                                                <span class="text-secondary text-xs font-weight-bold">8,8,5,5,8,8,8</span>
+                                            </td>
+                                            <td class="align-middle text-center text-sm">                                               
+                                                <input type="checkbox" checked="checked"/>
+                                            </td>
+
+                                        </tr>
+                                        <tr>
+                                            <td class="align-middle text-center">
+                                                <p class="text-secondary text-xs font-weight-bold">TLK-920</p>
+
+                                            </td>
+                                            <td class="align-middle text-center">
+                                                <p class="text-secondary text-xs font-weight-bold">HTL</p>
+
+                                            </td>
+                                            <td class="align-middle text-center">
+                                                <span class="text-secondary text-xs font-weight-bold">48</span>
+                                            </td>
+                                            <td class="align-middle text-center">
+                                                <span class="text-secondary text-xs font-weight-bold">8,8,5,5,8,8,8</span>
+                                            </td>
+                                            <td class="align-middle text-center text-sm">                                               
+                                                <input type="checkbox" checked="checked"/>
+                                            </td>
+
+                                        </tr>
+                                        <tr>
+                                            <td class="align-middle text-center">
+                                                <p class="text-secondary text-xs font-weight-bold">TLK-920</p>
+
+                                            </td>
+                                            <td class="align-middle text-center">
+                                                <p class="text-secondary text-xs font-weight-bold">HTL</p>
+
+                                            </td>
+                                            <td class="align-middle text-center">
+                                                <span class="text-secondary text-xs font-weight-bold">48</span>
+                                            </td>
+                                            <td class="align-middle text-center">
+                                                <span class="text-secondary text-xs font-weight-bold">8,8,5,5,8,8,8</span>
+                                            </td>
+                                            <td class="align-middle text-center text-sm">
+                                                <input type="checkbox" checked="checked" />
+                                            </td>
+
+                                        </tr>
+
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <Modal @ref="modal" Title="Add Vehicle">
+            <Body>
+                <div class="col-md-12">
+                    <div class="card">
+
+                        <div class="card-body">
+
+                            <div class="row">
+
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label for="example-text-input" class="form-control-label">VehicleID</label>
+                                        <input type="text" placeholder="Vehicle ID" class="form-control">
+
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label for="example-text-input" class="form-control-label">Fleet</label>
+                                        
+                                        <select class="form-control" placeholder="Fleet" id="Fleet" name="fleets">
+                                            <option value="HTL">HTL</option>
+                                            <option value="PSO">PSO</option>
+                                            <option value="EURO">EURO</option>
+                                            <option value="PUMA">PUMA</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label for="example-text-input" class="form-control-label">Capacity (KL)</label>
+                                        <input type="text" placeholder="Capacity (KL)" class="form-control">
+
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label for="example-text-input" class="form-control-label">Chamber Squence</label>
+                                        <input type="text" placeholder="Chamber Squence" class="form-control">
+
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <div class="form-control">
+                                            <input checked="checked" type="checkbox">
+                                            <span class="form-control-label">isActive</span>
+                                        </div>
+
+                                    </div>
+                                </div>
+
+                                <div class="col-md-12">
+                                    <div class="form-group" style="text-align:center;">
+                                        <button class="btn btn-primary btn-sm ms-auto">Submit</button>
+
+                                    </div>
+                                </div>
+
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+            </Body>
+        </Modal>
+
+    </Authorized>
+    <NotAuthorized>
+        <_403 />
+    </NotAuthorized>
+</AuthorizeView>
+
+
+
+@code {
+    private Modal modal;
+    private void OpenModal()
+    {
+        modal.Show();
+    }
+}
