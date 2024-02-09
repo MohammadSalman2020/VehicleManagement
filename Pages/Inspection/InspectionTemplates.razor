@@ -1,0 +1,106 @@
+﻿@page "/checklist"
+
+@using VehicleManagement.Models.General
+@inject IToastService toastService
+@inject IJSRuntime JSRuntime
+
+@using VehicleManagement.Models.DB
+@inject ApplicationDbContext DbContext
+
+<div class="container-fluid py-4">
+    <div class="row">
+        <div class="col-6">
+            <button class="btn btn-primary btn-sm">Print</button>
+        </div>
+        <div class="col-6 text-end">
+            <button class="btn btn-primary btn-sm">NEXT</button>
+        </div>
+        <div class="col-12">
+            <div class="card mb-12">
+                <div class="card-header pb-0" id="contentToPrint">
+
+                    <div class="form-group">
+                        <h4 style="text-align:center">Shakoor & Company Limited</h4>
+                        <h6 style="text-align:left">Pre Trip Inspection Checklist</h6>
+                    </div>
+                    <div class="container">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <label>Date & Time</label>
+                                <input type="datetime-local" class="form-control mb-2" />
+
+                                <label>Origin/Destination</label>
+                                <input type="text" class="form-control mb-2" />
+
+                                <label>Company</label>
+                                <input type="text" class="form-control mb-2" />
+
+                                <label>Driver-1 name & Code</label>
+                                <input type="text" class="form-control mb-2" />
+
+                                <label>Driver-2 name & Code</label>
+                                <input type="text" class="form-control mb-2" />
+
+                                <label>Cell Phone Knowledge</label>
+                                <input type="text" class="form-control mb-2" />
+
+                                <label>Product</label>
+                                <input type="text" class="form-control mb-2" />
+
+                                <label>Vehicle#</label>
+                                <input type="text" class="form-control mb-2" />
+
+                                <label>Vehicle Capacity</label>
+                                <input type="text" class="form-control mb-2" />
+
+                            </div>
+
+
+                            <div class="col-md-6">
+                                <label>D-1 License</label>
+                                <input type="text" class="form-control mb-2" />
+
+                                <label>D-2 License</label>
+                                <input type="text" class="form-control mb-2" />
+
+                                <label>D-1 &Aacute; D-2 Mentally Alert</label>
+                                <input type="text" class="form-control mb-2" />
+                                <label>Term Card</label>
+                                <input type="text" class="form-control mb-2" />
+
+                                <label>Valid Dip Chart</label>
+                                <input type="text" class="form-control mb-2" />
+
+                                <label>Valid Explosive Cert</label>
+                                <input type="text" class="form-control mb-2" />
+
+                                <label>Fitness Cert</label>
+                                <input type="text" class="form-control mb-2" />
+
+                                <label>Tank# / Trailer#</label>
+                                <input type="text" class="form-control mb-2" />
+
+                                <label>FHydro Test</label>
+                                <input type="text" class="form-control mb-2" />
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+
+@code {
+    // Your code-behind logic goes here
+
+    private string? Name = "UEP Checklist";
+
+
+}
+
