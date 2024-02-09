@@ -1,5 +1,6 @@
 ﻿@page "/invoicedisplay"
 @inject NavigationManager NavigationManager
+@using Microsoft.AspNetCore.WebUtilities
 @using VehicleManagement.Pages.Redirects
 
 <AuthorizeView>
@@ -517,22 +518,25 @@
                                         </div>
                                     </div>
                                 </div>
+                                @if (IsView == "View")
+                                {
+                                    <div class="col-md-12" style="margin-top: 7px;">
+                                        <div class="row">
 
-                                <div class="col-md-12" style="margin-top: 7px;">
-                                    <div class="row">
+
+                                            <div class="col-md-12">
+                                                <div class="form-group" style="text-align:center;">
+                                                    <button class="btn btn-warning btn-sm ms-auto" @onclick="EditButton">Edit</button>
+                                                    <button class="btn btn-primary btn-sm ms-auto" @onclick="Save">Submit</button>
+                                                </div>
 
 
-                                        <div class="col-md-12">
-                                            <div class="form-group" style="text-align:center;">
-                                                <button class="btn btn-warning btn-sm ms-auto" @onclick="EditButton">Edit</button>
-                                                <button class="btn btn-primary btn-sm ms-auto">Submit</button>
                                             </div>
 
-
                                         </div>
-
                                     </div>
-                                </div>
+                                }
+
 
 
 
@@ -559,10 +563,26 @@
 
 
 @code {
+    private string? IsView { get; set; } = string.Empty;
+    protected override void OnInitialized()
+    {
+        var uri = new Uri(NavigationManager.Uri);
+        var queryStrings = QueryHelpers.ParseQuery(uri.Query);
+        if (queryStrings.TryGetValue("IsView", out var name))
+        {
+            IsView = name == "View" ? "View" : string.Empty;
+        }
+    }
+    private async Task Save()
+    {
+
+        NavigationManager.NavigateTo("/addinvoice");
+
+    }
     private async Task EditButton()
     {
 
         NavigationManager.NavigateTo("/invoicepanel");
 
     }
-    }
+}
