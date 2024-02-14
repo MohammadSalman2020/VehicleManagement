@@ -1,6 +1,10 @@
 ﻿@page "/invoicepanel"
 @using Majorsoft.Blazor.Components.Tabs
 @using System.Linq;
+@using System.Text.Json
+@using System.Web
+@using System.Text
+@using VehicleManagement.Models.General
 @using VehicleManagement.Pages.Redirects;
 @inject IWebHostEnvironment Environment
 @inject IToastService toastService
@@ -50,49 +54,53 @@
                                                             </div>
                                                             <div class="col-md-6">
                                                                 <div class="form-group">
+                                                                    <label for="example-text-input" class="form-control-label">Tank Lorry No</label>
+                                                                    <input type="text" placeholder="Tank Lorry No" @bind="Invoices.Details.TankLorryNO" class="form-control">
+
+                                                                </div>
+                                                            </div>
+                                                            <div class="col-md-6">
+                                                                <div class="form-group">
                                                                     <label for="example-text-input" class="form-control-label">STO No</label>
-                                                                    <input type="text" placeholder="STO No" class="form-control">
+                                                                    <input type="text" placeholder="STO No" @bind="Invoices.Details.STONo" class="form-control">
 
                                                                 </div>
                                                             </div>
                                                             <div class="col-md-6">
                                                                 <div class="form-group">
-                                                                    <label for="example-text-input" class="form-control-label">Filling Date</label>
-                                                                    <input type="date" placeholder="Full Name" class="form-control">
+                                                                    <label for="example-text-input" class="form-control-label">Date</label>
+                                                                    <input type="date" placeholder="Date" @bind="Invoices.Details.Date" class="form-control">
 
                                                                 </div>
                                                             </div>
                                                             <div class="col-md-6">
                                                                 <div class="form-group">
-                                                                    <label for="example-text-input" class="form-control-label">Shipping Location</label>
-                                                                    <input type="text" placeholder="Contact" class="form-control">
+                                                                    <label for="example-text-input" class="form-control-label">Supply Point</label>
+                                                                    <input type="text" placeholder="Supply Point" @bind="Invoices.Details.SupplyPoint" class="form-control">
+
+                                                                </div>
+                                                            </div>
+                                                            <div class="col-md-6">
+                                                                <div class="form-group">
+                                                                    <label for="example-text-input" class="form-control-label">Contractor</label>
+                                                                    <input type="text" placeholder="Contractor" @bind="Invoices.Details.Contractor" class="form-control">
 
                                                                 </div>
                                                             </div>
                                                             <div class="col-md-6">
                                                                 <div class="form-group">
                                                                     <label for="example-text-input" class="form-control-label">Receiving Location</label>
-                                                                    <input type="text" placeholder="Designation" class="form-control">
+                                                                    <input type="text" placeholder="Receiving Location" @bind="Invoices.Details.ReceivingLocation" class="form-control">
 
                                                                 </div>
                                                             </div>
                                                             <div class="col-md-6">
                                                                 <div class="form-group">
-                                                                    <label for="example-text-input" class="form-control-label">Product Name</label>
-                                                                    <input type="text" placeholder="Designation" class="form-control">
+                                                                    <label for="example-text-input" class="form-control-label">Product</label>
+                                                                    <input type="text" placeholder="Product" @bind="Invoices.Details.Product" class="form-control">
 
                                                                 </div>
                                                             </div>
-                                                            <div class="col-md-6">
-                                                                <div class="form-group">
-                                                                    <label for="example-text-input" class="form-control-label">Driver Name</label>
-                                                                    <input type="text" placeholder="Designation" class="form-control">
-
-                                                                </div>
-                                                            </div>
-
-
-
                                                         </div>
 
                                                     </div>
@@ -102,8 +110,11 @@
 
                                         </Content>
                                     </TabItem>
-                                    <TabItem @ref="_tab2">
-                                        <Header><strong>Dispatch Details</strong></Header>
+
+
+
+                                    <TabItem id="tab2" @ref="_tab2">
+                                        <Header><strong>Shipping Details</strong></Header>
                                         <Content>
                                             <div class="col-md-12">
                                                 <div class="card">
@@ -118,30 +129,31 @@
                                                                     <button class="btn btn-warning btn-sm ms-auto" @onclick="PreviousTab">Back</button>
                                                                 </div>
                                                             </div>
+
                                                             <div class="col-md-4" style="padding-top:5px;">
                                                                 <div class="form-control">
                                                                     <div class="form-group">
                                                                         <label for="example-text-input" class="font-weight-bolder mb-0" style="color:black;">Chamber 1</label>
-
-
-                                                                    </div>
-                                                                    <div class="form-group">
-                                                                        <label for="example-text-input" class="form-control-label">Product Volume (ltr)</label>
-                                                                        <input type="text" placeholder="Product Volume (ltr)" class="form-control">
+                                                                        <input type="checkbox" class="form-control-label" checked="@DisableChamber1" @onchange="Chamber1Check" style="float:right;" />
 
                                                                     </div>
                                                                     <div class="form-group">
-                                                                        <label for="example-text-input" class="form-control-label">
-                                                                            Product Dip (MM)
-                                                                        </label>
-                                                                        <input type="text" placeholder=" Product Dip (MM)" class="form-control">
+                                                                        <label for="example-text-input" class="form-control-label">Chamber Quantity</label>
+                                                                        <input type="number" placeholder="Chamber Quantity" @bind="Invoices.ShippingDetail.Chamber1.ChamberQuantity" disabled="@DisableChamber1" class="form-control">
 
                                                                     </div>
                                                                     <div class="form-group">
                                                                         <label for="example-text-input" class="form-control-label">
-                                                                            Ref Dip (MM)
+                                                                            Tank Lorry Product Dips(MM)
                                                                         </label>
-                                                                        <input type="text" placeholder="Ref Dip (MM)" class="form-control">
+                                                                        <input type="number" placeholder=" Tank Lorry Product Dips(MM)" @bind="Invoices.ShippingDetail.Chamber1.LorryDip" disabled="@DisableChamber1" class="form-control">
+
+                                                                    </div>
+                                                                    <div class="form-group">
+                                                                        <label for="example-text-input" class="form-control-label">
+                                                                            Quantity  85F
+                                                                        </label>
+                                                                        <input type="number" placeholder="Quantity  85F" @bind="Invoices.ShippingDetail.Chamber1.Quantity" disabled="@DisableChamber1" class="form-control">
 
                                                                     </div>
                                                                 </div>
@@ -156,26 +168,26 @@
                                                                 <div class="form-control">
                                                                     <div class="form-group">
                                                                         <label for="example-text-input" class="font-weight-bolder mb-0" style="color:black;">Chamber 2</label>
-
-
-                                                                    </div>
-                                                                    <div class="form-group">
-                                                                        <label for="example-text-input" class="form-control-label">Product Volume (ltr)</label>
-                                                                        <input type="text" placeholder="Product Volume (ltr)" class="form-control">
+                                                                        <input type="checkbox" class="form-control-label" checked="@DisableChamber2" @onchange="Chamber2Check" style="float:right;" />
 
                                                                     </div>
                                                                     <div class="form-group">
-                                                                        <label for="example-text-input" class="form-control-label">
-                                                                            Product Dip (MM)
-                                                                        </label>
-                                                                        <input type="text" placeholder=" Product Dip (MM)" class="form-control">
+                                                                        <label for="example-text-input" class="form-control-label">Chamber Quantity</label>
+                                                                        <input type="number" placeholder="Chamber Quantity" @bind="Invoices.ShippingDetail.Chamber2.ChamberQuantity" disabled="@DisableChamber2" class="form-control">
 
                                                                     </div>
                                                                     <div class="form-group">
                                                                         <label for="example-text-input" class="form-control-label">
-                                                                            Ref Dip (MM)
+                                                                            Tank Lorry Product Dips(MM)
                                                                         </label>
-                                                                        <input type="text" placeholder="Ref Dip (MM)" class="form-control">
+                                                                        <input type="number" placeholder=" Tank Lorry Product Dips(MM)" @bind="Invoices.ShippingDetail.Chamber2.LorryDip" disabled="@DisableChamber2" class="form-control">
+
+                                                                    </div>
+                                                                    <div class="form-group">
+                                                                        <label for="example-text-input" class="form-control-label">
+                                                                            Quantity  85F
+                                                                        </label>
+                                                                        <input type="number" placeholder="Quantity  85F" @bind="Invoices.ShippingDetail.Chamber2.Quantity" disabled="@DisableChamber2" class="form-control">
 
                                                                     </div>
                                                                 </div>
@@ -190,26 +202,26 @@
                                                                 <div class="form-control">
                                                                     <div class="form-group">
                                                                         <label for="example-text-input" class="font-weight-bolder mb-0" style="color:black;">Chamber 3</label>
-
-
-                                                                    </div>
-                                                                    <div class="form-group">
-                                                                        <label for="example-text-input" class="form-control-label">Product Volume (ltr)</label>
-                                                                        <input type="text" placeholder="Product Volume (ltr)" class="form-control">
+                                                                        <input type="checkbox" class="form-control-label" checked="@DisableChamber3" @onchange="Chamber3Check" style="float:right;" />
 
                                                                     </div>
                                                                     <div class="form-group">
-                                                                        <label for="example-text-input" class="form-control-label">
-                                                                            Product Dip (MM)
-                                                                        </label>
-                                                                        <input type="text" placeholder=" Product Dip (MM)" class="form-control">
+                                                                        <label for="example-text-input" class="form-control-label">Chamber Quantity</label>
+                                                                        <input type="number" placeholder="Chamber Quantity" @bind="Invoices.ShippingDetail.Chamber3.ChamberQuantity" disabled="@DisableChamber3" class="form-control">
 
                                                                     </div>
                                                                     <div class="form-group">
                                                                         <label for="example-text-input" class="form-control-label">
-                                                                            Ref Dip (MM)
+                                                                            Tank Lorry Product Dips(MM)
                                                                         </label>
-                                                                        <input type="text" placeholder="Ref Dip (MM)" class="form-control">
+                                                                        <input type="number" placeholder=" Tank Lorry Product Dips(MM)" @bind="Invoices.ShippingDetail.Chamber3.LorryDip" disabled="@DisableChamber3" class="form-control">
+
+                                                                    </div>
+                                                                    <div class="form-group">
+                                                                        <label for="example-text-input" class="form-control-label">
+                                                                            Quantity  85F
+                                                                        </label>
+                                                                        <input type="number" placeholder="Quantity  85F" @bind="Invoices.ShippingDetail.Chamber3.Quantity" disabled="@DisableChamber3" class="form-control">
 
                                                                     </div>
                                                                 </div>
@@ -219,30 +231,31 @@
 
 
                                                             </div>
+
                                                             <div class="col-md-4" style="padding-top:5px;">
                                                                 <div class="form-control">
                                                                     <div class="form-group">
                                                                         <label for="example-text-input" class="font-weight-bolder mb-0" style="color:black;">Chamber 4</label>
-
-
-                                                                    </div>
-                                                                    <div class="form-group">
-                                                                        <label for="example-text-input" class="form-control-label">Product Volume (ltr)</label>
-                                                                        <input type="text" placeholder="Product Volume (ltr)" class="form-control">
+                                                                        <input type="checkbox" class="form-control-label" checked="@DisableChamber4" @onchange="Chamber4Check" style="float:right;" />
 
                                                                     </div>
                                                                     <div class="form-group">
-                                                                        <label for="example-text-input" class="form-control-label">
-                                                                            Product Dip (MM)
-                                                                        </label>
-                                                                        <input type="text" placeholder=" Product Dip (MM)" class="form-control">
+                                                                        <label for="example-text-input" class="form-control-label">Chamber Quantity</label>
+                                                                        <input type="number" placeholder="Chamber Quantity" @bind="Invoices.ShippingDetail.Chamber4.ChamberQuantity" disabled="@DisableChamber4" class="form-control">
 
                                                                     </div>
                                                                     <div class="form-group">
                                                                         <label for="example-text-input" class="form-control-label">
-                                                                            Ref Dip (MM)
+                                                                            Tank Lorry Product Dips(MM)
                                                                         </label>
-                                                                        <input type="text" placeholder="Ref Dip (MM)" class="form-control">
+                                                                        <input type="number" placeholder=" Tank Lorry Product Dips(MM)" @bind="Invoices.ShippingDetail.Chamber4.LorryDip" disabled="@DisableChamber4" class="form-control">
+
+                                                                    </div>
+                                                                    <div class="form-group">
+                                                                        <label for="example-text-input" class="form-control-label">
+                                                                            Quantity  85F
+                                                                        </label>
+                                                                        <input type="number" placeholder="Quantity  85F" @bind="Invoices.ShippingDetail.Chamber4.Quantity" disabled="@DisableChamber4" class="form-control">
 
                                                                     </div>
                                                                 </div>
@@ -257,26 +270,26 @@
                                                                 <div class="form-control">
                                                                     <div class="form-group">
                                                                         <label for="example-text-input" class="font-weight-bolder mb-0" style="color:black;">Chamber 5</label>
-
-
-                                                                    </div>
-                                                                    <div class="form-group">
-                                                                        <label for="example-text-input" class="form-control-label">Product Volume (ltr)</label>
-                                                                        <input type="text" placeholder="Product Volume (ltr)" class="form-control">
+                                                                        <input type="checkbox" class="form-control-label" checked="@DisableChamber5" @onchange="Chamber5Check" style="float:right;" />
 
                                                                     </div>
                                                                     <div class="form-group">
-                                                                        <label for="example-text-input" class="form-control-label">
-                                                                            Product Dip (MM)
-                                                                        </label>
-                                                                        <input type="text" placeholder=" Product Dip (MM)" class="form-control">
+                                                                        <label for="example-text-input" class="form-control-label">Chamber Quantity</label>
+                                                                        <input type="number" placeholder="Chamber Quantity" @bind="Invoices.ShippingDetail.Chamber5.ChamberQuantity" disabled="@DisableChamber5" class="form-control">
 
                                                                     </div>
                                                                     <div class="form-group">
                                                                         <label for="example-text-input" class="form-control-label">
-                                                                            Ref Dip (MM)
+                                                                            Tank Lorry Product Dips(MM)
                                                                         </label>
-                                                                        <input type="text" placeholder="Ref Dip (MM)" class="form-control">
+                                                                        <input type="number" placeholder=" Tank Lorry Product Dips(MM)" @bind="Invoices.ShippingDetail.Chamber5.LorryDip" disabled="@DisableChamber5" class="form-control">
+
+                                                                    </div>
+                                                                    <div class="form-group">
+                                                                        <label for="example-text-input" class="form-control-label">
+                                                                            Quantity  85F
+                                                                        </label>
+                                                                        <input type="number" placeholder="Quantity  85F" @bind="Invoices.ShippingDetail.Chamber5.Quantity" disabled="@DisableChamber5" class="form-control">
 
                                                                     </div>
                                                                 </div>
@@ -288,7 +301,6 @@
                                                             </div>
 
 
-
                                                         </div>
 
                                                     </div>
@@ -297,70 +309,8 @@
 
                                         </Content>
                                     </TabItem>
+
                                     <TabItem id="tab3" @ref="_tab3">
-                                        <Header><strong>Disptach Summary</strong></Header>
-                                        <Content>
-                                            <div class="col-md-12">
-                                                <div class="card">
-
-                                                    <div class="card-body">
-
-                                                        <div class="row">
-                                                            <div class="col-md-12" style="padding-top:10px;">
-                                                                <div class="form-group" style="text-align:center;">
-                                                                    <button class="btn btn-danger btn-sm ms-auto" @onclick="NextTab">Next</button>
-                                                                    <button class="btn btn-warning btn-sm ms-auto" @onclick="PreviousTab">Back</button>
-                                                                </div>
-                                                            </div>
-                                                            <div class="col-md-12">
-                                                                <div class="form-group">
-                                                                    <label for="example-text-input" class="font-weight-bolder mb-0" style="color:black;">
-                                                                        Product:Petroleum Motor Gasoline - PMG
-                                                                    </label>
-
-
-                                                                </div>
-                                                            </div>
-                                                            <div class="col-md-6">
-                                                                <div class="form-group">
-                                                                    <label for="example-text-input" class="form-control-label">Quantity (Nat)</label>
-                                                                    <input type="text" placeholder="Full Name" class="form-control">
-
-                                                                </div>
-                                                            </div>
-                                                            <div class="col-md-6">
-                                                                <div class="form-group">
-                                                                    <label for="example-text-input" class="form-control-label">Quantity (L85)</label>
-                                                                    <input type="text" placeholder="Contact" class="form-control">
-
-                                                                </div>
-                                                            </div>
-                                                            <div class="col-md-6">
-                                                                <div class="form-group">
-                                                                    <label for="example-text-input" class="form-control-label">Temperature F</label>
-                                                                    <input type="text" placeholder="Designation" class="form-control">
-
-                                                                </div>
-                                                            </div>
-                                                            <div class="col-md-6">
-                                                                <div class="form-group">
-                                                                    <label for="example-text-input" class="form-control-label">S.G</label>
-                                                                    <input type="text" placeholder="Designation" class="form-control">
-
-                                                                </div>
-                                                            </div>
-
-                                                       
-
-                                                        </div>
-
-                                                    </div>
-                                                </div>
-                                            </div>
-
-                                        </Content>
-                                    </TabItem>
-                                    <TabItem id="tab4" @ref="_tab4">
                                         <Header><strong>Receiving Details</strong></Header>
                                         <Content>
                                             <div class="col-md-12">
@@ -375,217 +325,199 @@
                                                                     <button class="btn btn-warning btn-sm ms-auto" @onclick="PreviousTab">Back</button>
                                                                 </div>
                                                             </div>
-                                                            <div class="col-md-4" style="padding-top:5px;">
-                                                                <div class="form-control">
-                                                                    <div class="form-group">
-                                                                        <label for="example-text-input" class="font-weight-bolder mb-0" style="color:black;">Chamber 1</label>
+                                                            @if (!DisableChamber1)
+                                                            {
+                                                                <div class="col-md-4" style="padding-top:5px;">
+                                                                    <div class="form-control">
+                                                                        <div class="form-group">
+                                                                            <label for="example-text-input" class="font-weight-bolder mb-0" style="color:black;">Chamber 1</label>
+
+
+                                                                        </div>
+                                                                        <div class="form-group">
+                                                                            <label for="example-text-input" class="form-control-label">Chamber Quantity</label>
+                                                                            <input type="number" placeholder="Chamber Quantity" @bind="Invoices.ReceivingDetail.Chamber1.ChamberQuantity" class="form-control">
+
+                                                                        </div>
+                                                                        <div class="form-group">
+                                                                            <label for="example-text-input" class="form-control-label">
+                                                                                Tank Lorry Product Dips(MM)
+                                                                            </label>
+                                                                            <input type="number" placeholder=" Tank Lorry Product Dips(MM)" @bind="Invoices.ReceivingDetail.Chamber1.LorryDip" class="form-control">
+
+                                                                        </div>
+                                                                        <div class="form-group">
+                                                                            <label for="example-text-input" class="form-control-label">
+                                                                                Quantity  85F
+                                                                            </label>
+                                                                            <input type="number" placeholder="Quantity  85F" @bind="Invoices.ReceivingDetail.Chamber1.Quantity" class="form-control">
+
+                                                                        </div>
 
 
                                                                     </div>
-                                                                    <div class="form-group">
-                                                                        <label for="example-text-input" class="form-control-label">Product Volume (ltr)</label>
-                                                                        <input type="text" placeholder="Product Volume (ltr)" class="form-control">
+
+
+
+
+
+                                                                </div>
+                                                            }
+                                                            @if (!DisableChamber2)
+                                                            {
+                                                                <div class="col-md-4" style="padding-top:5px;">
+                                                                    <div class="form-control">
+                                                                        <div class="form-group">
+                                                                            <label for="example-text-input" class="font-weight-bolder mb-0" style="color:black;">Chamber 2</label>
+
+
+                                                                        </div>
+                                                                        <div class="form-group">
+                                                                            <label for="example-text-input" class="form-control-label">Chamber Quantity</label>
+                                                                            <input type="number" placeholder="Chamber Quantity" @bind="Invoices.ReceivingDetail.Chamber2.ChamberQuantity" class="form-control">
+
+                                                                        </div>
+                                                                        <div class="form-group">
+                                                                            <label for="example-text-input" class="form-control-label">
+                                                                                Tank Lorry Product Dips(MM)
+                                                                            </label>
+                                                                            <input type="number" placeholder=" Tank Lorry Product Dips(MM)" @bind="Invoices.ReceivingDetail.Chamber2.LorryDip" class="form-control">
+
+                                                                        </div>
+                                                                        <div class="form-group">
+                                                                            <label for="example-text-input" class="form-control-label">
+                                                                                Quantity  85F
+                                                                            </label>
+                                                                            <input type="number" placeholder="Quantity  85F" @bind="Invoices.ReceivingDetail.Chamber2.Quantity" class="form-control">
+
+                                                                        </div>
 
                                                                     </div>
-                                                                    <div class="form-group">
-                                                                        <label for="example-text-input" class="form-control-label">
-                                                                            Product Dip (MM)
-                                                                        </label>
-                                                                        <input type="text" placeholder=" Product Dip (MM)" class="form-control">
+
+
+
+
+
+                                                                </div>
+                                                            }
+                                                            @if (!DisableChamber3)
+                                                            {
+
+
+                                                                <div class="col-md-4" style="padding-top:5px;">
+                                                                    <div class="form-control">
+                                                                        <div class="form-group">
+                                                                            <label for="example-text-input" class="font-weight-bolder mb-0" style="color:black;">Chamber 3</label>
+
+
+                                                                        </div>
+                                                                        <div class="form-group">
+                                                                            <label for="example-text-input" class="form-control-label">Chamber Quantity</label>
+                                                                            <input type="number" placeholder="Chamber Quantity" @bind="Invoices.ReceivingDetail.Chamber3.ChamberQuantity" class="form-control">
+
+                                                                        </div>
+                                                                        <div class="form-group">
+                                                                            <label for="example-text-input" class="form-control-label">
+                                                                                Tank Lorry Product Dips(MM)
+                                                                            </label>
+                                                                            <input type="number" placeholder=" Tank Lorry Product Dips(MM)" @bind="Invoices.ReceivingDetail.Chamber3.LorryDip" class="form-control">
+
+                                                                        </div>
+                                                                        <div class="form-group">
+                                                                            <label for="example-text-input" class="form-control-label">
+                                                                                Quantity  85F
+                                                                            </label>
+                                                                            <input type="number" placeholder="Quantity  85F" @bind="Invoices.ReceivingDetail.Chamber3.Quantity" class="form-control">
+
+                                                                        </div>
 
                                                                     </div>
-                                                                    <div class="form-group">
-                                                                        <label for="example-text-input" class="form-control-label">
-                                                                            Product Diff (MM)
-                                                                        </label>
-                                                                        <input type="text" placeholder="Product Diff (MM)" class="form-control">
+
+
+
+
+
+                                                                </div>
+                                                            }
+                                                            @if (!DisableChamber4)
+                                                            {
+
+
+                                                                <div class="col-md-4" style="padding-top:5px;">
+                                                                    <div class="form-control">
+                                                                        <div class="form-group">
+                                                                            <label for="example-text-input" class="font-weight-bolder mb-0" style="color:black;">Chamber 4</label>
+
+
+                                                                        </div>
+                                                                        <div class="form-group">
+                                                                            <label for="example-text-input" class="form-control-label">Chamber Quantity</label>
+                                                                            <input type="number" placeholder="Chamber Quantity" @bind="Invoices.ReceivingDetail.Chamber4.ChamberQuantity" class="form-control">
+
+                                                                        </div>
+                                                                        <div class="form-group">
+                                                                            <label for="example-text-input" class="form-control-label">
+                                                                                Tank Lorry Product Dips(MM)
+                                                                            </label>
+                                                                            <input type="number" placeholder=" Tank Lorry Product Dips(MM)" @bind="Invoices.ReceivingDetail.Chamber4.LorryDip" class="form-control">
+
+                                                                        </div>
+                                                                        <div class="form-group">
+                                                                            <label for="example-text-input" class="form-control-label">
+                                                                                Quantity  85F
+                                                                            </label>
+                                                                            <input type="number" placeholder="Quantity  85F" @bind="Invoices.ReceivingDetail.Chamber4.Quantity" class="form-control">
+
+                                                                        </div>
 
                                                                     </div>
-                                                                    <div class="form-group">
-                                                                        <label for="example-text-input" class="form-control-label">
-                                                                            Prod. Difference (Ltrs.)
 
-                                                                        </label>
-                                                                        <input type="text" placeholder="Prod. Difference (Ltrs.)" class="form-control">
+
+
+
+
+                                                                </div>
+                                                            }
+                                                            @if (!DisableChamber5)
+                                                            {
+
+
+                                                                <div class="col-md-4" style="padding-top:5px;">
+                                                                    <div class="form-control">
+                                                                        <div class="form-group">
+                                                                            <label for="example-text-input" class="font-weight-bolder mb-0" style="color:black;">Chamber 5</label>
+
+
+                                                                        </div>
+                                                                        <div class="form-group">
+                                                                            <label for="example-text-input" class="form-control-label">Chamber Quantity</label>
+                                                                            <input type="number" placeholder="Chamber Quantity" @bind="Invoices.ReceivingDetail.Chamber5.ChamberQuantity" class="form-control">
+
+                                                                        </div>
+                                                                        <div class="form-group">
+                                                                            <label for="example-text-input" class="form-control-label">
+                                                                                Tank Lorry Product Dips(MM)
+                                                                            </label>
+                                                                            <input type="number" placeholder=" Tank Lorry Product Dips(MM)" @bind="Invoices.ReceivingDetail.Chamber5.LorryDip" class="form-control">
+
+                                                                        </div>
+                                                                        <div class="form-group">
+                                                                            <label for="example-text-input" class="form-control-label">
+                                                                                Quantity  85F
+                                                                            </label>
+                                                                            <input type="number" placeholder="Quantity  85F" @bind="Invoices.ReceivingDetail.Chamber5.Quantity" class="form-control">
+
+                                                                        </div>
 
                                                                     </div>
+
+
+
+
 
                                                                 </div>
 
-
-
-
-
-                                                            </div>
-
-                                                            <div class="col-md-4" style="padding-top:5px;">
-                                                                <div class="form-control">
-                                                                    <div class="form-group">
-                                                                        <label for="example-text-input" class="font-weight-bolder mb-0" style="color:black;">Chamber 2</label>
-
-
-                                                                    </div>
-                                                                    <div class="form-group">
-                                                                        <label for="example-text-input" class="form-control-label">Product Volume (ltr)</label>
-                                                                        <input type="text" placeholder="Product Volume (ltr)" class="form-control">
-
-                                                                    </div>
-                                                                    <div class="form-group">
-                                                                        <label for="example-text-input" class="form-control-label">
-                                                                            Product Dip (MM)
-                                                                        </label>
-                                                                        <input type="text" placeholder=" Product Dip (MM)" class="form-control">
-
-                                                                    </div>
-                                                                    <div class="form-group">
-                                                                        <label for="example-text-input" class="form-control-label">
-                                                                            Product Diff (MM)
-                                                                        </label>
-                                                                        <input type="text" placeholder="Product Diff (MM)" class="form-control">
-
-                                                                    </div>
-                                                                    <div class="form-group">
-                                                                        <label for="example-text-input" class="form-control-label">
-                                                                            Prod. Difference (Ltrs.)
-
-                                                                        </label>
-                                                                        <input type="text" placeholder="Prod. Difference (Ltrs.)" class="form-control">
-
-                                                                    </div>
-                                                                </div>
-
-
-
-
-
-                                                            </div>
-
-                                                            <div class="col-md-4" style="padding-top:5px;">
-                                                                <div class="form-control">
-                                                                    <div class="form-group">
-                                                                        <label for="example-text-input" class="font-weight-bolder mb-0" style="color:black;">Chamber 3</label>
-
-
-                                                                    </div>
-                                                                    <div class="form-group">
-                                                                        <label for="example-text-input" class="form-control-label">Product Volume (ltr)</label>
-                                                                        <input type="text" placeholder="Product Volume (ltr)" class="form-control">
-
-                                                                    </div>
-                                                                    <div class="form-group">
-                                                                        <label for="example-text-input" class="form-control-label">
-                                                                            Product Dip (MM)
-                                                                        </label>
-                                                                        <input type="text" placeholder=" Product Dip (MM)" class="form-control">
-
-                                                                    </div>
-                                                                    <div class="form-group">
-                                                                        <label for="example-text-input" class="form-control-label">
-                                                                            Product Diff (MM)
-                                                                        </label>
-                                                                        <input type="text" placeholder="Product Diff (MM)" class="form-control">
-
-                                                                    </div>
-                                                                    <div class="form-group">
-                                                                        <label for="example-text-input" class="form-control-label">
-                                                                            Prod. Difference (Ltrs.)
-
-                                                                        </label>
-                                                                        <input type="text" placeholder="Prod. Difference (Ltrs.)" class="form-control">
-
-                                                                    </div>
-                                                                </div>
-
-
-
-
-
-                                                            </div>
-                                                            <div class="col-md-4" style="padding-top:5px;">
-                                                                <div class="form-control">
-                                                                    <div class="form-group">
-                                                                        <label for="example-text-input" class="font-weight-bolder mb-0" style="color:black;">Chamber 4</label>
-
-
-                                                                    </div>
-                                                                    <div class="form-group">
-                                                                        <label for="example-text-input" class="form-control-label">Product Volume (ltr)</label>
-                                                                        <input type="text" placeholder="Product Volume (ltr)" class="form-control">
-
-                                                                    </div>
-                                                                    <div class="form-group">
-                                                                        <label for="example-text-input" class="form-control-label">
-                                                                            Product Dip (MM)
-                                                                        </label>
-                                                                        <input type="text" placeholder=" Product Dip (MM)" class="form-control">
-
-                                                                    </div>
-                                                                    <div class="form-group">
-                                                                        <label for="example-text-input" class="form-control-label">
-                                                                            Product Diff (MM)
-                                                                        </label>
-                                                                        <input type="text" placeholder="Product Diff (MM)" class="form-control">
-
-                                                                    </div>
-                                                                    <div class="form-group">
-                                                                        <label for="example-text-input" class="form-control-label">
-                                                                            Prod. Difference (Ltrs.)
-
-                                                                        </label>
-                                                                        <input type="text" placeholder="Prod. Difference (Ltrs.)" class="form-control">
-
-                                                                    </div>
-                                                                </div>
-
-
-
-
-
-                                                            </div>
-
-                                                            <div class="col-md-4" style="padding-top:5px;">
-                                                                <div class="form-control">
-                                                                    <div class="form-group">
-                                                                        <label for="example-text-input" class="font-weight-bolder mb-0" style="color:black;">Chamber 5</label>
-
-
-                                                                    </div>
-                                                                    <div class="form-group">
-                                                                        <label for="example-text-input" class="form-control-label">Product Volume (ltr)</label>
-                                                                        <input type="text" placeholder="Product Volume (ltr)" class="form-control">
-
-                                                                    </div>
-                                                                    <div class="form-group">
-                                                                        <label for="example-text-input" class="form-control-label">
-                                                                            Product Dip (MM)
-                                                                        </label>
-                                                                        <input type="text" placeholder=" Product Dip (MM)" class="form-control">
-
-                                                                    </div>
-                                                                    <div class="form-group">
-                                                                        <label for="example-text-input" class="form-control-label">
-                                                                            Product Diff (MM)
-                                                                        </label>
-                                                                        <input type="text" placeholder="Product Diff (MM)" class="form-control">
-
-                                                                    </div>
-                                                                    <div class="form-group">
-                                                                        <label for="example-text-input" class="form-control-label">
-                                                                            Prod. Difference (Ltrs.)
-
-                                                                        </label>
-                                                                        <input type="text" placeholder="Prod. Difference (Ltrs.)" class="form-control">
-
-                                                                    </div>
-                                                                </div>
-
-
-
-
-
-                                                            </div>
-
-                                                     
+                                                            }
 
                                                         </div>
 
@@ -596,74 +528,7 @@
 
                                         </Content>
                                     </TabItem>
-                                    <TabItem id="tab5" @ref="_tab5">
-                                        <Header>
-                                            <strong>
-                                                Receiving Summary
-                                            </strong>
-                                        </Header>
-                                        <Content>
-                                            <div class="col-md-12">
-                                                <div class="card">
-
-                                                    <div class="card-body">
-
-                                                        <div class="row">
-                                                            <div class="col-md-12" style="padding-top:10px;">
-                                                                <div class="form-group" style="text-align:center;">
-                                                                    <button class="btn btn-danger btn-sm ms-auto" @onclick="NextTab">Next</button>
-                                                                    <button class="btn btn-warning btn-sm ms-auto" @onclick="PreviousTab">Back</button>
-                                                                </div>
-                                                            </div>
-                                                            <div class="col-md-12">
-                                                                <div class="form-group">
-                                                                    <label for="example-text-input" class="font-weight-bolder mb-0" style="color:black;">
-                                                                        Product:Petroleum Motor Gasoline - PMG
-                                                                    </label>
-
-
-                                                                </div>
-                                                            </div>
-                                                            <div class="col-md-6">
-                                                                <div class="form-group">
-                                                                    <label for="example-text-input" class="form-control-label">Quantity (Nat)</label>
-                                                                    <input type="text" placeholder="Full Name" class="form-control">
-
-                                                                </div>
-                                                            </div>
-                                                            <div class="col-md-6">
-                                                                <div class="form-group">
-                                                                    <label for="example-text-input" class="form-control-label">Quantity (L85)</label>
-                                                                    <input type="text" placeholder="Contact" class="form-control">
-
-                                                                </div>
-                                                            </div>
-                                                            <div class="col-md-6">
-                                                                <div class="form-group">
-                                                                    <label for="example-text-input" class="form-control-label">Temperature F</label>
-                                                                    <input type="text" placeholder="Designation" class="form-control">
-
-                                                                </div>
-                                                            </div>
-                                                            <div class="col-md-6">
-                                                                <div class="form-group">
-                                                                    <label for="example-text-input" class="form-control-label">S.G</label>
-                                                                    <input type="text" placeholder="Designation" class="form-control">
-
-                                                                </div>
-                                                            </div>
-
-                                                      
-
-                                                        </div>
-
-                                                    </div>
-                                                </div>
-                                            </div>
-
-                                        </Content>
-                                    </TabItem>
-                                    <TabItem id="tab6" @ref="_tab6">
+                                    <TabItem id="tab4" @ref="_tab4">
                                         <Header><strong>Shortage Calculation</strong></Header>
                                         <Content>
                                             <div class="col-md-12">
@@ -672,163 +537,248 @@
                                                     <div class="card-body">
 
                                                         <div class="row">
+
                                                             <div class="col-md-12" style="padding-top:10px;">
                                                                 <div class="form-group" style="text-align:center;">
                                                                     <button class="btn btn-danger btn-sm ms-auto" @onclick="NextTab">Next</button>
                                                                     <button class="btn btn-warning btn-sm ms-auto" @onclick="PreviousTab">Back</button>
                                                                 </div>
-
                                                             </div>
-                                                            <div class="col-md-4" style="padding-top:5px;">
-                                                                <div class="form-control">
-                                                                    <div class="form-group">
-                                                                        <label for="example-text-input" class="font-weight-bolder mb-0" style="color:black;">
-                                                                            Natural
-                                                                        </label>
+                                                            @if (!DisableChamber1)
+                                                            {
+                                                                <div class="col-md-4" style="padding-top:5px;">
+                                                                    <div class="form-control">
+                                                                        <div class="form-group">
+                                                                            <label for="example-text-input" class="font-weight-bolder mb-0" style="color:black;">Chamber 1</label>
+
+
+                                                                        </div>
+                                                                        <div class="form-group">
+                                                                            <label for="example-text-input" class="form-control-label">Shortage in MM</label>
+                                                                            <input type="number" placeholder="Shortage in MM" @bind="Invoices.ShortageCalculation.Chamber1.ShortageMM" class="form-control">
+
+                                                                        </div>
+                                                                        <div class="form-group">
+                                                                            <label for="example-text-input" class="form-control-label">
+                                                                                Total Shortage in Liters
+                                                                            </label>
+                                                                            <input type="number" placeholder="Total Shortage in Liters" @bind="Invoices.ShortageCalculation.Chamber1.TotalShortageLtr" class="form-control">
+
+                                                                        </div>
 
 
                                                                     </div>
-                                                                    <div class="form-group">
-                                                                        <label for="example-text-input" class="form-control-label">
-                                                                            Dispatched Qty.
-                                                                        </label>
-                                                                        <input type="text" placeholder="Dispatched Qty" class="form-control">
 
-                                                                    </div>
-                                                                    <div class="form-group">
-                                                                        <label for="example-text-input" class="form-control-label">
-                                                                            Received Qty.
-                                                                        </label>
-                                                                        <input type="text" placeholder="Received Qty" class="form-control">
 
-                                                                    </div>
-                                                                    <div class="form-group">
-                                                                        <label for="example-text-input" class="form-control-label">
-                                                                            Shortage in Ltrs.
 
-                                                                        </label>
-                                                                        <input type="text" placeholder="Shortage in Ltrs" class="form-control">
-
-                                                                    </div>
 
 
                                                                 </div>
+                                                            }
+                                                            @if (!DisableChamber2)
+                                                            {
+                                                                <div class="col-md-4" style="padding-top:5px;">
+                                                                    <div class="form-control">
+                                                                        <div class="form-group">
+                                                                            <label for="example-text-input" class="font-weight-bolder mb-0" style="color:black;">Chamber 2</label>
 
 
+                                                                        </div>
+                                                                        <div class="form-group">
+                                                                            <label for="example-text-input" class="form-control-label">Shortage in MM</label>
+                                                                            <input type="number" placeholder="Shortage in MM" @bind="Invoices.ShortageCalculation.Chamber2.ShortageMM" class="form-control">
 
+                                                                        </div>
+                                                                        <div class="form-group">
+                                                                            <label for="example-text-input" class="form-control-label">Total Shortage in Liters</label>
+                                                                            <input type="number" placeholder="Total Shortage in Liters" @bind="Invoices.ShortageCalculation.Chamber2.TotalShortageLtr" class="form-control">
 
-
-                                                            </div>
-
-                                                            <div class="col-md-4" style="padding-top:5px;">
-                                                                <div class="form-control">
-                                                                    <div class="form-group">
-                                                                        <label for="example-text-input" class="font-weight-bolder mb-0" style="color:black;">85 °F</label>
-
-
-                                                                    </div>
-                                                                    <div class="form-group">
-                                                                        <label for="example-text-input" class="form-control-label">
-                                                                            Dispatched Qty.
-                                                                        </label>
-                                                                        <input type="text" placeholder="Dispatched Qty" class="form-control">
-
-                                                                    </div>
-                                                                    <div class="form-group">
-                                                                        <label for="example-text-input" class="form-control-label">
-                                                                            Received Qty.
-                                                                        </label>
-                                                                        <input type="text" placeholder="Received Qty" class="form-control">
+                                                                        </div>
 
                                                                     </div>
-                                                                    <div class="form-group">
-                                                                        <label for="example-text-input" class="form-control-label">
-                                                                            Shortage in Ltrs.
 
-                                                                        </label>
-                                                                        <input type="text" placeholder="Shortage in Ltrs" class="form-control">
 
+
+
+
+                                                                </div>
+                                                            }
+                                                            @if (!DisableChamber3)
+                                                            {
+                                                                <div class="col-md-4" style="padding-top:5px;">
+                                                                    <div class="form-control">
+                                                                        <div class="form-group">
+                                                                            <label for="example-text-input" class="font-weight-bolder mb-0" style="color:black;">Chamber 3</label>
+
+
+                                                                        </div>
+                                                                        <div class="form-group">
+                                                                            <label for="example-text-input" class="form-control-label">Shortage in MM</label>
+                                                                            <input type="number" placeholder="Shortage in MM" @bind="Invoices.ShortageCalculation.Chamber3.ShortageMM" class="form-control">
+
+                                                                        </div>
+                                                                        <div class="form-group">
+                                                                            <label for="example-text-input" class="form-control-label">
+                                                                                Total Shortage in Liters
+                                                                            </label>
+                                                                            <input type="number" placeholder="Total Shortage in Liters" @bind="Invoices.ShortageCalculation.Chamber3.TotalShortageLtr" class="form-control">
+
+                                                                        </div>
+                                                                    </div>
+
+
+
+
+
+                                                                </div>
+                                                            }
+                                                            @if (!DisableChamber4)
+                                                            {
+                                                                <div class="col-md-4" style="padding-top:5px;">
+                                                                    <div class="form-control">
+                                                                        <div class="form-group">
+                                                                            <label for="example-text-input" class="font-weight-bolder mb-0" style="color:black;">Chamber 4</label>
+
+
+                                                                        </div>
+                                                                        <div class="form-group">
+                                                                            <label for="example-text-input" class="form-control-label">Shortage in MM</label>
+                                                                            <input type="number" placeholder="Shortage in MM" @bind="Invoices.ShortageCalculation.Chamber4.ShortageMM" class="form-control">
+
+                                                                        </div>
+                                                                        <div class="form-group">
+                                                                            <label for="example-text-input" class="form-control-label">
+                                                                                Total Shortage in Liters
+                                                                            </label>
+                                                                            <input type="number" placeholder="Total Shortage in Liters" @bind="Invoices.ShortageCalculation.Chamber4.TotalShortageLtr" class="form-control">
+
+                                                                        </div>
+                                                                    </div>
+
+
+
+
+
+                                                                </div>
+                                                            }
+                                                            @if (!DisableChamber5)
+                                                            {
+                                                                <div class="col-md-4" style="padding-top:5px;">
+                                                                    <div class="form-control">
+                                                                        <div class="form-group">
+                                                                            <label for="example-text-input" class="font-weight-bolder mb-0" style="color:black;">Chamber 5</label>
+
+
+                                                                        </div>
+                                                                        <div class="form-group">
+                                                                            <label for="example-text-input" class="form-control-label">Shortage in MM</label>
+                                                                            <input type="number" placeholder="Shortage in MM" @bind="Invoices.ShortageCalculation.Chamber5.ShortageMM" class="form-control">
+
+                                                                        </div>
+                                                                        <div class="form-group">
+                                                                            <label for="example-text-input" class="form-control-label">
+                                                                                Total Shortage in Liters
+                                                                            </label>
+                                                                            <input type="number" placeholder="Total Shortage in Liters" @bind="Invoices.ShortageCalculation.Chamber5.TotalShortageLtr" class="form-control">
+
+                                                                        </div>
                                                                     </div>
 
                                                                 </div>
 
-
-
-
-
-                                                            </div>
-
-                                                            <div class="col-md-4" style="padding-top:5px;">
-                                                                <div class="form-control">
-
-                                                                    <div class="form-group">
-                                                                        <label for="example-text-input" class="form-control-label">
-                                                                            Shortage in MM
-                                                                        </label>
-                                                                        <input type="text" placeholder="Shortage in MM" class="form-control">
-
-                                                                    </div>
-                                                                    <div class="form-group">
-                                                                        <label for="example-text-input" class="form-control-label">
-                                                                            Shortage Excempted on Temp °F
-
-                                                                        </label>
-                                                                        <input type="text" placeholder="Shortage Excempted on Temp °F" class="form-control">
-
-                                                                    </div>
-                                                                    <div class="form-group">
-                                                                        <label for="example-text-input" class="form-control-label">
-                                                                            Shortage Charge to Carriage
-                                                                        </label>
-                                                                        <input type="text" placeholder="Shortage Charge to Carriage" class="form-control">
-
-                                                                    </div>
-                                                                    <div class="form-group">
-                                                                        <label for="example-text-input" class="form-control-label">
-                                                                            Other Shortage
-
-                                                                        </label>
-                                                                        <input type="text" placeholder="Other Shortage" class="form-control">
-
-                                                                    </div>
-                                                                    <div class="form-group">
-                                                                        <label for="example-text-input" class="form-control-label">
-                                                                            Total Shortage
-
-
-                                                                        </label>
-                                                                        <input type="text" placeholder="Total Shortage" class="form-control">
-
-                                                                    </div>
-                                                                </div>
-
-
-
-
-
-                                                            </div>
-
-
-                                                        
-
+                                                            }
                                                         </div>
 
                                                     </div>
                                                 </div>
                                             </div>
 
-
                                         </Content>
                                     </TabItem>
 
-                                    <TabItem id="tab7" @ref="_tab7">
-                                        <Header><strong>Upload Hardcopy</strong></Header>
+                                    <TabItem id="tab4" @ref="_tab4">
+                                        <Header><strong>Calculation Diff</strong></Header>
                                         <Content>
                                             <div class="col-md-12">
                                                 <div class="card">
 
                                                     <div class="card-body">
 
+                                                        <div class="row">
+
+                                                            <div class="col-md-12" style="padding-top:10px;">
+                                                                <div class="form-group" style="text-align:center;">
+                                                                    <button class="btn btn-danger btn-sm ms-auto" @onclick="NextTab">Next</button>
+                                                                    <button class="btn btn-warning btn-sm ms-auto" @onclick="PreviousTab">Back</button>
+                                                                </div>
+                                                            </div>
+                                                            <div class="col-md-4" style="padding-top:5px;">
+                                                                <div class="form-control">
+
+                                                                    <div class="form-group">
+                                                                        <label for="example-text-input" class="form-control-label">Temp. Difference (Desp. vs Rec.)</label>
+                                                                        <input type="text" placeholder="Temp. Difference (Desp. vs Rec.)" @bind="Invoices.CalculationDifference.TempDiff" class="form-control">
+
+                                                                    </div>
+                                                                    <div class="form-group">
+                                                                        <label for="example-text-input" class="form-control-label">
+                                                                            Shortage 1° F Temp
+                                                                        </label>
+                                                                        <input type="text" placeholder="Shortage 1° F Temp" @bind="Invoices.CalculationDifference.Shortage1FTemp" class="form-control">
+
+                                                                    </div>
+
+                                                                    <div class="form-group">
+                                                                        <label for="example-text-input" class="form-control-label">
+                                                                            Qty Should be Received
+                                                                        </label>
+                                                                        <input type="text" placeholder="Qty Should be Received" @bind="Invoices.CalculationDifference.QtyShouldRecieved" class="form-control">
+
+                                                                    </div>
+
+
+                                                                </div>
+
+
+
+
+
+                                                            </div>
+
+                                                            <div class="col-md-4" style="padding-top:5px;">
+                                                                <div class="form-control">
+
+                                                                    <div class="form-group">
+                                                                        <label for="example-text-input" class="form-control-label">Total Shortage in Liters By Dip</label>
+                                                                        <input type="text" placeholder="Total Shortage in Liters By Dip" @bind="Invoices.CalculationDifference.TotalShortageByDip" class="form-control">
+
+                                                                    </div>
+                                                                    <div class="form-group">
+                                                                        <label for="example-text-input" class="form-control-label">
+                                                                            Short On Temprature (Exempted)
+                                                                        </label>
+                                                                        <input type="text" placeholder="Short On Temprature (Exempted)" @bind="Invoices.CalculationDifference.ShortOnTemp" class="form-control">
+                                                                    </div>
+                                                                    <div class="form-group">
+                                                                        <label for="example-text-input" class="form-control-label">
+                                                                            Shortage Charge to Contractor
+                                                                        </label>
+                                                                        <input type="text" placeholder="Shortage Charge to Contractor" @bind="Invoices.CalculationDifference.ShortageCharge" class="form-control">
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </Content>
+                                    </TabItem>
+                                    <TabItem id="tab6" @ref="_tab6">
+                                        <Header><strong>Upload Hardcopy</strong></Header>
+                                        <Content>
+                                            <div class="col-md-12">
+                                                <div class="card">
+                                                    <div class="card-body">
                                                         <div class="row">
                                                             <div class="col-md-12" style="padding-top:10px;">
                                                                 <div class="form-group" style="text-align:center;">
@@ -843,43 +793,26 @@
                                                                         <label for="example-text-input" class="font-weight-bolder mb-0" style="color:black;">
                                                                             Upload Image
                                                                         </label>
-
-
+                                                                        @if (Invoices.IsFromDisplay)
+                                                                        {
+                                                                            <label for="example-text-input" class="font-weight-bolder mb-0" style="color:black;font-size:medium;">
+                                                                                Previous Image is already saved. Only upload if you want to replace that.
+                                                                            </label>
+                                                                        }
                                                                     </div>
                                                                     <div class="form-group">
-
                                                                         <InputFile OnChange="@LoadFiles" />
-
                                                                     </div>
-
-
-
                                                                 </div>
-
-
-
-
-
                                                             </div>
-
-
-
-
-                                                         
-
                                                         </div>
-
                                                     </div>
                                                 </div>
                                             </div>
-
-
                                         </Content>
                                     </TabItem>
                                 </TabItems>
                             </TabsPanel>
-
-
                         </div>
                     </div>
                 </div>
@@ -896,6 +829,7 @@
 
 
 @code {
+    private Invoicing Invoices { get; set; } = new Invoicing();
     private string TabHeading { get; set; }
     private string _activeColor = "White";
     private string _inactiveColor = "White";
@@ -906,10 +840,18 @@
     private bool _isAnimated = false;
     private bool _allTabsDisabled = false;
     private bool IsLoading = false;
+    private bool CheckChamber1 = true;
 
     private bool _isTabHidden = false;
 
     private int _tabsCount;
+
+    private bool DisableChamber1 = true;
+    private bool DisableChamber2 = true;
+    private bool DisableChamber3 = true;
+    private bool DisableChamber4 = true;
+    private bool DisableChamber5 = true;
+
 
     private TabsPanel _tabs;
     private TabItem _activeTab;
@@ -920,6 +862,54 @@
     private TabItem _tab5;
     private TabItem _tab6;
     private TabItem _tab7;
+
+
+    protected override void OnInitialized()
+    {
+        // Retrieve the encoded JSON string from the query parameters if it exists
+        string encodedJson = NavigationManager.ToAbsoluteUri(NavigationManager.Uri).Query;
+
+        // Check if the "json" query parameter exists
+        if (encodedJson.Contains("Edit="))
+        {
+            // Extract the value of the "json" query parameter
+            encodedJson = encodedJson.Split("Edit=")[1];
+
+            // Decode the URL-safe Base64 string
+            string base64EncodedJson = HttpUtility.UrlDecode(encodedJson);
+
+            // Convert the Base64 string back to UTF-8 encoded bytes
+            byte[] base64EncodedBytes = Convert.FromBase64String(base64EncodedJson);
+
+            // Decode the UTF-8 bytes back to the original JSON string
+            string jsonString = Encoding.UTF8.GetString(base64EncodedBytes);
+
+            // Deserialize the JSON string back into the Invoices object
+            Invoices = JsonSerializer.Deserialize<Invoicing>(jsonString);
+
+        }
+    }
+
+    private void Chamber1Check(ChangeEventArgs e)
+    {
+        DisableChamber1 = (bool)e.Value;
+    }
+    private void Chamber2Check(ChangeEventArgs e)
+    {
+        DisableChamber2 = (bool)e.Value;
+    }
+    private void Chamber3Check(ChangeEventArgs e)
+    {
+        DisableChamber3 = (bool)e.Value;
+    }
+    private void Chamber4Check(ChangeEventArgs e)
+    {
+        DisableChamber4 = (bool)e.Value;
+    }
+    private void Chamber5Check(ChangeEventArgs e)
+    {
+        DisableChamber5 = (bool)e.Value;
+    }
 
     private async Task LoadFiles(InputFileChangeEventArgs e)
     {
@@ -932,8 +922,7 @@
 
 
                 var trustedFileNameForFileStorage = file.Name;
-                var folderPath = Path.Combine(Environment.ContentRootPath,
-                                               Environment.EnvironmentName, "HTL Reports");
+                var folderPath = Path.Combine(Environment.ContentRootPath, "wwwroot\\css\\Development", "HTL_Reports");
 
                 // Create the directory if it doesn't exist
                 if (!Directory.Exists(folderPath))
@@ -945,7 +934,8 @@
 
                 await using FileStream fs = new(filePath, FileMode.Create);
                 await file.OpenReadStream().CopyToAsync(fs);
-
+                string correctedFilePath = Path.Combine("css/Development", "HTL_Reports", trustedFileNameForFileStorage);
+                Invoices.InvoiceFilePath = correctedFilePath.Replace("\\", "/");
                 toastService.ShowSuccess($"File {trustedFileNameForFileStorage} Upload Success");
             }
             catch (Exception ex)
@@ -963,6 +953,7 @@
         {
             try
             {
+
                 if (_tabs != null)
                 {
                     await _tabs.InnerElementReference.FocusAsync();
@@ -985,105 +976,180 @@
 
     private async Task SavePreview()
     {
-        IsLoading = true;
-        // await Task.Delay(10000);
-        IsLoading = false;
-        NavigationManager.NavigateTo("/invoicedisplay?IsView=View");
+        try
+        {
+            if (Invoices.InvoiceFilePath == null)
+            {
+                toastService.ShowWarning("Please Attach file");
+                return;
+            }
+            else
+            {
+                IsLoading = true;
+                IsLoading = false;
+                Invoices.IsView = "View";
+                string jsonString = JsonSerializer.Serialize(Invoices);
 
+                // Encode the JSON string as Base64 to make it URL-safe
+                string base64EncodedJson = Convert.ToBase64String(Encoding.UTF8.GetBytes(jsonString));
+
+                // Encode the Base64 string to make it URL-safe
+                string encodedJson = HttpUtility.UrlEncode(base64EncodedJson);
+
+                // Navigate to the destination page with the encoded JSON string as a query parameter
+                NavigationManager.NavigateTo($"/invoicedisplay?json={encodedJson}");
+            }
+        }
+        catch (Exception ex)
+        {
+            toastService.ShowError($"Error : {ex.Message}");
+        }
     }
 
-
+    private bool AreAllFieldsFilledInChamber(Ship_Chamber chamber)
+    {
+        return chamber.ChamberQuantity != 0 && chamber.LorryDip != 0 && chamber.Quantity != 0;
+    }
+    private bool AreAllFieldsFilledInReceivingChamber(Recieve_Chamber chamber)
+    {
+        return chamber.ChamberQuantity != 0 && chamber.LorryDip != 0 && chamber.Quantity != 0;
+    }
     private void NextTab()
     {
 
+        Dictionary<int, string> tabHeadings = new Dictionary<int, string>()
+ {
+     { 5, "06- Upload Invoice Image" },
+     { 0, "01- General Details" },
+     { 1, "02- Shipping Details" },
+     { 2, "03- Receiving Details" },
+     { 3, "04- Shortage Calculation" },
+     { 4, "05- Calculation Diff" }
+ };
 
-        // Get the index of the current active tab
         var currentIndex = _tabs.Tabs.ToList().IndexOf(_activeTab);
-        if (currentIndex == 0)
-        {
-            TabHeading = "02- Dispatch Details";
-        }
-        else if (currentIndex == 1)
-        {
-            TabHeading = "03- Dispatch Summary";
-        }
-        else if (currentIndex == 2)
-        {
-            TabHeading = "04- Receiving Details";
-        }
-        else if (currentIndex == 3)
-        {
-            TabHeading = "05- Receiving Summary";
-        }
-        else if (currentIndex == 4)
-        {
-            TabHeading = "06- Shortage Calculation";
-        }
-        else if (currentIndex == 5)
-        {
-            TabHeading = "07- Upload Invoice Image";
-        }
-        else if (currentIndex == 6)
-        {
-            TabHeading = "01- General Details";
-        }
-        // Move to the next tab (or wrap around to the first tab if at the last tab)
         var nextIndex = (currentIndex + 1) % _tabsCount;
 
-        // Set the next tab as active
-        _activeTab = _tabs.Tabs.ElementAt(nextIndex);
-
-
-
-    }
-    private void PreviousTab()
-    {
-        // Get the index of the current active tab
-        var currentIndex = _tabs.Tabs.ToList().IndexOf(_activeTab);
-        if (currentIndex == 0)
+        if (currentIndex == 0 && Invoices.Details.TankLorryNO != null)
         {
-            TabHeading = "07- Upload Invoice Image";
-            // TabHeading = "02- Dispatch Details";
+            if (Invoices.IsFromDisplay && AreAllFieldsFilledInChamber(Invoices.ShippingDetail.Chamber1))
+            {
+                DisableChamber1 = false;
+            }
+            if (Invoices.IsFromDisplay && AreAllFieldsFilledInChamber(Invoices.ShippingDetail.Chamber2))
+            {
+                DisableChamber2 = false;
+            }
+            if (Invoices.IsFromDisplay && AreAllFieldsFilledInChamber(Invoices.ShippingDetail.Chamber3))
+            {
+                DisableChamber3 = false;
+            }
+            if (Invoices.IsFromDisplay && AreAllFieldsFilledInChamber(Invoices.ShippingDetail.Chamber4))
+            {
+                DisableChamber4 = false;
+            }
+            if (Invoices.IsFromDisplay && AreAllFieldsFilledInChamber(Invoices.ShippingDetail.Chamber5))
+            {
+                DisableChamber5 = false;
+            }
         }
-        else if (currentIndex == 1)
+        else if (Invoices.Details.TankLorryNO == null)
         {
-            TabHeading = "01- General Details";
-            // TabHeading = "03- Dispatch Summary";
+            toastService.ShowWarning("Tank Lorry Number is Manadatory");
+            return;
+        }
+
+        if (currentIndex == 1)
+        {
+
+            if (DisableChamber1 && DisableChamber2 && DisableChamber3 && DisableChamber4 && DisableChamber5)
+            {
+                toastService.ShowError("Please Select Chamber");
+                return;
+            }
+            if (!DisableChamber1 && !AreAllFieldsFilledInChamber(Invoices.ShippingDetail.Chamber1))
+            {
+                toastService.ShowError("Please insert all fields in Chamber 1");
+                return;
+            }
+            else if (!DisableChamber2 && !AreAllFieldsFilledInChamber(Invoices.ShippingDetail.Chamber2))
+            {
+                toastService.ShowError("Please insert all fields in Chamber 2");
+                return;
+            }
+            else if (!DisableChamber3 && !AreAllFieldsFilledInChamber(Invoices.ShippingDetail.Chamber3))
+            {
+                toastService.ShowError("Please insert all fields in Chamber 3");
+                return;
+            }
+            else if (!DisableChamber4 && !AreAllFieldsFilledInChamber(Invoices.ShippingDetail.Chamber4))
+            {
+                toastService.ShowError("Please insert all fields in Chamber 4");
+                return;
+            }
+            else if (!DisableChamber5 && !AreAllFieldsFilledInChamber(Invoices.ShippingDetail.Chamber5))
+            {
+                toastService.ShowError("Please insert all fields in Chamber 5");
+                return;
+            }
+
+
         }
         else if (currentIndex == 2)
         {
-            TabHeading = "02- Dispatch Details";
-            // TabHeading = "04- Receiving Details";
-        }
-        else if (currentIndex == 3)
-        {
-            TabHeading = "03- Dispatch Summary";
-            // TabHeading = "05- Receiving Summary";
-        }
-        else if (currentIndex == 4)
-        {
-            TabHeading = "04- Receiving Details";
 
+            if (!DisableChamber1 && !AreAllFieldsFilledInReceivingChamber(Invoices.ReceivingDetail.Chamber1))
+            {
+                toastService.ShowError("Please insert all fields in Chamber 1");
+                return;
+            }
+            else if (!DisableChamber2 && !AreAllFieldsFilledInReceivingChamber(Invoices.ReceivingDetail.Chamber2))
+            {
+                toastService.ShowError("Please insert all fields in Chamber 2");
+                return;
+            }
+            else if (!DisableChamber3 && !AreAllFieldsFilledInReceivingChamber(Invoices.ReceivingDetail.Chamber3))
+            {
+                toastService.ShowError("Please insert all fields in Chamber 3");
+                return;
+            }
+            else if (!DisableChamber4 && !AreAllFieldsFilledInReceivingChamber(Invoices.ReceivingDetail.Chamber4))
+            {
+                toastService.ShowError("Please insert all fields in Chamber 4");
+                return;
+            }
+            else if (!DisableChamber5 && !AreAllFieldsFilledInReceivingChamber(Invoices.ReceivingDetail.Chamber5))
+            {
+                toastService.ShowError("Please insert all fields in Chamber 5");
+                return;
+            }
         }
-        else if (currentIndex == 5)
-        {
-            TabHeading = "05- Receiving Summary";
-            // TabHeading = "01- General Details";
-        }
-        else if (currentIndex == 6)
-        {
-            TabHeading = "06- Shortage Calculation";
-            // TabHeading = "01- General Details";
-        }
-        // Move to the next tab (or wrap around to the first tab if at the last tab)
-        var nextIndex = currentIndex == 0 ? _tabs.Tabs.ToList().Count - 1 : (currentIndex - 1) % _tabsCount;
 
-        // Set the next tab as active
+        TabHeading = tabHeadings[nextIndex];
         _activeTab = _tabs.Tabs.ElementAt(nextIndex);
-
-
-
     }
+
+    private void PreviousTab()
+    {
+        Dictionary<int, string> tabHeadings = new Dictionary<int, string>()
+    {
+
+        { 0, "01- General Details" },
+        { 1, "02- Shipping Details" },
+        { 2, "03- Receiving Details" },
+        { 3, "04- Shortage Calculation" },
+        { 4, "05- Calculation Diff" },
+        { 5, "06- Upload Invoice Image" }
+    };
+
+        var currentIndex = _tabs.Tabs.ToList().IndexOf(_activeTab);
+
+
+        var nextIndex = currentIndex - 1;
+        _activeTab = _tabs.Tabs.ElementAt(nextIndex);
+        TabHeading = tabHeadings[nextIndex];
+    }
+
 
     private async Task OnTabChanged(TabItem tab)
     {
