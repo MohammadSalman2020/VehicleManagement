@@ -1,0 +1,349 @@
+﻿@page "/Chk_Details"
+
+@using Microsoft.AspNetCore.WebUtilities;
+@using VehicleManagement.Models.General
+@inject IToastService toastService
+@inject IJSRuntime JSRuntime
+@inject NavigationManager navmanager
+@inject IJSRuntime jsRuntime
+@using VehicleManagement.Models.DB
+@inject ApplicationDbContext DbContext
+
+<div class="container-fluid py-4">
+    <div class="row">
+        <div class="col-3">
+            @if (istart)
+            {
+                <button @onclick="ShowBack" class="btn btn-primary btn-sm">Back</button>
+            }
+            else if (isend)
+            {
+
+            }
+        </div>
+        <div class="col-6 ">
+        </div>
+        <div class="col-3">
+            @if (istart)
+            {
+                <div class="d-flex justify-content-center">
+                    <button @onclick="ShowNext" class="btn btn-primary btn-sm text-end">Next</button>
+                </div>
+            }
+            else if (isend)
+            {
+                <button @onclick="submit" class="btn btn-primary btn-sm text-end">Submit</button>
+            }
+            else
+            {
+                <div class="d-flex justify-content-center">
+                    <button @onclick="StartClick" class="btn btn-primary btn-sm">Start</button>
+                </div>
+            }
+        </div>
+        <div class="col-12">
+            <div class="card mb-12">
+                <div class="card-header pb-0" id="contentToPrint">
+
+                    <div class="form-group">
+                        <h4 style="text-align:center">UEP Check List(@vehicle)</h4>
+                        <h6 style="text-align:left">if found correct mark(YES) if found Faulty mark (NO) if irrelevant Mark (N/A)</h6>
+                    </div>
+                    <div class="container">
+                        <div class="row">
+                            <div class="col-md-12">
+                                @if (currentindex != 0)
+                                {
+                                    <div class="form-group">
+                                        <label for="textBoxId">@ID</label>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="textBoxId">@Desc</label>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-md-4">
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="checkbox" @onclick="@(e => HandleCheckboxClicked("Yes"))" id="yes" @bind=@TableData[currentindex].Yes />
+                                                <label class="form-check-label" for="yes">
+                                                    YES
+                                                </label>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="checkbox" @onclick="@(e => HandleCheckboxClicked("No"))" id="no" @bind=@TableData[currentindex].No />
+                                                <label class="form-check-label" for="no">
+                                                    NO
+                                                </label>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="checkbox" @onclick="@(e => HandleCheckboxClicked("NA"))" id="na" @bind=@TableData[currentindex].NA />
+                                                <label class="form-check-label" for="na">
+                                                    N/A
+                                                </label>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="form-group">
+                                        <label for="textBoxId">Attach Evidance</label>
+                                        <InputFile @ref="fileInput" class="form-control" OnChange="OnFileSelected" accept="image/jpeg,image/png" />
+
+                                        @if (!string.IsNullOrEmpty(FileName))
+                                        {
+                                            <p>Selected File: @FileName</p>
+                                            @if (TableData[currentindex - 1].image != null && TableData[currentindex - 1].image.Length > 0)
+                                            {
+                                                //  <img src="@Convert.ToBase64String(TableData[currentindex-1].image)" alt="Selected Image" class="img-fluid" />
+
+                                                @if (IsJPEG(TableData[currentindex - 1].image))
+                                                {
+                                                    <img src="data:image/jpeg;base64,@System.Convert.ToBase64String(TableData[currentindex - 1].image)" class="img-fluid mw-100 mh-100" />
+                                                }
+                                                else if (IsPNG(TableData[currentindex - 1].image))
+                                                {
+                                                    <img src="data:image/png;base64,@System.Convert.ToBase64String(TableData[currentindex - 1].image)" class="img-fluid mw-100 mh-100" />
+                                                }
+                                                else
+                                                {
+                                                    <p>Unknown image format</p>
+                                                }
+                                            }
+                                            else
+                                            {
+                                                <img src="@ImageUrl" alt="Selected Image" class="img-fluid" />
+
+                                            }
+                                        }
+                                        else
+                                        {
+
+                                            @if (IsJPEG(TableData[currentindex - 1].image))
+                                            {
+                                                <img src="data:image/jpeg;base64,@System.Convert.ToBase64String(TableData[currentindex - 1].image)" class="img-fluid mw-100 mh-100" />
+                                            }
+                                            else if (IsPNG(TableData[currentindex - 1].image))
+                                            {
+                                                <img src="data:image/png;base64,@System.Convert.ToBase64String(TableData[currentindex - 1].image)" class="img-fluid mw-100 mh-100" />
+                                            }
+                                            else
+                                            {
+                                                <p>Unknown image format</p>
+                                            }
+                                        }
+
+                                    </div>
+
+
+                                    <div class="form-group">
+                                        <label for="textBoxId">Remarks</label>
+                                        <textarea class="form-control" id="remarks" rows="5" @bind="TableData[currentindex-1].Remarks"></textarea>
+
+                                    </div>
+                                }
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+    </div>
+</div>
+
+
+
+
+
+@code {
+    // Your code-behind logic goes here
+
+    string vehicle="";
+
+    bool IsJPEG(byte[] data)
+    {
+        if (data == null || data.Length < 2)
+        {
+            return false;
+        }
+
+        // Check for JPEG file marker: FF D8 FF
+        return data[0] == 0xFF && data[1] == 0xD8 && data[2] == 0xFF;
+    }
+    bool IsPNG(byte[] data)
+    {
+        return data != null && data.Length > 7 &&
+               data[0] == 0x89 && data[1] == 0x50 && data[2] == 0x4E && data[3] == 0x47 &&
+               data[4] == 0x0D && data[5] == 0x0A && data[6] == 0x1A && data[7] == 0x0A;
+    }
+                                        
+
+    protected override void OnInitialized()
+    {
+        // Get the query string parameter value for 'id'
+        var uri = navmanager.ToAbsoluteUri(navmanager.Uri);
+        var id = QueryHelpers.ParseQuery(uri.Query).TryGetValue("Vehicle", out var value);
+        vehicle = value;
+    }
+    InputFile fileInput;
+    List<CheckList> TableData = new List<CheckList>
+    {
+        new CheckList { ID = 1, Scope = "In Cabin Check", Description = "Ease in Starting" ,Yes=false,No=false,NA=false},
+        new CheckList { ID = 2, Scope = "In Cabin Check", Description = "Engine Sound(Abnormal nose/Missing/Knocking)" ,Yes=false,No=false,NA=false},
+        new CheckList { ID = 3, Scope = "In Cabin Check", Description = "Engine Oil Pressure" ,Yes=false,No=false,NA=false},
+        new CheckList { ID = 4, Scope = "In Cabin Check", Description = "Alternator/Generator charging" ,Yes=false,No=false,NA=false},
+        new CheckList { ID = 5, Scope = "In Cabin Check", Description = "Horns Working" ,Yes=false,No=false,NA=false},
+        new CheckList { ID = 6, Scope = "In Cabin Check", Description = "Indicator/Hazards/left/Right/Head lights" ,Yes=false,No=false,NA=false},
+        new CheckList { ID = 7, Scope = "In Cabin Check", Description = "Parking Light" ,Yes=false,No=false,NA=false},
+
+
+    };
+    bool istart = false;
+    bool isend = false;
+
+    void submit()
+    {
+
+    }
+    
+  
+    int currentindex = 0;
+    void StartClick()
+    {
+
+        if (currentindex < TableData.Count)
+        {
+            if ((currentindex + 1) == TableData.Count)
+            {
+                isend = true;
+                istart = false;
+                ID = TableData[currentindex].ID;
+                Desc = TableData[currentindex].Description;
+                YES = TableData[currentindex].Yes;
+                NO = TableData[currentindex].No;
+                NA = TableData[currentindex].NA;
+             //   ((IJSObjectReference)jsRuntime).InvokeAsync<object>("clearFileInput", fileInput);
+
+                FileName = null;
+            }
+            else
+            {
+                ID = TableData[currentindex].ID;
+                Desc = TableData[currentindex].Description;
+                YES = TableData[currentindex].Yes;
+                NO = TableData[currentindex].No;
+                NA = TableData[currentindex].NA;
+                istart = true;
+                currentindex++;
+              //  ((IJSObjectReference)jsRuntime).InvokeAsync<object>("clearFileInput", fileInput);
+
+                FileName = null;
+            }
+
+
+
+        }
+
+
+
+    }
+    void ShowBack()
+    {
+        currentindex -= 2;
+        if (currentindex < 0)
+        {
+            currentindex = 0;
+        }
+        StartClick();
+    }
+    void ShowNext()
+    {
+
+        StartClick();
+
+    }
+    public class CheckList
+    {
+        public int ID { get; set; }
+        public string Scope { get; set; }
+        public string Description { get; set; }
+        public bool Yes { get; set; }
+        public bool No { get; set; }
+        public bool NA { get; set; }
+        public byte[]? image { get; set; }
+        public string? Remarks { get; set; }
+
+    }
+
+    public string remarks;
+    public int ID;
+    public string Desc;
+    public bool YES;
+    public bool NO;
+    public bool NA;
+
+
+    void HandleCheckboxClicked(string checkboxType)
+    {
+
+        switch (checkboxType)
+        {
+            case "Yes":
+                TableData[currentindex].Yes = true;
+                TableData[currentindex].No = false;
+                TableData[currentindex].NA = false;
+
+                break;
+            case "No":
+                TableData[currentindex].No = true;
+                TableData[currentindex].Yes = false;
+                TableData[currentindex].NA = false;
+
+                break;
+            case "NA":
+                TableData[currentindex].NA = true;
+                TableData[currentindex].Yes = false;
+                TableData[currentindex].No = false;
+
+                break;
+        }
+    }
+    string FileName { get; set; }
+    string ImageUrl { get; set; }
+    async Task OnFileSelected(InputFileChangeEventArgs e)
+    {
+        var file = e.GetMultipleFiles().FirstOrDefault();
+        if (file != null)
+        {
+            FileName = file.Name;
+            ImageUrl = await GetImageUrl(file);
+            UpdateModelWithImage(file);
+
+        }
+    }
+    async Task<string> GetImageUrl(IBrowserFile file)
+    {
+        var buffer = new byte[file.Size];
+        await file.OpenReadStream().ReadAsync(buffer);
+        var imageDataUrl = $"data:{file.ContentType};base64,{Convert.ToBase64String(buffer)}";
+        return imageDataUrl;
+    }
+    async Task UpdateModelWithImage(IBrowserFile file)
+    {
+        using var memoryStream = new MemoryStream();
+        await file.OpenReadStream().CopyToAsync(memoryStream);
+        TableData[currentindex - 1].image = memoryStream.ToArray();
+    }
+
+    void UploadFile()
+    {
+        // Implement file upload logic here
+        // You can access the file data from the InputFile component
+        // For example, you can send the file to a server-side endpoint for processing
+    }
+
+}
+

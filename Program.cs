@@ -21,7 +21,6 @@ builder.Services.AddSingleton<UserAccountService>();
 builder.Services.AddScoped<AuthenticationStateProvider, CustomAuthenticationStateProvider>();
 builder.Services.AddScoped<ProtectedSessionStorage>();
 builder.Services.AddBlazoredToast();
-
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.

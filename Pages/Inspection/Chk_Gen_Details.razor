@@ -1,0 +1,185 @@
+﻿@page "/checklist"
+
+@using VehicleManagement.Models.General
+@inject IToastService toastService
+@inject IJSRuntime JSRuntime
+@inject NavigationManager navmanager
+@using VehicleManagement.Models.DB
+@inject ApplicationDbContext DbContext
+
+<div class="container-fluid py-4">
+    <div class="row">
+       @*  <div class="col-6">
+            <button class="btn btn-primary btn-sm">Print</button>
+        </div> *@
+        <div class="col-12 text-end">
+            <button @onclick="Next" class="btn btn-primary btn-sm">NEXT</button>
+        </div>
+        <div class="col-12">
+            <div class="card mb-12">
+                <div class="card-header pb-0" id="contentToPrint">
+
+                    <div class="form-group">
+                        <h4 style="text-align:center">Shakoor & Company Limited</h4>
+                        <h6 style="text-align:left">Pre Trip Inspection Checklist</h6>
+                    </div>
+                    <div class="container">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="textBoxId">Date & Time</label>
+                                    <input type="datetime-local" class="form-control" id="textBoxId" @bind="txtdate" />
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="textBoxId">Origin/Destination</label>
+                                    <input type="text" class="form-control mb-2" id="textBoxId" @bind="txtdestination" />
+                                </div>
+
+
+                                <div class="form-group">
+                                    <label for="textBoxId">Company</label>
+                                    <input type="text" class="form-control mb-2" id="textBoxId" @bind="txtcompany" />
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="textBoxId">Driver-1 name & Code</label>
+                                    <input type="text" class="form-control mb-2" id="textBoxId" @bind="txtd1_name_code" />
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="textBoxId">Driver-2 name & Cod</label>
+                                    <input type="text" class="form-control mb-2" id="textBoxId" @bind="txtd2_name_code" />
+                                </div>
+                                <div class="form-group">
+                                    <label for="textBoxId">Product</label>
+                                    <input type="text" class="form-control mb-2" id="textBoxId" @bind="txtproduct" />
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="textBoxId">Vehicle#</label>
+                                    <input type="text" class="form-control mb-2" id="textBoxId" @bind="txtvehicle" />
+                                </div>
+
+
+                            </div>
+                            <div class="col-md-6">
+
+                              
+                                <div class="form-group">
+                                    <label for="textBoxId">Vehicle Capacity</label>
+                                    <input type="text" class="form-control mb-2" id="textBoxId" @bind="txtcapicity" />
+                                </div>
+                                <div class="form-group">
+                                    <label for="textBoxId">Tank# / Trailer#</label>
+                                    <input type="text" class="form-control mb-2" id="textBoxId" @bind="txtproduct" />
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="cellphone" @bind="cellphone" />
+                                    <label class="form-check-label" for="cellphone">
+                                        Cell Phone Knowledge
+                                    </label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="hydrotest" @bind="hydrotest" />
+                                    <label class="form-check-label" for="hydrotest">
+                                        Hydro Test
+                                    </label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="d1_licence" @bind="d1_licence" />
+                                    <label class="form-check-label" for="d1_licence">
+                                        D-1 License
+                                    </label>
+                                </div>
+
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="d2_licence" @bind="d2_licence" />
+                                    <label class="form-check-label" for="d2_licence">
+                                        D-2 License
+                                    </label>
+                                </div>
+
+
+
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="D1_D2_Mentally_alert" @bind="D1_D2_Mentally_alert" />
+                                    <label class="form-check-label" for="D1_D2_Mentally_alert">
+                                        D-1 & D-2 Mentally Alert
+                                    </label>
+                                </div>
+
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="Term_Card" @bind="Term_Card" />
+                                    <label class="form-check-label" for="Term_Card">
+                                        Term Card
+                                    </label>
+                                </div>
+
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="dipchart" @bind="dipchart" />
+                                    <label class="form-check-label" for="dipchart">
+                                        Valid Dip Chart
+                                    </label>
+                                </div>
+
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="explosives" @bind="explosives" />
+                                    <label class="form-check-label" for="explosives">
+                                        Valid Explosive Cert
+                                    </label>
+                                </div>
+
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="fittness" @bind="fittness" />
+                                    <label class="form-check-label" for="fittness">
+                                        Fitness Cert
+                                    </label>
+                                </div>
+
+
+
+
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+</div>
+
+
+
+@code {
+    // Your code-behind logic goes here
+
+    private string? Name = "UEP Checklist";
+    private string? txtdestination;
+    private string? txtcompany;
+    private string? txtd1_name_code;
+    private string? txtd2_name_code;
+    private string? txtproduct;
+    private string? txtvehicle;
+    private string? txtcapicity;
+    private bool cellphone = false;
+    private bool hydrotest = false;
+    private bool d1_licence = false;
+    private bool d2_licence = false;
+    private bool D1_D2_Mentally_alert = false;
+    private bool Term_Card = false;
+    private bool dipchart = false;
+    private bool explosives = false;
+    private bool fittness = false;
+    private DateTime txtdate;
+
+    void Next()
+    {
+        navmanager.NavigateTo($"/Chk_Details?Vehicle={txtvehicle}");
+    }
+
+}
+
