@@ -4,16 +4,19 @@
 @using System.Text.Json
 @using System.Web
 @using System.Text
+@using Microsoft.AspNetCore.Components.Server.ProtectedBrowserStorage
+@using VehicleManagement.ApiService
 @using VehicleManagement.Models.General
+@using VehicleManagement.Models.General.Login
 @using VehicleManagement.Pages.Redirects;
 @inject IWebHostEnvironment Environment
 @inject IToastService toastService
 @inject NavigationManager NavigationManager
-<AuthorizeView>
+@inject IApiService API
+
+
+<AuthorizeView Policy="Testing">
     <Authorized>
-
-
-
         <Nav PageName="@TabHeading" />
         <div class="container-fluid">
             <div class="row">
@@ -864,8 +867,13 @@
     private TabItem _tab7;
 
 
-    protected override void OnInitialized()
+    protected override async void OnInitialized()
     {
+       
+       
+
+      
+
         // Retrieve the encoded JSON string from the query parameters if it exists
         string encodedJson = NavigationManager.ToAbsoluteUri(NavigationManager.Uri).Query;
 
@@ -953,6 +961,8 @@
         {
             try
             {
+                var Login2 = await API.GetRequest($"Authenticate/Authentication");
+                var useraccount2 = JsonSerializer.Deserialize<GetLogin>(Login2);
 
                 if (_tabs != null)
                 {

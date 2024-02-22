@@ -54,13 +54,6 @@ public class InspectionApiService
 
 
 
-    //public async Task<string> Create(string EndPoint, TEntity entity)
-    //{
-    //    string url = $"{_apiBaseUrl}/{EndPoint}";
-    //    var response = await _httpClient.PostAsJsonAsync($"{_apiBaseUrl}/{EndPoint}", entity);
-    //    var res= response.StatusCode;
-    //    return res.ToString();
-    //}
 
     public  string PostRequest(string apipath, string jsonData)
     {

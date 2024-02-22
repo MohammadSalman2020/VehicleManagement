@@ -1,6 +1,9 @@
 ﻿@using Microsoft.EntityFrameworkCore
+@using System.Text.Json
+@using VehicleManagement.ApiService
 @using VehicleManagement.Authentication
 @inject NavigationManager Nav
+@using VehicleManagement.Models.General.Login
 @using VehicleManagement.Service
 @inject UserAccountService useraccountservice
 @inject AuthenticationStateProvider AuthStateProvider
@@ -8,6 +11,7 @@
 @using VehicleManagement.Models.DB
 @inject ApplicationDbContext DbContext
 @inject IJSRuntime JSRuntime
+@inject IApiService API
 
 <div class="login-screen" @onkeydown="HandleKeyPress">
 
@@ -30,15 +34,15 @@
 
                 <div class="login-form">
                     <div class="form">
-                        <input type="text" @bind="@Username" placeholder="Username" >
+                        <input type="text" @bind="@Username" placeholder="Username">
                         <input type="password" @bind="@Password" placeholder="Password">
 
                         <div class="remember-form">
-                            <input @bind-value="@rememberMe" type="checkbox">
+                            <input @bind-value="@rememberMe" checked="@rememberMe" type="checkbox">
                             <span>Remember me</span>
                         </div>
-                      @*   <div class="forget-pass">
-                            <a href="#">Forgot Password ?</a>
+                        @*   <div class="forget-pass">
+                        <a href="#">Forgot Password ?</a>
                         </div> *@
 
                         <button class="btn-auth" @onclick="Authenticate" @onkeydown="HandleKeyPress">LOG-IN</button>
@@ -50,41 +54,50 @@
         </div>
     </div>
 </div>
+<Modal @ref="modal" Title="Add Secret Key">
+    <Body>
+        <div class="col-md-12">
+            <div class="card">
 
-<Loader isLoading="@isLoading"/>
-@* <div class="container" style="background:white;">
-
-        <div class="col-xl-12 col-lg-12 col-md-7 d-flex flex-column mx-lg-0 mx-auto">
-            <div class="card card-plain">
-                <div class="card-header pb-0 text-start">
-                    <h4 class="font-weight-bolder">Sign In</h4>
-                    <p class="mb-0">Enter your email and password to sign in</p>
-                </div>
                 <div class="card-body">
-                    <form role="form">
-                        <div class="mb-3">
-                            <input type="email" class="form-control form-control-lg" @bind-value="@Username" placeholder="Email" aria-label="Email">
-                        </div>
-                        <div class="mb-3">
-                            <input type="password" class="form-control form-control-lg" @bind-value="@Password" placeholder="Password" aria-label="Password">
+
+                    <div class="row">
+
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="example-text-input" class="form-control-label">Secret Key</label>
+                                <input type="text" placeholder="Secret Key" class="form-control">
+
+                            </div>
                         </div>
 
-                        <div class="text-center">
-                            <button type="button" @onclick="Authenticate" class="btn btn-lg btn-primary btn-lg w-100 mt-4 mb-0">Sign in</button>
+
+                        <div class="col-md-12">
+                            <div class="form-group" style="text-align:center;">
+                                <button class="btn btn-primary btn-sm ms-auto">Submit</button>
+
+                            </div>
                         </div>
-                    </form>
+
+                    </div>
+
                 </div>
-
             </div>
         </div>
+    </Body>
+</Modal>
+<Loader isLoading="@isLoading" />
 
-
-</div> *@
 @code {
     public string Username { get; set; }
     public string Password { get; set; }
     public bool isLoading { get; set; } = false;
     private bool rememberMe;
+    private Modal modal;
+    private void OpenModal()
+    {
+        modal.Show();
+    }
     private async void HandleKeyPress(KeyboardEventArgs e)
     {
         if (e.Key == "Enter")
@@ -117,26 +130,59 @@
         try
         {
             isLoading = true;
-            var useraccount = await DbContext.tbluser.FirstOrDefaultAsync(p => p.username == Username && p.password == Password);
-            if (useraccount != null)
+            var Login = await API.GetRequest($"Login/Authentication/{Username}/{Password}");
+            var useraccount = JsonSerializer.Deserialize<GetLogin>(Login);
+            // var useraccount = JsonSerializer.Deserialize<GetLogin>(API.GetRequest($"Login/Authentication/{Username}/{Password}"));
+            //  var useraccount = await DbContext.tbluser.FirstOrDefaultAsync(p => p.username == Username && p.password == Password);
+            if (useraccount.username != null)
             {
-                var userRole = await DbContext.tblRole.Where(p => p.RoleID == useraccount.RoleID).FirstOrDefaultAsync();
-
-                var CustomAuth = (CustomAuthenticationStateProvider)AuthStateProvider;
-                await CustomAuth.UpdateAuthenticationState(new UserSession
-                    {
-                        Username = Username,
-                        Role = userRole.RoleDesc,
-                    });
-                if (rememberMe)
+                var UserSecretRequest = await API.GetRequest($"Token/CheckSecretAvailability/{Username}/{Password}");
+                var checkUserSecret = JsonSerializer.Deserialize<TokenGenerator>(UserSecretRequest);
+                if (checkUserSecret.remarks == "200")
                 {
-                    // Store user credentials securely (e.g., using JavaScript interop)
-                    await JSRuntime.InvokeVoidAsync("localStorage.setItem", "username", Username);
-                    await JSRuntime.InvokeVoidAsync("localStorage.setItem", "password", Password);
+                    string jsonData = JsonSerializer.Serialize(checkUserSecret);
+                    var BearerRequest = await API.PostRequest($"Token/GenerateBearer", jsonData);
+                    var bearerToken = JsonSerializer.Deserialize<string>(BearerRequest);
+
+                    // Assuming you have the bearer token available as a string variable named bearerToken
+                    await JSRuntime.InvokeVoidAsync("sessionStorage.setItem", "BearerToken", bearerToken);
+
+
+                    var CustomAuth = (CustomAuthenticationStateProvider)AuthStateProvider;
+                    await CustomAuth.UpdateAuthenticationState(new UserSession
+                        {
+                            Username = Username,
+                            Role = useraccount.role,
+                        });
+                    var storedUsername = await JSRuntime.InvokeAsync<string>("localStorage.getItem", "username");
+                    var storedPassword = await JSRuntime.InvokeAsync<string>("localStorage.getItem", "password");
+
+                    if (string.IsNullOrEmpty(storedUsername) && string.IsNullOrEmpty(storedPassword))
+                    {
+                        if (rememberMe)
+                        {
+                            // Store user credentials securely (e.g., using JavaScript interop)
+                            await JSRuntime.InvokeVoidAsync("localStorage.setItem", "username", Username);
+                            await JSRuntime.InvokeVoidAsync("localStorage.setItem", "password", Password);
+                        }
+                    }
+
+                    toastService.ShowSuccess("Login Success");
+                    isLoading = false;
+                    Nav.NavigateTo("/", true);
                 }
-                toastService.ShowSuccess("Login Success");
-                isLoading = false;
-                Nav.NavigateTo("/", true);
+                else
+                {
+                    if (checkUserSecret.remarks.Contains("Expired"))
+                    {
+                        isLoading = false;
+                        toastService.ShowInfo("Your Secret key is expired or inactive please contact administrator");
+                        OpenModal();
+                    }
+                    
+                   
+                }
+
             }
             else
             {
@@ -149,7 +195,7 @@
         }
         catch (Exception ex)
         {
-            isLoading = false;
+
             if (ex.Message.Contains("A second operation was started on this context"))
             {
                 toastService.ShowInfo("Please wait we are logging you in...");
@@ -158,7 +204,7 @@
             {
                 toastService.ShowError(ex.Message);
             }
-            
+            isLoading = false;
         }
 
     }
