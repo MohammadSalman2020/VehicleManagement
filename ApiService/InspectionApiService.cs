@@ -40,7 +40,7 @@ public class InspectionApiService
                 }
                 else
                 {
-                    return "";
+                    return "404";
                 }
             }
 
@@ -48,7 +48,7 @@ public class InspectionApiService
         catch (Exception ex)
         {
             string s = ex.Message;
-            return "";
+            return s;
         }
     }
 
@@ -80,10 +80,40 @@ public class InspectionApiService
         catch (Exception ex)
         {
             string s = ex.Message;
-            return "";
+            return s;
+        }
+    }
+
+    public  string PutRequest(string apipath, string jsonData)
+    {
+        try
+        {
+            using (var client = new HttpClient())
+            {
+                client.BaseAddress = new Uri(_apiBaseUrl);
+                client.DefaultRequestHeaders.Accept.Clear();
+                client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+
+                HttpResponseMessage response = client.PutAsync($"api/Inspection/{apipath}", new StringContent(jsonData, Encoding.UTF8, "application/json")).Result;
+                if (response.IsSuccessStatusCode)
+                {
+                    var result = response.Content.ReadAsStringAsync().Result;
+                    return result;
+                }
+                else
+                {
+                    return "";
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            string s = ex.Message;
+            return s;
         }
     }
 
 
-  
+
+
 }
