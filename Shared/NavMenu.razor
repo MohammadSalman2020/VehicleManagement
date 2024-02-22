@@ -2,6 +2,8 @@
 @inject AuthenticationStateProvider AuthStateProvider
 @inject NavigationManager Nav
 @inject IJSRuntime JSRuntime
+@inject Microsoft.AspNetCore.Http.IHttpContextAccessor HttpContextAccessor
+
 <AuthorizeView>
     <Authorized>
         <div class="topnav" id="myTopnav">
@@ -91,8 +93,9 @@
     {
         var CustomAuth = (CustomAuthenticationStateProvider)AuthStateProvider;
         await CustomAuth.UpdateAuthenticationState(null);
-       
-        Nav.NavigateTo("/", true);
+        await JSRuntime.InvokeVoidAsync("sessionStorage.removeItem", "BearerToken");
+
+        Nav.NavigateTo("/",true);
 
     }
     // protected override async Task OnAfterRenderAsync(bool firstRender)

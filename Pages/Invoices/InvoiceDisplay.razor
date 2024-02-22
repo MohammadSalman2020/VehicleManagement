@@ -7,7 +7,7 @@
 @using VehicleManagement.Models.General
 @using VehicleManagement.Pages.Redirects
 
-<AuthorizeView>
+<AuthorizeView Policy="Testing">
     <Authorized>
         <Nav PageName="Invoice Display" />
         @if (Invoices != null)
