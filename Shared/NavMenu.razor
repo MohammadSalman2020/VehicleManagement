@@ -7,7 +7,7 @@
 <AuthorizeView>
     <Authorized>
         <div class="topnav" id="myTopnav">
-            <a href="/">SACL</a>
+            <a href="/">@context.User.Identity.Name.ToUpper()</a>
             <a href="/" class="@GetActiveClass("Home")" @onclick=@(()=>OnClick("Home"))>Home</a>
             <div class="dropdown">
                 <button class="dropbtn">

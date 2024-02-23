@@ -2,7 +2,9 @@
 {
     public class TokenGenerator
     {
-        public string secretKey { get; set; }
+
+        public string username { get; set; }
+        public string password { get; set; }
         public string role { get; set; }
         public string remarks { get; set; }
     }
