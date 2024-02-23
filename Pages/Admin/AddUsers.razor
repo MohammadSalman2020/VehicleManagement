@@ -1,8 +1,543 @@
 ﻿@page "/usermanagement"
 
+@using System.Text.Json
+@using VehicleManagement.ApiService
+@using VehicleManagement.Models.General.User_Management
+@using VehicleManagement.Pages.Redirects
 
-<h3>AddUsers</h3>
+@inject IToastService toastService
+@inject IApiService API
+
+<AuthorizeView Roles="admin">
+    <Authorized>
+        <Nav PageName="User Management" />
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col-12">
+                    <div class="card mb-4">
+
+                        <div class="card-header pb-0">
+                            <h6>Actions</h6>
+                        </div>
+                        <div class="card-header pb-0">
+                            <div class="row col-md-12" style="text-align:center;">
+                                <div class="col-md-4">
+                                    <div class="form-group">
+                                        <button class="btn btn-primary btn-sm ms-auto" @onclick="OpenPolicyModal">Add Policy</button>
+
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="form-group">
+                                        <button class="btn btn-primary btn-sm ms-auto" @onclick="OpenUserModal">Add User</button>
+
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="form-group">
+                                        <button class="btn btn-primary btn-sm ms-auto" @onclick="OpenSecretrModal">Add User Secret</button>
+
+                                    </div>
+                                </div>
+                            </div>
+
+
+                        </div>
+
+                        <div class="card-body px-0 pt-0 pb-2">
+                            <div class="table-responsive p-0">
+                                <table class="table align-items-center mb-0">
+                                    <thead>
+                                        <tr>
+                                            <th class="text-uppercase font-colors  text-xxs font-weight-bolder opacity-7">User ID</th>
+                                            <th class="text-uppercase font-colors  text-xxs font-weight-bolder opacity-7 text-center">User Name</th>
+                                            <th class="text-center font-colors text-uppercase  text-xxs font-weight-bolder opacity-7">Role</th>
+                                            <th class="text-center font-colors text-uppercase  text-xxs font-weight-bolder opacity-7">Status</th>
+
+
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @if (AllUsers.Count > 0)
+                                        {
+                                        
+                                            @foreach (var item in AllUsers)
+                                            {
+
+                                             
+                                                <tr>
+                                                    <td class="align-middle text-center">
+                                                        <div class="d-flex px-2 py-1">
+                                                            <div>
+                                                                <img src="css/userimg.png" class="avatar avatar-sm me-3" alt="user1">
+                                                            </div>
+                                                            <div class="d-flex flex-column justify-content-center">
+                                                                <h6 class="mb-0 text-sm">@item.userID</h6>
+
+                                                            </div>
+                                                        </div>
+                                                    </td>
+                                                    <td class="align-middle text-center">
+                                                        <p class="text-xs font-weight-bold mb-0 text-center">@item.username</p>
+
+                                                    </td>
+                                                    <td class="align-middle text-center">
+                                                        <span class="text-secondary text-xs font-weight-bold">@item.role</span>
+                                                    </td>
+
+                                                    <td class="align-middle text-center text-sm">
+                                                        @if (@item.isActive)
+                                                        {
+                                                            <span class="badge badge-sm bg-gradient-success">@item.isActive</span>
+
+                                                        }
+                                                        else
+                                                        {
+                                                            <span class="badge badge-sm bg-gradient-danger">@item.isActive</span>
+
+                                                        }
+                                                    </td>
+                                                    <td class="align-middle">
+                                                        <a class="text-secondary font-weight-bold text-xs cursor-pointer">
+                                                            Edit
+                                                        </a>
+                                                    </td>
+
+                                                </tr>
+
+                                            }
+                                        }
+
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        @*Policy Modal *@
+        <Modal @ref="PolicyModal" Title="Add Policy">
+            <Body>
+                <div class="col-md-12">
+                    <div class="card">
+
+                        <div class="card-body">
+
+                            <div class="row">
+
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label for="example-text-input" class="form-control-label">Policy Name</label>
+                                        <input type="text" placeholder="Driver ID" class="form-control">
+
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label for="example-text-input" class="form-control-label">Roles</label>
+
+                                        <select class="form-control" placeholder="Role" id="Role" name="Roles">
+                                            @if (AllRoles.Count > 0)
+                                            {
+                                                <option value="">Select One</option>
+                                                foreach (var item in AllRoles)
+                                                {
+                                                    <option value="@item.roleID">@item.role</option>
+                                                }
+                                            }
+                                            else
+                                            {
+                                                <option value=""></option>
+                                            }
+
+
+                                        </select>
+                                    </div>
+                                </div>
+
+
+                                <div class="col-md-12">
+                                    <div class="form-group" style="text-align:center;">
+                                        <button class="btn btn-primary btn-sm ms-auto">Submit</button>
+                                        <button class="btn btn-primary btn-sm ms-auto">Save To Database</button>
+                                    </div>
+                                </div>
+                                <div class="card-body px-0 pt-0 pb-2">
+                                    <div class="table-responsive p-0">
+                                        <table class="table align-items-center mb-0">
+                                            <thead>
+                                                <tr>
+                                                    <th class="text-uppercase font-colors  text-xxs font-weight-bolder opacity-7">Policy Name</th>
+                                                    <th class="text-uppercase font-colors  text-xxs font-weight-bolder opacity-7 text-center">Role</th>
+
+
+
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <tr>
+                                                    <td class="align-middle text-center">
+                                                        <div class="d-flex px-2 py-1">
+                                                            <div>
+                                                                <img src="css/Policy.png" class="avatar avatar-sm me-3" alt="user1">
+                                                            </div>
+                                                            <div class="d-flex flex-column justify-content-center">
+                                                                <h6 class="mb-0 text-sm">InvoicePolicy</h6>
+
+                                                            </div>
+                                                        </div>
+                                                    </td>
+                                                    <td class="align-middle text-center" style="text-align:center;">
+                                                        <p class="text-xs font-weight-bold mb-0  text-center">Admin</p>
+
+                                                    </td>
+
+
+
+                                                </tr>
+                                                <tr>
+                                                    <td class="align-middle text-center">
+                                                        <div class="d-flex px-2 py-1">
+                                                            <div>
+                                                                <img src="css/Policy.png" class="avatar avatar-sm me-3" alt="user1">
+                                                            </div>
+                                                            <div class="d-flex flex-column justify-content-center">
+                                                                <h6 class="mb-0 text-sm">InvoicePolicy</h6>
+
+                                                            </div>
+                                                        </div>
+                                                    </td>
+                                                    <td class="align-middle text-center" style="text-align:center;">
+                                                        <p class="text-xs font-weight-bold mb-0  text-center">HTL</p>
+
+                                                    </td>
+
+
+
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+            </Body>
+        </Modal>
+
+        @* End Policy Modal *@
+
+        @*User Modal *@
+        <Modal @ref="UserModal" Title="Add User">
+            <Body>
+                <div class="col-md-12">
+                    <div class="card">
+
+                        <div class="card-body">
+
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label for="example-text-input" class="form-control-label">Roles</label>
+
+                                        <select class="form-control" placeholder="Role" id="Role" @onchange="UserRole" name="Roles">
+                                            @if (AllRoles.Count > 0)
+                                            {
+                                                <option value="0">Select One</option>
+                                                foreach (var item in AllRoles)
+                                                {
+                                                    <option value="@item.roleID">@item.role</option>
+                                                }
+                                            }
+                                            else
+                                            {
+                                                <option value="0"></option>
+                                            }
+
+
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label for="example-text-input" class="form-control-label">User Name</label>
+                                        <input type="text" placeholder="User Name" @bind="User.Username" class="form-control">
+
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label for="example-text-input" class="form-control-label">Password</label>
+                                        <input type="password" placeholder="Password" @bind="User.Password" class="form-control">
+
+                                    </div>
+                                </div>
+
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <div class="form-control">
+                                            <input checked="@User.IsActive" @onchange="UserStatus" type="checkbox">
+                                            <span class="form-control-label">Active</span>
+                                        </div>
+
+                                    </div>
+                                </div>
+
+                                <div class="col-md-12">
+                                    <div class="form-group" style="text-align:center;">
+                                        <button class="btn btn-primary btn-sm ms-auto" @onclick="AddUser">Submit</button>
+
+                                    </div>
+                                </div>
+
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+            </Body>
+        </Modal>
+
+        @* End User Modal *@
+
+        @*Secret Modal *@
+        <Modal @ref="SecretModal" Title="Add User Secret Key">
+            <Body>
+                <div class="col-md-12">
+                    <div class="card">
+
+                        <div class="card-body">
+
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label for="example-text-input" class="form-control-label">User</label>
+
+                                        <select class="form-control" placeholder="User" id="User" name="Users">
+                                            <option value="Admin">Admin User</option>
+                                            <option value="HTL">HTL User</option>
+                                            <option value="PSO">PSO User</option>
+                                            <option value="EURO">EURO User</option>
+                                            <option value="PUMA">PUMA User</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label for="example-text-input" class="form-control-label">Roles</label>
+
+                                        <select class="form-control" placeholder="Role" id="Role" name="Roles">
+                                            @if (AllRoles.Count > 0)
+                                            {
+                                                <option value="">Select One</option>
+                                                foreach (var item in AllRoles)
+                                                {
+                                                    <option value="@item.roleID">@item.role</option>
+                                                }
+                                            }
+                                            else
+                                            {
+                                                <option value=""></option>
+                                            }
+
+
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label for="example-text-input" class="form-control-label">Secret Key</label>
+                                        <input type="text" placeholder="Secret Key" class="form-control">
+
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label for="example-text-input" class="form-control-label">Valid Till</label>
+                                        <input type="date" placeholder="Password" class="form-control">
+
+                                    </div>
+                                </div>
+
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <div class="form-control">
+                                            <input checked="checked" type="checkbox">
+                                            <span class="form-control-label">Active</span>
+                                        </div>
+
+                                    </div>
+                                </div>
+
+                                <div class="col-md-12">
+                                    <div class="form-group" style="text-align:center;">
+                                        <button class="btn btn-primary btn-sm ms-auto">Submit</button>
+
+                                    </div>
+                                </div>
+                                <div class="card-body px-0 pt-0 pb-2">
+                                    <div class="table-responsive p-0">
+                                        <table class="table align-items-center mb-0">
+                                            <thead>
+                                                <tr>
+                                                    <th class="text-uppercase font-colors  text-xxs font-weight-bolder opacity-7">Secret Key</th>
+                                                    <th class="text-uppercase font-colors  text-xxs font-weight-bolder opacity-7">Role</th>
+                                                    <th class="text-center font-colors text-uppercase  text-xxs font-weight-bolder opacity-7">User</th>
+                                                    <th class="text-center font-colors text-uppercase  text-xxs font-weight-bolder opacity-7">Valid Till</th>
+                                                    <th class="text-center font-colors text-uppercase  text-xxs font-weight-bolder opacity-7">Status</th>
+
+
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <tr>
+                                                    <td class="align-middle text-center">
+                                                        <div class="d-flex px-2 py-1">
+                                                            <div>
+                                                                <img src="css/UserSecret.png" class="avatar avatar-sm me-3" alt="user1">
+                                                            </div>
+                                                            <div class="d-flex flex-column justify-content-center">
+                                                                <h6 class="mb-0 text-sm">1220155dsfsdfsdfsd23452353465564</h6>
+
+                                                            </div>
+                                                        </div>
+                                                    </td>
+                                                    <td class="align-middle text-center">
+                                                        <p class="text-xs font-weight-bold mb-0 text-center">Admin</p>
+
+                                                    </td>
+                                                    <td class="align-middle text-center">
+                                                        <span class="text-secondary text-xs font-weight-bold">Aslam Ghafoor</span>
+                                                    </td>
+
+                                                    <td class="align-middle text-center text-sm">
+                                                        <span class="text-secondary text-xs font-weight-bold">20-12-2024</span>
+                                                    </td>
+
+                                                    <td class="align-middle text-center text-sm">
+                                                        <span class="badge badge-sm bg-gradient-success">Active</span>
+                                                    </td>
+
+                                                    <td class="align-middle">
+                                                        <a class="text-secondary font-weight-bold text-xs cursor-pointer">
+                                                            Edit
+                                                        </a>
+                                                    </td>
+
+                                                </tr>
+
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+            </Body>
+        </Modal>
+
+        @* End Secret Modal *@
+
+    </Authorized>
+
+    <NotAuthorized>
+        <_403 />
+    </NotAuthorized>
+</AuthorizeView>
+
 
 @code {
 
+
+
+    private Modal PolicyModal;
+    private Modal UserModal;
+    private Modal SecretModal;
+    private Users User = new Users();
+    public List<GetRoles> AllRoles = new List<GetRoles>();
+
+    public List<UserList> AllUsers = new List<UserList>();
+    public List<UserList> Test = new List<UserList>();
+    private void OpenPolicyModal()
+    {
+        PolicyModal.Show();
+    }
+
+    private void OpenUserModal()
+    {
+        UserModal.Show();
+    }
+    private void OpenSecretrModal()
+    {
+        SecretModal.Show();
+    }
+    private void UserStatus(ChangeEventArgs e)
+    {
+        User.IsActive = (bool)e.Value;
+    }
+    private void UserRole(ChangeEventArgs e)
+    {
+        string Val = e.Value.ToString();
+        User.RoleID = int.Parse(Val);
+    }
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+
+
+            var Roles = await API.GetRequest($"UserManagement/GetRoles");
+            if (Roles != "")
+            {
+
+                AllRoles = JsonSerializer.Deserialize<List<GetRoles>>(Roles);
+            }
+            var Users = await API.GetRequest($"UserManagement/GetAllUser");
+            if (Users != "")
+            {
+
+                AllUsers = JsonSerializer.Deserialize<List<UserList>>(Users);
+
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex.Message);
+        }
+    }
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+           
+
+        }
+        
+    }
+
+    private async Task AddUser()
+    {
+        if (User != null)
+        {
+            string jsonData = JsonSerializer.Serialize(User);
+            var AddUser = await API.PostRequest($"UserManagement/AddUser", jsonData);
+            int Result = JsonSerializer.Deserialize<int>(AddUser);
+            if (Result == 200)
+            {
+                UserModal.CloseModal();
+                toastService.ShowSuccess($"User {User.Username} Added Success");
+
+            }
+        }
+        else
+        {
+            toastService.ShowError("Empty Fields are not Allowed");
+        }
+    }
 }
