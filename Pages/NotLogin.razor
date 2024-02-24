@@ -143,33 +143,39 @@
                     string jsonData = JsonSerializer.Serialize(checkUserSecret);
                     var BearerRequest = await API.PostRequest($"Token/GenerateBearer", jsonData);
                     var bearerToken = JsonSerializer.Deserialize<string>(BearerRequest);
-
-                    // Assuming you have the bearer token available as a string variable named bearerToken
-                    await JSRuntime.InvokeVoidAsync("sessionStorage.setItem", "BearerToken", bearerToken);
-
-
-                    var CustomAuth = (CustomAuthenticationStateProvider)AuthStateProvider;
-                    await CustomAuth.UpdateAuthenticationState(new UserSession
-                        {
-                            Username = Username,
-                            Role = useraccount.role,
-                        });
-                    var storedUsername = await JSRuntime.InvokeAsync<string>("localStorage.getItem", "username");
-                    var storedPassword = await JSRuntime.InvokeAsync<string>("localStorage.getItem", "password");
-
-                    if (string.IsNullOrEmpty(storedUsername) && string.IsNullOrEmpty(storedPassword))
+                    if (bearerToken != "404" || bearerToken != "500")
                     {
-                        if (rememberMe)
+                        await JSRuntime.InvokeVoidAsync("sessionStorage.setItem", "BearerToken", bearerToken);
+
+
+                        var CustomAuth = (CustomAuthenticationStateProvider)AuthStateProvider;
+                        await CustomAuth.UpdateAuthenticationState(new UserSession
+                            {
+                                Username = Username,
+                                Role = useraccount.role,
+                            });
+                        var storedUsername = await JSRuntime.InvokeAsync<string>("localStorage.getItem", "username");
+                        var storedPassword = await JSRuntime.InvokeAsync<string>("localStorage.getItem", "password");
+
+                        if (string.IsNullOrEmpty(storedUsername) && string.IsNullOrEmpty(storedPassword))
                         {
-                            // Store user credentials securely (e.g., using JavaScript interop)
-                            await JSRuntime.InvokeVoidAsync("localStorage.setItem", "username", Username);
-                            await JSRuntime.InvokeVoidAsync("localStorage.setItem", "password", Password);
+                            if (rememberMe)
+                            {
+                                // Store user credentials securely (e.g., using JavaScript interop)
+                                await JSRuntime.InvokeVoidAsync("localStorage.setItem", "username", Username);
+                                await JSRuntime.InvokeVoidAsync("localStorage.setItem", "password", Password);
+                            }
                         }
+
+                        toastService.ShowSuccess("Login Success");
+                        isLoading = false;
+                        Nav.NavigateTo("/", true);
+                    }
+                    else
+                    {
+                        toastService.ShowError("Invalid Token please contact administrator");
                     }
 
-                    toastService.ShowSuccess("Login Success");
-                    isLoading = false;
-                    Nav.NavigateTo("/", true);
                 }
                 else
                 {
@@ -179,8 +185,8 @@
                         toastService.ShowInfo("Your Secret key is expired or inactive please contact administrator");
                         OpenModal();
                     }
-                    
-                   
+
+
                 }
 
             }
