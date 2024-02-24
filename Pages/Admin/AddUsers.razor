@@ -525,6 +525,7 @@
     {
         if (User != null)
         {
+
             string jsonData = JsonSerializer.Serialize(User);
             var AddUser = await API.PostRequest($"UserManagement/AddUser", jsonData);
             int Result = JsonSerializer.Deserialize<int>(AddUser);
