@@ -60,11 +60,11 @@
                                     <tbody>
                                         @if (AllUsers.Count > 0)
                                         {
-                                        
+
                                             @foreach (var item in AllUsers)
                                             {
 
-                                             
+
                                                 <tr>
                                                     <td class="align-middle text-center">
                                                         <div class="d-flex px-2 py-1">
@@ -96,9 +96,9 @@
                                                             <span class="badge badge-sm bg-gradient-danger">@item.isActive</span>
 
                                                         }
-                                                    </td>
+                                                    </td> @**@
                                                     <td class="align-middle">
-                                                        <a class="text-secondary font-weight-bold text-xs cursor-pointer">
+                                                        <a class="text-secondary font-weight-bold text-xs cursor-pointer" @onclick="@(() => EditUser(item.userID))" data-toggle="tooltip" data-original-title="Edit user">
                                                             Edit
                                                         </a>
                                                     </td>
@@ -130,7 +130,7 @@
                                 <div class="col-md-6">
                                     <div class="form-group">
                                         <label for="example-text-input" class="form-control-label">Policy Name</label>
-                                        <input type="text" placeholder="Driver ID" class="form-control">
+                                        <input type="text" placeholder="Policy Name" @bind="Policy.PolicyName" class="form-control">
 
                                     </div>
                                 </div>
@@ -138,10 +138,10 @@
                                     <div class="form-group">
                                         <label for="example-text-input" class="form-control-label">Roles</label>
 
-                                        <select class="form-control" placeholder="Role" id="Role" name="Roles">
+                                        <select class="form-control" @onchange="PolicyRoles" placeholder="Role" id="Role" name="Roles">
                                             @if (AllRoles.Count > 0)
                                             {
-                                                <option value="">Select One</option>
+                                                <option value="0">Select One</option>
                                                 foreach (var item in AllRoles)
                                                 {
                                                     <option value="@item.roleID">@item.role</option>
@@ -157,66 +157,96 @@
                                     </div>
                                 </div>
 
+                                <div class="col-md-12">
+                                    <div class="form-group" style="text-align:center;">
+                                        <label class="form-control-label">@Policy.PolicyName Roles:</label>
+                                        @if (Policy.Roles.Count > 0)
+                                        {
+                                            @foreach (var item in Policy.Roles)
+                                            {
+                                                <label>@item.Value.ToString().ToUpper()</label>
+                                            }
+                                        }
+
+
+
+                                    </div>
+                                </div>
 
                                 <div class="col-md-12">
                                     <div class="form-group" style="text-align:center;">
-                                        <button class="btn btn-primary btn-sm ms-auto">Submit</button>
-                                        <button class="btn btn-primary btn-sm ms-auto">Save To Database</button>
+                                        <button class="btn btn-primary btn-sm ms-auto" @onclick="SubmitRoles">Submit</button>
+                                        &nbsp;
+                                        @if (Policy.Roles.Count > 0)
+                                        {
+                                            <button class="btn btn-warning btn-sm ms-auto" @onclick="AddPolicy">Save @Policy.PolicyName To Database</button>
+                                        }
+
                                     </div>
+
+
                                 </div>
-                                <div class="card-body px-0 pt-0 pb-2">
+                                <div class="card-body px-0 pt-0 pb-2" style="overflow-x: auto;height: 140px;">
                                     <div class="table-responsive p-0">
                                         <table class="table align-items-center mb-0">
                                             <thead>
                                                 <tr>
-                                                    <th class="text-uppercase font-colors  text-xxs font-weight-bolder opacity-7">Policy Name</th>
-                                                    <th class="text-uppercase font-colors  text-xxs font-weight-bolder opacity-7 text-center">Role</th>
+                                                    <th class="text-uppercase font-colors  text-xxs font-weight-bolder opacity-7">Policy ID</th>
+                                                    <th class="text-uppercase font-colors  text-xxs font-weight-bolder opacity-7 text-center">Policy Name</th>
+                                                    @if (IsShowRoles)
+                                                    {
+                                                        <th class="text-uppercase font-colors  text-xxs font-weight-bolder opacity-7 text-center">Roles</th>
+                                                        <a class="text-uppercase font-colors  text-xxs font-weight-bolder opacity-7 text-center" @onclick="ShowRoles">Hide Role</a>
+                                                    }
+                                                    else
+                                                    {
+                                                        <a class="text-uppercase font-colors  text-xxs font-weight-bolder opacity-7 text-center" @onclick="ShowRoles">Show Role</a>
+                                                    }
+
 
 
 
                                                 </tr>
                                             </thead>
                                             <tbody>
-                                                <tr>
-                                                    <td class="align-middle text-center">
-                                                        <div class="d-flex px-2 py-1">
-                                                            <div>
-                                                                <img src="css/Policy.png" class="avatar avatar-sm me-3" alt="user1">
-                                                            </div>
-                                                            <div class="d-flex flex-column justify-content-center">
-                                                                <h6 class="mb-0 text-sm">InvoicePolicy</h6>
+                                                @if (AllPolicies.Count > 0)
+                                                {
+                                                    @foreach (var item in AllPolicies)
+                                                    {
+                                                        <tr>
+                                                            <td class="align-middle text-center">
+                                                                <div class="d-flex px-2 py-1">
+                                                                    <div>
+                                                                        <img src="css/Policy.png" class="avatar avatar-sm me-3" alt="user1">
+                                                                    </div>
+                                                                    <div class="d-flex flex-column justify-content-center">
+                                                                        <h6 class="mb-0 text-sm">@item.policyID</h6>
 
-                                                            </div>
-                                                        </div>
-                                                    </td>
-                                                    <td class="align-middle text-center" style="text-align:center;">
-                                                        <p class="text-xs font-weight-bold mb-0  text-center">Admin</p>
+                                                                    </div>
+                                                                </div>
+                                                            </td>
+                                                            <td class="align-middle text-center" style="text-align:center;">
+                                                                <p class="text-xs font-weight-bold mb-0  text-center">@item.policyName</p>
 
-                                                    </td>
+                                                            </td>
+                                                            @if (IsShowRoles)
+                                                            {
+                                                                <td class="align-middle text-center" style="text-align:center;">
+                                                                    <p class="text-xs font-weight-bold mb-0  text-center">@item.roles</p>
 
+                                                                </td>
 
-
-                                                </tr>
-                                                <tr>
-                                                    <td class="align-middle text-center">
-                                                        <div class="d-flex px-2 py-1">
-                                                            <div>
-                                                                <img src="css/Policy.png" class="avatar avatar-sm me-3" alt="user1">
-                                                            </div>
-                                                            <div class="d-flex flex-column justify-content-center">
-                                                                <h6 class="mb-0 text-sm">InvoicePolicy</h6>
-
-                                                            </div>
-                                                        </div>
-                                                    </td>
-                                                    <td class="align-middle text-center" style="text-align:center;">
-                                                        <p class="text-xs font-weight-bold mb-0  text-center">HTL</p>
-
-                                                    </td>
+                                                            }
 
 
 
-                                                </tr>
+
+                                                        </tr>
+
+                                                    }
+
+                                                }
+
                                             </tbody>
                                         </table>
                                     </div>
@@ -250,7 +280,7 @@
                                                 <option value="0">Select One</option>
                                                 foreach (var item in AllRoles)
                                                 {
-                                                    <option value="@item.roleID">@item.role</option>
+                                                    <option value="@item.roleID" selected="@(item.roleID==User.RoleID ? "selected" : null)">@item.role</option>
                                                 }
                                             }
                                             else
@@ -289,7 +319,16 @@
 
                                 <div class="col-md-12">
                                     <div class="form-group" style="text-align:center;">
-                                        <button class="btn btn-primary btn-sm ms-auto" @onclick="AddUser">Submit</button>
+                                        @if (!IsUserEdit)
+                                        {
+                                            <button class="btn btn-primary btn-sm ms-auto" @onclick="AddUser">Add User</button>
+
+                                        }
+                                        else if (IsUserEdit)
+                                        {
+                                            <button class="btn btn-primary btn-sm ms-auto" @onclick="UpdateUser">Update User</button>
+                                        }
+
 
                                     </div>
                                 </div>
@@ -317,26 +356,13 @@
                                     <div class="form-group">
                                         <label for="example-text-input" class="form-control-label">User</label>
 
-                                        <select class="form-control" placeholder="User" id="User" name="Users">
-                                            <option value="Admin">Admin User</option>
-                                            <option value="HTL">HTL User</option>
-                                            <option value="PSO">PSO User</option>
-                                            <option value="EURO">EURO User</option>
-                                            <option value="PUMA">PUMA User</option>
-                                        </select>
-                                    </div>
-                                </div>
-                                <div class="col-md-6">
-                                    <div class="form-group">
-                                        <label for="example-text-input" class="form-control-label">Roles</label>
-
-                                        <select class="form-control" placeholder="Role" id="Role" name="Roles">
-                                            @if (AllRoles.Count > 0)
+                                        <select class="form-control" @onchange="SecretUser" placeholder="User" id="User" name="Users">
+                                            <option value="0">Select One</option>
+                                            @if (AllUsers.Count > 0)
                                             {
-                                                <option value="">Select One</option>
-                                                foreach (var item in AllRoles)
+                                                @foreach (var item in AllUsers)
                                                 {
-                                                    <option value="@item.roleID">@item.role</option>
+                                                    <option value="@item.userID" selected="@(item.userID==Secret.UserID? "selected" : null)">@item.username</option>
                                                 }
                                             }
                                             else
@@ -348,17 +374,18 @@
                                         </select>
                                     </div>
                                 </div>
+
                                 <div class="col-md-6">
                                     <div class="form-group">
                                         <label for="example-text-input" class="form-control-label">Secret Key</label>
-                                        <input type="text" placeholder="Secret Key" class="form-control">
+                                        <input type="text" placeholder="Secret Key" @bind="Secret.SecretKey" class="form-control">
 
                                     </div>
                                 </div>
                                 <div class="col-md-6">
                                     <div class="form-group">
                                         <label for="example-text-input" class="form-control-label">Valid Till</label>
-                                        <input type="date" placeholder="Password" class="form-control">
+                                        <input type="date" placeholder="Valid Till" @bind="Secret.ValidTill" class="form-control">
 
                                     </div>
                                 </div>
@@ -366,7 +393,8 @@
                                 <div class="col-md-6">
                                     <div class="form-group">
                                         <div class="form-control">
-                                            <input checked="checked" type="checkbox">
+                                            <label for="example-text-input" class="form-control-label">Status</label>
+                                            <input checked="@Secret.IsActive" @onchange="SecretStatus" type="checkbox">
                                             <span class="form-control-label">Active</span>
                                         </div>
 
@@ -375,11 +403,19 @@
 
                                 <div class="col-md-12">
                                     <div class="form-group" style="text-align:center;">
-                                        <button class="btn btn-primary btn-sm ms-auto">Submit</button>
+                                        @if (!IsSecretEdit)
+                                        {
+                                            <button class="btn btn-primary btn-sm ms-auto" @onclick="AddSecret">Submit</button>
+                                        }
+                                        else if (IsSecretEdit)
+                                        {
+                                            <button class="btn btn-warning btn-sm ms-auto" @onclick="UpdateSecret">Update</button>
+                                        }
+
 
                                     </div>
                                 </div>
-                                <div class="card-body px-0 pt-0 pb-2">
+                                <div class="card-body px-0 pt-0 pb-2" style="overflow-x: auto;height: 140px;">
                                     <div class="table-responsive p-0">
                                         <table class="table align-items-center mb-0">
                                             <thead>
@@ -394,42 +430,61 @@
                                                 </tr>
                                             </thead>
                                             <tbody>
-                                                <tr>
-                                                    <td class="align-middle text-center">
-                                                        <div class="d-flex px-2 py-1">
-                                                            <div>
-                                                                <img src="css/UserSecret.png" class="avatar avatar-sm me-3" alt="user1">
-                                                            </div>
-                                                            <div class="d-flex flex-column justify-content-center">
-                                                                <h6 class="mb-0 text-sm">1220155dsfsdfsdfsd23452353465564</h6>
+                                                @if (AllSecrets.Count > 0)
+                                                {
+                                                    @foreach (var item in AllSecrets)
+                                                    {
 
-                                                            </div>
-                                                        </div>
-                                                    </td>
-                                                    <td class="align-middle text-center">
-                                                        <p class="text-xs font-weight-bold mb-0 text-center">Admin</p>
 
-                                                    </td>
-                                                    <td class="align-middle text-center">
-                                                        <span class="text-secondary text-xs font-weight-bold">Aslam Ghafoor</span>
-                                                    </td>
+                                                        <tr>
+                                                            <td class="align-middle text-center">
+                                                                <div class="d-flex px-2 py-1">
+                                                                    <div>
+                                                                        <img src="css/UserSecret.png" class="avatar avatar-sm me-3" alt="user1">
+                                                                    </div>
+                                                                    <div class="d-flex flex-column justify-content-center">
+                                                                        <h6 class="mb-0 text-sm">@ShortenString(item.secretKey)</h6>
 
-                                                    <td class="align-middle text-center text-sm">
-                                                        <span class="text-secondary text-xs font-weight-bold">20-12-2024</span>
-                                                    </td>
+                                                                    </div>
+                                                                </div>
+                                                            </td>
+                                                            <td class="align-middle text-center">
+                                                                <p class="text-xs font-weight-bold mb-0 text-center">@item.role</p>
 
-                                                    <td class="align-middle text-center text-sm">
-                                                        <span class="badge badge-sm bg-gradient-success">Active</span>
-                                                    </td>
+                                                            </td>
+                                                            <td class="align-middle text-center">
+                                                                <span class="text-secondary text-xs font-weight-bold">@item.username</span>
+                                                            </td>
 
-                                                    <td class="align-middle">
-                                                        <a class="text-secondary font-weight-bold text-xs cursor-pointer">
-                                                            Edit
-                                                        </a>
-                                                    </td>
+                                                            <td class="align-middle text-center text-sm">
+                                                                <span class="text-secondary text-xs font-weight-bold">@item.validTill.ToString("MM-dd-yyyy")</span>
+                                                            </td>
 
-                                                </tr>
+                                                            <td class="align-middle text-center text-sm">
+                                                                @if (item.isActive)
+                                                                {
+                                                                    <span class="badge badge-sm bg-gradient-success">@item.isActive</span>
 
+                                                                }
+                                                                else
+                                                                {
+                                                                    <span class="badge badge-sm bg-gradient-danger">@item.isActive</span>
+
+                                                                }
+                                                            </td>
+
+                                                            <td class="align-middle">
+
+                                                                <a class="text-secondary font-weight-bold text-xs cursor-pointer" @onclick="@(() => EditSecret(item.userSecretID))">
+                                                                    Edit
+                                                                </a>
+
+
+                                                            </td>
+
+                                                        </tr>
+                                                    }
+                                                }
                                             </tbody>
                                         </table>
                                     </div>
@@ -444,6 +499,8 @@
 
         @* End Secret Modal *@
 
+        <Loader isLoading="@IsLoading" />
+
     </Authorized>
 
     <NotAuthorized>
@@ -457,26 +514,36 @@
 
 
     private Modal PolicyModal;
+
     private Modal UserModal;
     private Modal SecretModal;
     private Users User = new Users();
+    private Secret Secret = new Secret();
+    private Policies Policy = new Policies();
+
     public List<GetRoles> AllRoles = new List<GetRoles>();
 
     public List<UserList> AllUsers = new List<UserList>();
-    public List<UserList> Test = new List<UserList>();
-    private void OpenPolicyModal()
-    {
-        PolicyModal.Show();
-    }
+    public List<GetSecret> AllSecrets = new List<GetSecret>();
+    public List<GetPolicy> AllPolicies = new List<GetPolicy>();
+
+
+    private bool IsUserEdit = false;
+    private bool IsSecretEdit = false;
+    private bool IsLoading = false;
+    private bool IsShowRoles = false;
+    private int UpdateUserID = 0;
+    private int UpdateSecretID = 0;
+    private string PoliciesRole;
+
+
+    #region User
 
     private void OpenUserModal()
     {
         UserModal.Show();
     }
-    private void OpenSecretrModal()
-    {
-        SecretModal.Show();
-    }
+
     private void UserStatus(ChangeEventArgs e)
     {
         User.IsActive = (bool)e.Value;
@@ -486,23 +553,20 @@
         string Val = e.Value.ToString();
         User.RoleID = int.Parse(Val);
     }
-    protected override async Task OnInitializedAsync()
+
+
+
+    public async Task GetAllUsers()
     {
+
         try
         {
 
-
-            var Roles = await API.GetRequest($"UserManagement/GetRoles");
-            if (Roles != "")
-            {
-
-                AllRoles = JsonSerializer.Deserialize<List<GetRoles>>(Roles);
-            }
             var Users = await API.GetRequest($"UserManagement/GetAllUser");
             if (Users != "")
             {
 
-                AllUsers = JsonSerializer.Deserialize<List<UserList>>(Users);
+                AllUsers = JsonSerializer.Deserialize<List<UserList>>(Users).OrderByDescending(p => p.userID).ToList();
 
             }
         }
@@ -511,34 +575,446 @@
             Console.WriteLine(ex.Message);
         }
     }
-    protected override async Task OnAfterRenderAsync(bool firstRender)
+
+
+    private async Task EditUser(int UserID)
     {
-        if (firstRender)
+
+        User = new Users();
+        var rec = AllUsers.Where(p => p.userID == UserID).FirstOrDefault();
+        if (rec != null)
         {
-           
+            IsUserEdit = true;
+            UpdateUserID = UserID;
+            User.Username = rec.username;
+            User.IsActive = rec.isActive;
+            User.Password = rec.password;
+            User.RoleID = rec.roleID;
+            UserModal.Show();
 
         }
-        
-    }
 
+    }
     private async Task AddUser()
     {
-        if (User != null)
+        try
         {
-
-            string jsonData = JsonSerializer.Serialize(User);
-            var AddUser = await API.PostRequest($"UserManagement/AddUser", jsonData);
-            int Result = JsonSerializer.Deserialize<int>(AddUser);
-            if (Result == 200)
+            if (User != null && !isEmpty())
             {
-                UserModal.CloseModal();
-                toastService.ShowSuccess($"User {User.Username} Added Success");
+                IsLoading = true;
+                string jsonData = JsonSerializer.Serialize(User);
+                var AddUser = await API.PostRequest($"UserManagement/AddUser", jsonData);
+                int Result = JsonSerializer.Deserialize<int>(AddUser);
+                if (Result == 200)
+                {
+                    User = new Users();
+                    await GetAllUsers();
+                    UserModal.CloseModal();
+                    toastService.ShowSuccess($"User: {User.Username} Added Success");
+
+                }
 
             }
+            else
+            {
+                toastService.ShowError("Empty Fields are not Allowed");
+            }
+        }
+        catch (Exception ex)
+        {
+            toastService.ShowError($"Error {ex}");
+        }
+
+        IsLoading = false;
+    }
+
+    private async Task UpdateUser()
+    {
+        try
+        {
+            if (User != null && !isEmpty())
+            {
+                IsLoading = true;
+                string jsonData = JsonSerializer.Serialize(User);
+                var AddUser = await API.PostRequest($"UserManagement/UpdateUser/{UpdateUserID}", jsonData);
+                int Result = JsonSerializer.Deserialize<int>(AddUser);
+                if (Result == 200)
+                {
+                    User = new Users();
+                    UserModal.CloseModal();
+                    toastService.ShowSuccess($"User: {User.Username} Update Success");
+                    await GetAllUsers();
+                    IsUserEdit = false;
+                    UpdateUserID = 0;
+                }
+            }
+            else
+            {
+                toastService.ShowError("Empty Fields are not Allowed");
+            }
+        }
+        catch (Exception ex)
+        {
+            toastService.ShowError($"Error {ex}");
+        }
+
+        IsLoading = false;
+    }
+
+    public bool isEmpty()
+    {
+        if (User.Username != null && User.Password != null && User.RoleID != 0)
+        {
+            return false;
         }
         else
         {
-            toastService.ShowError("Empty Fields are not Allowed");
+            return true;
+        }
+
+    }
+    #endregion
+
+    #region Secret Key
+
+    private void OpenSecretrModal()
+    {
+        SecretModal.Show();
+    }
+
+    private void SecretStatus(ChangeEventArgs e)
+    {
+        Secret.IsActive = (bool)e.Value;
+    }
+
+
+    private void SecretUser(ChangeEventArgs e)
+    {
+        string Val = e.Value.ToString();
+        Secret.UserID = int.Parse(Val);
+    }
+    private string ShortenString(string input, int maxLength = 20)
+    {
+        if (input.Length <= maxLength)
+        {
+            return input;
+        }
+        else
+        {
+            return input.Substring(0, maxLength) + "...";
         }
     }
+
+
+    public async Task GetAllSecrets()
+    {
+        try
+        {
+            var Secrets = await API.GetRequest($"UserManagement/GetAllSecret");
+            if (Secrets != "")
+            {
+
+                AllSecrets = JsonSerializer.Deserialize<List<GetSecret>>(Secrets).OrderByDescending(p => p.userID).ToList();
+
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex.Message);
+        }
+    }
+
+
+
+    private async Task AddSecret()
+    {
+        try
+        {
+            if (Secret != null && !SecretisEmpty())
+            {
+                IsLoading = true;
+                string jsonData = JsonSerializer.Serialize(Secret);
+                var AddUser = await API.PostRequest($"UserManagement/AddSecret", jsonData);
+                int Result = JsonSerializer.Deserialize<int>(AddUser);
+                if (Result == 200)
+                {
+                    Secret = new Secret();
+                    await GetAllSecrets();
+                    toastService.ShowSuccess($"Secret Key Added Success");
+
+                }
+                else
+                {
+                    SecretModal.CloseModal();
+                    toastService.ShowError("Error While Adding Secret Key...");
+                }
+
+            }
+            else
+            {
+                SecretModal.CloseModal();
+                toastService.ShowError("Empty Fields are not Allowed");
+            }
+        }
+        catch (Exception ex)
+        {
+            toastService.ShowError($"Error: {ex}");
+        }
+
+        IsLoading = false;
+    }
+    private async Task EditSecret(int SecretID)
+    {
+
+        Secret = new Secret();
+        var rec = AllSecrets.Where(p => p.userSecretID == SecretID).FirstOrDefault();
+        if (rec != null)
+        {
+            IsSecretEdit = true;
+            UpdateSecretID = SecretID;
+            Secret.SecretKey = rec.secretKey;
+            Secret.IsActive = rec.isActive;
+            Secret.UserID = rec.userID;
+            Secret.ValidTill = rec.validTill;
+
+        }
+
+    }
+
+
+    public bool SecretisEmpty()
+    {
+        if (Secret.SecretKey != null && Secret.UserID != 0)
+        {
+            return false;
+        }
+        else
+        {
+            return true;
+        }
+
+    }
+
+
+    private async Task UpdateSecret()
+    {
+        try
+        {
+            if (Secret != null && !SecretisEmpty())
+            {
+                IsLoading = true;
+                string jsonData = JsonSerializer.Serialize(Secret);
+                var AddUser = await API.PostRequest($"UserManagement/UpdateSecret/{UpdateSecretID}", jsonData);
+                int Result = JsonSerializer.Deserialize<int>(AddUser);
+                if (Result == 200)
+                {
+                    Secret = new Secret();
+                    toastService.ShowSuccess($"Secret Update Success");
+                    await GetAllSecrets();
+                    IsSecretEdit = false;
+                    UpdateSecretID = 0;
+                }
+            }
+            else
+            {
+                toastService.ShowError("Empty Fields are not Allowed");
+            }
+        }
+        catch (Exception ex)
+        {
+            toastService.ShowError($"Error: {ex}");
+        }
+
+        IsLoading = false;
+    }
+
+    #endregion
+
+    #region Policy
+    public async Task ShowRoles()
+    {
+        IsShowRoles = !IsShowRoles;
+
+
+    }
+    public bool PolicyisEmpty()
+    {
+        if (Policy.PolicyName != null && Policy.RoleID != 0 && Policy.Roles.Count > 0)
+        {
+            return false;
+        }
+        else
+        {
+            return true;
+        }
+
+    }
+
+    private void OpenPolicyModal()
+    {
+        PolicyModal.Show();
+    }
+
+
+    public async Task GetAllPolicy()
+    {
+
+        try
+        {
+
+            var Policy = await API.GetRequest($"UserManagement/GetAllPolcies");
+            if (Policy != "")
+            {
+
+                AllPolicies = JsonSerializer.Deserialize<List<GetPolicy>>(Policy).OrderByDescending(p => p.policyID).ToList();
+
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex.Message);
+        }
+    }
+    private void PolicyRoles(ChangeEventArgs e)
+    {
+        Policy.RoleID = int.Parse(e.Value.ToString());
+    }
+
+    private async Task SubmitRoles()
+    {
+        try
+        {
+
+            if (Policy.RoleID != 0 && Policy.PolicyName != null)
+            {
+                var rec = AllRoles.Where(p => p.roleID == Policy.RoleID).FirstOrDefault();
+                var checkifexists = Policy.Roles.Where(p => p.Key == rec.roleID).FirstOrDefault();
+                if (checkifexists.Key == 0)
+                {
+                    Policy.Roles.Add(Policy.RoleID, rec.role);
+
+                }
+
+            }
+            else
+            {
+                toastService.ShowError($"Please select role or policy name first");
+            }
+
+        }
+        catch (Exception ex)
+        {
+            toastService.ShowError($"Error: {ex}");
+        }
+
+
+    }
+    static string ConvertDictionaryToString(Dictionary<int, string> dictionary)
+    {
+        // Create a list to hold the string representations of each key-value pair
+        List<string> keyValuePairs = new List<string>();
+
+        // Iterate over each key-value pair in the dictionary
+        foreach (var kvp in dictionary)
+        {
+            // Convert the key-value pair into a string and add it to the list
+            keyValuePairs.Add($"{kvp.Key}");
+        }
+
+        // Join all the string representations with a comma and space
+        return string.Join(", ", keyValuePairs);
+    }
+
+    private async Task AddPolicy()
+    {
+        try
+        {
+            if (Policy != null && !PolicyisEmpty())
+            {
+                IsLoading = true;
+                AddPolicy obj = new AddPolicy();
+                obj.PolicyName= Policy.PolicyName;
+                obj.Roles = ConvertDictionaryToString(Policy.Roles);
+
+
+                string jsonData = JsonSerializer.Serialize(obj);
+                var AddUser = await API.PostRequest($"UserManagement/AddPolicy", jsonData);
+                int Result = JsonSerializer.Deserialize<int>(AddUser);
+                if (Result == 200)
+                {
+
+                    Policy.Roles.Clear();
+                    Policy.PolicyName = string.Empty;
+                    Policy.RoleID = 0;
+                    obj = new AddPolicy();
+                    await GetAllPolicy();
+
+                }
+                else
+                {
+                    PolicyModal.CloseModal();
+                    toastService.ShowError("Error While Adding Secret Key...");
+                }
+
+            }
+            else
+            {
+                PolicyModal.CloseModal();
+                toastService.ShowError("Empty Fields are not Allowed");
+            }
+        }
+        catch (Exception ex)
+        {
+            toastService.ShowError($"Error: {ex}");
+        }
+
+        IsLoading = false;
+    }
+
+
+
+    #endregion
+
+
+
+
+    public async Task GetAllRoles()
+    {
+
+        try
+        {
+
+            var Roles = await API.GetRequest($"UserManagement/GetRoles");
+            if (Roles != "")
+            {
+
+                AllRoles = JsonSerializer.Deserialize<List<GetRoles>>(Roles);
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex.Message);
+        }
+    }
+
+
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            Policy.Roles = new Dictionary<int, string>();
+            await GetAllRoles();
+            await GetAllUsers();
+            await GetAllSecrets();
+            await GetAllPolicy();
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex.Message);
+        }
+    }
+
+
+
 }

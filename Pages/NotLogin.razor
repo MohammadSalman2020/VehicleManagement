@@ -63,7 +63,7 @@
 
                     <div class="row">
 
-                        <div class="col-md-6">
+                        <div class="col-md-12">
                             <div class="form-group">
                                 <label for="example-text-input" class="form-control-label">Secret Key</label>
                                 <input type="text" placeholder="Secret Key" class="form-control">
@@ -179,9 +179,10 @@
                 }
                 else
                 {
+                    isLoading = false;
                     if (checkUserSecret.remarks.Contains("Expired"))
                     {
-                        isLoading = false;
+
                         toastService.ShowInfo("Your Secret key is expired or inactive please contact administrator");
                         OpenModal();
                     }
