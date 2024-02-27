@@ -1,12 +1,14 @@
 ﻿namespace VehicleManagement.Models.General.User_Management
 {
-    public class UserList
+    public class GetSecret
     {
         public int userID { get; set; }
-        public int roleID { get; set; }
+        public int userSecretID { get; set; }
         public string role { get; set; }
+        public string secretKey { get; set; }
+        public DateTime validTill { get; set; }
         public string username { get; set; }
-        public string password { get; set; }
+
         public bool isActive { get; set; }
     }
 }
