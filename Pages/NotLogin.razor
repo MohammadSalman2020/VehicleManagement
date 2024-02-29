@@ -13,18 +13,13 @@
 @inject IJSRuntime JSRuntime
 @inject IApiService API
 
+<PageTitle>Login</PageTitle>
 <div class="login-screen" @onkeydown="HandleKeyPress">
 
 
     <div class="parent clearfix">
         <div class="bg-illustration">
-            <img src="https://i.ibb.co/Pcg0Pk1/logo.png" alt="logo">
 
-            <div class="burger-btn">
-                <span></span>
-                <span></span>
-                <span></span>
-            </div>
 
         </div>
 
@@ -41,9 +36,6 @@
                             <input @bind-value="@rememberMe" checked="@rememberMe" type="checkbox">
                             <span>Remember me</span>
                         </div>
-                        @*   <div class="forget-pass">
-                        <a href="#">Forgot Password ?</a>
-                        </div> *@
 
                         <button class="btn-auth" @onclick="Authenticate" @onkeydown="HandleKeyPress">LOG-IN</button>
 
@@ -66,7 +58,7 @@
                         <div class="col-md-12">
                             <div class="form-group">
                                 <label for="example-text-input" class="form-control-label">Secret Key</label>
-                                <input type="text" placeholder="Secret Key" class="form-control">
+                                <input type="text" placeholder="Secret Key" @bind="SecretModel.SecretKey" class="form-control">
 
                             </div>
                         </div>
@@ -74,7 +66,7 @@
 
                         <div class="col-md-12">
                             <div class="form-group" style="text-align:center;">
-                                <button class="btn btn-primary btn-sm ms-auto">Submit</button>
+                                <button class="btn btn-primary btn-sm ms-auto" @onclick="SubmitSecret">Submit</button>
 
                             </div>
                         </div>
@@ -94,6 +86,34 @@
     public bool isLoading { get; set; } = false;
     private bool rememberMe;
     private Modal modal;
+
+    public ActivateSecret SecretModel = new ActivateSecret();
+    private async Task SubmitSecret()
+    {
+        try
+        {
+            if (SecretModel.SecretKey != null)
+            {
+                SecretModel.UserName = Username;
+                SecretModel.Password = Password;
+                string jsonData = JsonSerializer.Serialize(SecretModel);
+                var AddUser = await API.PostRequest($"Login/ActiveSecret", jsonData);
+                int Result = JsonSerializer.Deserialize<int>(AddUser);
+                if (Result == 200)
+                {
+                    await Authenticate();
+                }
+                else
+                {
+                    toastService.ShowError($"Invalid Secret Key");
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            toastService.ShowError($"Error {ex}");
+        }
+    }
     private void OpenModal()
     {
         modal.Show();
@@ -130,89 +150,91 @@
         try
         {
             isLoading = true;
-            var Login = await API.GetRequest($"Login/Authentication/{Username}/{Password}");
-            var useraccount = JsonSerializer.Deserialize<GetLogin>(Login);
-            // var useraccount = JsonSerializer.Deserialize<GetLogin>(API.GetRequest($"Login/Authentication/{Username}/{Password}"));
-            //  var useraccount = await DbContext.tbluser.FirstOrDefaultAsync(p => p.username == Username && p.password == Password);
-            if (useraccount.username != null)
+            var loginResponse = await API.GetRequest($"Login/Authentication/{Username}/{Password}");
+            var userAccount = JsonSerializer.Deserialize<AuthenticationBearer>(loginResponse);
+
+            switch (userAccount.remarks)
             {
-                var UserSecretRequest = await API.GetRequest($"Token/CheckSecretAvailability/{Username}/{Password}");
-                var checkUserSecret = JsonSerializer.Deserialize<TokenGenerator>(UserSecretRequest);
-                if (checkUserSecret.remarks == "200")
-                {
-                    string jsonData = JsonSerializer.Serialize(checkUserSecret);
-                    var BearerRequest = await API.PostRequest($"Token/GenerateBearer", jsonData);
-                    var bearerToken = JsonSerializer.Deserialize<string>(BearerRequest);
-                    if (bearerToken != "404" || bearerToken != "500")
-                    {
-                        await JSRuntime.InvokeVoidAsync("sessionStorage.setItem", "BearerToken", bearerToken);
-
-
-                        var CustomAuth = (CustomAuthenticationStateProvider)AuthStateProvider;
-                        await CustomAuth.UpdateAuthenticationState(new UserSession
-                            {
-                                Username = Username,
-                                Role = useraccount.role,
-                            });
-                        var storedUsername = await JSRuntime.InvokeAsync<string>("localStorage.getItem", "username");
-                        var storedPassword = await JSRuntime.InvokeAsync<string>("localStorage.getItem", "password");
-
-                        if (string.IsNullOrEmpty(storedUsername) && string.IsNullOrEmpty(storedPassword))
-                        {
-                            if (rememberMe)
-                            {
-                                // Store user credentials securely (e.g., using JavaScript interop)
-                                await JSRuntime.InvokeVoidAsync("localStorage.setItem", "username", Username);
-                                await JSRuntime.InvokeVoidAsync("localStorage.setItem", "password", Password);
-                            }
-                        }
-
-                        toastService.ShowSuccess("Login Success");
-                        isLoading = false;
-                        Nav.NavigateTo("/", true);
-                    }
-                    else
-                    {
-                        toastService.ShowError("Invalid Token please contact administrator");
-                    }
-
-                }
-                else
-                {
-                    isLoading = false;
-                    if (checkUserSecret.remarks.Contains("Expired"))
-                    {
-
-                        toastService.ShowInfo("Your Secret key is expired or inactive please contact administrator");
-                        OpenModal();
-                    }
-
-
-                }
-
-            }
-            else
-            {
-                isLoading = false;
-                toastService.ShowError("Invalid Credentials");
-                StateHasChanged();
-
-
+                case "200":
+                    await HandleSuccessfulLogin(userAccount);
+                    break;
+                case "User Secret 404":
+                    HandleInvalidSecret();
+                    break;
+                case "User 404":
+                    HandleInvalidCredentials();
+                    break;
+                case "Bearer 404":
+                    HandleInvalidToken();
+                    break;
+                default:
+                    HandleUnknownError();
+                    break;
             }
         }
         catch (Exception ex)
         {
-
-            if (ex.Message.Contains("A second operation was started on this context"))
-            {
-                toastService.ShowInfo("Please wait we are logging you in...");
-            }
-            else
-            {
-                toastService.ShowError(ex.Message);
-            }
+            HandleException(ex);
+        }
+        finally
+        {
             isLoading = false;
+            StateHasChanged();
+        }
+    }
+
+    private async Task HandleSuccessfulLogin(AuthenticationBearer userAccount)
+    {
+        await JSRuntime.InvokeVoidAsync("sessionStorage.setItem", "BearerToken", userAccount.bearer);
+
+        var customAuth = (CustomAuthenticationStateProvider)AuthStateProvider;
+        await customAuth.UpdateAuthenticationState(new UserSession
+            {
+                Username = Username,
+                Role = userAccount.role,
+            });
+
+        if (rememberMe)
+        {
+            await JSRuntime.InvokeVoidAsync("localStorage.setItem", "username", Username);
+            await JSRuntime.InvokeVoidAsync("localStorage.setItem", "password", Password);
         }
 
+        toastService.ShowSuccess("Login Success");
+        Nav.NavigateTo("/", true);
     }
+
+    private void HandleInvalidSecret()
+    {
+        toastService.ShowInfo("Your Secret key is expired or inactive please contact administrator");
+        OpenModal();
+    }
+
+    private void HandleInvalidCredentials()
+    {
+        toastService.ShowError("Invalid Credentials");
+    }
+
+    private void HandleInvalidToken()
+    {
+        toastService.ShowError("Invalid Token please contact administrator");
+    }
+
+    private void HandleUnknownError()
+    {
+        toastService.ShowError("An unknown error occurred during authentication");
+    }
+
+    private void HandleException(Exception ex)
+    {
+        if (ex.Message.Contains("A second operation was started on this context"))
+        {
+            toastService.ShowInfo("Please wait we are logging you in...");
+        }
+        else
+        {
+            toastService.ShowError(ex.Message);
+        }
+    }
+
 }
