@@ -250,7 +250,7 @@ img {
     position: relative;
     height: 97vh;
     width: 1194px;
-    background: url("https://i.ibb.co/RhMZprS/jony-Image2-1.png") no-repeat center center scroll;
+    background: url("LoginImage.png") no-repeat center center scroll;
     background-size: cover;
     float: left;
     -webkit-animation: bgslide 2.3s forwards;
@@ -473,7 +473,7 @@ img {
 
     .bg-illustration {
         float: none;
-        background: url("https://i.ibb.co/rwncw7s/bg-mobile.png") center center;
+        background: url("LoginImage.png") center center;
         background-size: cover;
         -webkit-animation: slideIn 0.8s ease-in-out forwards;
         animation: slideIn 0.8s ease-in-out forwards;
