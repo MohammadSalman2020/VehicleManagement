@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Components.Server.ProtectedBrowserStorage;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.JSInterop;
+using Syncfusion.Blazor;
 using VehicleManagement.ApiService;
 using VehicleManagement.Authentication;
 using VehicleManagement.Authentication.Policy;
@@ -26,7 +27,7 @@ builder.Services.AddScoped<IApiService, ApiService>();
 builder.Services.AddScoped<ProtectedSessionStorage>();
 builder.Services.AddSingleton<IConfiguration>(builder.Configuration);
 builder.Services.AddHttpContextAccessor();
-
+builder.Services.AddSyncfusionBlazor();
 builder.Services.AddScoped<CustomPolicyProvider>();
 builder.Services.AddAuthorization(async options =>
 {

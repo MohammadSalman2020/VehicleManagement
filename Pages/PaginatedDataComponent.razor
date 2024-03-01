@@ -1,0 +1,50 @@
+﻿@page "/check"
+
+@if (Employees != null)
+{
+    <SfGrid DataSource="@Employees" AllowPaging="true">
+        <GridPageSettings PageSize="10" PageCount="5" PageSizes="@pagerDropdown" >
+        </GridPageSettings>
+        <GridColumns>
+            <GridColumn Field=@nameof(Employee.EmployeeId) HeaderText="ID"></GridColumn>
+            <GridColumn Field=@nameof(Employee.FirstName) HeaderText="First Name"></GridColumn>
+            <GridColumn Field=@nameof(Employee.LastName) HeaderText=" Last Name"></GridColumn>
+            <GridColumn Field=@nameof(Employee.Email) HeaderText="Email"></GridColumn>
+            <GridColumn Field=@nameof(Employee.DepartmentId) HeaderText="Department"></GridColumn>
+        </GridColumns>
+    </SfGrid>
+}
+
+@code {
+    string[] pagerDropdown = new string[] { "All", "5", "10", "15", "20" };
+
+    public List<Employee> Employees { get; set; } = null;
+
+
+    public class Employee
+    {
+        public int EmployeeId { get; set; }
+        public string FirstName { get; set; }
+        public string LastName { get; set; }
+        public string Email { get; set; }
+        public int DepartmentId { get; set; }
+    }
+
+
+    protected override async Task OnInitializedAsync()
+    {
+        Employees = new List<Employee>();
+        for (int i = 0; i < 15; i++)
+        {
+            Employees.Add(new Employee
+                {
+                    DepartmentId = i,
+                    Email = "test",
+                    EmployeeId = i,
+                    FirstName = "ABC",
+                    LastName = "AbcD"
+                });
+        }
+
+    }
+}

@@ -1,14 +1,16 @@
 ﻿@page "/usermanagement"
 
 @using System.Text.Json
+@using System.Text.Json.Serialization
 @using VehicleManagement.ApiService
+@using VehicleManagement.Models.General.Login
 @using VehicleManagement.Models.General.User_Management
 @using VehicleManagement.Pages.Redirects
 
 @inject IToastService toastService
 @inject IApiService API
 
-<AuthorizeView Roles="admin">
+<AuthorizeView Policy="TestingPolicy">
     <Authorized>
         <Nav PageName="User Management" />
         <div class="container-fluid">
@@ -88,12 +90,12 @@
                                                     <td class="align-middle text-center text-sm">
                                                         @if (@item.isActive)
                                                         {
-                                                            <span class="badge badge-sm bg-gradient-success">@item.isActive</span>
+                                                            <span class="badge badge-sm bg-gradient-success">@(item.isActive == true ? "Active" : "In-Active")</span>
 
                                                         }
                                                         else
                                                         {
-                                                            <span class="badge badge-sm bg-gradient-danger">@item.isActive</span>
+                                                            <span class="badge badge-sm bg-gradient-danger">@(item.isActive == true ? "Active" : "In-Active")</span>
 
                                                         }
                                                     </td> @**@
@@ -107,10 +109,14 @@
 
                                             }
                                         }
-
+                                        else
+                                        {
+                                            <h3>Loading...</h3>
+                                        }
                                     </tbody>
                                 </table>
                             </div>
+                            <PaginatedDataComponent Data="@AllUsers" PageSize="10" />
                         </div>
                     </div>
                 </div>
@@ -130,7 +136,7 @@
                                 <div class="col-md-6">
                                     <div class="form-group">
                                         <label for="example-text-input" class="form-control-label">Policy Name</label>
-                                        <input type="text" placeholder="Policy Name" @bind="Policy.PolicyName" class="form-control">
+                                        <input type="text" disabled="@IsPolicySubmitted" placeholder="Policy Name" @bind="Policy.PolicyName" class="form-control">
 
                                     </div>
                                 </div>
@@ -175,7 +181,7 @@
 
                                 <div class="col-md-12">
                                     <div class="form-group" style="text-align:center;">
-                                        <button class="btn btn-primary btn-sm ms-auto" @onclick="SubmitRoles">Submit</button>
+                                        <button class="btn btn-primary btn-sm ms-auto"  @onclick="SubmitRoles">Submit</button>
                                         &nbsp;
                                         @if (Policy.Roles.Count > 0)
                                         {
@@ -186,6 +192,15 @@
 
 
                                 </div>
+                                <div class="col-md-12">
+                                    <div class="form-control">
+                                        <label for="example-text-input" class="form-control-label">Roles Visibility</label>
+                                        <input checked="@IsShowRoles" @onchange="ShowRoles" type="checkbox">
+                                        <span class="form-control-label">@(IsShowRoles == true ? "Hide Roles" : "Show Roles")</span>
+                                    </div>
+
+                                </div>
+
                                 <div class="card-body px-0 pt-0 pb-2" style="overflow-x: auto;height: 140px;">
                                     <div class="table-responsive p-0">
                                         <table class="table align-items-center mb-0">
@@ -196,12 +211,8 @@
                                                     @if (IsShowRoles)
                                                     {
                                                         <th class="text-uppercase font-colors  text-xxs font-weight-bolder opacity-7 text-center">Roles</th>
-                                                        <a class="text-uppercase font-colors  text-xxs font-weight-bolder opacity-7 text-center" @onclick="ShowRoles">Hide Role</a>
                                                     }
-                                                    else
-                                                    {
-                                                        <a class="text-uppercase font-colors  text-xxs font-weight-bolder opacity-7 text-center" @onclick="ShowRoles">Show Role</a>
-                                                    }
+
 
 
 
@@ -245,6 +256,10 @@
 
                                                     }
 
+                                                }
+                                                else
+                                                {
+                                                    <h1>Loading...</h1>
                                                 }
 
                                             </tbody>
@@ -421,10 +436,11 @@
                                             <thead>
                                                 <tr>
                                                     <th class="text-uppercase font-colors  text-xxs font-weight-bolder opacity-7">Secret Key</th>
-                                                    <th class="text-uppercase font-colors  text-xxs font-weight-bolder opacity-7">Role</th>
-                                                    <th class="text-center font-colors text-uppercase  text-xxs font-weight-bolder opacity-7">User</th>
-                                                    <th class="text-center font-colors text-uppercase  text-xxs font-weight-bolder opacity-7">Valid Till</th>
                                                     <th class="text-center font-colors text-uppercase  text-xxs font-weight-bolder opacity-7">Status</th>
+                                                    <th class="text-center font-colors text-uppercase  text-xxs font-weight-bolder opacity-7">User</th>
+                                                    <th class="text-uppercase font-colors  text-xxs font-weight-bolder opacity-7">Role</th>                                            
+                                                    <th class="text-center font-colors text-uppercase  text-xxs font-weight-bolder opacity-7">Valid Till</th>
+                                                 
 
 
                                                 </tr>
@@ -448,30 +464,32 @@
                                                                     </div>
                                                                 </div>
                                                             </td>
-                                                            <td class="align-middle text-center">
-                                                                <p class="text-xs font-weight-bold mb-0 text-center">@item.role</p>
+                                                            <td class="align-middle text-center text-sm">
+                                                                @if (item.isActive)
+                                                                {
+                                                                    <span class="badge badge-sm bg-gradient-success">@(item.isActive == true ? "Active" : "In-Active")</span>
 
+                                                                }
+                                                                else
+                                                                {
+                                                                    <span class="badge badge-sm bg-gradient-danger">@(item.isActive == true ? "Active" : "In-Active")</span>
+
+                                                                }
                                                             </td>
                                                             <td class="align-middle text-center">
                                                                 <span class="text-secondary text-xs font-weight-bold">@item.username</span>
                                                             </td>
+                                                            <td class="align-middle text-center">
+                                                                <p class="text-xs font-weight-bold mb-0 text-center">@item.role</p>
+
+                                                            </td>
+                                                       
 
                                                             <td class="align-middle text-center text-sm">
                                                                 <span class="text-secondary text-xs font-weight-bold">@item.validTill.ToString("MM-dd-yyyy")</span>
                                                             </td>
 
-                                                            <td class="align-middle text-center text-sm">
-                                                                @if (item.isActive)
-                                                                {
-                                                                    <span class="badge badge-sm bg-gradient-success">@item.isActive</span>
-
-                                                                }
-                                                                else
-                                                                {
-                                                                    <span class="badge badge-sm bg-gradient-danger">@item.isActive</span>
-
-                                                                }
-                                                            </td>
+                                         
 
                                                             <td class="align-middle">
 
@@ -488,6 +506,8 @@
                                             </tbody>
                                         </table>
                                     </div>
+                              
+
                                 </div>
                             </div>
 
@@ -529,6 +549,7 @@
 
 
     private bool IsUserEdit = false;
+    private bool IsPolicySubmitted = false;
     private bool IsSecretEdit = false;
     private bool IsLoading = false;
     private bool IsShowRoles = false;
@@ -541,6 +562,7 @@
 
     private void OpenUserModal()
     {
+
         UserModal.Show();
     }
 
@@ -599,6 +621,7 @@
     {
         try
         {
+
             if (User != null && !isEmpty())
             {
                 IsLoading = true;
@@ -890,6 +913,7 @@
                 var checkifexists = Policy.Roles.Where(p => p.Key == rec.roleID).FirstOrDefault();
                 if (checkifexists.Key == 0)
                 {
+                    IsPolicySubmitted = true;
                     Policy.Roles.Add(Policy.RoleID, rec.role);
 
                 }
@@ -932,7 +956,7 @@
             {
                 IsLoading = true;
                 AddPolicy obj = new AddPolicy();
-                obj.PolicyName= Policy.PolicyName;
+                obj.PolicyName = Policy.PolicyName;
                 obj.Roles = ConvertDictionaryToString(Policy.Roles);
 
 
@@ -946,6 +970,7 @@
                     Policy.PolicyName = string.Empty;
                     Policy.RoleID = 0;
                     obj = new AddPolicy();
+                    IsPolicySubmitted = false;
                     await GetAllPolicy();
 
                 }
@@ -1002,9 +1027,27 @@
     {
         try
         {
+
+
             Policy.Roles = new Dictionary<int, string>();
-            await GetAllRoles();
+            List<Bearer> obj = new List<Bearer>();
+            obj.Add(new Bearer
+            {
+                Token="Testing"
+            });
+            obj.Add(new Bearer
+                {
+                    Token = "Testing2"
+                });
+            JsonSerializerOptions options = new JsonSerializerOptions
+                {
+                    WriteIndented = true, 
+                    ReferenceHandler = null
+                };
+            string jsonData = JsonSerializer.Serialize(obj,options);
+            var AddUser = await API.PostRequest($"Token/Test/ABCD", jsonData);
             await GetAllUsers();
+            await GetAllRoles();
             await GetAllSecrets();
             await GetAllPolicy();
         }

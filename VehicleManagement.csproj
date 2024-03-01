@@ -7,6 +7,11 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Content Remove="Shared\PaginatedDataComponent.razor" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="Pages\PaginatedDataComponent.razor" />
     <None Include="wwwroot\css\Development\HTL_Reports\invoice.png" />
     <None Include="wwwroot\css\Development\HTL_Reports\Sample-Invoice-printable.png" />
     <None Include="wwwroot\css\Development\unsafe_uploads\closemodal.png" />
@@ -28,8 +33,19 @@
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
+
     <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
-    <PackageReference Include="ReportViewerCore.NETCore" Version="15.1.19" />
+
+    <PackageReference Include="Syncfusion.Blazor.Grid" Version="24.2.8" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <UpToDateCheckInput Remove="Shared\PaginatedDataComponent.razor" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <_ContentIncludedByDefault Remove="Shared\PaginatedDataComponent.razor" />
+
   </ItemGroup>
 
 </Project>
