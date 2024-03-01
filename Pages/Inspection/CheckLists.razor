@@ -1,0 +1,210 @@
+﻿@page "/checklists"
+
+@using System.Text.Json;
+@using System.Net;
+@using Microsoft.AspNetCore.Mvc;
+@using VehicleManagement.ApiService;
+@using VehicleManagement.Models.General.Inspection
+@inject IToastService toastService
+@inject IJSRuntime JS
+@using VehicleManagement.Pages.Redirects
+@using VehicleManagement.Models.DB
+@inject ApplicationDbContext DbContext
+@inject IToastService toastService
+@inject IApiService API
+@inject NavigationManager NavigationManager
+<AuthorizeView>
+    <Authorized>
+        <Nav PageName="Inspections" />
+
+        <div class="container-fluid py-4">
+            <div class="row">
+
+                <div class="col-md-4">
+                    <div class="card">
+
+                        <div class="card-body">
+
+                            <div class="row">
+
+                                <div class="col-md-12">
+                                    <div class="form-group">
+                                        <label for="example-text-input" class="form-control-label">Vehicle Number:</label>
+                                        <input type="text" class="form-control" required @bind-value="@VehicleID"></input>
+
+                                    </div>
+
+                                    <div class="form-group">
+                                        <label for="example-text-input" class="form-control-label">Select Check List</label>
+                                        <select @bind="selectedchecklist" class="form-control">
+                                            <option value="">Select Checklist</option>
+                                            @foreach (var chk in templates)
+                                            {
+                                                <option value="@chk.templateID">@chk.templateName</option>
+                                            }
+                                        </select>
+
+                                    </div>
+
+                                    <div class="form-group">
+                                        <button class="btn btn-primary  btn-sm ms-auto" @onclick=@(()=>CreateChecklist(VehicleID))>Create New Check List</button>
+                                    </div>
+                                </div>
+
+
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-8">
+                    <div class="card">
+
+                        <div class="card-body">
+
+                            <div class="row">
+
+                                <div class="col-md-12">
+                                    <div class="card-body px-0 pt-0 pb-2" style="overflow-x: auto;height: 500px;">
+                                        <div class="table-responsive p-0">
+                                            <table class="table align-items-center mb-0">
+                                                <thead>
+                                                    <tr>
+                                                        <th class="text-uppercase font-colors  text-xxs font-weight-bolder opacity-7">Inspection_ID</th>
+                                                        <th class="text-uppercase font-colors  text-xxs font-weight-bolder opacity-7">Vehicle#</th>
+                                                        <th class="text-center font-colors text-uppercase  text-xxs font-weight-bolder opacity-7">DateTime</th>
+                                                        <th class="text-center font-colors text-uppercase  text-xxs font-weight-bolder opacity-7">View</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    @if (inspections.Count > 0)
+                                                    {
+                                                        @foreach (var item in inspections.OrderByDescending(a=>a.inspID))
+                                                        {
+                                                            <tr>
+                                                                <td class="align-middle text-center">
+                                                                    <div class="d-flex px-2 py-1">
+                                                                        <div>
+                                                                            <img src="css/checklist.png" class="avatar avatar-sm me-3" alt="user1">
+                                                                        </div>
+                                                                        <div class="d-flex flex-column justify-content-center">
+                                                                            <h6 class="mb-0 text-sm">@item.inspID</h6>
+
+                                                                        </div>
+                                                                    </div>
+                                                                </td>
+                                                                <td class="align-middle text-center">
+                                                                    <p class="text-xs font-weight-bold mb-0 text-center">@item.vehicleID</p>
+
+                                                                </td>
+                                                                <td class="align-middle text-center">
+                                                                    <span class="text-secondary text-xs font-weight-bold">@item.date_Time</span>
+                                                                </td>
+
+                                                               
+
+                                                                <td class="align-middle">
+
+                                                                    <a class="text-secondary font-weight-bold text-xs cursor-pointer" @onclick="@(() => ViewCheckList(item.inspID))">
+                                                                        View
+                                                                    </a>
+
+
+                                                                </td>
+
+                                                            </tr>
+                                                        }
+                                                    }
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                </div>
+
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+    </Authorized>
+    <NotAuthorized>
+        <_403 />
+    </NotAuthorized>
+</AuthorizeView>
+
+@code {
+
+
+    private string? VehicleID;
+    private int selectedchecklist;
+
+
+    private List<Templates> templates = new List<Templates>();
+
+    List<tblInspection> inspections = new List<tblInspection>();
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadTemplates();
+        await LoadInspections();
+
+    }
+    private void CreateChecklist(string vehile)
+    {
+        NavigationManager.NavigateTo($"/checklist?vehicle={vehile}&tempid={selectedchecklist}");
+    }
+    void ViewCheckList(int id)
+    {
+        
+    }
+    private async Task LoadInspections()
+    {
+        try
+        {
+            var rec = await API.GetRequest($"Inspection/GetInspections");
+            if (rec != "")
+            {
+                inspections = JsonSerializer.Deserialize<List<tblInspection>>(rec);
+            }
+
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error: {ex.Message}");
+        }
+    }
+    private async Task LoadTemplates()
+    {
+        try
+        {
+
+            var rec = await API.GetRequest($"Inspection/GetTemplates");
+            if (rec != "")
+            {
+
+                templates = JsonSerializer.Deserialize<List<Templates>>(rec);
+            }
+
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error: {ex.Message}");
+        }
+    }
+
+
+
+
+
+    public async Task ShowMessage(string s)
+    {
+        toastService.ShowSuccess(s);
+    }
+
+
+
+}
+
