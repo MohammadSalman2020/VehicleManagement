@@ -1,12 +1,16 @@
 ﻿@page "/checklist"
 
-@using VehicleManagement.Models.General
+@using Microsoft.AspNetCore.WebUtilities;
+@using System.Text.Json;
+@using VehicleManagement.ApiService;
+@using VehicleManagement.Models.General.Inspection
 @inject IToastService toastService
 @inject IJSRuntime JSRuntime
 @inject NavigationManager navmanager
 @using VehicleManagement.Models.DB
 @inject ApplicationDbContext DbContext
-
+@inject NavigationManager NavigationManager
+@inject IApiService API
 <div class="container-fluid py-4">
     <div class="row">
        @*  <div class="col-6">
@@ -28,37 +32,50 @@
                             <div class="col-md-6">
                                 <div class="form-group">
                                     <label for="textBoxId">Date & Time</label>
-                                    <input type="datetime-local" class="form-control" id="textBoxId" @bind="txtdate" />
+                                    <input type="datetime-local" required class="form-control" id="textBoxId" @bind="txtdate" />
                                 </div>
 
                                 <div class="form-group">
-                                    <label for="textBoxId">Origin/Destination</label>
-                                    <input type="text" class="form-control mb-2" id="textBoxId" @bind="txtdestination" />
+                                    <label for="textBoxId">Origin</label>
+                                    <input type="text" required class="form-control mb-2" id="textBoxId" @bind="txtorigin" />
+                                </div>
+                                <div class="form-group">
+                                    <label for="textBoxId">Destination</label>
+                                    <input type="text" required class="form-control mb-2" id="textBoxId" @bind="txtdestination" />
                                 </div>
 
 
                                 <div class="form-group">
                                     <label for="textBoxId">Company</label>
-                                    <input type="text" class="form-control mb-2" id="textBoxId" @bind="txtcompany" />
+                                    <input type="text" required class="form-control mb-2" id="textBoxId" @bind="txtcompany" />
                                 </div>
 
                                 <div class="form-group">
-                                    <label for="textBoxId">Driver-1 name & Code</label>
-                                    <input type="text" class="form-control mb-2" id="textBoxId" @bind="txtd1_name_code" />
+                                    <label for="textBoxId">Driver-1  Code</label>
+                                    <input type="text" required class="form-control mb-2" id="textBoxId" @bind="txtd1code" />
                                 </div>
 
                                 <div class="form-group">
-                                    <label for="textBoxId">Driver-2 name & Cod</label>
-                                    <input type="text" class="form-control mb-2" id="textBoxId" @bind="txtd2_name_code" />
+                                    <label for="textBoxId">Driver-1 name</label>
+                                    <input type="text" required class="form-control mb-2" id="textBoxId" @bind="txtd1name" />
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="textBoxId">Driver-2 Code</label>
+                                    <input type="text" class="form-control mb-2" id="textBoxId" @bind="txtd2code" />
+                                </div>
+                                <div class="form-group">
+                                    <label for="textBoxId">Driver-2 name</label>
+                                    <input type="text" class="form-control mb-2" id="textBoxId" @bind="txtd2_name" />
                                 </div>
                                 <div class="form-group">
                                     <label for="textBoxId">Product</label>
-                                    <input type="text" class="form-control mb-2" id="textBoxId" @bind="txtproduct" />
+                                    <input type="text" required class="form-control mb-2" id="textBoxId" @bind="txtproduct" />
                                 </div>
 
                                 <div class="form-group">
                                     <label for="textBoxId">Vehicle#</label>
-                                    <input type="text" class="form-control mb-2" id="textBoxId" @bind="txtvehicle" />
+                                    <input type="text" required class="form-control mb-2" id="textBoxId" @bind="txtvehicle" />
                                 </div>
 
 
@@ -68,11 +85,15 @@
                               
                                 <div class="form-group">
                                     <label for="textBoxId">Vehicle Capacity</label>
-                                    <input type="text" class="form-control mb-2" id="textBoxId" @bind="txtcapicity" />
+                                    <input type="text" required class="form-control mb-2" id="textBoxId" @bind="txtcapicity" />
                                 </div>
                                 <div class="form-group">
-                                    <label for="textBoxId">Tank# / Trailer#</label>
-                                    <input type="text" class="form-control mb-2" id="textBoxId" @bind="txtproduct" />
+                                    <label for="textBoxId">Tank#</label>
+                                    <input type="text" required class="form-control mb-2" id="textBoxId" @bind="txttank" />
+                                </div>
+                                <div class="form-group">
+                                    <label for="textBoxId">Trailer#</label>
+                                    <input type="text" required class="form-control mb-2" id="textBoxId" @bind="txtrailer" />
                                 </div>
                                 <div class="form-check">
                                     <input class="form-check-input" type="checkbox" id="cellphone" @bind="cellphone" />
@@ -125,14 +146,14 @@
 
                                 <div class="form-check">
                                     <input class="form-check-input" type="checkbox" id="explosives" @bind="explosives" />
-                                    <label class="form-check-label" for="explosives">
+                                    <label class="form-check-label" required for="explosives">
                                         Valid Explosive Cert
                                     </label>
                                 </div>
 
                                 <div class="form-check">
                                     <input class="form-check-input" type="checkbox" id="fittness" @bind="fittness" />
-                                    <label class="form-check-label" for="fittness">
+                                    <label class="form-check-label"  for="fittness">
                                         Fitness Cert
                                     </label>
                                 </div>
@@ -157,11 +178,14 @@
 @code {
     // Your code-behind logic goes here
 
-    private string? Name = "UEP Checklist";
+    private string? Name = "Inspection Checklist";
     private string? txtdestination;
+    private string? txtorigin;
     private string? txtcompany;
-    private string? txtd1_name_code;
-    private string? txtd2_name_code;
+    private string? txtd1code;
+    private string? txtd1name;
+    private string? txtd2code;
+    private string? txtd2_name;
     private string? txtproduct;
     private string? txtvehicle;
     private string? txtcapicity;
@@ -174,12 +198,70 @@
     private bool dipchart = false;
     private bool explosives = false;
     private bool fittness = false;
-    private DateTime txtdate;
-
-    void Next()
+    private DateTime txtdate=DateTime.Now;
+    private string? txttank;
+    private string? txtrailer;
+    int insID=0;
+    async void Next()
     {
-        navmanager.NavigateTo($"/Chk_Details?Vehicle={txtvehicle}");
+
+        tblInspection ins = new tblInspection();
+        ins.destination = txtdestination;
+        ins.company = txtcompany;
+        ins.Origian = txtorigin;
+        ins.driver1_Name = txtd1name;
+        ins.driver1_Code = txtd1code;
+        ins.driver2_Code = txtd2code;
+        ins.driver2_Name = txtd2_name;
+        ins.product = txtproduct;
+        ins.vehicleID = txtvehicle;
+        ins.capacity = txtcapicity;
+        ins.celphoneKnowledge = cellphone;
+        ins.hydroTest = hydrotest;
+        ins.d1_Licance = d1_licence;
+        ins.d2_Licance = d2_licence;
+        ins.d1_D2_Mentaly_Alert = D1_D2_Mentally_alert;
+        ins.termCard = Term_Card;
+        ins.validDipChart = dipchart;
+        ins.validExplosiveCert = explosives;
+        ins.fittnessCert = fittness;
+        ins.date_Time = txtdate;
+        ins.tankNo = txttank;
+        ins.trailerNo = txtrailer;
+
+        JsonSerializerOptions options = new JsonSerializerOptions
+            {
+                WriteIndented = true,
+                ReferenceHandler = null
+            };
+        string jsonData = JsonSerializer.Serialize(ins, options);
+        var addtemplate = await API.PostRequest("Inspection/AddInspection", jsonData);
+        string Result = JsonSerializer.Deserialize<string>(addtemplate);
+        if (Result != "404")
+        {
+           
+            toastService.ShowSuccess($"Checklist ID: {Result} Added Success");
+            navmanager.NavigateTo($"/Chk_Details?Vehicle={txtvehicle}&tempid={tempid}&InspectionID={Result}");
+        }
+
     }
+    string tempid;
+    protected override async Task OnInitializedAsync()
+    {
+        
+        var uri = new Uri(NavigationManager.Uri);
+        var queryStrings = QueryHelpers.ParseQuery(uri.Query);
+        if (queryStrings.TryGetValue("vehicle", out var name))
+        {
+            txtvehicle = name;
+        }
+        if (queryStrings.TryGetValue("tempid", out var temp))
+        {
+            tempid = temp;
+        }
+    }
+
+   
 
 }
 
