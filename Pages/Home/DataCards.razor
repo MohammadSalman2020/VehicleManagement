@@ -1,8 +1,11 @@
 ﻿@using Microsoft.EntityFrameworkCore
+@using System.Text.Json
+@using VehicleManagement.ApiService
 @using VehicleManagement.Models.DB
-@inject ApplicationDbContext DbContext
+@using VehicleManagement.Models.General
 @inject IToastService toastService
 @inject NavigationManager Nav
+@inject IApiService API
 <div class="row">
     <div class="col-xl-3 col-sm-6 mb-xl-0 mb-4">
         <div class="card bg-gradient-primary" style="color: white;" @onclick='()=>NavigationControl("A")'>
@@ -107,15 +110,36 @@
     public int TotalOntrip;
     public int TotalMaintainance;
     public int Total;
+    public DataCardCount dataCard  = new DataCardCount();
 
+    public async Task GetAllData()
+    {
+
+        try
+        {
+           
+            var Roles = await API.GetRequest($"Fleet/GetDataCount");
+            if (Roles != "")
+            {
+
+                dataCard = JsonSerializer.Deserialize<DataCardCount>(Roles);
+                TotalAvailable = dataCard.totalAvailable;
+                TotalOntrip = dataCard.totalOntrip;
+                TotalMaintainance = dataCard.totalMaintainance;
+                Total = dataCard.total;
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex.Message);
+        }
+    }
     protected override async Task OnInitializedAsync()
     {
         try
         {
-            TotalAvailable = DbContext.tblvehicle.Where(p => p.statusid == 1).ToList().Count;
-            TotalOntrip = DbContext.tblvehicle.Where(p => p.statusid == 3).ToList().Count;
-            TotalMaintainance = DbContext.tblvehicle.Where(p => p.statusid == 2).ToList().Count;
-            Total = DbContext.tblvehicle.ToList().Count;
+          await  GetAllData();
+       
         }
         catch (Exception ex)
         {

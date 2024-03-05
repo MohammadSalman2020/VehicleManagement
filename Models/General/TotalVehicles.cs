@@ -2,8 +2,8 @@
 {
     public class TotalVehicles
     {
-        public string? VehicleNumber { get; set; }
-        public string? Location { get; set; }
-        public string? Status { get; set; }
+        public string? vehicleNumber { get; set; }
+        public string? location { get; set; }
+        public string? status { get; set; }
     }
 }

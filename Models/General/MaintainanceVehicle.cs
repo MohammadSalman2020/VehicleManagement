@@ -2,13 +2,13 @@
 {
     public class MaintainanceVehicle
     {
-        public string VehicleNumber { get; set; }
-        public string Work { get; set; }
-        public string WorkStartDate { get; set; }
-        public string ExpEndDate { get; set; }
-        public string Location { get; set; }
-        public string Status { get; set; }
-        public string? Currentlongitude { get; set; }
-        public string? Currentlatitude { get; set; }
+        public string vehicleNumber { get; set; }
+        public string work { get; set; }
+        public string workStartDate { get; set; }
+        public string expEndDate { get; set; }
+        public string location { get; set; }
+        public string status { get; set; }
+        public string? currentlongitude { get; set; }
+        public string? currentlatitude { get; set; }
     }
 }

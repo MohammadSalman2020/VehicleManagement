@@ -32,7 +32,8 @@
             Chamber4 = new Recieve_Chamber();
             Chamber5 = new Recieve_Chamber();
         }
-
+        public float TempF { get; set; } = 0;
+        public float SG { get; set; } = 0;
         public Recieve_Chamber? Chamber1 { get; set; }
         public Recieve_Chamber? Chamber2 { get; set; }
         public Recieve_Chamber? Chamber3 { get; set; }
@@ -59,7 +60,8 @@
             Chamber4 = new Ship_Chamber();
             Chamber5 = new Ship_Chamber();
         }
-
+        public float TempF { get; set; } = 0;
+        public float SG { get; set; } = 0;
         public Ship_Chamber? Chamber1 { get; set; }
         public Ship_Chamber? Chamber2 { get; set; }
         public Ship_Chamber? Chamber3 { get; set; }
@@ -111,12 +113,12 @@
 
     public class CalculationDiff
     {
-        public string? TempDiff { get; set; }
-        public string? Shortage1FTemp { get; set; }
-        public string? QtyShouldRecieved { get; set; }
-        public string? TotalShortageByDip { get; set; }
-        public string? ShortOnTemp { get; set; }
-        public string? ShortageCharge { get; set; }
+        public float TempDiff { get; set; }
+        public float Shortage1FTemp { get; set; }
+        public float QtyShouldRecieved { get; set; }
+        public float TotalShortageByDip { get; set; }
+        public float ShortOnTemp { get; set; }
+        public float ShortageCharge { get; set; }
      
     }
 

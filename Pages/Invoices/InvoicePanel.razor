@@ -132,7 +132,27 @@
                                                                     <button class="btn btn-warning btn-sm ms-auto" @onclick="PreviousTab">Back</button>
                                                                 </div>
                                                             </div>
+                                                            <div class="col-md-4" style="padding-top:5px;">
+                                                                <div class="form-control">
+                                                                    <div class="form-group">
+                                                                        <label for="example-text-input" class="font-weight-bolder mb-0" style="color:black;">Shipping</label>
 
+
+                                                                    </div>
+                                                                    <div class="form-group">
+                                                                        <label for="example-text-input" class="form-control-label">Tempreture F</label>
+                                                                        <input type="number" placeholder="Chamber Quantity" @bind="Invoices.ShippingDetail.TempF" class="form-control">
+
+                                                                    </div>
+                                                                    <div class="form-group">
+                                                                        <label for="example-text-input" class="form-control-label">
+                                                                            S.G
+                                                                        </label>
+                                                                        <input type="number" placeholder=" Tank Lorry Product Dips(MM)" @bind="Invoices.ShippingDetail.SG" class="form-control">
+
+                                                                    </div>
+                                                                </div>
+                                                            </div>
                                                             <div class="col-md-4" style="padding-top:5px;">
                                                                 <div class="form-control">
                                                                     <div class="form-group">
@@ -326,6 +346,27 @@
                                                                 <div class="form-group" style="text-align:center;">
                                                                     <button class="btn btn-danger btn-sm ms-auto" @onclick="NextTab">Next</button>
                                                                     <button class="btn btn-warning btn-sm ms-auto" @onclick="PreviousTab">Back</button>
+                                                                </div>
+                                                            </div>
+                                                            <div class="col-md-4" style="padding-top:5px;">
+                                                                <div class="form-control">
+                                                                    <div class="form-group">
+                                                                        <label for="example-text-input" class="font-weight-bolder mb-0" style="color:black;">Receiving</label>
+
+
+                                                                    </div>
+                                                                    <div class="form-group">
+                                                                        <label for="example-text-input" class="form-control-label">Tempreture F</label>
+                                                                        <input type="number" placeholder="Chamber Quantity" @bind="Invoices.ReceivingDetail.TempF" class="form-control">
+
+                                                                    </div>
+                                                                    <div class="form-group">
+                                                                        <label for="example-text-input" class="form-control-label">
+                                                                            S.G
+                                                                        </label>
+                                                                        <input type="number" placeholder=" Tank Lorry Product Dips(MM)" @bind="Invoices.ReceivingDetail.SG" class="form-control">
+
+                                                                    </div>
                                                                 </div>
                                                             </div>
                                                             @if (!DisableChamber1)
@@ -558,14 +599,14 @@
                                                                         </div>
                                                                         <div class="form-group">
                                                                             <label for="example-text-input" class="form-control-label">Shortage in MM</label>
-                                                                            <input type="number" placeholder="Shortage in MM" @bind="Invoices.ShortageCalculation.Chamber1.ShortageMM" class="form-control">
+                                                                            <input type="number" disabled="disabled" placeholder="Shortage in MM" @bind="Invoices.ShortageCalculation.Chamber1.ShortageMM" class="form-control">
 
                                                                         </div>
                                                                         <div class="form-group">
                                                                             <label for="example-text-input" class="form-control-label">
                                                                                 Total Shortage in Liters
                                                                             </label>
-                                                                            <input type="number" placeholder="Total Shortage in Liters" @bind="Invoices.ShortageCalculation.Chamber1.TotalShortageLtr" class="form-control">
+                                                                            <input type="number" disabled="disabled" placeholder="Total Shortage in Liters" @bind="Invoices.ShortageCalculation.Chamber1.TotalShortageLtr" class="form-control">
 
                                                                         </div>
 
@@ -589,12 +630,12 @@
                                                                         </div>
                                                                         <div class="form-group">
                                                                             <label for="example-text-input" class="form-control-label">Shortage in MM</label>
-                                                                            <input type="number" placeholder="Shortage in MM" @bind="Invoices.ShortageCalculation.Chamber2.ShortageMM" class="form-control">
+                                                                            <input type="number" disabled="disabled" placeholder="Shortage in MM" @bind="Invoices.ShortageCalculation.Chamber2.ShortageMM" class="form-control">
 
                                                                         </div>
                                                                         <div class="form-group">
                                                                             <label for="example-text-input" class="form-control-label">Total Shortage in Liters</label>
-                                                                            <input type="number" placeholder="Total Shortage in Liters" @bind="Invoices.ShortageCalculation.Chamber2.TotalShortageLtr" class="form-control">
+                                                                            <input type="number" disabled="disabled" placeholder="Total Shortage in Liters" @bind="Invoices.ShortageCalculation.Chamber2.TotalShortageLtr" class="form-control">
 
                                                                         </div>
 
@@ -617,14 +658,14 @@
                                                                         </div>
                                                                         <div class="form-group">
                                                                             <label for="example-text-input" class="form-control-label">Shortage in MM</label>
-                                                                            <input type="number" placeholder="Shortage in MM" @bind="Invoices.ShortageCalculation.Chamber3.ShortageMM" class="form-control">
+                                                                            <input type="number" disabled="disabled" placeholder="Shortage in MM" @bind="Invoices.ShortageCalculation.Chamber3.ShortageMM" class="form-control">
 
                                                                         </div>
                                                                         <div class="form-group">
                                                                             <label for="example-text-input" class="form-control-label">
                                                                                 Total Shortage in Liters
                                                                             </label>
-                                                                            <input type="number" placeholder="Total Shortage in Liters" @bind="Invoices.ShortageCalculation.Chamber3.TotalShortageLtr" class="form-control">
+                                                                            <input type="number" disabled="disabled" placeholder="Total Shortage in Liters" @bind="Invoices.ShortageCalculation.Chamber3.TotalShortageLtr" class="form-control">
 
                                                                         </div>
                                                                     </div>
@@ -646,14 +687,14 @@
                                                                         </div>
                                                                         <div class="form-group">
                                                                             <label for="example-text-input" class="form-control-label">Shortage in MM</label>
-                                                                            <input type="number" placeholder="Shortage in MM" @bind="Invoices.ShortageCalculation.Chamber4.ShortageMM" class="form-control">
+                                                                            <input type="number" disabled="disabled" placeholder="Shortage in MM" @bind="Invoices.ShortageCalculation.Chamber4.ShortageMM" class="form-control">
 
                                                                         </div>
                                                                         <div class="form-group">
                                                                             <label for="example-text-input" class="form-control-label">
                                                                                 Total Shortage in Liters
                                                                             </label>
-                                                                            <input type="number" placeholder="Total Shortage in Liters" @bind="Invoices.ShortageCalculation.Chamber4.TotalShortageLtr" class="form-control">
+                                                                            <input type="number" disabled="disabled" placeholder="Total Shortage in Liters" @bind="Invoices.ShortageCalculation.Chamber4.TotalShortageLtr" class="form-control">
 
                                                                         </div>
                                                                     </div>
@@ -675,14 +716,14 @@
                                                                         </div>
                                                                         <div class="form-group">
                                                                             <label for="example-text-input" class="form-control-label">Shortage in MM</label>
-                                                                            <input type="number" placeholder="Shortage in MM" @bind="Invoices.ShortageCalculation.Chamber5.ShortageMM" class="form-control">
+                                                                            <input type="number" disabled="disabled" placeholder="Shortage in MM" @bind="Invoices.ShortageCalculation.Chamber5.ShortageMM" class="form-control">
 
                                                                         </div>
                                                                         <div class="form-group">
                                                                             <label for="example-text-input" class="form-control-label">
                                                                                 Total Shortage in Liters
                                                                             </label>
-                                                                            <input type="number" placeholder="Total Shortage in Liters" @bind="Invoices.ShortageCalculation.Chamber5.TotalShortageLtr" class="form-control">
+                                                                            <input type="number" disabled="disabled" placeholder="Total Shortage in Liters" @bind="Invoices.ShortageCalculation.Chamber5.TotalShortageLtr" class="form-control">
 
                                                                         </div>
                                                                     </div>
@@ -720,14 +761,14 @@
 
                                                                     <div class="form-group">
                                                                         <label for="example-text-input" class="form-control-label">Temp. Difference (Desp. vs Rec.)</label>
-                                                                        <input type="text" placeholder="Temp. Difference (Desp. vs Rec.)" @bind="Invoices.CalculationDifference.TempDiff" class="form-control">
+                                                                        <input type="number" disabled="disabled" placeholder="Temp. Difference (Desp. vs Rec.)" @bind="Invoices.CalculationDifference.TempDiff" class="form-control">
 
                                                                     </div>
                                                                     <div class="form-group">
                                                                         <label for="example-text-input" class="form-control-label">
                                                                             Shortage 1° F Temp
                                                                         </label>
-                                                                        <input type="text" placeholder="Shortage 1° F Temp" @bind="Invoices.CalculationDifference.Shortage1FTemp" class="form-control">
+                                                                        <input type="number" disabled="disabled" placeholder="Shortage 1° F Temp" @bind="Invoices.CalculationDifference.Shortage1FTemp" class="form-control">
 
                                                                     </div>
 
@@ -735,7 +776,7 @@
                                                                         <label for="example-text-input" class="form-control-label">
                                                                             Qty Should be Received
                                                                         </label>
-                                                                        <input type="text" placeholder="Qty Should be Received" @bind="Invoices.CalculationDifference.QtyShouldRecieved" class="form-control">
+                                                                        <input type="number" disabled="disabled" placeholder="Qty Should be Received" @bind="Invoices.CalculationDifference.QtyShouldRecieved" class="form-control">
 
                                                                     </div>
 
@@ -753,20 +794,20 @@
 
                                                                     <div class="form-group">
                                                                         <label for="example-text-input" class="form-control-label">Total Shortage in Liters By Dip</label>
-                                                                        <input type="text" placeholder="Total Shortage in Liters By Dip" @bind="Invoices.CalculationDifference.TotalShortageByDip" class="form-control">
+                                                                        <input type="number" disabled="disabled" placeholder="Total Shortage in Liters By Dip" @bind="Invoices.CalculationDifference.TotalShortageByDip" class="form-control">
 
                                                                     </div>
                                                                     <div class="form-group">
                                                                         <label for="example-text-input" class="form-control-label">
                                                                             Short On Temprature (Exempted)
                                                                         </label>
-                                                                        <input type="text" placeholder="Short On Temprature (Exempted)" @bind="Invoices.CalculationDifference.ShortOnTemp" class="form-control">
+                                                                        <input type="number" disabled="disabled" placeholder="Short On Temprature (Exempted)" @bind="Invoices.CalculationDifference.ShortOnTemp" class="form-control">
                                                                     </div>
                                                                     <div class="form-group">
                                                                         <label for="example-text-input" class="form-control-label">
                                                                             Shortage Charge to Contractor
                                                                         </label>
-                                                                        <input type="text" placeholder="Shortage Charge to Contractor" @bind="Invoices.CalculationDifference.ShortageCharge" class="form-control">
+                                                                        <input type="number" disabled="disabled" placeholder="Shortage Charge to Contractor" @bind="Invoices.CalculationDifference.ShortageCharge" class="form-control">
                                                                     </div>
                                                                 </div>
                                                             </div>
@@ -869,10 +910,10 @@
 
     protected override async void OnInitialized()
     {
-       
-       
 
-      
+
+
+
 
         // Retrieve the encoded JSON string from the query parameters if it exists
         string encodedJson = NavigationManager.ToAbsoluteUri(NavigationManager.Uri).Query;
@@ -901,22 +942,53 @@
     private void Chamber1Check(ChangeEventArgs e)
     {
         DisableChamber1 = (bool)e.Value;
+        if (DisableChamber1)
+        {
+            Invoices.ShippingDetail.Chamber1 = new Ship_Chamber();
+            Invoices.ReceivingDetail.Chamber1 = new Recieve_Chamber();
+            Invoices.ShortageCalculation.Chamber1 = new ShortageChamber();
+
+        }
     }
     private void Chamber2Check(ChangeEventArgs e)
     {
         DisableChamber2 = (bool)e.Value;
+        if (DisableChamber2)
+        {
+            Invoices.ShippingDetail.Chamber2 = new Ship_Chamber();
+            Invoices.ReceivingDetail.Chamber2 = new Recieve_Chamber();
+            Invoices.ShortageCalculation.Chamber2 = new ShortageChamber();
+        }
     }
     private void Chamber3Check(ChangeEventArgs e)
     {
         DisableChamber3 = (bool)e.Value;
+        if (DisableChamber3)
+        {
+            Invoices.ShippingDetail.Chamber3 = new Ship_Chamber();
+            Invoices.ReceivingDetail.Chamber3 = new Recieve_Chamber();
+            Invoices.ShortageCalculation.Chamber3 = new ShortageChamber();
+        }
     }
     private void Chamber4Check(ChangeEventArgs e)
     {
         DisableChamber4 = (bool)e.Value;
+        if (DisableChamber4)
+        {
+            Invoices.ShippingDetail.Chamber4 = new Ship_Chamber();
+            Invoices.ReceivingDetail.Chamber4 = new Recieve_Chamber();
+            Invoices.ShortageCalculation.Chamber4 = new ShortageChamber();
+        }
     }
     private void Chamber5Check(ChangeEventArgs e)
     {
         DisableChamber5 = (bool)e.Value;
+        if (DisableChamber5)
+        {
+            Invoices.ShippingDetail.Chamber5 = new Ship_Chamber();
+            Invoices.ReceivingDetail.Chamber5 = new Recieve_Chamber();
+            Invoices.ShortageCalculation.Chamber5 = new ShortageChamber();
+        }
     }
 
     private async Task LoadFiles(InputFileChangeEventArgs e)
@@ -1018,16 +1090,17 @@
 
     private bool AreAllFieldsFilledInChamber(Ship_Chamber chamber)
     {
-        return chamber.ChamberQuantity != 0 && chamber.LorryDip != 0 && chamber.Quantity != 0;
+        return chamber.ChamberQuantity != 0 && chamber.LorryDip != 0 && chamber.Quantity != 0 && Invoices.ShippingDetail.TempF != 0 && Invoices.ShippingDetail.SG != 0;
     }
     private bool AreAllFieldsFilledInReceivingChamber(Recieve_Chamber chamber)
     {
-        return chamber.ChamberQuantity != 0 && chamber.LorryDip != 0 && chamber.Quantity != 0;
+        return chamber.ChamberQuantity != 0 && chamber.LorryDip != 0 && chamber.Quantity != 0 && Invoices.ReceivingDetail.TempF != 0 && Invoices.ReceivingDetail.SG != 0;
     }
     private void NextTab()
     {
-
-        Dictionary<int, string> tabHeadings = new Dictionary<int, string>()
+        try
+        {
+            Dictionary<int, string> tabHeadings = new Dictionary<int, string>()
  {
      { 5, "06- Upload Invoice Image" },
      { 0, "01- General Details" },
@@ -1037,107 +1110,274 @@
      { 4, "05- Calculation Diff" }
  };
 
-        var currentIndex = _tabs.Tabs.ToList().IndexOf(_activeTab);
-        var nextIndex = (currentIndex + 1) % _tabsCount;
+            var currentIndex = _tabs.Tabs.ToList().IndexOf(_activeTab);
+            var nextIndex = (currentIndex + 1) % _tabsCount;
 
-        if (currentIndex == 0 && Invoices.Details.TankLorryNO != null)
-        {
-            if (Invoices.IsFromDisplay && AreAllFieldsFilledInChamber(Invoices.ShippingDetail.Chamber1))
+            if (currentIndex == 0 && Invoices.Details.TankLorryNO != null)
             {
-                DisableChamber1 = false;
+                if (Invoices.IsFromDisplay && AreAllFieldsFilledInChamber(Invoices.ShippingDetail.Chamber1))
+                {
+                    DisableChamber1 = false;
+                }
+                if (Invoices.IsFromDisplay && AreAllFieldsFilledInChamber(Invoices.ShippingDetail.Chamber2))
+                {
+                    DisableChamber2 = false;
+                }
+                if (Invoices.IsFromDisplay && AreAllFieldsFilledInChamber(Invoices.ShippingDetail.Chamber3))
+                {
+                    DisableChamber3 = false;
+                }
+                if (Invoices.IsFromDisplay && AreAllFieldsFilledInChamber(Invoices.ShippingDetail.Chamber4))
+                {
+                    DisableChamber4 = false;
+                }
+                if (Invoices.IsFromDisplay && AreAllFieldsFilledInChamber(Invoices.ShippingDetail.Chamber5))
+                {
+                    DisableChamber5 = false;
+                }
             }
-            if (Invoices.IsFromDisplay && AreAllFieldsFilledInChamber(Invoices.ShippingDetail.Chamber2))
+            else if (Invoices.Details.TankLorryNO == null)
             {
-                DisableChamber2 = false;
+                toastService.ShowWarning("Tank Lorry Number is Manadatory");
+                return;
             }
-            if (Invoices.IsFromDisplay && AreAllFieldsFilledInChamber(Invoices.ShippingDetail.Chamber3))
+
+            if (currentIndex == 1)
             {
-                DisableChamber3 = false;
+
+                if (DisableChamber1 && DisableChamber2 && DisableChamber3 && DisableChamber4 && DisableChamber5)
+                {
+                    toastService.ShowError("Please Select Chamber");
+                    return;
+                }
+                if (!DisableChamber1 && !AreAllFieldsFilledInChamber(Invoices.ShippingDetail.Chamber1))
+                {
+                    toastService.ShowError("Please insert all fields in Chamber 1");
+                    return;
+                }
+                else if (!DisableChamber2 && !AreAllFieldsFilledInChamber(Invoices.ShippingDetail.Chamber2))
+                {
+                    toastService.ShowError("Please insert all fields in Chamber 2");
+                    return;
+                }
+                else if (!DisableChamber3 && !AreAllFieldsFilledInChamber(Invoices.ShippingDetail.Chamber3))
+                {
+                    toastService.ShowError("Please insert all fields in Chamber 3");
+                    return;
+                }
+                else if (!DisableChamber4 && !AreAllFieldsFilledInChamber(Invoices.ShippingDetail.Chamber4))
+                {
+                    toastService.ShowError("Please insert all fields in Chamber 4");
+                    return;
+                }
+                else if (!DisableChamber5 && !AreAllFieldsFilledInChamber(Invoices.ShippingDetail.Chamber5))
+                {
+                    toastService.ShowError("Please insert all fields in Chamber 5");
+                    return;
+                }
+
+
             }
-            if (Invoices.IsFromDisplay && AreAllFieldsFilledInChamber(Invoices.ShippingDetail.Chamber4))
+            else if (currentIndex == 2)
             {
-                DisableChamber4 = false;
+                try
+                {
+                    if (!CalculateShortageForChamber1(Invoices))
+                    {
+                        return;
+                    }
+
+                    if (!CalculateShortageForChamber2(Invoices))
+                    {
+                        return;
+                    }
+
+                    if (!CalculateShortageForChamber3(Invoices))
+                    {
+                        return;
+                    }
+
+                    if (!CalculateShortageForChamber4(Invoices))
+                    {
+                        return;
+                    }
+
+                    if (!CalculateShortageForChamber5(Invoices))
+                    {
+                        return;
+                    }
+
+                    float ReceivingTempF = Invoices.ReceivingDetail.TempF;
+                    float ShippingTempF = Invoices.ShippingDetail.TempF;
+
+                    float Total = ReceivingTempF - ShippingTempF;
+                    float ReceivingTemp = Math.Abs((float)Math.Round(Total));
+                    Invoices.CalculationDifference.TempDiff = ReceivingTemp;
+
+
+                    float TotalChamberQuantityS = Invoices.ShippingDetail.Chamber1.ChamberQuantity + Invoices.ShippingDetail.Chamber2.ChamberQuantity +
+                    Invoices.ShippingDetail.Chamber3.ChamberQuantity + Invoices.ShippingDetail.Chamber4.ChamberQuantity +
+                    Invoices.ShippingDetail.Chamber5.ChamberQuantity;
+                    float TotalChamberQuantityR = Invoices.ReceivingDetail.Chamber1.ChamberQuantity + Invoices.ReceivingDetail.Chamber2.ChamberQuantity +
+               Invoices.ReceivingDetail.Chamber3.ChamberQuantity + Invoices.ReceivingDetail.Chamber4.ChamberQuantity +
+               Invoices.ReceivingDetail.Chamber5.ChamberQuantity;
+
+                    float TotalShortageLTRdip = Math.Abs(TotalChamberQuantityR - TotalChamberQuantityS);
+                    Invoices.CalculationDifference.TotalShortageByDip = TotalShortageLTRdip;
+
+                    #region Required Formula Reconsideration
+
+                    //       float TotalQuantity85S = Invoices.ShippingDetail.Chamber1.Quantity + Invoices.ShippingDetail.Chamber2.Quantity +
+                    // Invoices.ShippingDetail.Chamber3.Quantity + Invoices.ShippingDetail.Chamber4.Quantity +
+                    // Invoices.ShippingDetail.Chamber5.Quantity;
+                    //       float TotalQuantity85R = Invoices.ReceivingDetail.Chamber1.Quantity + Invoices.ReceivingDetail.Chamber2.Quantity +
+                    //  Invoices.ReceivingDetail.Chamber3.Quantity + Invoices.ReceivingDetail.Chamber4.Quantity +
+                    //  Invoices.ReceivingDetail.Chamber5.Quantity;
+                    float TotalQuantity85S = 40107f;
+                    float TotalQuantity85R = 40053f;
+
+
+
+                    #endregion
+
+                    float ShortContratorCharge = Math.Abs(TotalQuantity85S - TotalQuantity85R);
+
+                    Invoices.CalculationDifference.ShortageCharge = ShortContratorCharge;
+
+                    float ShortOnTempExempt = Math.Abs(TotalShortageLTRdip - ShortContratorCharge);
+
+                    Invoices.CalculationDifference.ShortOnTemp = ShortOnTempExempt;
+
+                    float Shortage1F = ShortOnTempExempt / ReceivingTemp;
+
+                    Invoices.CalculationDifference.Shortage1FTemp = (float)Math.Round(Shortage1F);
+
+                    float QunatityShouldR = TotalChamberQuantityS - ShortOnTempExempt;
+                    Invoices.CalculationDifference.QtyShouldRecieved = QunatityShouldR;
+                }
+                catch (Exception ex)
+                {
+                    toastService.ShowError($"Invalid calculations detected");
+                }
+
+
             }
-            if (Invoices.IsFromDisplay && AreAllFieldsFilledInChamber(Invoices.ShippingDetail.Chamber5))
-            {
-                DisableChamber5 = false;
-            }
+
+
+            TabHeading = tabHeadings[nextIndex];
+            _activeTab = _tabs.Tabs.ElementAt(nextIndex);
         }
-        else if (Invoices.Details.TankLorryNO == null)
+        catch (Exception ex)
         {
-            toastService.ShowWarning("Tank Lorry Number is Manadatory");
-            return;
+            toastService.ShowError($"Error occured");
         }
 
-        if (currentIndex == 1)
-        {
-
-            if (DisableChamber1 && DisableChamber2 && DisableChamber3 && DisableChamber4 && DisableChamber5)
-            {
-                toastService.ShowError("Please Select Chamber");
-                return;
-            }
-            if (!DisableChamber1 && !AreAllFieldsFilledInChamber(Invoices.ShippingDetail.Chamber1))
-            {
-                toastService.ShowError("Please insert all fields in Chamber 1");
-                return;
-            }
-            else if (!DisableChamber2 && !AreAllFieldsFilledInChamber(Invoices.ShippingDetail.Chamber2))
-            {
-                toastService.ShowError("Please insert all fields in Chamber 2");
-                return;
-            }
-            else if (!DisableChamber3 && !AreAllFieldsFilledInChamber(Invoices.ShippingDetail.Chamber3))
-            {
-                toastService.ShowError("Please insert all fields in Chamber 3");
-                return;
-            }
-            else if (!DisableChamber4 && !AreAllFieldsFilledInChamber(Invoices.ShippingDetail.Chamber4))
-            {
-                toastService.ShowError("Please insert all fields in Chamber 4");
-                return;
-            }
-            else if (!DisableChamber5 && !AreAllFieldsFilledInChamber(Invoices.ShippingDetail.Chamber5))
-            {
-                toastService.ShowError("Please insert all fields in Chamber 5");
-                return;
-            }
-
-
-        }
-        else if (currentIndex == 2)
-        {
-
-            if (!DisableChamber1 && !AreAllFieldsFilledInReceivingChamber(Invoices.ReceivingDetail.Chamber1))
-            {
-                toastService.ShowError("Please insert all fields in Chamber 1");
-                return;
-            }
-            else if (!DisableChamber2 && !AreAllFieldsFilledInReceivingChamber(Invoices.ReceivingDetail.Chamber2))
-            {
-                toastService.ShowError("Please insert all fields in Chamber 2");
-                return;
-            }
-            else if (!DisableChamber3 && !AreAllFieldsFilledInReceivingChamber(Invoices.ReceivingDetail.Chamber3))
-            {
-                toastService.ShowError("Please insert all fields in Chamber 3");
-                return;
-            }
-            else if (!DisableChamber4 && !AreAllFieldsFilledInReceivingChamber(Invoices.ReceivingDetail.Chamber4))
-            {
-                toastService.ShowError("Please insert all fields in Chamber 4");
-                return;
-            }
-            else if (!DisableChamber5 && !AreAllFieldsFilledInReceivingChamber(Invoices.ReceivingDetail.Chamber5))
-            {
-                toastService.ShowError("Please insert all fields in Chamber 5");
-                return;
-            }
-        }
-
-        TabHeading = tabHeadings[nextIndex];
-        _activeTab = _tabs.Tabs.ElementAt(nextIndex);
     }
+    bool CalculateShortageForChamber1(Invoicing chamber)
+    {
+        if (!DisableChamber1 && !AreAllFieldsFilledInReceivingChamber(Invoices.ReceivingDetail.Chamber1))
+        {
+            toastService.ShowError($"Please insert all fields in Chamber 1");
+            return false;
+        }
+        else if (!DisableChamber1 && AreAllFieldsFilledInReceivingChamber(Invoices.ReceivingDetail.Chamber1))
+        {
+            Invoices.ShortageCalculation.Chamber1.ShortageMM = Math.Abs(Invoices.ReceivingDetail.Chamber1.LorryDip - Invoices.ShippingDetail.Chamber1.LorryDip);
+            float ShortMM = Invoices.ShortageCalculation.Chamber1.ShortageMM;
+            float TotalChamberLtr = Invoices.ShippingDetail.Chamber1.ChamberQuantity;
+            float Loading = Invoices.ShippingDetail.Chamber1.LorryDip;
+            float LoadingDivision = (TotalChamberLtr / Loading);
+            float Total = LoadingDivision * ShortMM;
+
+            Invoices.ShortageCalculation.Chamber1.TotalShortageLtr = Math.Abs((int)Math.Round(Total));
+
+        }
+        return true;
+    }
+    bool CalculateShortageForChamber2(Invoicing chamber)
+    {
+        if (!DisableChamber2 && !AreAllFieldsFilledInReceivingChamber(Invoices.ReceivingDetail.Chamber2))
+        {
+            toastService.ShowError($"Please insert all fields in Chamber 2");
+            return false;
+        }
+        else if (!DisableChamber2 && AreAllFieldsFilledInReceivingChamber(Invoices.ReceivingDetail.Chamber2))
+        {
+            Invoices.ShortageCalculation.Chamber2.ShortageMM = Math.Abs(Invoices.ReceivingDetail.Chamber2.LorryDip - Invoices.ShippingDetail.Chamber2.LorryDip);
+            float ShortMM = Invoices.ShortageCalculation.Chamber2.ShortageMM;
+            float TotalChamberLtr = Invoices.ShippingDetail.Chamber2.ChamberQuantity;
+            float Loading = Invoices.ShippingDetail.Chamber2.LorryDip;
+            float LoadingDivision = (TotalChamberLtr / Loading);
+            float Total = LoadingDivision * ShortMM;
+
+            Invoices.ShortageCalculation.Chamber2.TotalShortageLtr = Math.Abs((int)Math.Round(Total));
+        }
+
+        return true;
+    }
+    bool CalculateShortageForChamber3(Invoicing chamber)
+    {
+        if (!DisableChamber3 && !AreAllFieldsFilledInReceivingChamber(Invoices.ReceivingDetail.Chamber3))
+        {
+            toastService.ShowError($"Please insert all fields in Chamber 3");
+            return false;
+        }
+        else if (!DisableChamber3 && AreAllFieldsFilledInReceivingChamber(Invoices.ReceivingDetail.Chamber3))
+        {
+            Invoices.ShortageCalculation.Chamber3.ShortageMM = Math.Abs(Invoices.ReceivingDetail.Chamber3.LorryDip - Invoices.ShippingDetail.Chamber3.LorryDip);
+            float ShortMM = Invoices.ShortageCalculation.Chamber3.ShortageMM;
+            float TotalChamberLtr = Invoices.ShippingDetail.Chamber3.ChamberQuantity;
+            float Loading = Invoices.ShippingDetail.Chamber3.LorryDip;
+            float LoadingDivision = (TotalChamberLtr / Loading);
+            float Total = LoadingDivision * ShortMM;
+
+            Invoices.ShortageCalculation.Chamber3.TotalShortageLtr = Math.Abs((int)Math.Round(Total));
+        }
+        return true;
+    }
+    bool CalculateShortageForChamber4(Invoicing chamber)
+    {
+        if (!DisableChamber4 && !AreAllFieldsFilledInReceivingChamber(Invoices.ReceivingDetail.Chamber4))
+        {
+            toastService.ShowError($"Please insert all fields in Chamber 4");
+            return false;
+        }
+        else if (!DisableChamber4 && AreAllFieldsFilledInReceivingChamber(Invoices.ReceivingDetail.Chamber4))
+        {
+            Invoices.ShortageCalculation.Chamber4.ShortageMM = Math.Abs(Invoices.ReceivingDetail.Chamber4.LorryDip - Invoices.ShippingDetail.Chamber4.LorryDip);
+            float ShortMM = Invoices.ShortageCalculation.Chamber4.ShortageMM;
+            float TotalChamberLtr = Invoices.ShippingDetail.Chamber4.ChamberQuantity;
+            float Loading = Invoices.ShippingDetail.Chamber4.LorryDip;
+            float LoadingDivision = (TotalChamberLtr / Loading);
+            float Total = LoadingDivision * ShortMM;
+
+            Invoices.ShortageCalculation.Chamber4.TotalShortageLtr = Math.Abs((int)Math.Round(Total));
+        }
+        return true;
+    }
+    bool CalculateShortageForChamber5(Invoicing chamber)
+    {
+        if (!DisableChamber5 && !AreAllFieldsFilledInReceivingChamber(Invoices.ReceivingDetail.Chamber5))
+        {
+            toastService.ShowError($"Please insert all fields in Chamber 5");
+            return false;
+        }
+        else if (!DisableChamber5 && AreAllFieldsFilledInReceivingChamber(Invoices.ReceivingDetail.Chamber5))
+        {
+            Invoices.ShortageCalculation.Chamber5.ShortageMM = Math.Abs(Invoices.ReceivingDetail.Chamber5.LorryDip - Invoices.ShippingDetail.Chamber5.LorryDip);
+            float ShortMM = Invoices.ShortageCalculation.Chamber5.ShortageMM;
+            float TotalChamberLtr = Invoices.ShippingDetail.Chamber5.ChamberQuantity;
+            float Loading = Invoices.ShippingDetail.Chamber5.LorryDip;
+            float LoadingDivision = (TotalChamberLtr / Loading);
+            float Total = LoadingDivision * ShortMM;
+
+            Invoices.ShortageCalculation.Chamber5.TotalShortageLtr = Math.Abs((int)Math.Round(Total));
+        }
+        return true;
+
+    }
+
+
 
     private void PreviousTab()
     {
