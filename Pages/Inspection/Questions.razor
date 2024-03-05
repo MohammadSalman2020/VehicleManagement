@@ -1,294 +1,490 @@
-﻿@page "/create_checklist"
+﻿@page "/create_template"
 
 @using System.Text.Json;
 @using System.Net;
 @using Microsoft.AspNetCore.Mvc;
+@using VehicleManagement.ApiService;
 @using VehicleManagement.Models.General.Inspection
 @inject IToastService toastService
 @inject IJSRuntime JS
+@using VehicleManagement.Pages.Redirects
 @using VehicleManagement.Models.DB
 
+@inject IToastService toastService
+@inject IApiService API
 
-<div class="container-fluid py-4">
-    <div class="row">
-        <div class="col-12">
+
+<AuthorizeView>
+    <Authorized>
+        <Nav PageName="Invoice List" />
+
+        <div class="container-fluid py-4">
             <div class="row">
-                <div class="col-6 col-md-3">
-                    <div class="form-group">
-                        <button class="btn btn-primary btn-sm ms-auto" @onclick="OpenModal">Add New</button>
+                <div class="col-12">
+                    <div class="row">
+                        <div class="col-6 col-md-3">
+                            <div class="form-group">
+                                <button class="btn btn-primary btn-sm ms-auto" @onclick="OpenModal">Add New Observation</button>
+                            </div>
+                        </div>
+                        <div class="col-6 col-md-3">
+                            <div class="form-group">
+                                <button class="btn btn-primary btn-sm ms-auto" @onclick="OpenImpotModal">Add New Scope</button>
+                            </div>
+                        </div>
+                        <div class="col-6 col-md-3">
+                            <div class="form-group">
+                                <button class="btn btn-primary btn-sm ms-auto" @onclick="OpenModal2">Create Template</button>
+                            </div>
+                        </div>
+                        <div class="col-6 col-md-3">
+                            <div class="form-group">
+                                <button class="btn btn-primary btn-sm ms-auto" @onclick="OpenModal2">Export As Excel</button>
+                            </div>
+                        </div>
                     </div>
                 </div>
-                <div class="col-6 col-md-3">
-                    <div class="form-group">
-                        <button class="btn btn-primary btn-sm ms-auto" @onclick="OpenImpotModal">Import From Excel</button>
+
+                <div class="card mb-4">
+                    <div class="card-header pb-0">
+                        <h6>Inspection Questions</h6>
                     </div>
-                </div>
-                <div class="col-6 col-md-3">
-                    <div class="form-group">
-                        <button class="btn btn-primary btn-sm ms-auto" @onclick="OpenModal2">Create Template</button>
-                    </div>
-                </div>
-                <div class="col-6 col-md-3">
-                    <div class="form-group">
-                        <button class="btn btn-primary btn-sm ms-auto" @onclick="OpenModal2">Export As Excel</button>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div class="card mb-4">
-            <div class="card-header pb-0">
-                <h6>Inspection Questions</h6>
-            </div>
-            <div class="card-body px-0 pt-0 pb-2">
-                <div class="table-responsive p-0">
-                    <table class="table align-items-center mb-0">
-                        <thead>
-                            <tr>
-                                <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">QuestionID</th>
-                                <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Scope</th>
-                                <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">QuestionDesc</th>
-                                <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Edit</th>
-                                <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Select</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @if (observationsList.Count > 0)
-                            {
-                                @foreach (var item in observationsList)
-                                {
-
-
-                                    <tr class="question">
-                                        <td>
-                                            <p class="text-xs font-weight-bold mb-0">@item.obsID</p>
-                                        </td>
-                                        <td>
-                                            <p class="text-xs font-weight-bold mb-0">@item.scopedesc</p>
-
-                                        </td>
-                                        <td>
-                                            <p class="text-xs font-weight-bold mb-0">@item.obsDesc</p>
-
-                                        </td>
-
-                                        <td class="align-middle allign-item-center">
-                                            <a @onclick="OpenModal" class="text-secondary font-weight-bold text-xs cursor-pointer btnhoo">
-                                                Edit
-                                            </a>
-                                            &nbsp;
-                                            <a @onclick=@(()=>ShowMessage("Please Edit Values")) class="text-secondary font-weight-bold text-xs cursor-pointer btnhoo">
-                                                Delete
-                                            </a>
-                                        </td>
-                                        <td class="align-middle allign-item-center">
-                                            <input class="text-xs font-weight-bold mb-0" type="checkbox" id="myCheckbox" name="select">
-                                        </td>
+                    <div class="card-body px-0 pt-0 pb-2">
+                        <div class="table-responsive p-0">
+                            <table class="table align-items-center mb-0">
+                                <thead>
+                                    <tr>
+                                        <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">ObservationID</th>
+                                        <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Scope</th>
+                                        <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">bservation Description</th>
+                                        <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Edit</th>
+                                        <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Select</th>
                                     </tr>
-                                }
-                            }
-
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-
-<Modal @ref="modal" Title="Add Observation">
-    <Body>
-        <div class="col-md-12">
-            <div class="card">
-
-                <div class="card-body">
-
-                    <div class="row">
-
-                        <div class="col-md-12">
-                            <div class="form-group">
-                                <label for="example-text-input" class="form-control-label">Add Observation Here</label>
-                                <input type="text" class="form-control" required @onkeydown="HandleKeyPress" @bind-value="@questiontext"></input>
-
-                            </div>
-
-                            <div class="form-group">
-                                <label for="example-text-input" class="form-control-label">Question Scope</label>
-                                <select @bind="selectedScope" class="form-control">
-                                    <option value="">Select a scope</option>
-                                    @foreach (var scope in scopes)
+                                </thead>
+                                <tbody>
+                                    @if (observationsList.Count > 0)
                                     {
-                                        <option value="@scope.scopeID">@scope.scopeDesc</option>
+                                        @foreach (var item in observationsList)
+                                        {
+
+
+                                            <tr class="question">
+                                                <td>
+                                                    <p class="text-xs font-weight-bold mb-0">@item.obsID</p>
+                                                </td>
+                                                <td>
+                                                    <p class="text-xs font-weight-bold mb-0">@item.scopedesc</p>
+
+                                                </td>
+                                                <td>
+                                                    <p class="text-xs font-weight-bold mb-0">@item.obsDesc</p>
+
+                                                </td>
+
+                                                <td class="align-middle allign-item-center">
+                                                    <a @onclick="@(() => EditObservation(item.obsID,item.scopedesc,item.obsDesc))" class="text-secondary font-weight-bold text-xs cursor-pointer btnhoo">
+                                                        Edit
+                                                    </a>
+
+                                                </td>
+                                                <td class="align-middle allign-item-center">
+                        <input  type="checkbox" @onchange="@(()=>HandleCheckboxChange(item))" />
+                                                </td>
+                                            </tr>
+                                        }
                                     }
-                                </select>
 
-                            </div>
-
-                            <div class="form-group">
-                                <button class="btn btn-primary  btn-sm ms-auto" @onclick=@(()=>AddObservation(questiontext,selectedScope))>Submit</button>
-                            </div>
+                                </tbody>
+                            </table>
                         </div>
-
-
                     </div>
-
                 </div>
             </div>
         </div>
-    </Body>
-</Modal>
 
-<Modal @ref="modal" Title="Edit Observation">
-    <Body>
-        <div class="col-md-12">
-            <div class="card">
+        <Modal @ref="modal" Title="Add Observation">
+            <Body>
+                <div class="col-md-12">
+                    <div class="card">
 
-                <div class="card-body">
+                        <div class="card-body">
 
-                    <div class="row">
+                            <div class="row">
 
-                        <div class="col-md-12">
-                            <div class="form-group">
-                                <label for="example-text-input" class="form-control-label">Add Observation Here</label>
-                                <input type="text" class="form-control" required @onkeydown="HandleKeyPress" @bind-value="@questiontext"></input>
+                                <div class="col-md-12">
+                                    <div class="form-group">
+                                        <label for="example-text-input" class="form-control-label">Add Observation Here</label>
+                                        <input type="text" class="form-control" required @onkeydown="HandleKeyPress" @bind-value="@questiontext"></input>
+
+                                    </div>
+
+                                    <div class="form-group">
+                                        <label for="example-text-input" class="form-control-label">Question Scope</label>
+                                        <select @bind="selectedScope" class="form-control">
+                                            <option value="">Select a scope</option>
+                                            @foreach (var scope in scopes)
+                                            {
+                                                <option value="@scope.scopeID">@scope.scopeDesc</option>
+                                            }
+                                        </select>
+
+                                    </div>
+
+                                    <div class="form-group">
+                                        <button class="btn btn-primary  btn-sm ms-auto" @onclick=@(()=>AddObservation(questiontext,selectedScope))>Submit</button>
+                                    </div>
+                                </div>
+
 
                             </div>
 
-                            <div class="form-group">
-                                <label for="example-text-input" class="form-control-label">Question Scope</label>
-                                <select @bind="selectedScope" class="form-control">
-                                    <option value="">Select a scope</option>
-                                    @foreach (var scope in scopes)
+                        </div>
+                    </div>
+                </div>
+            </Body>
+        </Modal>
+
+        <Modal @ref="modal" Title="Add/Edit Observation">
+            <Body>
+                <div class="col-md-12">
+                    <div class="card">
+
+                        <div class="card-body">
+
+                            <div class="row">
+
+                                <div class="col-md-12">
+                                    <div class="form-group">
+                                        <label for="example-text-input" class="form-control-label">Add Observation Here</label>
+                                        <input type="text" class="form-control" required @onkeydown="HandleKeyPress" @bind-value="@questiontext"></input>
+
+                                    </div>
+
+                                    <div class="form-group">
+                                        <label for="example-text-input" class="form-control-label">Question Scope</label>
+                                        <select @bind="selectedScope" class="form-control">
+                                            <option value="">Select a scope</option>
+                                            @foreach (var scope in scopes)
+                                            {
+                                                <option value="@scope.scopeID">@scope.scopeDesc</option>
+                                            }
+                                        </select>
+
+                                    </div>
+                                    @if (ObservationEdit)
                                     {
-                                        <option value="@scope.scopeID">@scope.scopeDesc</option>
+                                        <div class="form-group">
+                                            <button class="btn btn-primary  btn-sm ms-auto" @onclick=@(()=>UpdateObservation(questiontext))>Update</button>
+                                        </div>
                                     }
-                                </select>
+                                    else
+                                    {
+                                        <div class="form-group">
+                                            <button class="btn btn-primary  btn-sm ms-auto" @onclick=@(()=>AddObservation(questiontext,selectedScope))>Submit</button>
+                                        </div>
+                                    }
+                                   
+                                </div>
+
 
                             </div>
 
-                            <div class="form-group">
-                                <button class="btn btn-primary  btn-sm ms-auto" @onclick=@(()=>AddObservation(questiontext,selectedScope))>Submit</button>
-                            </div>
                         </div>
-
-
                     </div>
-
                 </div>
-            </div>
-        </div>
-    </Body>
-</Modal>
-<Modal @ref="modalImport" Title="Import From Excel">
-    <Body>
-        <div class="col-md-12">
-            <div class="card">
+            </Body>
+        </Modal>
+        <Modal @ref="modalImport" Title="Add/Edit Scope">
+            <Body>
+                <div class="col-md-12">
+                    <div class="card">
 
-                <div class="card-body">
+                        <div class="card-body">
 
-                    <div class="row">
+                            <div class="row">
 
-                        <div class="col-md-12">
-                            <div class="form-group">
-                                <a href="@DownloadExcelLink" download="your_excel_file_name.xlsx">Download Excel File</a>
+                                <div class="col-md-12">
+                                    <div class="form-group">
+                                        <label for="example-text-input" class="form-control-label">Add Scope Here</label>
+                                        <input type="text" class="form-control" required  @bind-value="@ScopeText"></input>
+
+                                    </div>
+                                    @if(!scopeEdit)
+                                    {                                    
+                                    <div class="form-group">
+                                        <button class="btn btn-primary  btn-sm ms-auto" @onclick=@(()=>AddScope(ScopeText))>Submit</button>
+                                    </div>
+                                    }
+                                    else{                                    
+                                    <div class="form-group">
+                                        <button class="btn btn-primary  btn-sm ms-auto" @onclick=@(()=>UpdateScope(selectedscope,ScopeText))>Update</button>
+                                    </div>
+                                    }
+                                </div>
+                                <div class="card mb-4">
+                                    
+                                    <div class="card-body px-0 pt-0 pb-2">
+                                        <div class="table-responsive p-0">
+                                            <table class="table align-items-center mb-0">
+                                                <thead>
+                                                    <tr>
+                                                        <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">ScopeID</th>
+                                                        <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">ScopeDescription</th>
+                                                        <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Edit</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    @if (scopes.Count > 0)
+                                                    {
+                                                        @foreach (var item in scopes)
+                                                        {
+
+
+                                                            <tr class="question">
+                                                                <td>
+                                                                    <p class="text-xs font-weight-bold mb-0">@item.scopeID</p>
+                                                                </td>
+                                                                <td>
+                                                                    <p class="text-xs font-weight-bold mb-0">@item.scopeDesc</p>
+
+                                                                </td>
+                                                              
+
+                                                                <td class="align-middle allign-item-center">
+                                                                    <a @onclick="@(() => EditScope(item.scopeID))" class="text-secondary font-weight-bold text-xs cursor-pointer btnhoo">
+                                                                        Edit
+                                                                    </a>
+                                                                    
+                                                                </td>
+                                                               
+                                                            </tr>
+                                                        }
+                                                    }
+
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                </div>
+
                             </div>
 
-                            <div class="form-group">
-                                <label for="example-text-input" class="form-control-label">Import Excel File</label>
-                                <input type="file" id="file-upload" class="form-control" @change="handleFileUpload">
-
-                            </div>
-
-                            <div class="form-group">
-                                <button class="btn btn-primary  btn-sm ms-auto" @onclick=@(()=>AddObservation(questiontext,selectedScope))>Upload</button>
-                            </div>
                         </div>
-
-
                     </div>
-
                 </div>
-            </div>
-        </div>
-    </Body>
-</Modal>
-<Modal @ref="modal2" Title="Add Inspection Template">
-    <Body>
-        <div class="col-md-12">
-            <div class="card">
+            </Body>
+        </Modal>
+        <Modal @ref="modal2" Title="Add Inspection Template">
+            <Body>
+                <div class="col-md-12">
+                    <div class="card">
 
-                <div class="card-body">
+                        <div class="card-body">
 
-                    <div class="row">
+                            <div class="row">
 
-                        <div class="col-md-12">
-                            <div class="form-group">
-                                <label for="example-text-input" class="form-control-label">Inspection Template Name</label>
-                                <input type="text" class="form-control" required @onkeydown="HandleKeyPress" @bind-value="@templatename"></input>
+                                <div class="col-md-12">
+                                    <div class="form-group">
+                                        <label for="example-text-input" class="form-control-label">Inspection Template Name</label>
+                                        <input type="text" class="form-control" required @onkeydown="HandleKeyPress" @bind-value="@templatename"></input>
 
-                            </div>
+                                    </div>
 
-                            <div class="form-group">
-                                <label for="example-text-input" class="form-control-label">Select Scope</label>
-                                @*   <select @bind="selectedScope" class="form-control">
-                                <option value="">Select a scope</option>
-                                @foreach (var scope in scopes)
-                                {
-                                <option value="@scope.ScopeID">@scope.ScopeDesc</option>
-                                }
-                                </select> *@
+                                    <div class="form-group">
+                                        <button class="btn btn-primary  btn-sm ms-auto" @onclick=@AddInspectionTemplate>Submit</button>
+                                    </div>
+                                </div>
+
 
                             </div>
 
-                            <div class="form-group">
-                                <button class="btn btn-primary  btn-sm ms-auto" @onclick=@(()=>AddObservation(questiontext,selectedScope))>Submit</button>
-                            </div>
                         </div>
-
-
                     </div>
-
                 </div>
-            </div>
-        </div>
-    </Body>
-</Modal>
+            </Body>
+        </Modal>
 
+    </Authorized>
+    <NotAuthorized>
+        <_403 />
+    </NotAuthorized>
+</AuthorizeView>
 
 @code {
 
 
     private string? questiontext;
+    private string? ScopeText;
     private string? scope;
     private string? templatename;
+    private bool scopeEdit=false;
+    private bool ObservationEdit=false;
 
     private List<tblScope> scopes = new List<tblScope>();
     private List<Observations> observationsList = new List<Observations>();
 
     private int selectedScope;
+    List<ObservationItem> selectedItems = new List<ObservationItem>();
 
-    InspectionApiService insApiService;
-
-    public Questions()
+    public class ObservationItem
+    {
+        public int obsID { get; set; }
+        public string? scopedesc { get; set; }
+        public string? obsdesc { get; set; }
+        public bool selected { get; set; }
+        public string? templatename { get; set; }
+    }
+    void HandleCheckboxChange(Observations item)
     {
 
-        insApiService = new InspectionApiService("https://localhost:7025/");
+        if (!item.selected)
+        {
+
+            selectedItems.Add(new ObservationItem { obsID = item.obsID, scopedesc = item.scopedesc, selected = item.selected, templatename = templatename });
+        }
+        else
+        {
+            var rec= selectedItems.Where(a=>a.obsID==item.obsID).FirstOrDefault();
+            if (rec != null)
+            {
+                selectedItems.Remove(rec);
+            }
+        }
     }
-
-
 
     protected override async Task OnInitializedAsync()
     {
         await LoadScopes();
     }
+    int selectedscope = 0;
+    void EditScope(int scopeid)
+    {
+        scopeEdit = true;
+        selectedscope = scopeid;
+        var x = scopes.Where(a => a.scopeID == scopeid).FirstOrDefault();
+        ScopeText = x.scopeDesc;
+    }
+    string oldobservatiovalue;
+    void EditObservation(int obsid,string scopedesc,string obsdesc)
+    {
+        oldobservatiovalue = obsdesc;
+        OpenModal();
+        questiontext = obsdesc;
+        var rec = scopes.Where(a => a.scopeDesc == scopedesc).FirstOrDefault();
+        if (rec != null)
+        {
+            ObservationEdit = true;
+            selectedScope = rec.scopeID;
+        }
+    }
 
+    async void UpdateObservation(string text)
+    {
+        var rec = observationsList.Where(a => a.obsDesc == oldobservatiovalue).FirstOrDefault();
+        JsonSerializerOptions options = new JsonSerializerOptions
+            {
+                WriteIndented = true,
+                ReferenceHandler = null
+            };
+        tblObservation obj = new tblObservation();
+        obj.ObsID=rec.obsID;
+        obj.ObsDesc = text;
+        obj.ScopeID = selectedScope;
+        rec.obsDesc = text;
+
+        int id = rec.obsID;
+        string jsonData = JsonSerializer.Serialize(obj, options);
+
+        var addtemplate = await API.PutRequest($"Inspection/UpdateObservation/{id}", jsonData);
+        string Result = JsonSerializer.Deserialize<string>(addtemplate);
+        if (Result == "200")
+        {
+            ObservationEdit = false;
+            questiontext = "";
+            modal.CloseModal();
+            await LoadScopes();
+            // modalImport.CloseModal();
+            toastService.ShowSuccess($"Scope: {ScopeText} Updated Success");
+
+        }
+        else
+        {
+            modalImport.CloseModal();
+            toastService.ShowError($"Scope: {ScopeText} Not Added");
+
+        }
+    }
+    async void UpdateScope(int id, string scope)
+    {
+        var rec = scopes.Where(a => a.scopeID == id).FirstOrDefault();
+        JsonSerializerOptions options = new JsonSerializerOptions
+            {
+                WriteIndented = true,
+                ReferenceHandler = null
+            };
+        rec.scopeDesc = scope;
+        string jsonData = JsonSerializer.Serialize(rec, options);
+
+        var addtemplate = await API.PutRequest($"Inspection/UpdateScope/{id}", jsonData);
+        string Result = JsonSerializer.Deserialize<string>(addtemplate);
+        if (Result == "200")
+        {
+            scopeEdit = false;
+            ScopeText = "";
+            modalImport.CloseModal();
+            LoadScopes();
+            // modalImport.CloseModal();
+            toastService.ShowSuccess($"Scope: {ScopeText} Updated Success");
+
+        }
+        else
+        {
+            modalImport.CloseModal();
+            toastService.ShowError($"Scope: {ScopeText} Not Added");
+
+        }
+    }
+
+    async void AddScope(string scope)
+    {
+
+        var addtemplate = await API.PostRequest($"Inspection/AddScope/{ScopeText}");
+        string Result = JsonSerializer.Deserialize<string>(addtemplate);
+        if (Result == "200")
+        {
+            await LoadScopes();
+            // modalImport.CloseModal();
+            toastService.ShowSuccess($"Scope: {ScopeText} Added Success");
+
+        }
+        else
+        {
+            modalImport.CloseModal();
+            toastService.ShowError($"Scope: {ScopeText} Not Added");
+
+        }
+
+    }
     private async Task LoadScopes()
-
     {
         try
         {
-            scopes = JsonSerializer.Deserialize<List<tblScope>>(insApiService.GetRequest("GetScopes"));
-            observationsList = JsonSerializer.Deserialize<List<Observations>>(insApiService.GetRequest("GetObservations"));
+            observationsList = new List<Observations>();
+            scopes = new List<tblScope>();
+            var rec = await API.GetRequest($"Inspection/GetScopes");
+            if (rec != "")
+            {   
+
+                scopes = JsonSerializer.Deserialize<List<tblScope>>(rec);
+            }
+            var rec2 = await API.GetRequest($"Inspection/GetObservations");
+            if (rec2 != "")
+            {
+
+                observationsList = JsonSerializer.Deserialize<List<Observations>>(rec2);
+            }
+            // scopes = JsonSerializer.Deserialize<List<tblScope>>(insApiService.GetRequest("GetScopes"));
+            //  observationsList = JsonSerializer.Deserialize<List<Observations>>(insApiService.GetRequest("GetObservations"));
         }
         catch (Exception ex)
         {
@@ -315,7 +511,7 @@
     public void GetExcelFileStream()
     {
         // Adjust the file path according to your file structure
-        string filePath = "ExcelSample.xlsx"; 
+        string filePath = "ExcelSample.xlsx";
         if (File.Exists(filePath))
         {
             var fileName = "ExcelSample.xlsx";
@@ -338,16 +534,42 @@
     }
 
 
+    public async Task<string> AddInspectionTemplate()
+    {
+
+        selectedItems[0].templatename = templatename;
+        JsonSerializerOptions options = new JsonSerializerOptions
+            {
+                WriteIndented = true,
+                ReferenceHandler = null
+            };
+        string jsonData = JsonSerializer.Serialize(selectedItems,options);
+        var addtemplate = await API.PostRequest("Inspection/CreateTemplate", jsonData);
+        string Result = JsonSerializer.Deserialize<string>(addtemplate);
+        if (Result == "200")
+        {           
+            modal2.CloseModal();
+            toastService.ShowSuccess($"Template: {templatename} Added Success");
+
+        }    
+        return "";
+    }
+
     public async Task<string> AddObservation(string desc, int scopeID)
     {
         tblObservation observation = new tblObservation { ObsDesc = desc, ScopeID = scopeID };
+
         try
         {
             // Send POST request to the API endpoint and await the response
             //var response = await ObservationService.Create("Inspection/AddObservation", observation);
-
-            string jsonData = JsonSerializer.Serialize(observation);
-            string result = insApiService.PostRequest("AddObservation", jsonData);
+            JsonSerializerOptions options = new JsonSerializerOptions
+                {
+                    WriteIndented = true,
+                    ReferenceHandler = null
+                };
+            string jsonData = JsonSerializer.Serialize(observation,options);
+            string result = await API.PostRequest("Inspection/AddObservation", jsonData);
 
             // Clear input fields and show success message
 

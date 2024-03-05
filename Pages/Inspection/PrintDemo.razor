@@ -1,0 +1,14 @@
+﻿@page "/prindemo"
+@inject IJSRuntime JSRuntime
+<h3>PrintDemo</h3>
+<p>this is demo project</p>
+<button @onclick="OnPrint" class="btn btn-primary btn-sm">Print</button>
+@code {
+
+    
+    void OnPrint()
+    {
+     //  JSRuntime.InvokeVoidAsync("Print");
+        JSRuntime.InvokeAsync<object>("open", "/prindemo/print", "_blank");
+    }
+}
