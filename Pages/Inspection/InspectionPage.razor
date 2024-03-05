@@ -1,0 +1,313 @@
+﻿@page "/chkPreview"
+@using Microsoft.AspNetCore.WebUtilities
+@using System.Text.Json
+@using VehicleManagement.ApiService
+@using VehicleManagement.Models.General.Inspection
+@inject IJSRuntime JSRuntime
+@inject IApiService API
+@inject NavigationManager navmanager
+<div class="inspectionprint">
+    <button @onclick="OnPrint" class="btn btn-primary btn-sm">Print</button>
+    <div style="background-color:white">
+        @* <div class="left-section"></div> <!-- Left section --> *@
+        <div>
+            <h3 style="text-align:center">Shakoor & Company Limited</h3>
+            <h5 style="text-align:center">Pre Inspection Checklist </h5>
+            <table class="gen">
+                <tbody>
+                    <tr>
+                        <td>Date & Time</td>
+                        <td>@gen_details.date_Time</td>
+                        <td>Vehicle Capacity</td>
+                        <td>@gen_details.capacity</td>
+
+                    </tr>
+                    <tr>
+                        <td>Origin</td>
+                        <td>@gen_details.origian</td>
+                        <td>Hydrotest</td>
+                        <td>
+                            @if (gen_details.hydroTest)
+                            {
+                                <span>OK</span>
+                            }
+                            else
+                            {
+                                <span>Expired</span>
+                            }
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>Destination</td>
+                        <td>@gen_details.destination</td>
+                        <td>D1 Lincense</td>
+                        <td>
+                            @if (gen_details.d1_Licance)
+                            {
+                                <span>OK</span>
+                            }
+                            else
+                            {
+                                <span>Expired</span>
+                            }
+                        </td>
+
+                    </tr>
+                    <!-- Repeat rows as needed -->
+                    <tr>
+                        <td>Company</td>
+                        <td>@gen_details.company</td>
+                        <td>D2 Lincense</td>
+                        <td>
+                            @if (gen_details.d2_Licance)
+                            {
+                                <span>OK</span>
+                            }
+                            else
+                            {
+                                <span>Expired</span>
+                            }
+                        </td>
+
+                    </tr>
+                    <tr>
+                        <td>Driver 1 Code</td>
+                        <td>@gen_details.driver1_Code</td>
+                        <td>D1 & D2 Mentally Alert</td>
+                        <td>
+                            @if (gen_details.d1_D2_Mentaly_Alert)
+                            {
+                                <span>YES</span>
+                            }
+                            else
+                            {
+                                <span>NO</span>
+                            }
+                        </td>
+
+                    </tr>
+                    <tr>
+                        <td>Driver 1 Name</td>
+                        <td>@gen_details.driver1_Name</td>
+                        <td>Term Card</td>
+                        <td>
+                            @if (gen_details.termCard)
+                            {
+                                <span>OK</span>
+                            }
+                            else
+                            {
+                                <span>Expired</span>
+                            }
+                        </td>
+
+                    </tr>
+                    <tr>
+                        <td>Driver 2 Code</td>
+                        <td>@gen_details.driver2_Code</td>
+                        <td>Dip Chart</td>
+                        <td>
+                            @if (gen_details.validDipChart)
+                            {
+                                <span>Valid</span>
+                            }
+                            else
+                            {
+                                <span>Expired</span>
+                            }
+                        </td>
+
+                    </tr>
+                    <tr>
+                        <td>Driver 2 Name</td>
+                        <td>@gen_details.driver2_Name</td>
+                        <td>Explosives Cert.</td>
+                        <td>
+                            @if (gen_details.validExplosiveCert)
+                            {
+                                <span>Valid</span>
+                            }
+                            else
+                            {
+                                <span>Expired</span>
+                            }
+                        </td>
+
+                    </tr>
+                    <tr>
+                        <td>Cell Phone Knowledge</td>
+                        <td>
+                            @if (gen_details.celphoneKnowledge)
+                            {
+                                <span>Yes</span>
+                            }
+                            else
+                            {
+                                <span>No</span>
+                            }
+                        </td>
+                        <td>Fitness Cert.</td>
+                        <td>
+                            @if (gen_details.fittnessCert)
+                            {
+                                <span>Valid</span>
+                            }
+                            else
+                            {
+                                <span>Expired</span>
+                            }
+                        </td>
+
+                    </tr>
+                    <tr>
+                        <td>Product</td>
+                        <td>@gen_details.product</td>
+                        <td>Tank#</td>
+                        <td>@gen_details.tankNo</td>
+
+                    </tr>
+                    <tr>
+                        <td>Vehicle#</td>
+                        <td>@gen_details.vehicleID</td>
+                        <td>Trailer#</td>
+                        <td>@gen_details.trailerNo</td>
+
+                    </tr>
+                </tbody>
+            </table>
+
+            <div class="inline-span">
+                <span> If found correct then marked ( <img src="css/check.png" alt="Checkmark" class="icon"> )</span>
+                <span> or faulty marked ( <img src="css/cross.png" alt="Cross" class="icon"> )</span>
+                <span> or irrelevant marked ( <img src="css/na.png" alt="Not Applicable" class="icon"> )</span>
+            </div>
+
+            @for (int j = 0; j <= Scopes.Count - 1; j++)
+           
+            {
+                var scopeObservations = getScopeObservations(Scopes[j]);
+
+                <table class="gen">
+                    <thead>
+                    <th>@(j+1)</th>
+                    <th>@Scopes[j]</th>
+                    <th>Inspector Remarks</th>
+                    <th>Response</th>
+                    </thead>
+                    <tbody>
+                        @for (int i = 0; i < @scopeObservations.Count; i++)
+                        {
+                            <tr>
+                                <td>@(j+1).@(i+1)</td>
+                                <td>@scopeObservations[i].scopeDesc</td>
+                                <td>@scopeObservations[i].remarks</td>
+                                <td>
+                                    @if (@scopeObservations[i].yes)
+                                    {
+                                        <span>  <img src="css/check.png" alt="Checkmark" class="icon"> </span>
+
+                                    }
+                                    else if (@scopeObservations[i].no)
+                                    {
+                                        <span>  <img src="css/cross.png" alt="Checkmark" class="icon"> </span>
+
+                                    }
+                                    else if (@scopeObservations[i].na)
+                                    {
+                                        <span>  <img src="css/na.png" alt="Checkmark" class="icon"> </span>
+
+                                    }
+                                    else
+                                    {
+
+                                    }
+
+                                </td>
+                            </tr>
+                        }
+
+                    </tbody>
+                </table>
+            }
+            <div class="signature-container">
+                <div class="signature">Safety Supervisor</div>
+                <div class="signature">Driver Sign</div>
+                <div class="signature">Manager Operations</div>
+                <div class="signature">Supervisor Operations</div>
+                <div></div>
+            </div>
+        </div> <!-- End of report section -->
+        @* <div class="right-section"></div> <!-- Right section --> *@
+    </div> <!-- End of container -->
+</div>
+@code {
+    void OnPrint()
+    {
+        JSRuntime.InvokeVoidAsync("Print");
+        // JSRuntime.InvokeAsync<object>("open", "/prindemo/print", "_blank");
+    }
+    int selectedInpection;
+    tblInspection gen_details = new tblInspection();
+    List<tblInspectionDetails> full_details = new List<tblInspectionDetails>();
+    List<string> Scopes = new List<string>();
+    private List<tblInspectionDetails> getScopeObservations(string scopeDescription)
+    {
+        List<tblInspectionDetails> obj = new List<tblInspectionDetails>();
+        var rec = full_details.Where(a => a.obsDesc == scopeDescription).ToList();
+        foreach (var x in rec)
+        {
+            obj.Add(x);
+        }
+
+        return obj;
+        StateHasChanged();
+    }
+
+    protected override async void OnInitialized()
+    {
+        // Get the query string parameter value for 'id'
+        var uri = navmanager.ToAbsoluteUri(navmanager.Uri);
+        var id = QueryHelpers.ParseQuery(uri.Query).TryGetValue("inspID", out var value);
+        selectedInpection = int.Parse(value);
+        await LoadInspection();
+        var scopes = full_details.GroupBy(x => x.obsDesc)
+                               .Select(g => new { g.Key }).ToList();
+        foreach (var x in scopes)
+        {
+            Scopes.Add(x.Key);
+        }
+        StateHasChanged();
+    }
+    private async Task LoadInspection()
+    {
+        try
+        {
+            var rec = await API.GetRequest($"Inspection/GetInspection/{selectedInpection}");
+
+            if (rec != "")
+            {
+
+                gen_details = JsonSerializer.Deserialize<tblInspection>(rec);
+            }
+            else
+            {
+                Console.WriteLine("API request returned null.");
+            }
+            var inspedetails = await API.GetRequest($"Inspection/GetCheckList/{gen_details.inspID}");
+
+            if (inspedetails != "")
+            {
+                full_details = JsonSerializer.Deserialize<List<tblInspectionDetails>>(inspedetails);
+            }
+            else
+            {
+                Console.WriteLine("API request returned null.");
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error: {ex.Message}");
+            // Handle the exception appropriately (e.g., log, display error message, etc.)
+        }
+    }
+}

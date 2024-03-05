@@ -310,11 +310,11 @@
                    select new
                    {
                        a.vehicleID,
-                       a.LastUpdate,
+                       a.lastUpdate,
                        a.currentlocation,
                        y.statusdesc,
-                       a.Currentlatitude,
-                       a.Currentlongitude
+                       a.currentlatitude,
+                       a.currentlongitude
 
                    }).ToList();
         if (rec.Count > 0)
@@ -325,12 +325,12 @@
 
                 AvailableList.Add(new AvailableVehicle
                     {
-                        LastUpdate = item.LastUpdate,
+                        LastUpdate = item.lastUpdate,
                         Location = item.currentlocation,
                         Status = item.statusdesc,
                         VehicleNumber = item.vehicleID,
-                        Currentlatitude = item.Currentlatitude,
-                        Currentlongitude = item.Currentlongitude
+                        Currentlatitude = item.currentlatitude,
+                        Currentlongitude = item.currentlongitude
                     });
             }
         }
@@ -347,8 +347,8 @@
                         a.WorkEndingDatetime,
                         a.currentlocation,
                         y.statusdesc,
-                        a.Currentlatitude,
-                        a.Currentlongitude
+                        a.currentlatitude,
+                        a.currentlongitude
 
                     }).ToList();
         if (rec2.Count > 0)
@@ -365,8 +365,8 @@
                         WorkStartDate = item.WorkstartDate,
                         Status = item.statusdesc,
                         VehicleNumber = item.vehicleID,
-                        Currentlatitude = item.Currentlatitude,
-                        Currentlongitude = item.Currentlongitude
+                        Currentlatitude = item.currentlatitude,
+                        Currentlongitude = item.currentlongitude
                     });
             }
         }
@@ -382,12 +382,12 @@
                         a.decanting_point,
                         a.currentlocation,
                         y.statusdesc,
-                        a.Currentlatitude,
-                        a.Currentlongitude,
-                        a.StartLatitude,
-                        a.StartLongitude,
-                        a.EndLatitude,
-                        a.EndLongitude
+                        a.currentlatitude,
+                        a.currentlongitude,
+                        a.startLatitude,
+                        a.startLongitude,
+                        a.endLatitude,
+                        a.endLongitude
 
                     }).ToList();
         if (rec3.Count > 0)
@@ -403,12 +403,12 @@
                         TripStart = item.loadingpoint,
                         Status = item.statusdesc,
                         VehicleNumber = item.vehicleID,
-                        Currentlatitude = item.Currentlatitude,
-                        Currentlongitude = item.Currentlongitude,
-                        Endlatitude = item.EndLatitude,
-                        Endlongitude = item.EndLongitude,
-                        Startlatitude = item.StartLatitude,
-                        Startlongitude = item.StartLongitude
+                        Currentlatitude = item.currentlatitude,
+                        Currentlongitude = item.currentlongitude,
+                        Endlatitude = item.endLatitude,
+                        Endlongitude = item.endLongitude,
+                        Startlatitude = item.startLatitude,
+                        Startlongitude = item.startLongitude
                     });
             }
         }

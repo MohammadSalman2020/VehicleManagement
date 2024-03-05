@@ -7,7 +7,7 @@ namespace VehicleManagement.Models.General.Inspection
         public int inspID { get; set; }
         
         public DateTime date_Time { get; set; }
-        public string Origian { get; set; }
+        public string origian { get; set; }
         public string destination { get; set; }
         public string company { get; set; }
         public string driver1_Code { get; set; }
