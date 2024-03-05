@@ -71,6 +71,14 @@ body {
     background-color: #5e72e4;
 }
 
+@media print {
+    .topnav,
+    .btn,
+    .btn-primary btn-sm,
+    #myTopnav {
+        display: none !important;
+    }
+}
     .topnav a {
         float: left;
         display: block;
@@ -999,3 +1007,86 @@ a.more-link {
 
 }
 
+.inspectionprint {
+    body
+
+{
+    margin: 0;
+    padding: 0;
+    font-family: Arial, sans-serif;
+    font-size: 10px;
+}
+@media print {
+    header, footer {
+        display: none !important;
+    }
+        body {
+        margin: 0;
+        padding: 0;
+    }
+    .topnav,
+    #myTopnav {
+        display: none !important;
+    }
+}
+.container {
+   
+  
+    background-color: #ffffff; /* White background for center */
+  
+}
+
+.left-section, .right-section {
+    flex: 1;
+    background-color: rgb(136, 153, 171); /* Light gray background for left and right sections */
+}
+
+.report-section {
+    width: 100%; /* Adjust width as needed */
+    margin-top: 20px;
+}
+
+h1, h2 {
+    text-align: center;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+th, td {
+    border: 1px solid #ddd;
+    padding: 5px;
+    text-align: left;
+    padding-left: 20px;
+}
+
+th {
+    background-color: #f2f2f2;
+}
+
+.icon {
+    width: 16px; /* Adjust size as needed */
+    height: 16px; /* Adjust size as needed */
+    vertical-align: middle;
+}
+.signature-container {
+    display: flex;
+    justify-content: space-between; /* Adjust as needed */
+}
+
+.signature {
+    width: 30%; /* Adjust the width of each signature place */
+    border-top: 1px solid black; /* Add a line beneath each signature place */
+    margin-bottom: 20px; /* Add space between signature places */
+    margin-top: 50px;
+    text-align: center;
+    margin-left: 10px;
+}
+
+.inline-span {
+    display: inline-block;
+    margin: 10px 5px 5px 5px; /* Top, right, bottom, left margin */
+}
+}

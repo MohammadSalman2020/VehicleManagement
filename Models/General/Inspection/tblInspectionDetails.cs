@@ -8,7 +8,11 @@
         public bool yes { get; set; }
         public bool no { get; set; }
         public bool na { get; set; }
-        public string remarks { get; set; }
-        public string attachment { get; set; }
+        public string? remarks { get; set; }
+        public byte[]? attachment { get; set; }
+        public string? scopeDesc { get; set; }
+        public string? obsDesc { get; set; }
+        public string? vehicleID { get; set; }
+        public string? business { get; set; }
     }
 }
