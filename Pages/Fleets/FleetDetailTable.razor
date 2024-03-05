@@ -1,7 +1,9 @@
-﻿@using VehicleManagement.Models.General
+﻿@using System.Text.Json
+@using VehicleManagement.ApiService
+@using VehicleManagement.Models.General
 @inject NavigationManager NavigationManager
 @using VehicleManagement.Models.DB
-@inject ApplicationDbContext DbContext
+@inject IApiService API
 <div class="container-fluid py-4">
     <div class="row">
         <div class="col-12">
@@ -90,18 +92,18 @@
                                                             <img src="css/assets/Truck.jpg" class="avatar avatar-sm me-3" alt="user1">
                                                         </div>
                                                         <div class="d-flex flex-column justify-content-center">
-                                                            <h6 class="mb-0 text-sm">@item.VehicleNumber</h6>
+                                                            <h6 class="mb-0 text-sm">@item.vehicleNumber</h6>
 
                                                         </div>
                                                     </div>
                                                 </td>
                                                 <td>
-                                                    <p class="text-xs font-weight-bold mb-0">@item.LastUpdate</p>
+                                                    <p class="text-xs font-weight-bold mb-0">@item.lastUpdate</p>
 
                                                 </td>
 
                                                 <td class="align-middle text-center">
-                                                    <span class="text-secondary text-xs font-weight-bold">@item.Location</span>
+                                                    <span class="text-secondary text-xs font-weight-bold">@item.location</span>
                                                 </td>
                                                    <td class="align-middle text-center">
                                                     <span class="text-secondary text-xs font-weight-bold">48KL</span>
@@ -110,10 +112,10 @@
                                                     <span class="text-secondary text-xs font-weight-bold">8+8+16+8+8</span>
                                                 </td>
                                                 <td class="align-middle text-center text-sm">
-                                                    <span class="badge badge-sm bg-gradient-success">@item.Status</span>
+                                                    <span class="badge badge-sm bg-gradient-success">@item.status</span>
                                                 </td>
                                                 <td class="align-middle">
-                                                    <a @onclick="@(()=> NavigateToLiveTracing(item.Currentlatitude,item.Currentlongitude))" class="text-secondary font-weight-bold text-xs cursor-pointer" data-toggle="tooltip" data-original-title="Edit user">
+                                                    <a @onclick="@(()=> NavigateToLiveTracing(item.currentlatitude,item.currentlongitude))" class="text-secondary font-weight-bold text-xs cursor-pointer" data-toggle="tooltip" data-original-title="Edit user">
                                                         Live Tracing
                                                     </a>
                                                 </td>
@@ -137,30 +139,30 @@
                                                             <img src="css/assets/Truck.jpg" class="avatar avatar-sm me-3" alt="user1">
                                                         </div>
                                                         <div class="d-flex flex-column justify-content-center">
-                                                            <h6 class="mb-0 text-sm">@item.VehicleNumber</h6>
+                                                            <h6 class="mb-0 text-sm">@item.vehicleNumber</h6>
 
                                                         </div>
                                                     </div>
                                                 </td>
                                                 <td>
-                                                    <p class="text-xs font-weight-bold mb-0">@item.Work</p>
+                                                    <p class="text-xs font-weight-bold mb-0">@item.work</p>
 
                                                 </td>
 
                                                 <td class="align-middle text-center">
-                                                    <span class="text-secondary text-xs font-weight-bold">@item.WorkStartDate</span>
+                                                    <span class="text-secondary text-xs font-weight-bold">@item.workStartDate</span>
                                                 </td>
                                                 <td class="align-middle text-center">
-                                                    <span class="text-secondary text-xs font-weight-bold">@item.ExpEndDate</span>
+                                                    <span class="text-secondary text-xs font-weight-bold">@item.expEndDate</span>
                                                 </td>
                                                 <td class="align-middle text-center">
-                                                    <span class="text-secondary text-xs font-weight-bold">@item.Location</span>
+                                                    <span class="text-secondary text-xs font-weight-bold">@item.location</span>
                                                 </td>
                                                 <td class="align-middle text-center text-sm">
-                                                    <span class="badge badge-sm bg-gradient-danger">@item.Status</span>
+                                                    <span class="badge badge-sm bg-gradient-danger">@item.status</span>
                                                 </td>
                                                 <td class="align-middle">
-                                                    <a @onclick="@(()=> NavigateToLiveTracing(item.Currentlatitude,item.Currentlongitude))" class="text-secondary font-weight-bold text-xs cursor-pointer" data-toggle="tooltip" data-original-title="Edit user">
+                                                    <a @onclick="@(()=> NavigateToLiveTracing(item.currentlatitude,item.currentlongitude))" class="text-secondary font-weight-bold text-xs cursor-pointer" data-toggle="tooltip" data-original-title="Edit user">
                                                         Live Tracing
                                                     </a>
                                                 </td>
@@ -182,7 +184,7 @@
                                                             <img src="css/assets/Truck.jpg" class="avatar avatar-sm me-3" alt="user1">
                                                         </div>
                                                         <div class="d-flex flex-column justify-content-center">
-                                                            <h6 class="mb-0 text-sm">@item.VehicleNumber</h6>
+                                                            <h6 class="mb-0 text-sm">@item.vehicleNumber</h6>
 
                                                         </div>
                                                     </div>
@@ -190,19 +192,19 @@
 
 
                                                 <td class="align-middle text-center">
-                                                    <span class="text-secondary text-xs font-weight-bold">@item.TripStart</span>
+                                                    <span class="text-secondary text-xs font-weight-bold">@item.tripStart</span>
                                                 </td>
                                                 <td class="align-middle text-center">
-                                                    <span class="text-secondary text-xs font-weight-bold">@item.TripEnd</span>
+                                                    <span class="text-secondary text-xs font-weight-bold">@item.tripEnd</span>
                                                 </td>
                                                 <td class="align-middle text-center">
-                                                    <span class="text-secondary text-xs font-weight-bold">@item.CurrentLocation</span>
+                                                    <span class="text-secondary text-xs font-weight-bold">@item.currentLocation</span>
                                                 </td>
                                                 <td class="align-middle text-center text-sm">
-                                                    <span class="badge badge-sm bg-gradient-warning">@item.Status</span>
+                                                    <span class="badge badge-sm bg-gradient-warning">@item.status</span>
                                                 </td>
                                                 <td class="align-middle">
-                                                    <a @onclick="@(()=> NavigateToLiveTracing(item.Currentlatitude,item.Currentlongitude,item.Startlongitude,item.Startlatitude,item.Endlongitude,item.Endlatitude))" class="text-secondary font-weight-bold text-xs cursor-pointer" data-toggle="tooltip" data-original-title="Edit user">
+                                                    <a @onclick="@(()=> NavigateToLiveTracing(item.currentlatitude,item.currentlongitude,item.startlongitude,item.startlatitude,item.endlongitude,item.endlatitude))" class="text-secondary font-weight-bold text-xs cursor-pointer" data-toggle="tooltip" data-original-title="Edit user">
                                                         Live Tracing
                                                     </a>
                                                 </td>
@@ -224,7 +226,7 @@
                                                             <img src="css/assets/Truck.jpg" class="avatar avatar-sm me-3" alt="user1">
                                                         </div>
                                                         <div class="d-flex flex-column justify-content-center">
-                                                            <h6 class="mb-0 text-sm">@item.VehicleNumber</h6>
+                                                            <h6 class="mb-0 text-sm">@item.vehicleNumber</h6>
 
                                                         </div>
                                                     </div>
@@ -232,15 +234,15 @@
 
 
                                                 <td class="align-middle text-center text-sm">
-                                                    <span class="badge badge-sm @(GetBadgeColor(item.Status))">@item.Status</span>
+                                                    <span class="badge badge-sm @(GetBadgeColor(item.status))">@item.status</span>
                                                 </td>
 
                                                 <td class="align-middle text-center">
-                                                    <span class="text-secondary text-xs font-weight-bold">@item.Location</span>
+                                                    <span class="text-secondary text-xs font-weight-bold">@item.location</span>
                                                 </td>
 
                                                 <td class="align-middle">
-                                                    <a @onclick="@(()=> NavigateToLiveTracing(item.Location,"Lahore"))" class="text-secondary font-weight-bold text-xs cursor-pointer" data-toggle="tooltip" data-original-title="Edit user">
+                                                    <a @onclick="@(()=> NavigateToLiveTracing(item.location,"Lahore"))" class="text-secondary font-weight-bold text-xs cursor-pointer" data-toggle="tooltip" data-original-title="Edit user">
                                                         Live Tracing
                                                     </a>
                                                 </td>
@@ -275,10 +277,10 @@
     public string? Name { get; set; }
 
 
-    public List<AvailableVehicle> AvailableList { get; set; }
-    public List<MaintainanceVehicle> MaintainanceList { get; set; }
-    public List<OntripVehicles> OntripList { get; set; }
-    public List<TotalVehicles> AllVehicles { get; set; }
+    public List<AvailableVehicle> AvailableList = new List<AvailableVehicle>();
+    public List<MaintainanceVehicle> MaintainanceList = new List<MaintainanceVehicle>();
+    public List<OntripVehicles> OntripList = new List<OntripVehicles>();
+    public List<TotalVehicles> AllVehicles = new List<TotalVehicles>();
 
     private string selectedStatus;
     private bool ShowDrop;
@@ -297,146 +299,88 @@
                 return "bg-secondary";
         }
     }
+    public async Task GetAllMaintainance()
+    {
+        try
+        {
+            var Main = await API.GetRequest($"Fleet/GetMaintaince");
+            if (Main != "")
+            {
 
-    protected override void OnInitialized()
+                MaintainanceList = JsonSerializer.Deserialize<List<MaintainanceVehicle>>(Main);
+
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex.Message);
+        }
+    }
+
+    public async Task GetAllAvailable()
+    {
+        try
+        {
+            var Available = await API.GetRequest($"Fleet/GetAvailable");
+            if (Available != "")
+            {
+
+                AvailableList = JsonSerializer.Deserialize<List<AvailableVehicle>>(Available);
+
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex.Message);
+        }
+    }
+
+    public async Task GetAllOntrip()
+    {
+        try
+        {
+            var GetOnTrip = await API.GetRequest($"Fleet/GetOnTrip");
+            if (GetOnTrip != "")
+            {
+
+                OntripList = JsonSerializer.Deserialize<List<OntripVehicles>>(GetOnTrip);
+
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex.Message);
+        }
+    }
+
+    public async Task GetAll()
+    {
+        try
+        {
+            var GetAll = await API.GetRequest($"Fleet/GetAll");
+            if (GetAll != "")
+            {
+
+                AllVehicles = JsonSerializer.Deserialize<List<TotalVehicles>>(GetAll);
+
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex.Message);
+        }
+    }
+
+
+    protected override async Task OnInitializedAsync()
     {
         ShowDrop = IsTotal ? true : false;
+    
+        await GetAllAvailable();
+        await GetAllMaintainance();
+        await GetAllOntrip();
+        await GetAll();
 
-        var rec = (from a in DbContext.tblvehicle
-                   join
-            y in DbContext.tblstatus
-            on a.statusid equals y.statusid
-                   where a.statusid == 1
-                   select new
-                   {
-                       a.vehicleID,
-                       a.LastUpdate,
-                       a.currentlocation,
-                       y.statusdesc,
-                       a.Currentlatitude,
-                       a.Currentlongitude
-
-                   }).ToList();
-        if (rec.Count > 0)
-        {
-            AvailableList = new List<AvailableVehicle>();
-            foreach (var item in rec)
-            {
-
-                AvailableList.Add(new AvailableVehicle
-                    {
-                        LastUpdate = item.LastUpdate,
-                        Location = item.currentlocation,
-                        Status = item.statusdesc,
-                        VehicleNumber = item.vehicleID,
-                        Currentlatitude = item.Currentlatitude,
-                        Currentlongitude = item.Currentlongitude
-                    });
-            }
-        }
-        var rec2 = (from a in DbContext.tblvehicle
-                    join
-             y in DbContext.tblstatus
-             on a.statusid equals y.statusid
-                    where a.statusid == 2
-                    select new
-                    {
-                        a.vehicleID,
-                        a.workDesc,
-                        a.WorkstartDate,
-                        a.WorkEndingDatetime,
-                        a.currentlocation,
-                        y.statusdesc,
-                        a.Currentlatitude,
-                        a.Currentlongitude
-
-                    }).ToList();
-        if (rec2.Count > 0)
-        {
-            MaintainanceList = new List<MaintainanceVehicle>();
-            foreach (var item in rec2)
-            {
-
-                MaintainanceList.Add(new MaintainanceVehicle
-                    {
-                        Work = item.workDesc,
-                        Location = item.currentlocation,
-                        ExpEndDate = item.WorkEndingDatetime,
-                        WorkStartDate = item.WorkstartDate,
-                        Status = item.statusdesc,
-                        VehicleNumber = item.vehicleID,
-                        Currentlatitude = item.Currentlatitude,
-                        Currentlongitude = item.Currentlongitude
-                    });
-            }
-        }
-        var rec3 = (from a in DbContext.tblvehicle
-                    join
-             y in DbContext.tblstatus
-             on a.statusid equals y.statusid
-                    where a.statusid == 3
-                    select new
-                    {
-                        a.vehicleID,
-                        a.loadingpoint,
-                        a.decanting_point,
-                        a.currentlocation,
-                        y.statusdesc,
-                        a.Currentlatitude,
-                        a.Currentlongitude,
-                        a.StartLatitude,
-                        a.StartLongitude,
-                        a.EndLatitude,
-                        a.EndLongitude
-
-                    }).ToList();
-        if (rec3.Count > 0)
-        {
-            OntripList = new List<OntripVehicles>();
-            foreach (var item in rec3)
-            {
-
-                OntripList.Add(new OntripVehicles
-                    {
-                        CurrentLocation = item.currentlocation,
-                        TripEnd = item.decanting_point,
-                        TripStart = item.loadingpoint,
-                        Status = item.statusdesc,
-                        VehicleNumber = item.vehicleID,
-                        Currentlatitude = item.Currentlatitude,
-                        Currentlongitude = item.Currentlongitude,
-                        Endlatitude = item.EndLatitude,
-                        Endlongitude = item.EndLongitude,
-                        Startlatitude = item.StartLatitude,
-                        Startlongitude = item.StartLongitude
-                    });
-            }
-        }
-        var rec4 = (from a in DbContext.tblvehicle
-                    join
-             y in DbContext.tblstatus
-             on a.statusid equals y.statusid
-                    select new
-                    {
-                        a.vehicleID,
-                        a.currentlocation,
-                        y.statusdesc
-
-                    }).OrderBy(a => a.statusdesc).ToList();
-        if (rec4.Count > 0)
-        {
-            AllVehicles = new List<TotalVehicles>();
-            foreach (var item in rec4)
-            {
-
-                AllVehicles.Add(new TotalVehicles
-                    {
-                        Location = item.currentlocation,
-                        Status = item.statusdesc,
-                        VehicleNumber = item.vehicleID
-                    });
-            }
-        }
     }
 
     private void NavigateToLiveTracing(string CurrentLatitide, string CurrentLongitude, string StartLongitude = null,

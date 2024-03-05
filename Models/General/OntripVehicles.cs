@@ -2,16 +2,16 @@
 {
     public class OntripVehicles
     {
-        public string? VehicleNumber { get; set; }
-        public string? TripStart { get; set; }
-        public string? TripEnd { get; set; }
-        public string? CurrentLocation { get; set; }
-        public string? Status { get; set; }
-        public string? Currentlongitude { get; set; }
-        public string? Currentlatitude { get; set; }
-        public string? Startlongitude { get; set; }
-        public string? Startlatitude { get; set; }
-        public string? Endlongitude { get; set; }
-        public string? Endlatitude { get; set; }
+        public string? vehicleNumber { get; set; }
+        public string? tripStart { get; set; }
+        public string? tripEnd { get; set; }
+        public string? currentLocation { get; set; }
+        public string? status { get; set; }
+        public string? currentlongitude { get; set; }
+        public string? currentlatitude { get; set; }
+        public string? startlongitude { get; set; }
+        public string? startlatitude { get; set; }
+        public string? endlongitude { get; set; }
+        public string? endlatitude { get; set; }
     }
 }

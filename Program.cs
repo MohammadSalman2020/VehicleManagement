@@ -14,9 +14,7 @@ using VehicleManagement.Service;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
-builder.Services.AddDbContext<ApplicationDbContext>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("Con")));
+
 
 builder.Services.AddRazorPages();
 builder.Services.AddServerSideBlazor();
