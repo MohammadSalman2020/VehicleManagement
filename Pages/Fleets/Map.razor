@@ -1,0 +1,32 @@
+﻿@page "/map"
+@inject IJSRuntime JSRuntime
+<h1>Map Events</h1>
+<button @onclick="AddMarker">Add Marker</button>
+
+<div id="map" style="height:90vh;width:100%">
+</div>
+
+@code {
+
+    protected override async Task OnAfterRenderAsync(bool firstrender)
+    {
+        if (firstrender)
+        {
+            await JSRuntime.InvokeVoidAsync("loadGoogleMaps");
+        }
+    }
+     protected override async void OnInitialized()
+    {
+       // AddMarker();
+    }
+
+    private async Task AddMarker()
+    {
+       // addMarker(lat, lng, vehicle, speed, driver, location) 
+        // Call JavaScript interop to add a marker
+        await JSRuntime.InvokeVoidAsync("addMarker", 24.817640641269698, 67.31299211275658,"TLK-920","0 kmh","Muhammd Salman","Port Qasim Karachi","Driving");
+        await JSRuntime.InvokeVoidAsync("addMarker", 24.812345, 67.305678, "TLK-921", "0 kmh", "Muhammd Siddique", "hayderabad", "Ignition Off");
+        await JSRuntime.InvokeVoidAsync("addMarker", 24.823456, 67.319012, "TLK-922", "0 kmh", "Muhammd Zain", "Kemari Karachi", "Ignition Off");
+        // Add more markers as needed
+    }
+}
