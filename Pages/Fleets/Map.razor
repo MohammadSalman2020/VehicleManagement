@@ -1,13 +1,24 @@
 ﻿@page "/map"
+@using System.Text.Json
+@using VehicleManagement.ApiService
+@using VehicleManagement.Models.General
 @inject IJSRuntime JSRuntime
-<h1>Map Events</h1>
-<button @onclick="AddMarker">Add Marker</button>
+@inject IApiService API
+
+<button @onclick="LoadData">Add Marker</button>
+<span>Number of Markers: @count</span>
+<span>Number of exceptions: @excount</span>
+
 
 <div id="map" style="height:90vh;width:100%">
+
 </div>
 
 @code {
 
+
+    int count = 0;
+    int excount = 0;
     protected override async Task OnAfterRenderAsync(bool firstrender)
     {
         if (firstrender)
@@ -15,18 +26,97 @@
             await JSRuntime.InvokeVoidAsync("loadGoogleMaps");
         }
     }
-     protected override async void OnInitialized()
+    List<string> vehicles = new List<string>();
+    private async Task Getvhicles()
     {
-       // AddMarker();
+        var rec = await API.GetRequest($"Fleet/GetAllVehicles");
+
+        if (rec != null)
+        {
+            vehicles = JsonSerializer.Deserialize<List<string>>(rec);
+        }
+        else
+        {
+            Console.WriteLine("API request returned null.");
+        }
+    }
+    List<TrackerData> data; 
+    protected override async Task OnInitializedAsync()
+    {
+        // try
+        // {
+        //     data = new List<TrackerData>();
+        //     await Getvhicles();
+        //     foreach(var veh in vehicles)
+        //     {
+        //         TrackerData tpl = new TrackerData();
+        //         var location = await API.GetRequest($"Fleet/GetVehiclelastLocation/{veh}?vehiceID={veh}");
+        //         if (location != null)
+        //         {
+        //             tpl =  JsonSerializer.Deserialize<TrackerData>(location);
+        //             data.Add(tpl);
+        //         }
+
+        //     }
+
+        //     foreach(var tpl in data)
+        //     {
+        //       await  AddMarkerWithDelay(double.Parse(tpl.lat), double.Parse(tpl.@long), tpl.vehicleId, tpl.speed, "Siddique", tpl.locationname.ToString(), tpl.engineStatus, 100);
+
+        //     }
+        //     //   await AddMarkers();
+        // }
+        // catch (Exception ex)
+        // {
+        //     Console.WriteLine($"Error adding markers: {ex.Message}");
+        // }
     }
 
-    private async Task AddMarker()
+    private async Task AddMarkerWithDelay(double lat, double lng, string vehicle, string speed, string driver, string location, string status, int delayMilliseconds)
     {
-       // addMarker(lat, lng, vehicle, speed, driver, location) 
-        // Call JavaScript interop to add a marker
-        await JSRuntime.InvokeVoidAsync("addMarker", 24.817640641269698, 67.31299211275658,"TLK-920","0 kmh","Muhammd Salman","Port Qasim Karachi","Driving");
-        await JSRuntime.InvokeVoidAsync("addMarker", 24.812345, 67.305678, "TLK-921", "0 kmh", "Muhammd Siddique", "hayderabad", "Ignition Off");
-        await JSRuntime.InvokeVoidAsync("addMarker", 24.823456, 67.319012, "TLK-922", "0 kmh", "Muhammd Zain", "Kemari Karachi", "Ignition Off");
-        // Add more markers as needed
+       // await Task.Delay(delayMilliseconds);
+        await JSRuntime.InvokeVoidAsync("addMarker", lat, lng, vehicle, speed, driver, location, status);
+    }
+
+    private async Task LoadData()
+    {
+        try
+        {
+            data = new List<TrackerData>();
+            await Getvhicles();
+            foreach (var veh in vehicles)
+            {
+                TrackerData tpl = new TrackerData();
+                var location = await API.GetRequest($"Fleet/GetVehiclelastLocation/{veh}?vehiceID={veh}");
+                if (location != null)
+                {
+                    tpl = JsonSerializer.Deserialize<TrackerData>(location);
+                    data.Add(tpl);
+                }
+
+            }
+
+            foreach (var tpl in data)
+            {
+                try
+                {
+                    await AddMarkerWithDelay(double.Parse(tpl.lat), double.Parse(tpl.@long), tpl.vehicleId, tpl.speed, "Siddique", tpl.locationname.ToString(), tpl.engineStatus, 100);
+                    count++;
+                    StateHasChanged();
+                    Console.WriteLine($"Marker added successfully: {tpl.vehicleId}");
+                }
+                catch (Exception ex)
+                {
+                    excount++;
+                    Console.WriteLine($"Error adding marker: {tpl.vehicleId}");
+                  
+                }
+            }
+            //   await AddMarkers();
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error adding markers: {ex.Message}");
+        }
     }
 }

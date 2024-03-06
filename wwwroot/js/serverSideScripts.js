@@ -1,9 +1,9 @@
 ﻿var map;
 
 function loadmap() {
-    var latlng = new google.maps.LatLng(24.817640641269698, 67.31299211275658);
+    var latlng = new google.maps.LatLng(30.3753, 69.3451);
     var options = {
-        zoom: 14,
+        zoom: 6,
         center: latlng,
         mapTypeId: google.maps.MapTypeId.ROADMAP
     };
@@ -28,19 +28,22 @@ function addMarker(lat, lng, vehicle, speed, driver, location, status) {
     });
 
     // Create an info window with the provided content and custom styling
+    var infoWindowContent = '';
+    if (status == "Driving") {
+        infoWindowContent = '<div  style="background-color: #228B22;font-size:12px;font-weight:bold;width:auto; color: white; padding: 10px; margin:0px;">' + vehicle + ' speed: ' + speed + ' <br/><div style="color:orange;"> Driver:' + driver + '</div><div style="color:orange">Location:' + location + ' </div><div style="color:orange">Status:' + status + '</div> </div>'; // Custom styling for the content
+    } else {
+        infoWindowContent = '<div  style="background-color: red;font-size:12px;font-weight:bold;width:auto; color: white; padding: 10px; margin:0px;">' + vehicle + ' speed: ' + speed + ' <br/><div style="color:blue;"> Driver:' + driver + '</div><div style="color:orange">Location:' + location + ' </div><div style="color:orange">Status:' + status + '</div> </div>'; // Custom styling for the content
+    }
+
     var infoWindow = new google.maps.InfoWindow({
-        if(status=== 'Driving') {
-            content: '<div  style="background-color: #228B22;font-size:12px;font-weight:bold;width:auto; color: white; padding: 10px; margin:0px;">' + vehicle + ' speed: ' + speed + ' <br/><div style="color:orange;"> Driver:' + driver + '</div><div style="color:orange">Location:' + location + ' </div><div style="color:orange">Status:' + status + '</div> </div>' // Custom styling for the content
-
-}else {
-    content: '<div  style="background-color: red;font-size:12px;font-weight:bold;width:auto; color: white; padding: 10px; margin:0px;">' + vehicle + ' speed: ' + speed + ' <br/><div style="color:orange;"> Driver:' + driver + '</div><div style="color:orange">Location:' + location + ' </div><div style="color:orange">Status:' + status + '</div> </div>' // Custom styling for the content
-
-}
+        content: infoWindowContent
     });
 
-marker.addListener('click', function () {
-    infoWindow.open(map, marker);
-});
+    //infoWindow.open(map, marker);
+
+    marker.addListener('click', function () {
+        infoWindow.open(map, marker);
+    });
 }
 
 
