@@ -7,6 +7,7 @@
 @using VehicleManagement.Models.General.Inspection
 @inject IToastService toastService
 @inject IJSRuntime JS
+@inject NavigationManager navmanager
 @using VehicleManagement.Pages.Redirects
 @using VehicleManagement.Models.DB
 @inject ApplicationDbContext DbContext
@@ -30,7 +31,7 @@
                                 <div class="col-md-12">
                                     <div class="form-group">
                                         <label for="example-text-input" class="form-control-label">Vehicle Number:</label>
-                                        <input type="text" class="form-control" required @bind-value="@VehicleID"></input>
+                                        <input id="VehicleID" type="text" class="form-control" required @bind-value="@VehicleID"></input>
 
                                     </div>
 
@@ -141,16 +142,27 @@
 
     private string? VehicleID;
     private int selectedchecklist;
-
+    private int selectedInpection;
+    private List<string> Vehicles = new List<string>();
 
     private List<Templates> templates = new List<Templates>();
 
     List<tblInspection> inspections = new List<tblInspection>();
     protected override async Task OnInitializedAsync()
-    {
-        await LoadTemplates();
+    {        await LoadTemplates();
         await LoadInspections();
+    }
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            await JS.InvokeVoidAsync("initializeAutoComplete", "VehicleID", Vehicles);
+        }
+        else
+        {
+            await JS.InvokeVoidAsync("initializeAutoComplete", "VehicleID", Vehicles);
 
+        }
     }
     private void CreateChecklist(string vehile)
     {
@@ -158,7 +170,9 @@
     }
     void ViewCheckList(int id)
     {
-        
+        selectedInpection = id;
+        navmanager.NavigateTo($"/chkPreview?inspID={selectedInpection}");
+
     }
     private async Task LoadInspections()
     {
@@ -168,6 +182,15 @@
             if (rec != "")
             {
                 inspections = JsonSerializer.Deserialize<List<tblInspection>>(rec);
+            }
+            var veh = await API.GetRequest($"Inspection/GetVehicles");
+            if (veh != "")
+            {
+                var vehiclelist = JsonSerializer.Deserialize<List<vehicleinfo>>(veh);
+                foreach(var vehicle in vehiclelist)
+                {
+                    Vehicles.Add(vehicle.vehicleid);
+                }
             }
 
         }

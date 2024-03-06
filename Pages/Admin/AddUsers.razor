@@ -116,7 +116,7 @@
                                     </tbody>
                                 </table>
                             </div>
-                            <PaginatedDataComponent Data="@AllUsers" PageSize="10" />
+                          
                         </div>
                     </div>
                 </div>
@@ -880,16 +880,12 @@
 
     public async Task GetAllPolicy()
     {
-
         try
         {
-
             var Policy = await API.GetRequest($"UserManagement/GetAllPolcies");
             if (Policy != "")
             {
-
                 AllPolicies = JsonSerializer.Deserialize<List<GetPolicy>>(Policy).OrderByDescending(p => p.policyID).ToList();
-
             }
         }
         catch (Exception ex)
@@ -1030,22 +1026,7 @@
 
 
             Policy.Roles = new Dictionary<int, string>();
-            List<Bearer> obj = new List<Bearer>();
-            obj.Add(new Bearer
-            {
-                Token="Testing"
-            });
-            obj.Add(new Bearer
-                {
-                    Token = "Testing2"
-                });
-            JsonSerializerOptions options = new JsonSerializerOptions
-                {
-                    WriteIndented = true, 
-                    ReferenceHandler = null
-                };
-            string jsonData = JsonSerializer.Serialize(obj,options);
-            var AddUser = await API.PostRequest($"Token/Test/ABCD", jsonData);
+           
             await GetAllUsers();
             await GetAllRoles();
             await GetAllSecrets();

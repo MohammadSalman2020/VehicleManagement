@@ -1,4 +1,4 @@
-﻿@page "/create_checklist"
+﻿@page "/create_template"
 
 @using System.Text.Json;
 @using System.Net;
@@ -9,9 +9,10 @@
 @inject IJSRuntime JS
 @using VehicleManagement.Pages.Redirects
 @using VehicleManagement.Models.DB
-@inject ApplicationDbContext DbContext
+
 @inject IToastService toastService
 @inject IApiService API
+
 
 <AuthorizeView>
     <Authorized>
@@ -53,9 +54,9 @@
                             <table class="table align-items-center mb-0">
                                 <thead>
                                     <tr>
-                                        <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">QuestionID</th>
+                                        <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">ObservationID</th>
                                         <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Scope</th>
-                                        <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">QuestionDesc</th>
+                                        <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">bservation Description</th>
                                         <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Edit</th>
                                         <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Select</th>
                                     </tr>

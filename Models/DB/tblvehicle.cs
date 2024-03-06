@@ -15,12 +15,12 @@ namespace VehicleManagement.Models.DB
         public string? WorkstartDate { get; set; }
         public string? WorkEndingDatetime { get; set; }
         public string? workDesc { get; set; }
-        public string? LastUpdate { get; set; }
-        public string? Currentlongitude { get; set; }
-        public string? Currentlatitude { get; set; }
-        public string? StartLongitude { get; set; }
-        public string? StartLatitude { get; set; }
-        public string? EndLongitude { get; set; }
-        public string? EndLatitude { get; set; }
+        public string? lastUpdate { get; set; }
+        public string? currentlongitude { get; set; }
+        public string? currentlatitude { get; set; }
+        public string? startLongitude { get; set; }
+        public string? startLatitude { get; set; }
+        public string? endLongitude { get; set; }
+        public string? endLatitude { get; set; }
     }
 }

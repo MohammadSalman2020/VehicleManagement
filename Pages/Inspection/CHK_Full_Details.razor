@@ -11,7 +11,7 @@
 @using VehicleManagement.ApiService;
 @inject IApiService API
 @using VehicleManagement.Models.General.Inspection;
-@inject ApplicationDbContext DbContext
+
 
 <div class="container-fluid py-4">
     <div class="row">
@@ -183,6 +183,7 @@
     private tblTemplateDetails currentObject;
     public bool IsFirstObject;
     public bool IsLastObject;
+    vehicleinfo Vehicleinfo = new vehicleinfo();
     private async Task LoadChecklist()
     {
         try
@@ -194,6 +195,16 @@
                 checklist = JsonSerializer.Deserialize<List<tblTemplateDetails>>(rec);
 
 
+            }
+            else
+            {
+                Console.WriteLine("API request returned null.");
+            }
+            var vehicleinfo = await API.GetRequest($"Inspection/GetVehicleInfo/{vehicle}");
+
+            if (vehicleinfo != null)
+            {
+                Vehicleinfo = JsonSerializer.Deserialize<vehicleinfo>(vehicleinfo);
             }
             else
             {
@@ -215,6 +226,7 @@
     int srno;
     async void submit()
     {
+
         List<tblInspectionDetails> ins_Details = new List<tblInspectionDetails>();
         int count = 0;
         foreach(var x in checklist)
@@ -224,13 +236,16 @@
             {
                 count++;
             }
-
             obj.inspID = InspectionID;
             obj.template_Detail_ID = x.tdid;
             obj.remarks = x.remarks;
             obj.yes = x.yes;
             obj.no = x.no;
             obj.na = x.na;
+            obj.scopeDesc = x.scopeDesc;
+            obj.obsDesc = x.obsDesc;
+            obj.vehicleID = Vehicleinfo.vehicleid;
+            obj.business = Vehicleinfo.businessDesc; 
             obj.attachment = null;
             ins_Details.Add(obj);
         }

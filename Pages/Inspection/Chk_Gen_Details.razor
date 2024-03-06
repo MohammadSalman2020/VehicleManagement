@@ -8,9 +8,10 @@
 @inject IJSRuntime JSRuntime
 @inject NavigationManager navmanager
 @using VehicleManagement.Models.DB
-@inject ApplicationDbContext DbContext
+
 @inject NavigationManager NavigationManager
 @inject IApiService API
+
 <div class="container-fluid py-4">
     <div class="row">
        @*  <div class="col-6">
@@ -208,7 +209,7 @@
         tblInspection ins = new tblInspection();
         ins.destination = txtdestination;
         ins.company = txtcompany;
-        ins.Origian = txtorigin;
+        ins.origian = txtorigin;
         ins.driver1_Name = txtd1name;
         ins.driver1_Code = txtd1code;
         ins.driver2_Code = txtd2code;

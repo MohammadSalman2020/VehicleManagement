@@ -2,11 +2,11 @@
 {
     public class AvailableVehicle
     {
-        public string? VehicleNumber { get; set; }
-        public string? LastUpdate { get; set; }
-        public string? Location { get; set; }
-        public string? Status { get; set; }
-        public string? Currentlongitude { get; set; }
-        public string? Currentlatitude { get; set; }
+        public string? vehicleNumber { get; set; }
+        public string? lastUpdate { get; set; }
+        public string? location { get; set; }
+        public string? status { get; set; }
+        public string? currentlongitude { get; set; }
+        public string? currentlatitude { get; set; }
     }
 }
