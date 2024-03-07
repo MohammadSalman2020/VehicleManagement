@@ -4,9 +4,11 @@
 @using System.Web
 @using System.Text.Json
 @using System.Text
+@using VehicleManagement.ApiService
 @using VehicleManagement.Models.General
 @using VehicleManagement.Pages.Redirects
-
+@inject IToastService toastService
+@inject IApiService API
 <AuthorizeView Policy="Testing">
     <Authorized>
         <Nav PageName="Invoice Display" />
@@ -371,121 +373,121 @@
                                             </div>
                                         </div>
                                     }
-                                    @if (Invoices.ReceivingDetail.Chamber3.ChamberQuantity!=0)
+                                    @if (Invoices.ReceivingDetail.Chamber3.ChamberQuantity != 0)
                                     {
-                                        
-                                  
-                                    <div class="col-md-6 form-control" style="margin-top: 7px;">
-                                        <div class="row">
 
 
-                                            <div class="col-md-12">
-                                                <label for="example-text-input" class="form-control-label" style="font-weight:bolder;font-size:medium;color:#3f55d1;">
-                                                    Chamber 3
-                                                </label>
-                                            </div>
-                                            <div class="col-md-6">
+                                        <div class="col-md-6 form-control" style="margin-top: 7px;">
+                                            <div class="row">
 
-                                                <label for="example-text-input" class="form-control-label">
-                                                    Chamber Quantity :
 
-                                                </label>
+                                                <div class="col-md-12">
+                                                    <label for="example-text-input" class="form-control-label" style="font-weight:bolder;font-size:medium;color:#3f55d1;">
+                                                        Chamber 3
+                                                    </label>
+                                                </div>
+                                                <div class="col-md-6">
+
+                                                    <label for="example-text-input" class="form-control-label">
+                                                        Chamber Quantity :
+
+                                                    </label>
                                                     <label for="example-text-input" class="form-control-label" style="color:#3f55d1">@Invoices.ReceivingDetail.Chamber3.ChamberQuantity</label>
 
 
-                                            </div>
-                                            <div class="col-md-6">
-                                                <label for="example-text-input" class="form-control-label">
-                                                    Tank Lorry Product Dips(MM) :
-                                                </label>
+                                                </div>
+                                                <div class="col-md-6">
+                                                    <label for="example-text-input" class="form-control-label">
+                                                        Tank Lorry Product Dips(MM) :
+                                                    </label>
                                                     <label for="example-text-input" class="form-control-label" style="color:#3f55d1">@Invoices.ReceivingDetail.Chamber3.LorryDip</label>
-                                            </div>
-                                            <div class="col-md-6">
-                                                <label for="example-text-input" class="form-control-label">
-                                                    Quantity 85F :
-                                                </label>
+                                                </div>
+                                                <div class="col-md-6">
+                                                    <label for="example-text-input" class="form-control-label">
+                                                        Quantity 85F :
+                                                    </label>
                                                     <label for="example-text-input" class="form-control-label" style="color:#3f55d1">@Invoices.ReceivingDetail.Chamber3.Quantity</label>
+                                                </div>
                                             </div>
                                         </div>
-                                    </div>
                                     }
-                                    @if (Invoices.ReceivingDetail.Chamber4.ChamberQuantity!=0)
+                                    @if (Invoices.ReceivingDetail.Chamber4.ChamberQuantity != 0)
                                     {
-                                        
-                                    
-                                    <div class="col-md-6 form-control" style="margin-top: 7px;">
-                                        <div class="row">
 
 
-                                            <div class="col-md-12">
-                                                <label for="example-text-input" class="form-control-label" style="font-weight:bolder;font-size:medium;color:#3f55d1;">
-                                                    Chamber 4
-                                                </label>
-                                            </div>
-                                            <div class="col-md-6">
+                                        <div class="col-md-6 form-control" style="margin-top: 7px;">
+                                            <div class="row">
 
-                                                <label for="example-text-input" class="form-control-label">
-                                                    Chamber Quantity :
 
-                                                </label>
+                                                <div class="col-md-12">
+                                                    <label for="example-text-input" class="form-control-label" style="font-weight:bolder;font-size:medium;color:#3f55d1;">
+                                                        Chamber 4
+                                                    </label>
+                                                </div>
+                                                <div class="col-md-6">
+
+                                                    <label for="example-text-input" class="form-control-label">
+                                                        Chamber Quantity :
+
+                                                    </label>
                                                     <label for="example-text-input" class="form-control-label" style="color:#3f55d1">@Invoices.ReceivingDetail.Chamber4.ChamberQuantity</label>
 
 
-                                            </div>
-                                            <div class="col-md-6">
-                                                <label for="example-text-input" class="form-control-label">
-                                                    Tank Lorry Product Dips(MM) :
-                                                </label>
+                                                </div>
+                                                <div class="col-md-6">
+                                                    <label for="example-text-input" class="form-control-label">
+                                                        Tank Lorry Product Dips(MM) :
+                                                    </label>
                                                     <label for="example-text-input" class="form-control-label" style="color:#3f55d1">@Invoices.ReceivingDetail.Chamber4.LorryDip</label>
-                                            </div>
-                                            <div class="col-md-6">
-                                                <label for="example-text-input" class="form-control-label">
-                                                    Quantity 85F :
-                                                </label>
+                                                </div>
+                                                <div class="col-md-6">
+                                                    <label for="example-text-input" class="form-control-label">
+                                                        Quantity 85F :
+                                                    </label>
                                                     <label for="example-text-input" class="form-control-label" style="color:#3f55d1">@Invoices.ReceivingDetail.Chamber4.Quantity</label>
+                                                </div>
                                             </div>
                                         </div>
-                                    </div>
                                     }
 
-                                    @if (Invoices.ReceivingDetail.Chamber5.ChamberQuantity!=0)
+                                    @if (Invoices.ReceivingDetail.Chamber5.ChamberQuantity != 0)
                                     {
-                                        
-                                   
-
-                                    <div class="col-md-6 form-control" style="margin-top: 7px;">
-                                        <div class="row">
 
 
-                                            <div class="col-md-12">
-                                                <label for="example-text-input" class="form-control-label" style="font-weight:bolder;font-size:medium;color:#3f55d1;">
-                                                    Chamber 5
-                                                </label>
-                                            </div>
-                                            <div class="col-md-6">
 
-                                                <label for="example-text-input" class="form-control-label">
-                                                    Chamber Quantity :
+                                        <div class="col-md-6 form-control" style="margin-top: 7px;">
+                                            <div class="row">
 
-                                                </label>
+
+                                                <div class="col-md-12">
+                                                    <label for="example-text-input" class="form-control-label" style="font-weight:bolder;font-size:medium;color:#3f55d1;">
+                                                        Chamber 5
+                                                    </label>
+                                                </div>
+                                                <div class="col-md-6">
+
+                                                    <label for="example-text-input" class="form-control-label">
+                                                        Chamber Quantity :
+
+                                                    </label>
                                                     <label for="example-text-input" class="form-control-label" style="color:#3f55d1">@Invoices.ReceivingDetail.Chamber5.ChamberQuantity</label>
 
 
-                                            </div>
-                                            <div class="col-md-6">
-                                                <label for="example-text-input" class="form-control-label">
-                                                    Tank Lorry Product Dips(MM) :
-                                                </label>
+                                                </div>
+                                                <div class="col-md-6">
+                                                    <label for="example-text-input" class="form-control-label">
+                                                        Tank Lorry Product Dips(MM) :
+                                                    </label>
                                                     <label for="example-text-input" class="form-control-label" style="color:#3f55d1">@Invoices.ReceivingDetail.Chamber5.LorryDip</label>
-                                            </div>
-                                            <div class="col-md-6">
-                                                <label for="example-text-input" class="form-control-label">
-                                                    Quantity 85F :
-                                                </label>
+                                                </div>
+                                                <div class="col-md-6">
+                                                    <label for="example-text-input" class="form-control-label">
+                                                        Quantity 85F :
+                                                    </label>
                                                     <label for="example-text-input" class="form-control-label" style="color:#3f55d1">@Invoices.ReceivingDetail.Chamber5.Quantity</label>
+                                                </div>
                                             </div>
                                         </div>
-                                    </div>
 
                                     }
                                     <div class="col-md-12" style="text-align:center;padding-top:10px;">
@@ -495,171 +497,171 @@
                                     </div>
 
 
-                                    @if (Invoices.ShortageCalculation.Chamber1.ShortageMM!=0)
+                                    @if (Invoices.ShortageCalculation.Chamber1.ShortageMM != 0)
                                     {
-                                        
-                                    
-                                    <div class="col-md-6 form-control" style="margin-top: 7px;">
-                                        <div class="row">
 
 
-                                            <div class="col-md-12">
-                                                <label for="example-text-input" class="form-control-label" style="font-weight:bolder;font-size:medium;color:#3f55d1;">
-                                                    Chamber 1
-                                                </label>
-                                            </div>
-                                            <div class="col-md-6">
+                                        <div class="col-md-6 form-control" style="margin-top: 7px;">
+                                            <div class="row">
 
-                                                <label for="example-text-input" class="form-control-label">
-                                                    Shortage in MM :
 
-                                                </label>
+                                                <div class="col-md-12">
+                                                    <label for="example-text-input" class="form-control-label" style="font-weight:bolder;font-size:medium;color:#3f55d1;">
+                                                        Chamber 1
+                                                    </label>
+                                                </div>
+                                                <div class="col-md-6">
+
+                                                    <label for="example-text-input" class="form-control-label">
+                                                        Shortage in MM :
+
+                                                    </label>
                                                     <label for="example-text-input" class="form-control-label" style="color:#3f55d1">@Invoices.ShortageCalculation.Chamber1.ShortageMM</label>
 
 
-                                            </div>
-                                            <div class="col-md-6">
-                                                <label for="example-text-input" class="form-control-label">
-                                                    Total Shortage in Liters :
-                                                </label>
+                                                </div>
+                                                <div class="col-md-6">
+                                                    <label for="example-text-input" class="form-control-label">
+                                                        Total Shortage in Liters :
+                                                    </label>
                                                     <label for="example-text-input" class="form-control-label" style="color:#3f55d1">@Invoices.ShortageCalculation.Chamber1.TotalShortageLtr</label>
-                                            </div>
+                                                </div>
 
+                                            </div>
                                         </div>
-                                    </div>
                                     }
 
-                                    @if (Invoices.ShortageCalculation.Chamber2.ShortageMM!=0)
+                                    @if (Invoices.ShortageCalculation.Chamber2.ShortageMM != 0)
                                     {
-                                        
-                                  
-                                    <div class="col-md-6 form-control" style="margin-top: 7px;">
-                                        <div class="row">
 
 
-                                            <div class="col-md-12">
-                                                <label for="example-text-input" class="form-control-label" style="font-weight:bolder;font-size:medium;color:#3f55d1;">
-                                                    Chamber 2
-                                                </label>
-                                            </div>
-                                            <div class="col-md-6">
+                                        <div class="col-md-6 form-control" style="margin-top: 7px;">
+                                            <div class="row">
 
-                                                <label for="example-text-input" class="form-control-label">
-                                                    Shortage in MM :
 
-                                                </label>
+                                                <div class="col-md-12">
+                                                    <label for="example-text-input" class="form-control-label" style="font-weight:bolder;font-size:medium;color:#3f55d1;">
+                                                        Chamber 2
+                                                    </label>
+                                                </div>
+                                                <div class="col-md-6">
+
+                                                    <label for="example-text-input" class="form-control-label">
+                                                        Shortage in MM :
+
+                                                    </label>
                                                     <label for="example-text-input" class="form-control-label" style="color:#3f55d1">@Invoices.ShortageCalculation.Chamber2.ShortageMM</label>
 
 
-                                            </div>
-                                            <div class="col-md-6">
-                                                <label for="example-text-input" class="form-control-label">
-                                                    Total Shortage in Liters :
-                                                </label>
+                                                </div>
+                                                <div class="col-md-6">
+                                                    <label for="example-text-input" class="form-control-label">
+                                                        Total Shortage in Liters :
+                                                    </label>
                                                     <label for="example-text-input" class="form-control-label" style="color:#3f55d1">@Invoices.ShortageCalculation.Chamber2.TotalShortageLtr</label>
+                                                </div>
                                             </div>
                                         </div>
-                                    </div>
                                     }
-                                    @if (Invoices.ShortageCalculation.Chamber3.ShortageMM!=0)
+                                    @if (Invoices.ShortageCalculation.Chamber3.ShortageMM != 0)
                                     {
-                                        
-                                   
-                                    <div class="col-md-6 form-control" style="margin-top: 7px;">
-                                        <div class="row">
 
 
-                                            <div class="col-md-12">
-                                                <label for="example-text-input" class="form-control-label" style="font-weight:bolder;font-size:medium;color:#3f55d1;">
-                                                    Chamber 3
-                                                </label>
-                                            </div>
-                                            <div class="col-md-6">
+                                        <div class="col-md-6 form-control" style="margin-top: 7px;">
+                                            <div class="row">
 
-                                                <label for="example-text-input" class="form-control-label">
-                                                    Shortage in MM :
 
-                                                </label>
+                                                <div class="col-md-12">
+                                                    <label for="example-text-input" class="form-control-label" style="font-weight:bolder;font-size:medium;color:#3f55d1;">
+                                                        Chamber 3
+                                                    </label>
+                                                </div>
+                                                <div class="col-md-6">
+
+                                                    <label for="example-text-input" class="form-control-label">
+                                                        Shortage in MM :
+
+                                                    </label>
                                                     <label for="example-text-input" class="form-control-label" style="color:#3f55d1">@Invoices.ShortageCalculation.Chamber3.ShortageMM</label>
 
 
-                                            </div>
-                                            <div class="col-md-6">
-                                                <label for="example-text-input" class="form-control-label">
-                                                    Total Shortage in Liters :
-                                                </label>
+                                                </div>
+                                                <div class="col-md-6">
+                                                    <label for="example-text-input" class="form-control-label">
+                                                        Total Shortage in Liters :
+                                                    </label>
                                                     <label for="example-text-input" class="form-control-label" style="color:#3f55d1">@Invoices.ShortageCalculation.Chamber3.TotalShortageLtr</label>
+                                                </div>
                                             </div>
                                         </div>
-                                    </div>
                                     }
 
-                                    @if (Invoices.ShortageCalculation.Chamber4.ShortageMM!=0)
+                                    @if (Invoices.ShortageCalculation.Chamber4.ShortageMM != 0)
                                     {
-                                        
-                                   
-
-                                    <div class="col-md-6 form-control" style="margin-top: 7px;">
-                                        <div class="row">
 
 
-                                            <div class="col-md-12">
-                                                <label for="example-text-input" class="form-control-label" style="font-weight:bolder;font-size:medium;color:#3f55d1;">
-                                                    Chamber 4
-                                                </label>
-                                            </div>
-                                            <div class="col-md-6">
 
-                                                <label for="example-text-input" class="form-control-label">
-                                                    Shortage in MM :
+                                        <div class="col-md-6 form-control" style="margin-top: 7px;">
+                                            <div class="row">
 
-                                                </label>
+
+                                                <div class="col-md-12">
+                                                    <label for="example-text-input" class="form-control-label" style="font-weight:bolder;font-size:medium;color:#3f55d1;">
+                                                        Chamber 4
+                                                    </label>
+                                                </div>
+                                                <div class="col-md-6">
+
+                                                    <label for="example-text-input" class="form-control-label">
+                                                        Shortage in MM :
+
+                                                    </label>
                                                     <label for="example-text-input" class="form-control-label" style="color:#3f55d1">@Invoices.ShortageCalculation.Chamber4.ShortageMM</label>
 
 
-                                            </div>
-                                            <div class="col-md-6">
-                                                <label for="example-text-input" class="form-control-label">
-                                                    Total Shortage in Liters :
-                                                </label>
+                                                </div>
+                                                <div class="col-md-6">
+                                                    <label for="example-text-input" class="form-control-label">
+                                                        Total Shortage in Liters :
+                                                    </label>
                                                     <label for="example-text-input" class="form-control-label" style="color:#3f55d1">@Invoices.ShortageCalculation.Chamber4.TotalShortageLtr</label>
+                                                </div>
                                             </div>
                                         </div>
-                                    </div>
                                     }
 
-                                    @if (Invoices.ShortageCalculation.Chamber5.ShortageMM!=0)
+                                    @if (Invoices.ShortageCalculation.Chamber5.ShortageMM != 0)
                                     {
-                                        
-                                   
-
-                                    <div class="col-md-6 form-control" style="margin-top: 7px;">
-                                        <div class="row">
 
 
-                                            <div class="col-md-12">
-                                                <label for="example-text-input" class="form-control-label" style="font-weight:bolder;font-size:medium;color:#3f55d1;">
-                                                    Chamber 5
-                                                </label>
-                                            </div>
-                                            <div class="col-md-6">
 
-                                                <label for="example-text-input" class="form-control-label">
-                                                    Shortage in MM :
+                                        <div class="col-md-6 form-control" style="margin-top: 7px;">
+                                            <div class="row">
 
-                                                </label>
+
+                                                <div class="col-md-12">
+                                                    <label for="example-text-input" class="form-control-label" style="font-weight:bolder;font-size:medium;color:#3f55d1;">
+                                                        Chamber 5
+                                                    </label>
+                                                </div>
+                                                <div class="col-md-6">
+
+                                                    <label for="example-text-input" class="form-control-label">
+                                                        Shortage in MM :
+
+                                                    </label>
                                                     <label for="example-text-input" class="form-control-label" style="color:#3f55d1">@Invoices.ShortageCalculation.Chamber5.ShortageMM</label>
 
 
-                                            </div>
-                                            <div class="col-md-6">
-                                                <label for="example-text-input" class="form-control-label">
-                                                    Total Shortage in Liters :
-                                                </label>
+                                                </div>
+                                                <div class="col-md-6">
+                                                    <label for="example-text-input" class="form-control-label">
+                                                        Total Shortage in Liters :
+                                                    </label>
                                                     <label for="example-text-input" class="form-control-label" style="color:#3f55d1">@Invoices.ShortageCalculation.Chamber5.TotalShortageLtr</label>
+                                                </div>
                                             </div>
                                         </div>
-                                    </div>
                                     }
 
 
@@ -794,6 +796,23 @@
                 Invoices = JsonSerializer.Deserialize<Invoicing>(jsonString);
                 IsView = Invoices.IsView;
             }
+            else if (encodedJson.Contains("InvoiceID="))
+            {
+                // Extract the value of the "json" query parameter
+                encodedJson = encodedJson.Split("InvoiceID=")[1];
+
+                // Decode the URL-safe Base64 string
+                string base64EncodedJson = HttpUtility.UrlDecode(encodedJson);
+
+                // Convert the Base64 string back to UTF-8 encoded bytes
+                byte[] base64EncodedBytes = Convert.FromBase64String(base64EncodedJson);
+
+                // Decode the UTF-8 bytes back to the original JSON string
+                string jsonString = Encoding.UTF8.GetString(base64EncodedBytes);
+
+                // Deserialize the JSON string back into the Invoices object
+                Invoices = JsonSerializer.Deserialize<Invoicing>(jsonString);
+            }
         }
         catch (Exception ex)
         {
@@ -805,23 +824,49 @@
     }
     private async Task Save()
     {
+        try
+        {
+            string jsonData = JsonSerializer.Serialize(Invoices);
+            var AddUser = await API.PostRequest($"Invoice/AddInvoice", jsonData);
+            string Result = JsonSerializer.Deserialize<string>(AddUser);
+            if (Result == "200")
+            {
+                toastService.ShowSuccess("Invoice Added Success");
+                NavigationManager.NavigateTo("/addinvoice");
+            }
+            else
+            {
+                toastService.ShowError("Error while adding invoice");
+            }
+        }
+        catch(Exception ex)
+        {
+            toastService.ShowError($"Error: {ex.Message}");
+        }
 
-        NavigationManager.NavigateTo("/addinvoice");
 
     }
     private async Task EditButton()
     {
-        Invoices.IsFromDisplay = true;
-        string jsonString = JsonSerializer.Serialize(Invoices);
+        try
+        {
+            Invoices.IsFromDisplay = true;
+            string jsonString = JsonSerializer.Serialize(Invoices);
 
-        // Encode the JSON string as Base64 to make it URL-safe
-        string base64EncodedJson = Convert.ToBase64String(Encoding.UTF8.GetBytes(jsonString));
+            // Encode the JSON string as Base64 to make it URL-safe
+            string base64EncodedJson = Convert.ToBase64String(Encoding.UTF8.GetBytes(jsonString));
 
-        // Encode the Base64 string to make it URL-safe
-        string encodedJson = HttpUtility.UrlEncode(base64EncodedJson);
+            // Encode the Base64 string to make it URL-safe
+            string encodedJson = HttpUtility.UrlEncode(base64EncodedJson);
 
-        // Navigate to the destination page with the encoded JSON string as a query parameter
-        NavigationManager.NavigateTo($"/invoicepanel?Edit={encodedJson}");
+            // Navigate to the destination page with the encoded JSON string as a query parameter
+            NavigationManager.NavigateTo($"/invoicepanel?Edit={encodedJson}");
+        }
+        catch(Exception ex)
+        {
+            toastService.ShowError($"Error: {ex.Message}");
+        }
+
 
 
     }
