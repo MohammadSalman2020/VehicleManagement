@@ -25,7 +25,8 @@ builder.Services.AddScoped<IApiService, ApiService>();
 builder.Services.AddScoped<ProtectedSessionStorage>();
 builder.Services.AddSingleton<IConfiguration>(builder.Configuration);
 builder.Services.AddHttpContextAccessor();
-builder.Services.AddSyncfusionBlazor();
+
+
 builder.Services.AddScoped<CustomPolicyProvider>();
 builder.Services.AddAuthorization(async options =>
 {
