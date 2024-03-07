@@ -32,7 +32,7 @@ function addMarker(lat, lng, vehicle, speed, driver, location, status) {
     if (status == "Driving") {
         infoWindowContent = '<div  style="background-color: #228B22;font-size:12px;font-weight:bold;width:auto; color: white; padding: 10px; margin:0px;">' + vehicle + ' speed: ' + speed + ' <br/><div style="color:orange;"> Driver:' + driver + '</div><div style="color:orange">Location:' + location + ' </div><div style="color:orange">Status:' + status + '</div> </div>'; // Custom styling for the content
     } else {
-        infoWindowContent = '<div  style="background-color: red;font-size:12px;font-weight:bold;width:auto; color: white; padding: 10px; margin:0px;">' + vehicle + ' speed: ' + speed + ' <br/><div style="color:blue;"> Driver:' + driver + '</div><div style="color:orange">Location:' + location + ' </div><div style="color:orange">Status:' + status + '</div> </div>'; // Custom styling for the content
+        infoWindowContent = '<div  style="background-color: red;font-size:12px;font-weight:bold;width:auto; color: white; padding: 10px; margin:0px;">' + vehicle + ' speed: ' + speed + ' <br/><div style="color:blue;"> Driver:' + driver + '</div><div style="color:blue">Location:' + location + ' </div><div style="color:blue">Status:' + status + '</div> </div>'; // Custom styling for the content
     }
 
     var infoWindow = new google.maps.InfoWindow({

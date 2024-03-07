@@ -10,7 +10,7 @@
 @inject IToastService toastService
 @inject IApiService API
 
-<AuthorizeView Policy="TestingPolicy">
+<AuthorizeView Roles="admin">
     <Authorized>
         <Nav PageName="User Management" />
         <div class="container-fluid">

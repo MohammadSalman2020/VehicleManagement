@@ -5,9 +5,9 @@
 @inject IJSRuntime JSRuntime
 @inject IApiService API
 
-<button @onclick="LoadData">Add Marker</button>
-<span>Number of Markers: @count</span>
-<span>Number of exceptions: @excount</span>
+<button class="btn btn-warning btn-sm ms-auto" @onclick="LoadData">Load Fleet</button>
+@* <span>Number of Markers: @count</span>
+<span>Number of exceptions: @excount</span> *@
 
 
 <div id="map" style="height:90vh;width:100%">
