@@ -1403,74 +1403,98 @@
     }
     private async Task TextChangedShipment(int chamberNumber, ChangeEventArgs e)
     {
-        if (Invoices.ShippingDetail.SG != 0 && Invoices.ShippingDetail.TempF != 0)
+        try
         {
-            int quantity = int.Parse(e.Value.ToString());
-            double calculatedQuantity = await GetQtyAt85F(Invoices.ShippingDetail.SG, Invoices.ShippingDetail.TempF, quantity);
-
-            // Set the quantity for the specified chamber
-            switch (chamberNumber)
+            if (Invoices.ShippingDetail.SG != 0 && Invoices.ShippingDetail.TempF != 0)
             {
-                case 1:
-                    Invoices.ShippingDetail.Chamber1.Quantity = int.Parse(calculatedQuantity.ToString());
-                    break;
-                case 2:
-                    Invoices.ShippingDetail.Chamber2.Quantity = int.Parse(calculatedQuantity.ToString());
-                    break;
-                case 3:
-                    Invoices.ShippingDetail.Chamber3.Quantity = int.Parse(calculatedQuantity.ToString());
-                    break;
-                case 4:
-                    Invoices.ShippingDetail.Chamber4.Quantity = int.Parse(calculatedQuantity.ToString());
-                    break;
-                case 5:
-                    Invoices.ShippingDetail.Chamber5.Quantity = int.Parse(calculatedQuantity.ToString());
-                    break;
-                default:
-                    // Handle invalid chamber number
-                    break;
+                int quantity = int.Parse(e.Value.ToString());
+                double calculatedQuantity = await GetQtyAt85F(Invoices.ShippingDetail.SG, Invoices.ShippingDetail.TempF, quantity);
+
+                // Set the quantity for the specified chamber
+                switch (chamberNumber)
+                {
+                    case 1:
+                        Invoices.ShippingDetail.Chamber1.Quantity = int.Parse(calculatedQuantity.ToString());
+                        break;
+                    case 2:
+                        Invoices.ShippingDetail.Chamber2.Quantity = int.Parse(calculatedQuantity.ToString());
+                        break;
+                    case 3:
+                        Invoices.ShippingDetail.Chamber3.Quantity = int.Parse(calculatedQuantity.ToString());
+                        break;
+                    case 4:
+                        Invoices.ShippingDetail.Chamber4.Quantity = int.Parse(calculatedQuantity.ToString());
+                        break;
+                    case 5:
+                        Invoices.ShippingDetail.Chamber5.Quantity = int.Parse(calculatedQuantity.ToString());
+                        break;
+                    default:
+                        // Handle invalid chamber number
+                        break;
+                }
+
+            }
+            else if (e.Value != "")
+            {
+
+            }
+            else
+            {
+                toastService.ShowWarning("Please insert Tempreture and SG first");
             }
 
         }
-        else
+        catch(Exception ex)
         {
-            toastService.ShowWarning("Please insert Tempreture and SG first");
+
         }
     }
     private async Task TextChangedReceiving(int chamberNumber, ChangeEventArgs e)
     {
-        if (Invoices.ReceivingDetail.SG != 0 && Invoices.ReceivingDetail.TempF != 0)
+        try
         {
-        int quantity = int.Parse(e.Value.ToString());
-        double calculatedQuantity = await GetQtyAt85F(Invoices.ReceivingDetail.SG, Invoices.ReceivingDetail.TempF, quantity);
+            if (Invoices.ReceivingDetail.SG != 0 && Invoices.ReceivingDetail.TempF != 0)
+            {
+                int quantity = int.Parse(e.Value.ToString());
+                double calculatedQuantity = await GetQtyAt85F(Invoices.ReceivingDetail.SG, Invoices.ReceivingDetail.TempF, quantity);
 
-        // Set the quantity for the specified chamber
-        switch (chamberNumber)
+                // Set the quantity for the specified chamber
+                switch (chamberNumber)
+                {
+                    case 1:
+                        Invoices.ReceivingDetail.Chamber1.Quantity = int.Parse(calculatedQuantity.ToString());
+                        break;
+                    case 2:
+                        Invoices.ReceivingDetail.Chamber2.Quantity = int.Parse(calculatedQuantity.ToString());
+                        break;
+                    case 3:
+                        Invoices.ReceivingDetail.Chamber3.Quantity = int.Parse(calculatedQuantity.ToString());
+                        break;
+                    case 4:
+                        Invoices.ReceivingDetail.Chamber4.Quantity = int.Parse(calculatedQuantity.ToString());
+                        break;
+                    case 5:
+                        Invoices.ReceivingDetail.Chamber5.Quantity = int.Parse(calculatedQuantity.ToString());
+                        break;
+                    default:
+                        // Handle invalid chamber number
+                        break;
+                }
+            }
+            else if(e.Value!="")
+            {
+                
+            }
+            else
+            {
+                toastService.ShowWarning("Please insert Tempreture and SG first");
+            }
+        }
+        catch(Exception ex)
         {
-            case 1:
-                Invoices.ReceivingDetail.Chamber1.Quantity = int.Parse(calculatedQuantity.ToString());
-                break;
-            case 2:
-                Invoices.ReceivingDetail.Chamber2.Quantity = int.Parse(calculatedQuantity.ToString());
-                break;
-            case 3:
-                Invoices.ReceivingDetail.Chamber3.Quantity = int.Parse(calculatedQuantity.ToString());
-                break;
-            case 4:
-                Invoices.ReceivingDetail.Chamber4.Quantity = int.Parse(calculatedQuantity.ToString());
-                break;
-            case 5:
-                Invoices.ReceivingDetail.Chamber5.Quantity = int.Parse(calculatedQuantity.ToString());
-                break;
-            default:
-                // Handle invalid chamber number
-                break;
+
         }
-        }
-        else
-        {
-            toastService.ShowWarning("Please insert Tempreture and SG first");
-        }
+    
     }
 
     public async Task<double> GetQtyAt85F(double sg, double temp, double qty)

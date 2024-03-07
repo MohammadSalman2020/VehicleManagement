@@ -14,13 +14,12 @@
 @inject IToastService toastService
 @inject IApiService API
 @inject NavigationManager NavigationManager
-<AuthorizeView>
-    <Authorized>
-        <Nav PageName="Inspections" />
+<Nav PageName="Inspections" />
 
-        <div class="container-fluid py-4">
-            <div class="row">
-
+<div class="container-fluid py-4">
+    <div class="row">
+        <AuthorizeView Roles="admin">
+            <Authorized>
                 <div class="col-md-4">
                     <div class="card">
 
@@ -58,6 +57,15 @@
                         </div>
                     </div>
                 </div>
+            </Authorized>
+
+        </AuthorizeView>
+
+        <AuthorizeView>
+            <Authorized>
+
+
+
                 <div class="col-md-8">
                     <div class="card">
 
@@ -80,7 +88,7 @@
                                                 <tbody>
                                                     @if (inspections.Count > 0)
                                                     {
-                                                        @foreach (var item in inspections.OrderByDescending(a=>a.inspID))
+                                                        @foreach (var item in inspections.OrderByDescending(a => a.inspID))
                                                         {
                                                             <tr>
                                                                 <td class="align-middle text-center">
@@ -102,7 +110,7 @@
                                                                     <span class="text-secondary text-xs font-weight-bold">@item.date_Time</span>
                                                                 </td>
 
-                                                               
+
 
                                                                 <td class="align-middle">
 
@@ -127,16 +135,16 @@
                         </div>
                     </div>
                 </div>
-            </div>
-        </div>
 
 
-    </Authorized>
-    <NotAuthorized>
-        <_403 />
-    </NotAuthorized>
-</AuthorizeView>
 
+            </Authorized>
+            <NotAuthorized>
+                <_403 />
+            </NotAuthorized>
+        </AuthorizeView>
+    </div>
+</div>
 @code {
 
 
@@ -149,7 +157,8 @@
 
     List<tblInspection> inspections = new List<tblInspection>();
     protected override async Task OnInitializedAsync()
-    {        await LoadTemplates();
+    {
+        await LoadTemplates();
         await LoadInspections();
     }
     protected override async Task OnAfterRenderAsync(bool firstRender)
@@ -187,7 +196,7 @@
             if (veh != "")
             {
                 var vehiclelist = JsonSerializer.Deserialize<List<vehicleinfo>>(veh);
-                foreach(var vehicle in vehiclelist)
+                foreach (var vehicle in vehiclelist)
                 {
                     Vehicles.Add(vehicle.vehicleid);
                 }
