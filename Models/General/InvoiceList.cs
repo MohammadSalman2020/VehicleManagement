@@ -2,9 +2,10 @@
 {
     public class InvoiceList
     {
-        public string InvoiceNo { get; set; }
-        public string FillingDate { get; set; }
-        public string VehicleNumber { get; set; }
-        public string DecentingPoint { get; set; }
+        public int invoiceID { get; set; }
+        public string invoiceNo { get; set; }
+        public string fillingDate { get; set; }
+        public string vehicleNumber { get; set; }
+        public string decentingPoint { get; set; }
     }
 }

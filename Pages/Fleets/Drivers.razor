@@ -1,6 +1,10 @@
 ﻿@page "/driver"
+@using System.Text.Json
+@using VehicleManagement.ApiService
+@using VehicleManagement.Models.General.Driver
 @using VehicleManagement.Pages.Redirects
-
+@inject IToastService toastService
+@inject IApiService API
 <AuthorizeView Policy="Testing2">
     <Authorized>
         <Nav PageName="Drivers" />
@@ -25,43 +29,62 @@
                                     <thead>
                                         <tr>
                                             <th class="text-uppercase font-colors  text-xxs font-weight-bolder opacity-7">Driver ID</th>
-                                            <th class="text-uppercase font-colors  text-xxs font-weight-bolder opacity-7 ps-2">Driver Full Name</th>
+                                            <th class="text-uppercase font-colors  text-xxs font-weight-bolder opacity-7 ps-2" style="text-align:center">Driver Full Name</th>
                                             <th class="text-center font-colors text-uppercase  text-xxs font-weight-bolder opacity-7">Contact</th>
                                             <th class="text-center font-colors text-uppercase  text-xxs font-weight-bolder opacity-7">Designation</th>
                                             <th class="text-center font-colors text-uppercase  text-xxs font-weight-bolder opacity-7">Status</th>
+                                            <th class="text-center font-colors text-uppercase  text-xxs font-weight-bolder opacity-7"></th>
 
 
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        <tr>
-                                            <td class="align-middle text-center">
-                                                <div class="d-flex px-2 py-1">
-                                                    <div>
-                                                        <img src="css/assets/Truck.jpg" class="avatar avatar-sm me-3" alt="user1">
-                                                    </div>
-                                                    <div class="d-flex flex-column justify-content-center">
-                                                        <h6 class="mb-0 text-sm">12201554</h6>
+                                        @if (DriverList.Count > 0)
+                                        {
+                                            @foreach (var item in DriverList)
+                                            {
+                                                <tr>
+                                                    <td class="align-middle text-center">
+                                                        <div class="d-flex px-2 py-1">
+                                                            <div>
+                                                                <img src="css/assets/Truck.jpg" class="avatar avatar-sm me-3" alt="user1">
+                                                            </div>
+                                                            <div class="d-flex flex-column justify-content-center">
+                                                                <h6 class="mb-0 text-sm">@item.driverID</h6>
 
-                                                    </div>
-                                                </div>
-                                            </td>
-                                            <td class="align-middle text-center">
-                                                <p class="text-xs font-weight-bold mb-0">Abdul Ghafoor</p>
+                                                            </div>
+                                                        </div>
+                                                    </td>
+                                                    <td class="align-middle text-center">
+                                                        <p class="text-xs font-weight-bold mb-0">@item.driverName</p>
 
-                                            </td>
-                                            <td class="align-middle text-center">
-                                                <span class="text-secondary text-xs font-weight-bold">090078601</span>
-                                            </td>
-                                            <td class="align-middle text-center">
-                                                <span class="text-secondary text-xs font-weight-bold">Senior</span>
-                                            </td>
-                                            <td class="align-middle text-center text-sm">
-                                                <span class="badge badge-sm bg-gradient-success">Active</span>
-                                            </td>
+                                                    </td>
+                                                    <td class="align-middle text-center">
+                                                        <span class="text-secondary text-xs font-weight-bold">@item.contact</span>
+                                                    </td>
+                                                    <td class="align-middle text-center">
+                                                        <span class="text-secondary text-xs font-weight-bold">@item.designation</span>
+                                                    </td>
+                                                    <td class="align-middle text-center text-sm">
+                                                        @if (@item.isActive)
+                                                        {
+                                                            <span class="badge badge-sm bg-gradient-success">@(item.isActive == true ? "Active" : "In-Active")</span>
 
+                                                        }
+                                                        else
+                                                        {
+                                                            <span class="badge badge-sm bg-gradient-danger">@(item.isActive == true ? "Active" : "In-Active")</span>
 
-                                        </tr>
+                                                        }
+                                                    </td>
+                                                    <td class="align-middle text-center">
+                                                        <span class="text-secondary text-xs font-weight-bold" @onclick="@(() => EditDriver(item.driverdbID))">Edit</span>
+                                                    </td>
+
+                                                </tr>
+                                            }
+                                        }
+
 
                                     </tbody>
                                 </table>
@@ -79,51 +102,63 @@
                         <div class="card-body">
 
                             <div class="row">
-                              
+
                                 <div class="col-md-6">
                                     <div class="form-group">
                                         <label for="example-text-input" class="form-control-label">Driver ID</label>
-                                        <input type="text" placeholder="Driver ID" class="form-control">
+                                        <input type="text" placeholder="Driver ID" @bind="Driver.DriverID" class="form-control">
 
                                     </div>
                                 </div>
                                 <div class="col-md-6">
                                     <div class="form-group">
                                         <label for="example-text-input" class="form-control-label">Full Name</label>
-                                        <input type="text" placeholder="Full Name" class="form-control">
+                                        <input type="text" placeholder="Full Name" @bind="Driver.DriverName" class="form-control">
 
                                     </div>
                                 </div>
                                 <div class="col-md-6">
                                     <div class="form-group">
                                         <label for="example-text-input" class="form-control-label">Contact</label>
-                                        <input type="text" placeholder="Contact" class="form-control">
+                                        <input type="text" placeholder="Contact" @bind="Driver.Contact" class="form-control">
 
                                     </div>
                                 </div>
                                 <div class="col-md-6">
                                     <div class="form-group">
                                         <label for="example-text-input" class="form-control-label">Designation</label>
-                                        <input type="text" placeholder="Designation" class="form-control">
+                                        <input type="text" placeholder="Designation" @bind="Driver.Designation" class="form-control">
 
                                     </div>
                                 </div>
                                 <div class="col-md-6">
                                     <div class="form-group">
                                         <div class="form-control">
-                                            <input checked="checked" type="checkbox">
+                                            <input checked="@Driver.isActive" @onchange="DrivertStatus" type="checkbox">
                                             <span class="form-control-label">Active</span>
                                         </div>
 
                                     </div>
                                 </div>
-                          
-                                <div class="col-md-12">
-                                    <div class="form-group" style="text-align:center;">
-                                        <button class="btn btn-primary btn-sm ms-auto">Submit</button>
+                                @if (!IsEdit)
+                                {
+                                    <div class="col-md-12">
+                                        <div class="form-group" style="text-align:center;">
+                                            <button class="btn btn-primary btn-sm ms-auto" @onclick="AddDriver">Submit</button>
 
+                                        </div>
                                     </div>
-                                </div>
+                                }
+                                else
+                                {
+                                    <div class="col-md-12">
+                                        <div class="form-group" style="text-align:center;">
+                                            <button class="btn btn-warning btn-sm ms-auto" @onclick="UpdateDriver">Update</button>
+
+                                        </div>
+                                    </div>
+                                }
+
 
                             </div>
 
@@ -132,7 +167,7 @@
                 </div>
             </Body>
         </Modal>
-
+        <Loader isLoading="@IsLoading" />
     </Authorized>
     <NotAuthorized>
         <_403 />
@@ -143,8 +178,147 @@
 
 @code {
     private Modal modal;
+
+    public bool IsLoading = false;
+    public bool IsEdit = false;
+    public int DriverDBID = 0;
+    private AddDriver Driver = new AddDriver();
+    public List<AllDriver> DriverList = new List<AllDriver>();
+    private void DrivertStatus(ChangeEventArgs e)
+    {
+        Driver.isActive = (bool)e.Value;
+    }
     private void OpenModal()
     {
         modal.Show();
+    }
+
+    public bool isEmpty()
+    {
+        if (Driver.DriverID != null && Driver.DriverName != null && Driver.Designation != null && Driver.Contact != null)
+        {
+            return false;
+        }
+        else
+        {
+            return true;
+        }
+
+    }
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            await GetAllDriver();
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex.Message);
+        }
+    }
+    private async Task EditDriver(int DriverID)
+    {
+
+        Driver = new AddDriver();
+        var rec = DriverList.Where(p => p.driverdbID == DriverID).FirstOrDefault();
+        if (rec != null)
+        {
+            IsEdit = true;
+            DriverDBID = DriverID;
+            Driver.isActive = rec.isActive;
+            Driver.Contact = rec.contact;
+            Driver.DriverName = rec.driverName;
+            Driver.Designation = rec.designation;
+            Driver.DriverID = rec.driverID;
+            modal.Show();
+
+        }
+
+    }
+    public async Task GetAllDriver()
+    {
+
+        try
+        {
+
+            var Drivers = await API.GetRequest($"Driver/GetAllDriver");
+            if (Drivers != "")
+            {
+
+                DriverList = JsonSerializer.Deserialize<List<AllDriver>>(Drivers);
+
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex.Message);
+        }
+    }
+    private async Task UpdateDriver()
+    {
+        try
+        {
+            if (Driver != null && !isEmpty())
+            {
+                IsLoading = true;
+                string jsonData = JsonSerializer.Serialize(Driver);
+                var AddUser = await API.PostRequest($"Driver/UpdateDriver/{DriverDBID}", jsonData);
+                int Result = JsonSerializer.Deserialize<int>(AddUser);
+                if (Result == 200)
+                {
+                    toastService.ShowSuccess($"User: {Driver.DriverName} Update Success");
+                    Driver = new AddDriver();
+                    modal.CloseModal();
+
+                    await GetAllDriver();
+                    IsEdit = false;
+                    DriverDBID = 0;
+                }
+            }
+            else
+            {
+                toastService.ShowError("Empty Fields are not Allowed");
+            }
+        }
+        catch (Exception ex)
+        {
+            toastService.ShowError($"Error {ex}");
+        }
+
+        IsLoading = false;
+    }
+    private async Task AddDriver()
+    {
+        try
+        {
+
+            if (Driver != null && !isEmpty())
+            {
+                IsLoading = true;
+                string jsonData = JsonSerializer.Serialize(Driver);
+                var AddDriver = await API.PostRequest($"Driver/AddDriver", jsonData);
+                int Result = JsonSerializer.Deserialize<int>(AddDriver);
+                if (Result == 200)
+                {
+                    toastService.ShowSuccess($"Driver: {Driver.DriverName} Added Success");
+                    Driver = new AddDriver();
+                    await GetAllDriver();
+                    modal.CloseModal();
+
+
+                }
+
+            }
+            else
+            {
+                toastService.ShowError("Empty Fields are not Allowed");
+            }
+        }
+        catch (Exception ex)
+        {
+            toastService.ShowError($"Error {ex}");
+        }
+
+        IsLoading = false;
     }
 }

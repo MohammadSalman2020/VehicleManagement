@@ -630,10 +630,11 @@
                 int Result = JsonSerializer.Deserialize<int>(AddUser);
                 if (Result == 200)
                 {
+                    toastService.ShowSuccess($"User: {User.Username} Added Success");
                     User = new Users();
                     await GetAllUsers();
                     UserModal.CloseModal();
-                    toastService.ShowSuccess($"User: {User.Username} Added Success");
+               
 
                 }
 
@@ -663,9 +664,10 @@
                 int Result = JsonSerializer.Deserialize<int>(AddUser);
                 if (Result == 200)
                 {
+                    toastService.ShowSuccess($"User: {User.Username} Update Success");
                     User = new Users();
                     UserModal.CloseModal();
-                    toastService.ShowSuccess($"User: {User.Username} Update Success");
+                
                     await GetAllUsers();
                     IsUserEdit = false;
                     UpdateUserID = 0;
