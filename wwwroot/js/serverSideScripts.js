@@ -39,7 +39,7 @@ function addMarker(lat, lng, vehicle, speed, driver, location, status) {
         content: infoWindowContent
     });
 
-    //infoWindow.open(map, marker);
+    infoWindow.open(map, marker);
 
     marker.addListener('click', function () {
         infoWindow.open(map, marker);
