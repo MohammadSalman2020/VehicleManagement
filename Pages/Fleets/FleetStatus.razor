@@ -1,0 +1,198 @@
+﻿@page "/fleetstatus"
+@using System.Text.Json
+@using System.Collections.Generic
+@using System.IO
+@using Microsoft.AspNetCore.Components
+@using System.Threading.Tasks
+@inject IJSRuntime JSRuntime
+@using System.Text
+@using VehicleManagement.ApiService
+@using VehicleManagement.Models.General
+@inject NavigationManager NavigationManager
+@using VehicleManagement.Models.DB
+@using VehicleManagement.Models.General.Fleet
+@inject IApiService API
+<div class="container-fluid py-4">
+    <div class="row">
+        <div class="col-12">
+            <div class="card mb-4">
+                <div class="card-header pb-0">
+                    <span>Fleet Status Report (HTL)</span>
+                </div>
+                <div class="form-group">
+                    <button class="btn btn-primary btn-sm ms-auto" @onclick="ExportToCSV">Export To CSV</button>
+                </div>
+                <div class="card-body px-0 pt-0 pb-2">
+                    <div class="table-responsive">
+                        <div style="overflow-x: auto; max-width: 100%;">
+
+                            <!-- Your table code -->
+                            <table class="table align-items-center mb-0 table-bordered">
+                                <!-- Added 'table-bordered' class -->
+                                <thead>
+                                    <tr>
+                                        <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Sr#</th>
+                                        <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Vehicle #</th>
+                                        <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Qty</th>
+                                        <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Driver 1</th>
+                                        <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Driver 2</th>
+                                        <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Report/FillingData</th>
+                                        <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Product</th>
+                                        <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Filling Point</th>
+                                        <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Heading</th>
+                                        <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Destination</th>
+                                        <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">CurrentLocation</th>
+                                        <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Remarks</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+
+                                    @if (fleet.Count > 0)
+                                    {
+                                        @foreach (var item in fleet)
+                                        {
+                                            <tr>
+                                                <td>
+                                                    <p class="text-xs font-weight-bold mb-0">@(sr = (sr + 1))</p>
+                                                </td>
+                                                <td>
+                                                    <div class="d-flex px-2 py-1">
+                                                        <div class="d-flex flex-column justify-content-center">
+                                                            <h6 class="mb-0 text-sm">@item.vehicleID</h6>
+                                                        </div>
+                                                    </div>
+                                                </td>
+                                                <td>
+                                                    <p class="text-xs font-weight-bold mb-0">@item.qty</p>
+                                                </td>
+                                                <td class="align-middle text-center">
+                                                    <span class="text-secondary text-xs font-weight-bold">@item.driver1</span>
+                                                </td>
+                                                <td class="align-middle text-center">
+                                                    <span class="text-secondary text-xs font-weight-bold">@item.driver2</span>
+                                                </td>
+                                                <td class="align-middle text-center">
+                                                    <span class="text-secondary text-xs font-weight-bold">@item.reportingFillingdate</span>
+                                                </td>
+                                                <td class="align-middle text-center text-sm">
+                                                    <span class="text-secondary text-xs font-weight-bold">@item.product</span>
+                                                </td>
+                                                <td class="align-middle text-center text-sm">
+                                                    <span class="text-secondary text-xs font-weight-bold">@item.fillingPoint</span>
+                                                </td>
+                                                <td class="align-middle text-center text-sm">
+                                                    <span class="badge badge-sm bg-gradient-success">@item.heading</span>
+                                                </td>
+                                                <td class="align-middle text-center text-sm">
+                                                    <span class="text-secondary text-xs font-weight-bold">@item.destination</span>
+                                                </td>
+                                                <td class="align-middle text-sm">
+                                                    <span class="text-secondary text-xs font-weight-bold">@item.current_location</span>
+                                                </td>
+                                                <td class="align-middle text-center text-sm">
+                                                    <span class="text-secondary text-xs font-weight-bold">@item.Remarks</span>
+                                                </td>
+                                            </tr>
+                                        }
+
+                                    }
+                                    else
+                                    {
+                                        <h3>Loading...</h3>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    window.downloadFile = function (filePath) {
+        var link = document.createElement('a');
+        link.href = filePath;
+        link.download = filePath.substr(filePath.lastIndexOf('/') + 1);
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+    };
+</script>
+
+@code {
+
+
+    int sr = 0;
+
+    List<FleetStatusreport> fleet = new List<FleetStatusreport>();
+
+    private async Task ExportToCSV()
+    {
+        if (fleet != null && fleet.Count > 0)
+        {
+            StringBuilder sb = new StringBuilder();
+
+            // Header
+            sb.AppendLine("Sr#,Vehicle ID,Qty,Driver 1,Driver 2,Reporting/Filling Date,Product,Filling Point,Heading,Destination,Current Location,Remarks");
+
+            // Data
+            int count = 1;
+            foreach (var report in fleet)
+            {
+                sb.AppendLine($"\"{count}\",\"{report.vehicleID}\",\"{report.qty}\",\"{report.driver1}\",\"{report.driver2}\",\"{report.reportingFillingdate}\",\"{report.product}\",\"{report.fillingPoint}\",\"{report.heading}\",\"{report.destination}\",\"{report.current_location}\",\"{report.Remarks}\"");
+                count++;
+            }
+
+            // Get the wwwroot path
+            var wwwRootPath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot");
+
+            // Define the file path
+            var filePath = Path.Combine(wwwRootPath, "Reports", "fleet_status_report.csv");
+
+            // Save CSV file
+            await File.WriteAllTextAsync(filePath, sb.ToString());
+
+            // Get the relative URL
+            var relativeUrl = Path.Combine("Reports", "fleet_status_report.csv");
+
+            // Navigate to the CSV file
+            await JSRuntime.InvokeVoidAsync("downloadFile", relativeUrl);
+            //  File.Delete(filePath);
+        }
+
+    }
+
+    public async Task LoadFleetStatusreport(string fleetdesc)
+    {
+        try
+        {
+            var Main = await API.GetRequest($"Fleet/FleetStatusReport/{fleetdesc}");
+            if (Main != "")
+            {
+
+                fleet = JsonSerializer.Deserialize<List<FleetStatusreport>>(Main);
+
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex.Message);
+        }
+    }
+
+
+
+
+    protected override async Task OnInitializedAsync()
+    {
+
+
+        await LoadFleetStatusreport("htl");
+
+
+    }
+
+
+}

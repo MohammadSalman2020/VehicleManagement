@@ -11,8 +11,8 @@
 
 
 <div id="map" style="height:90vh;width:100%">
-
 </div>
+
 
 @code {
 
@@ -40,9 +40,10 @@
             Console.WriteLine("API request returned null.");
         }
     }
-    List<TrackerData> data; 
+    List<TrackerData> data;
     protected override async Task OnInitializedAsync()
     {
+        await LoadData();
         // try
         // {
         //     data = new List<TrackerData>();
@@ -74,7 +75,7 @@
 
     private async Task AddMarkerWithDelay(double lat, double lng, string vehicle, string speed, string driver, string location, string status, int delayMilliseconds)
     {
-       // await Task.Delay(delayMilliseconds);
+        // await Task.Delay(delayMilliseconds);
         await JSRuntime.InvokeVoidAsync("addMarker", lat, lng, vehicle, speed, driver, location, status);
     }
 
@@ -84,17 +85,21 @@
         {
             data = new List<TrackerData>();
             await Getvhicles();
-            foreach (var veh in vehicles)
-            {
-                TrackerData tpl = new TrackerData();
-                var location = await API.GetRequest($"Fleet/GetVehiclelastLocation/{veh}?vehiceID={veh}");
-                if (location != null)
+            string Token = "";
+            JsonSerializerOptions options = new JsonSerializerOptions
                 {
-                    tpl = JsonSerializer.Deserialize<TrackerData>(location);
-                    data.Add(tpl);
-                }
+                    WriteIndented = true,
+                    ReferenceHandler = null
+                };
+            string jsonData = JsonSerializer.Serialize(vehicles, options);
+            var location = await API.PostRequest($"Fleet/GetVehiclesGpsData", jsonData);
+            if (location != null)
+            {
+                data = JsonSerializer.Deserialize<List<TrackerData>>(location);
 
             }
+
+
 
             foreach (var tpl in data)
             {
@@ -109,7 +114,7 @@
                 {
                     excount++;
                     Console.WriteLine($"Error adding marker: {tpl.vehicleId}");
-                  
+
                 }
             }
             //   await AddMarkers();
