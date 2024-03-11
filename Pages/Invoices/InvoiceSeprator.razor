@@ -18,18 +18,19 @@
                 <div class="card-body px-0 pt-0 pb-2">
                     <div class="table-responsive p-0">
                         <table class="table align-items-center mb-0">
-                            <thead>
-                                <tr>
-                                    <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Invoice #</th>
-                                    <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Filling Date</th>
-                                    <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Vehicle Number</th>
-                                    <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Decenting Point</th>
-                                    <th class="text-secondary opacity-7"></th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                @if (_InvoiceList.Count > 0)
-                                {
+                            @if (_InvoiceList.Count > 0)
+                            {
+                                <thead>
+                                    <tr>
+                                        <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Invoice #</th>
+                                        <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Filling Date</th>
+                                        <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Vehicle Number</th>
+                                        <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Decenting Point</th>
+                                        <th class="text-secondary opacity-7"></th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+
                                     @foreach (var item in _InvoiceList)
                                     {
 
@@ -63,13 +64,19 @@
                                             </td>
                                         </tr>
                                     }
-                                }
+                                </tbody>
+                            }
+                            else
+                            {
+                                <DataLoaderComponent IsLoading="@IsLoading" LoadingText="Loading Invoice Data..." />
+                            }
 
-                            </tbody>
+
                         </table>
                     </div>
                 </div>
             </div>
+            <Loader isLoading="@IsMainLoading" />
         </div>
     </div>
 
@@ -82,6 +89,8 @@
 
     public List<InvoiceList> _InvoiceList { get; set; }
     public Invoicing Invoices { get; set; }
+    public bool IsLoading { get; set; } = false;
+    public bool IsMainLoading { get; set; } = false;
 
 
     protected override async Task OnInitializedAsync()
@@ -90,7 +99,7 @@
     }
     public async Task ShowMessage(int InvoiceID)
     {
-
+        IsMainLoading = true;
 
         try
         {
@@ -100,23 +109,27 @@
             {
 
                 Invoices = Newtonsoft.Json.JsonConvert.DeserializeObject<Invoicing>(Invoice);
-                if(Invoices!=null)
+                if (Invoices != null)
                 {
                     string jsonString = JsonSerializer.Serialize(Invoices);
                     string base64EncodedJson = Convert.ToBase64String(Encoding.UTF8.GetBytes(jsonString));
                     string encodedJson = HttpUtility.UrlEncode(base64EncodedJson);
+                    IsMainLoading = false;
                     NavigationManager.NavigateTo($"/invoicedisplay?InvoiceID={encodedJson}");
                 }
-        
+
             }
         }
         catch (Exception ex)
         {
+            IsMainLoading = false;
             toastService.ShowError($"Error: {ex.Message}");
         }
+        IsMainLoading = false ;
     }
     public async Task LoadData()
     {
+        IsLoading = true;
         _InvoiceList = new List<InvoiceList>();
 
         try
@@ -131,9 +144,10 @@
         }
         catch (Exception ex)
         {
+            IsLoading = false;
             Console.WriteLine(ex.Message);
         }
-       
+        IsLoading = false;
     }
-  
+
 }

@@ -54,7 +54,7 @@
                                     <div class="col-md-6">
 
                                         <label for="example-text-input" class="form-control-label">
-                                            Supply Point :
+                                            Shipping Location :
                                         </label>
                                         <label for="example-text-input" class="form-control-label" style="color:#3f55d1">@Invoices.Details.SupplyPoint</label>
 
@@ -760,6 +760,8 @@
             </div>
 
         }
+
+        <Loader isLoading="@IsLoading" />
     </Authorized>
     <NotAuthorized>
         <_403 />
@@ -769,6 +771,7 @@
 
 @code {
     private string? IsView { get; set; } = string.Empty;
+    public bool IsLoading { get; set; } = false;
     private Invoicing? Invoices { get; set; }
     protected override void OnInitialized()
     {
@@ -824,6 +827,7 @@
     }
     private async Task Save()
     {
+        IsLoading = true;
         try
         {
             string jsonData = JsonSerializer.Serialize(Invoices);
@@ -832,6 +836,7 @@
             if (Result == "200")
             {
                 toastService.ShowSuccess("Invoice Added Success");
+                IsLoading = false;
                 NavigationManager.NavigateTo("/addinvoice");
             }
             else
@@ -841,10 +846,11 @@
         }
         catch(Exception ex)
         {
-            toastService.ShowError($"Error: {ex.Message}");
+            IsLoading = false;
+            toastService.ShowError($"Error while adding invoice");
         }
 
-
+          IsLoading = false;
     }
     private async Task EditButton()
     {

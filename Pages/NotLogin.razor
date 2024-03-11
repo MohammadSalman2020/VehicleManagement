@@ -110,7 +110,7 @@
         }
         catch (Exception ex)
         {
-            toastService.ShowError($"Error {ex}");
+            toastService.ShowError($"Error please try again in a while");
         }
     }
     private void OpenModal()
@@ -221,7 +221,7 @@
 
     private void HandleUnknownError()
     {
-        toastService.ShowError("An unknown error occurred during authentication");
+        toastService.ShowError("Error Please try again in a while or Contact Administrator");
     }
 
     private void HandleException(Exception ex)
@@ -232,7 +232,7 @@
         }
         else
         {
-            toastService.ShowError(ex.Message);
+            toastService.ShowError("Error Please try again in a while or Contact Administrator");
         }
     }
 
