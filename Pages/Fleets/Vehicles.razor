@@ -1,6 +1,10 @@
 ﻿@page "/vehicles"
+@using System.Text.Json
+@using VehicleManagement.ApiService
+@using VehicleManagement.Models.General
 @using VehicleManagement.Pages.Redirects
-
+@inject IToastService toastService
+@inject IApiService API
 <AuthorizeView>
     <Authorized>
         <Nav PageName="Vehicles" />
@@ -22,158 +26,65 @@
                         <div class="card-body px-0 pt-0 pb-2">
                             <div class="table-responsive p-0">
                                 <table class="table align-items-center mb-0">
+                                    @if (VehicleList.Count > 0)
+                                    {
                                     <thead>
                                         <tr>
-                                            <th class="text-center font-colors text-uppercase  text-xxs font-weight-bolder opacity-7">VehicleID</th>
-                                            <th class="text-center font-colors text-uppercase  text-xxs font-weight-bolder opacity-7">Fleet</th>
+                                            <th class="text-center font-colors text-uppercase  text-xxs font-weight-bolder opacity-7">Vehicle ID</th>
+                                            <th class="text-center font-colors text-uppercase  text-xxs font-weight-bolder opacity-7" style="text-align:center">Chamber Sequence</th>
                                             <th class="text-center font-colors text-uppercase  text-xxs font-weight-bolder opacity-7">Capacity (KL)</th>
-                                            <th class="text-center font-colors text-uppercase  text-xxs font-weight-bolder opacity-7">Chamber Sequence</th>
+                                            <th class="text-center font-colors text-uppercase  text-xxs font-weight-bolder opacity-7">Dip Chart Expiry</th>
                                             <th class="text-center font-colors text-uppercase  text-xxs font-weight-bolder opacity-7">isActive</th>
+                                            <th class="text-center font-colors text-uppercase  text-xxs font-weight-bolder opacity-7"></th>
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        <tr>
-                                            <td class="align-middle text-center">
-                                                <p class="text-secondary text-xs font-weight-bold">TLK-920</p>
+                                     
 
-                                            </td>
-                                            <td class="align-middle text-center">
-                                                <p class="text-secondary text-xs font-weight-bold">HTL</p>
+                                            @foreach (var item in VehicleList)
+                                            {
 
-                                            </td>
-                                            <td class="align-middle text-center">
-                                                <span class="text-secondary text-xs font-weight-bold">48</span>
-                                            </td>
-                                            <td class="align-middle text-center">
-                                                <span class="text-secondary text-xs font-weight-bold">8,8,5,5,8,8,8</span>
-                                            </td>
-                                            <td class="align-middle text-center text-sm">                                               
-                                                <input type="checkbox" checked="checked"/>
-                                            </td>
 
-                                        </tr>
-                                        <tr>
-                                            <td class="align-middle text-center">
-                                                <p class="text-secondary text-xs font-weight-bold">TLK-920</p>
+                                                <tr>
+                                                    <td class="align-middle text-center">
+                                                        <p class="text-secondary text-xs font-weight-bold">@item.vehicleID</p>
 
-                                            </td>
-                                            <td class="align-middle text-center">
-                                                <p class="text-secondary text-xs font-weight-bold">HTL</p>
+                                                    </td>
+                                                    <td class="align-middle text-center">
+                                                        <p class="text-secondary text-xs font-weight-bold">@item.chamberSeq</p>
 
-                                            </td>
-                                            <td class="align-middle text-center">
-                                                <span class="text-secondary text-xs font-weight-bold">48</span>
-                                            </td>
-                                            <td class="align-middle text-center">
-                                                <span class="text-secondary text-xs font-weight-bold">8,8,5,5,8,8,8</span>
-                                            </td>
-                                            <td class="align-middle text-center text-sm">                                               
-                                                <input type="checkbox" checked="checked"/>
-                                            </td>
+                                                    </td>
+                                                    <td class="align-middle text-center">
+                                                        <span class="text-secondary text-xs font-weight-bold">@item.qty</span>
+                                                    </td>
+                                                    <td class="align-middle text-center">
+                                                        <span class="text-secondary text-xs font-weight-bold">@item.dipChartExpiryDate.ToShortDateString()</span>
+                                                    </td>
+                                                    <td class="align-middle text-center text-sm">
+                                                        @if (@item.isActive)
+                                                        {
+                                                            <span class="badge badge-sm bg-gradient-success">@(item.isActive == true ? "Active" : "In-Active")</span>
 
-                                        </tr>
-                                        <tr>
-                                            <td class="align-middle text-center">
-                                                <p class="text-secondary text-xs font-weight-bold">TLK-920</p>
+                                                        }
+                                                        else
+                                                        {
+                                                            <span class="badge badge-sm bg-gradient-danger">@(item.isActive == true ? "Active" : "In-Active")</span>
 
-                                            </td>
-                                            <td class="align-middle text-center">
-                                                <p class="text-secondary text-xs font-weight-bold">HTL</p>
+                                                        }
+                                                    </td>
+                                                    <td class="align-middle text-center">
+                                                        <span class="text-secondary text-xs font-weight-bold" style="cursor:pointer" @onclick="@(() => EditVehicle(item.vehicleID))">Edit</span>
+                                                    </td>
+                                                </tr>
+                                            }
+                                              </tbody>
+                                        }
+                                  
+                                    else
+                                    {
+                                    <DataLoaderComponent IsLoading="@IsChildLoading" LoadingText="Loading Vehicle Data..." />
+                                    }
 
-                                            </td>
-                                            <td class="align-middle text-center">
-                                                <span class="text-secondary text-xs font-weight-bold">48</span>
-                                            </td>
-                                            <td class="align-middle text-center">
-                                                <span class="text-secondary text-xs font-weight-bold">8,8,5,5,8,8,8</span>
-                                            </td>
-                                            <td class="align-middle text-center text-sm">
-                                                <input type="checkbox" checked="checked" />
-                                            </td>
-
-                                        </tr>
-                                        <tr>
-                                            <td class="align-middle text-center">
-                                                <p class="text-secondary text-xs font-weight-bold">TLK-920</p>
-
-                                            </td>
-                                            <td class="align-middle text-center">
-                                                <p class="text-secondary text-xs font-weight-bold">HTL</p>
-
-                                            </td>
-                                            <td class="align-middle text-center">
-                                                <span class="text-secondary text-xs font-weight-bold">48</span>
-                                            </td>
-                                            <td class="align-middle text-center">
-                                                <span class="text-secondary text-xs font-weight-bold">8,8,5,5,8,8,8</span>
-                                            </td>
-                                            <td class="align-middle text-center text-sm">
-                                                <input type="checkbox" checked="checked" />
-                                            </td>
-
-                                        </tr>
-                                        <tr>
-                                            <td class="align-middle text-center">
-                                                <p class="text-secondary text-xs font-weight-bold">TLK-920</p>
-
-                                            </td>
-                                            <td class="align-middle text-center">
-                                                <p class="text-secondary text-xs font-weight-bold">HTL</p>
-
-                                            </td>
-                                            <td class="align-middle text-center">
-                                                <span class="text-secondary text-xs font-weight-bold">48</span>
-                                            </td>
-                                            <td class="align-middle text-center">
-                                                <span class="text-secondary text-xs font-weight-bold">8,8,5,5,8,8,8</span>
-                                            </td>
-                                            <td class="align-middle text-center text-sm">                                               
-                                                <input type="checkbox" checked="checked"/>
-                                            </td>
-
-                                        </tr>
-                                        <tr>
-                                            <td class="align-middle text-center">
-                                                <p class="text-secondary text-xs font-weight-bold">TLK-920</p>
-
-                                            </td>
-                                            <td class="align-middle text-center">
-                                                <p class="text-secondary text-xs font-weight-bold">HTL</p>
-
-                                            </td>
-                                            <td class="align-middle text-center">
-                                                <span class="text-secondary text-xs font-weight-bold">48</span>
-                                            </td>
-                                            <td class="align-middle text-center">
-                                                <span class="text-secondary text-xs font-weight-bold">8,8,5,5,8,8,8</span>
-                                            </td>
-                                            <td class="align-middle text-center text-sm">                                               
-                                                <input type="checkbox" checked="checked"/>
-                                            </td>
-
-                                        </tr>
-                                        <tr>
-                                            <td class="align-middle text-center">
-                                                <p class="text-secondary text-xs font-weight-bold">TLK-920</p>
-
-                                            </td>
-                                            <td class="align-middle text-center">
-                                                <p class="text-secondary text-xs font-weight-bold">HTL</p>
-
-                                            </td>
-                                            <td class="align-middle text-center">
-                                                <span class="text-secondary text-xs font-weight-bold">48</span>
-                                            </td>
-                                            <td class="align-middle text-center">
-                                                <span class="text-secondary text-xs font-weight-bold">8,8,5,5,8,8,8</span>
-                                            </td>
-                                            <td class="align-middle text-center text-sm">
-                                                <input type="checkbox" checked="checked" />
-                                            </td>
-
-                                        </tr>
-
-                                    </tbody>
                                 </table>
                             </div>
                         </div>
@@ -184,7 +95,7 @@
         <Modal @ref="modal" Title="Add Vehicle">
             <Body>
                 <div class="col-md-12">
-                    <div class="card">
+                    <div class="card" style="height:410px;overflow-x:scroll;">
 
                         <div class="card-body">
 
@@ -192,53 +103,130 @@
 
                                 <div class="col-md-6">
                                     <div class="form-group">
-                                        <label for="example-text-input" class="form-control-label">VehicleID</label>
-                                        <input type="text" placeholder="Vehicle ID" class="form-control">
+                                        <label for="example-text-input" class="form-control-label">Vehicle ID</label>
+                                        <input type="text" placeholder="Vehicle ID" disabled="@IsEdit" @bind="Vehicle.vehicleID" class="form-control">
 
                                     </div>
                                 </div>
                                 <div class="col-md-6">
                                     <div class="form-group">
-                                        <label for="example-text-input" class="form-control-label">Fleet</label>
-                                        
-                                        <select class="form-control" placeholder="Fleet" id="Fleet" name="fleets">
-                                            <option value="HTL">HTL</option>
-                                            <option value="PSO">PSO</option>
-                                            <option value="EURO">EURO</option>
-                                            <option value="PUMA">PUMA</option>
-                                        </select>
+                                        <label for="example-text-input" class="form-control-label">Chamber Sequence</label>
+                                        <input type="text" placeholder="Chamber Sequence" @bind="Vehicle.chamberSeq" class="form-control">
+
                                     </div>
                                 </div>
                                 <div class="col-md-6">
                                     <div class="form-group">
                                         <label for="example-text-input" class="form-control-label">Capacity (KL)</label>
-                                        <input type="text" placeholder="Capacity (KL)" class="form-control">
+                                        <input type="text" placeholder="Capacity (KL)" @bind="Vehicle.qty" class="form-control">
 
                                     </div>
                                 </div>
                                 <div class="col-md-6">
                                     <div class="form-group">
-                                        <label for="example-text-input" class="form-control-label">Chamber Squence</label>
-                                        <input type="text" placeholder="Chamber Squence" class="form-control">
+                                        <label for="example-text-input" class="form-control-label">Dip Chart Expiry</label>
+                                        <input type="date" @bind="Vehicle.dipChartExpiryDate" class="form-control">
+
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label for="example-text-input" class="form-control-label">Chamber 1 Quantity</label>
+                                        <input type="number" placeholder="Chamber 1 Quantity" @bind="Vehicle.chamber1Qty" class="form-control">
+
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label for="example-text-input" class="form-control-label">Chamber 1 Dip</label>
+                                        <input type="number" placeholder="Chamber 1 Dip" @bind="Vehicle.chamber1Dip" class="form-control">
+
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label for="example-text-input" class="form-control-label">Chamber 2 Quantity</label>
+                                        <input type="number" placeholder="Chamber 2 Quantity" @bind="Vehicle.chamber2Qty" class="form-control">
+
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label for="example-text-input" class="form-control-label">Chamber 2 Dip</label>
+                                        <input type="number" placeholder="Chamber 2 Dip" @bind="Vehicle.chamber2Dip" class="form-control">
+
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label for="example-text-input" class="form-control-label">Chamber 3 Quantity</label>
+                                        <input type="number" placeholder="Chamber 3 Quantity" @bind="Vehicle.chamber3Qty" class="form-control">
+
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label for="example-text-input" class="form-control-label">Chamber 3 Dip</label>
+                                        <input type="number" placeholder="Chamber 3 Dip" @bind="Vehicle.chamber3Dip" class="form-control">
+
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label for="example-text-input" class="form-control-label">Chamber 4 Quantity</label>
+                                        <input type="number" placeholder="Chamber 4 Quantity" @bind="Vehicle.chamber4Qty" class="form-control">
+
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label for="example-text-input" class="form-control-label">Chamber 4 Dip</label>
+                                        <input type="number" placeholder="Chamber 4 Dip" @bind="Vehicle.chamber4Dip" class="form-control">
+
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label for="example-text-input" class="form-control-label">Chamber 5 Quantity</label>
+                                        <input type="number" placeholder="Chamber 5 Quantity" @bind="Vehicle.chamber5Qty" class="form-control">
+
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label for="example-text-input" class="form-control-label">Chamber 5 Dip</label>
+                                        <input type="number" placeholder="Chamber 5 Dip" @bind="Vehicle.chamber5Dip" class="form-control">
 
                                     </div>
                                 </div>
                                 <div class="col-md-6">
                                     <div class="form-group">
                                         <div class="form-control">
-                                            <input checked="checked" type="checkbox">
+                                            <input checked="@Vehicle.isActive" @onchange="VehicleStatus" type="checkbox">
                                             <span class="form-control-label">isActive</span>
                                         </div>
 
                                     </div>
                                 </div>
 
-                                <div class="col-md-12">
-                                    <div class="form-group" style="text-align:center;">
-                                        <button class="btn btn-primary btn-sm ms-auto">Submit</button>
+                                @if (!IsEdit)
+                                {
+                                    <div class="col-md-12">
+                                        <div class="form-group" style="text-align:center;">
+                                            <button class="btn btn-primary btn-sm ms-auto" @onclick="AddVehicle">Submit</button>
 
+                                        </div>
                                     </div>
-                                </div>
+                                }
+                                else
+                                {
+                                    <div class="col-md-12">
+                                        <div class="form-group" style="text-align:center;">
+                                            <button class="btn btn-warning btn-sm ms-auto" @onclick="UpdateVehicle">Update</button>
+
+                                        </div>
+                                    </div>
+                                }
 
                             </div>
 
@@ -258,8 +246,158 @@
 
 @code {
     private Modal modal;
+
+    public bool IsLoading = false;
+    public bool IsChildLoading = false;
+    public bool IsEdit = false;
+    private VehicleDTO Vehicle = new VehicleDTO();
+    public List<VehicleDTO> VehicleList = new List<VehicleDTO>();
+    private void VehicleStatus(ChangeEventArgs e)
+    {
+        Vehicle.isActive = (bool)e.Value;
+    }
     private void OpenModal()
     {
         modal.Show();
+    }
+
+    public bool isEmpty()
+    {
+        if (Vehicle.vehicleID != null && Vehicle.qty != null && Vehicle.chamberSeq != null)
+        {
+            return false;
+        }
+        else
+        {
+            return true;
+        }
+
+    }
+    protected override async Task OnInitializedAsync()
+    {
+        IsChildLoading = true;
+        try
+        {
+            await GetAllVehicle();
+        }
+        catch (Exception ex)
+        {
+            IsChildLoading = false;
+            Console.WriteLine(ex.Message);
+        }
+        IsChildLoading = false;
+    }
+    private async Task EditVehicle(string VehicleID)
+    {
+
+        Vehicle = new VehicleDTO();
+        var rec = VehicleList.Where(p => p.vehicleID == VehicleID).FirstOrDefault();
+        if (rec != null)
+        {
+            IsEdit = true;
+            Vehicle.isActive = rec.isActive;
+            Vehicle.dipChartExpiryDate = rec.dipChartExpiryDate;
+            Vehicle.chamber1Dip = rec.chamber1Dip;
+            Vehicle.chamber1Qty = rec.chamber1Qty;
+            Vehicle.chamber2Qty = rec.chamber2Qty;
+            Vehicle.chamber2Dip = rec.chamber2Dip;
+            Vehicle.chamber3Dip = rec.chamber3Dip;
+            Vehicle.chamber3Qty = rec.chamber3Qty;
+            Vehicle.chamber4Dip = rec.chamber4Dip;
+            Vehicle.chamber4Qty = rec.chamber4Qty;
+            Vehicle.chamber5Dip = rec.chamber5Dip;
+            Vehicle.chamber5Qty = rec.chamber5Qty;
+            Vehicle.qty = rec.qty;
+            Vehicle.vehicleID = rec.vehicleID;
+            Vehicle.chamberSeq = rec.chamberSeq;
+            modal.Show();
+
+        }
+
+    }
+    public async Task GetAllVehicle()
+    {
+
+        try
+        {
+
+            var Vehicles = await API.GetRequest($"Vehicle/GetAllVehicle");
+            if (Vehicles != "")
+            {
+
+                VehicleList = JsonSerializer.Deserialize<List<VehicleDTO>>(Vehicles);
+
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex.Message);
+        }
+    }
+    private async Task UpdateVehicle()
+    {
+        try
+        {
+            if (Vehicle != null && !isEmpty())
+            {
+                IsLoading = true;
+                string jsonData = JsonSerializer.Serialize(Vehicle);
+                var AddUser = await API.PostRequest($"Vehicle/UpdateVehicle", jsonData);
+                int Result = JsonSerializer.Deserialize<int>(AddUser);
+                if (Result == 200)
+                {
+                    toastService.ShowSuccess($"Vehicle: {Vehicle.vehicleID} Update Success");
+                    Vehicle = new VehicleDTO();
+                    modal.CloseModal();
+
+                    await GetAllVehicle();
+                    IsEdit = false;
+                }
+            }
+            else
+            {
+                toastService.ShowError("Empty Fields are not Allowed");
+            }
+        }
+        catch (Exception ex)
+        {
+            toastService.ShowError($"Error {ex}");
+        }
+
+        IsLoading = false;
+    }
+    private async Task AddVehicle()
+    {
+        try
+        {
+
+            if (Vehicle != null && !isEmpty())
+            {
+                IsLoading = true;
+                string jsonData = JsonSerializer.Serialize(Vehicle);
+                var AddVehicle = await API.PostRequest($"Vehicle/AddVehicle", jsonData);
+                int Result = JsonSerializer.Deserialize<int>(AddVehicle);
+                if (Result == 200)
+                {
+                    toastService.ShowSuccess($"Vehicle: {Vehicle.vehicleID} Added Success");
+                    Vehicle = new VehicleDTO();
+                    await GetAllVehicle();
+                    modal.CloseModal();
+
+
+                }
+
+            }
+            else
+            {
+                toastService.ShowError("Empty Fields are not Allowed");
+            }
+        }
+        catch (Exception ex)
+        {
+            toastService.ShowError($"Error {ex}");
+        }
+
+        IsLoading = false;
     }
 }

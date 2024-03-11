@@ -87,9 +87,9 @@ namespace VehicleManagement.Models.General
 
         [JsonProperty("tempF")]
 
-        public float TempF { get; set; } = 0;
+        public float TempF { get; set; } = 0.0f;
         [JsonProperty("sG")]
-        public float SG { get; set; } = 0;
+        public float SG { get; set; } = 0.0f;
         [JsonProperty("chamber1")]
         public Ship_Chamber? Chamber1 { get; set; }
         [JsonProperty("chamber2")]

@@ -13,7 +13,7 @@
 @inject IToastService toastService
 @inject NavigationManager NavigationManager
 @inject IApiService API
-
+@inject IJSRuntime JS
 
 <AuthorizeView Policy="Testing">
     <Authorized>
@@ -58,7 +58,7 @@
                                                             <div class="col-md-6">
                                                                 <div class="form-group">
                                                                     <label for="example-text-input" class="form-control-label">Tank Lorry No</label>
-                                                                    <input type="text" placeholder="Tank Lorry No" @bind="Invoices.Details.TankLorryNO" class="form-control">
+                                                                    <input type="text" id="vehicleID" required placeholder="Tank Lorry No" @bind="Invoices.Details.TankLorryNO" class="form-control"></input>
 
                                                                 </div>
                                                             </div>
@@ -78,7 +78,7 @@
                                                             </div>
                                                             <div class="col-md-6">
                                                                 <div class="form-group">
-                                                                    <label for="example-text-input" class="form-control-label">Supply Point</label>
+                                                                    <label for="example-text-input" class="form-control-label">Shipping Location</label>
                                                                     <input type="text" placeholder="Supply Point" @bind="Invoices.Details.SupplyPoint" class="form-control">
 
                                                                 </div>
@@ -128,8 +128,8 @@
 
                                                             <div class="col-md-12" style="padding-top:10px;">
                                                                 <div class="form-group" style="text-align:center;">
-                                                                    <button class="btn btn-danger btn-sm ms-auto" @onclick="NextTab">Next</button>
-                                                                    <button class="btn btn-warning btn-sm ms-auto" @onclick="PreviousTab">Back</button>
+                                                                    <button tabindex="13" class="btn btn-danger btn-sm ms-auto" @onclick="NextTab">Next</button>
+                                                                    <button tabindex="14" class="btn btn-warning btn-sm ms-auto" @onclick="PreviousTab">Back</button>
                                                                 </div>
                                                             </div>
                                                             <div class="col-md-4" style="padding-top:5px;">
@@ -141,14 +141,14 @@
                                                                     </div>
                                                                     <div class="form-group">
                                                                         <label for="example-text-input" class="form-control-label">Tempreture F</label>
-                                                                        <input type="number" placeholder="Chamber Quantity" @bind="Invoices.ShippingDetail.TempF" class="form-control">
+                                                                        <input type="number" tabindex="1" placeholder="Tempreture F" id="STemp"  @onfocus="@(async () => await SelectAllInputValue("STemp"))" @bind="Invoices.ShippingDetail.TempF" class="form-control">
 
                                                                     </div>
                                                                     <div class="form-group">
                                                                         <label for="example-text-input" class="form-control-label">
                                                                             S.G
                                                                         </label>
-                                                                        <input type="number" placeholder=" Tank Lorry Product Dips(MM)" @bind="Invoices.ShippingDetail.SG" class="form-control">
+                                                                        <input step="0.01" type="number" tabindex="2" placeholder="Gravity" id="SGravity" @oninput="@(e => GetQuantitiesBySG(e))" @onfocus="@(async () => await SelectAllInputValue("SGravity"))" @bind="Invoices.ShippingDetail.SG" class="form-control" >
 
                                                                     </div>
                                                                 </div>
@@ -162,14 +162,14 @@
                                                                     </div>
                                                                     <div class="form-group">
                                                                         <label for="example-text-input" class="form-control-label">Chamber Quantity</label>
-                                                                        <input type="number" placeholder="Chamber Quantity" @bind="Invoices.ShippingDetail.Chamber1.ChamberQuantity" @oninput="@(e => TextChangedShipment(1, e))" disabled="@DisableChamber1" class="form-control">
+                                                                        <input type="number" tabindex="3" placeholder="Chamber Quantity" id="Chamber1" @onfocus="@(async () => await SelectAllInputValue("Chamber1"))" @bind="Invoices.ShippingDetail.Chamber1.ChamberQuantity" @oninput="@(e => TextChangedShipment(1, e))" disabled="@DisableChamber1" class="form-control">
 
                                                                     </div>
                                                                     <div class="form-group">
                                                                         <label for="example-text-input" class="form-control-label">
                                                                             Tank Lorry Product Dips(MM)
                                                                         </label>
-                                                                        <input type="number" placeholder=" Tank Lorry Product Dips(MM)" @bind="Invoices.ShippingDetail.Chamber1.LorryDip" disabled="@DisableChamber1" class="form-control">
+                                                                        <input type="number" tabindex="4" placeholder=" Tank Lorry Product Dips(MM)" id="Chamber1Dip" @onfocus="@(async () => await SelectAllInputValue("Chamber1Dip"))" @bind="Invoices.ShippingDetail.Chamber1.LorryDip" disabled="@DisableChamber1" class="form-control">
 
                                                                     </div>
                                                                     <div class="form-group">
@@ -196,14 +196,14 @@
                                                                     </div>
                                                                     <div class="form-group">
                                                                         <label for="example-text-input" class="form-control-label">Chamber Quantity</label>
-                                                                        <input type="number" placeholder="Chamber Quantity" @bind="Invoices.ShippingDetail.Chamber2.ChamberQuantity" @oninput="@(e => TextChangedShipment(2, e))" disabled="@DisableChamber2" class="form-control">
+                                                                        <input type="number" tabindex="5" placeholder="Chamber Quantity" id="SChamber2Q" @onfocus="@(async () => await SelectAllInputValue("SChamber2Q"))" @bind="Invoices.ShippingDetail.Chamber2.ChamberQuantity" @oninput="@(e => TextChangedShipment(2, e))" disabled="@DisableChamber2" class="form-control">
 
                                                                     </div>
                                                                     <div class="form-group">
                                                                         <label for="example-text-input" class="form-control-label">
                                                                             Tank Lorry Product Dips(MM)
                                                                         </label>
-                                                                        <input type="number" placeholder=" Tank Lorry Product Dips(MM)" @bind="Invoices.ShippingDetail.Chamber2.LorryDip" disabled="@DisableChamber2" class="form-control">
+                                                                        <input type="number" tabindex="6" placeholder=" Tank Lorry Product Dips(MM)" id="SChamber2D" @onfocus="@(async () => await SelectAllInputValue("SChamber2D"))" @bind="Invoices.ShippingDetail.Chamber2.LorryDip" disabled="@DisableChamber2" class="form-control">
 
                                                                     </div>
                                                                     <div class="form-group">
@@ -230,14 +230,14 @@
                                                                     </div>
                                                                     <div class="form-group">
                                                                         <label for="example-text-input" class="form-control-label">Chamber Quantity</label>
-                                                                        <input type="number" placeholder="Chamber Quantity" @bind="Invoices.ShippingDetail.Chamber3.ChamberQuantity" @oninput="@(e => TextChangedShipment(3, e))" disabled="@DisableChamber3" class="form-control">
+                                                                        <input type="number" tabindex="7" placeholder="Chamber Quantity" id="SChamber3Q" @onfocus="@(async () => await SelectAllInputValue("SChamber3Q"))" @bind="Invoices.ShippingDetail.Chamber3.ChamberQuantity" @oninput="@(e => TextChangedShipment(3, e))" disabled="@DisableChamber3" class="form-control">
 
                                                                     </div>
                                                                     <div class="form-group">
                                                                         <label for="example-text-input" class="form-control-label">
                                                                             Tank Lorry Product Dips(MM)
                                                                         </label>
-                                                                        <input type="number" placeholder=" Tank Lorry Product Dips(MM)" @bind="Invoices.ShippingDetail.Chamber3.LorryDip" disabled="@DisableChamber3" class="form-control">
+                                                                        <input type="number" tabindex="8" placeholder=" Tank Lorry Product Dips(MM)" id="SChamber3Dip" @onfocus="@(async () => await SelectAllInputValue("SChamber3Dip"))" @bind="Invoices.ShippingDetail.Chamber3.LorryDip" disabled="@DisableChamber3" class="form-control">
 
                                                                     </div>
                                                                     <div class="form-group">
@@ -264,14 +264,14 @@
                                                                     </div>
                                                                     <div class="form-group">
                                                                         <label for="example-text-input" class="form-control-label">Chamber Quantity</label>
-                                                                        <input type="number" placeholder="Chamber Quantity" @bind="Invoices.ShippingDetail.Chamber4.ChamberQuantity" @oninput="@(e => TextChangedShipment(4, e))" disabled="@DisableChamber4" class="form-control">
+                                                                        <input type="number" tabindex="9" placeholder="Chamber Quantity" id="SChamber4Q" @onfocus="@(async () => await SelectAllInputValue("SChamber4Q"))" @bind="Invoices.ShippingDetail.Chamber4.ChamberQuantity" @oninput="@(e => TextChangedShipment(4, e))" disabled="@DisableChamber4" class="form-control">
 
                                                                     </div>
                                                                     <div class="form-group">
                                                                         <label for="example-text-input" class="form-control-label">
                                                                             Tank Lorry Product Dips(MM)
                                                                         </label>
-                                                                        <input type="number" placeholder=" Tank Lorry Product Dips(MM)" @bind="Invoices.ShippingDetail.Chamber4.LorryDip" disabled="@DisableChamber4" class="form-control">
+                                                                        <input type="number" tabindex="10" placeholder=" Tank Lorry Product Dips(MM)" id="SChamber4Dip" @onfocus="@(async () => await SelectAllInputValue("SChamber4Dip"))" @bind="Invoices.ShippingDetail.Chamber4.LorryDip" disabled="@DisableChamber4" class="form-control">
 
                                                                     </div>
                                                                     <div class="form-group">
@@ -298,14 +298,14 @@
                                                                     </div>
                                                                     <div class="form-group">
                                                                         <label for="example-text-input" class="form-control-label">Chamber Quantity</label>
-                                                                        <input type="number" placeholder="Chamber Quantity" @bind="Invoices.ShippingDetail.Chamber5.ChamberQuantity" @oninput="@(e => TextChangedShipment(5, e))" disabled="@DisableChamber5" class="form-control">
+                                                                        <input type="number" tabindex="11" placeholder="Chamber Quantity" id="SChamber5Q" @onfocus="@(async () => await SelectAllInputValue("SChamber5Q"))" @bind="Invoices.ShippingDetail.Chamber5.ChamberQuantity" @oninput="@(e => TextChangedShipment(5, e))" disabled="@DisableChamber5" class="form-control">
 
                                                                     </div>
                                                                     <div class="form-group">
                                                                         <label for="example-text-input" class="form-control-label">
                                                                             Tank Lorry Product Dips(MM)
                                                                         </label>
-                                                                        <input type="number" placeholder=" Tank Lorry Product Dips(MM)" @bind="Invoices.ShippingDetail.Chamber5.LorryDip" disabled="@DisableChamber5" class="form-control">
+                                                                        <input type="number" tabindex="12" placeholder=" Tank Lorry Product Dips(MM)" id="SChamber5D" @onfocus="@(async () => await SelectAllInputValue("SChamber5D"))" @bind="Invoices.ShippingDetail.Chamber5.LorryDip" disabled="@DisableChamber5" class="form-control">
 
                                                                     </div>
                                                                     <div class="form-group">
@@ -357,14 +357,14 @@
                                                                     </div>
                                                                     <div class="form-group">
                                                                         <label for="example-text-input" class="form-control-label">Tempreture F</label>
-                                                                        <input type="number" placeholder="Chamber Quantity" @bind="Invoices.ReceivingDetail.TempF" class="form-control">
+                                                                        <input type="number" placeholder="Tempreture F" id="tf" @onfocus="@(async () => await SelectAllInputValue("tf"))" @bind="Invoices.ReceivingDetail.TempF" class="form-control">
 
                                                                     </div>
                                                                     <div class="form-group">
                                                                         <label for="example-text-input" class="form-control-label">
                                                                             S.G
                                                                         </label>
-                                                                        <input type="number" placeholder=" Tank Lorry Product Dips(MM)" @bind="Invoices.ReceivingDetail.SG" class="form-control">
+                                                                        <input type="number" placeholder="Gravity" id="Rg" @onfocus="@(async () => await SelectAllInputValue("Rg"))" @oninput="GetReceivingQuantitiesBySG" @bind="Invoices.ReceivingDetail.SG" class="form-control">
 
                                                                     </div>
                                                                 </div>
@@ -380,14 +380,14 @@
                                                                         </div>
                                                                         <div class="form-group">
                                                                             <label for="example-text-input" class="form-control-label">Chamber Quantity</label>
-                                                                            <input type="number" placeholder="Chamber Quantity" @bind="Invoices.ReceivingDetail.Chamber1.ChamberQuantity" @oninput="@(e => TextChangedReceiving(1, e))" class="form-control">
+                                                                            <input type="number" placeholder="Chamber Quantity" id="RChamber1Q" @onfocus="@(async () => await SelectAllInputValue("RChamber1Q"))" @bind="Invoices.ReceivingDetail.Chamber1.ChamberQuantity" @oninput="@(e => TextChangedReceiving(1, e))" class="form-control">
 
                                                                         </div>
                                                                         <div class="form-group">
                                                                             <label for="example-text-input" class="form-control-label">
                                                                                 Tank Lorry Product Dips(MM)
                                                                             </label>
-                                                                            <input type="number" placeholder=" Tank Lorry Product Dips(MM)" @bind="Invoices.ReceivingDetail.Chamber1.LorryDip" class="form-control">
+                                                                            <input type="number" placeholder=" Tank Lorry Product Dips(MM)" id="RChamber1D" @onfocus="@(async () => await SelectAllInputValue("RChamber1D"))" @bind="Invoices.ReceivingDetail.Chamber1.LorryDip" class="form-control">
 
                                                                         </div>
                                                                         <div class="form-group">
@@ -418,14 +418,14 @@
                                                                         </div>
                                                                         <div class="form-group">
                                                                             <label for="example-text-input" class="form-control-label">Chamber Quantity</label>
-                                                                            <input type="number" placeholder="Chamber Quantity" @bind="Invoices.ReceivingDetail.Chamber2.ChamberQuantity" @oninput="@(e => TextChangedReceiving(2, e))" class="form-control">
+                                                                            <input type="number" placeholder="Chamber Quantity" id="RChamber2Q" @onfocus="@(async () => await SelectAllInputValue("RChamber2Q"))" @bind="Invoices.ReceivingDetail.Chamber2.ChamberQuantity" @oninput="@(e => TextChangedReceiving(2, e))" class="form-control">
 
                                                                         </div>
                                                                         <div class="form-group">
                                                                             <label for="example-text-input" class="form-control-label">
                                                                                 Tank Lorry Product Dips(MM)
                                                                             </label>
-                                                                            <input type="number" placeholder=" Tank Lorry Product Dips(MM)" @bind="Invoices.ReceivingDetail.Chamber2.LorryDip" class="form-control">
+                                                                            <input type="number" placeholder=" Tank Lorry Product Dips(MM)" id="RChamber2D" @onfocus="@(async () => await SelectAllInputValue("RChamber2D"))" @bind="Invoices.ReceivingDetail.Chamber2.LorryDip" class="form-control">
 
                                                                         </div>
                                                                         <div class="form-group">
@@ -457,14 +457,14 @@
                                                                         </div>
                                                                         <div class="form-group">
                                                                             <label for="example-text-input" class="form-control-label">Chamber Quantity</label>
-                                                                            <input type="number" placeholder="Chamber Quantity" @bind="Invoices.ReceivingDetail.Chamber3.ChamberQuantity" @oninput="@(e => TextChangedReceiving(3, e))" class="form-control">
+                                                                            <input type="number" placeholder="Chamber Quantity" id="RChamber3Q" @onfocus="@(async () => await SelectAllInputValue("RChamber3Q"))" @bind="Invoices.ReceivingDetail.Chamber3.ChamberQuantity" @oninput="@(e => TextChangedReceiving(3, e))" class="form-control">
 
                                                                         </div>
                                                                         <div class="form-group">
                                                                             <label for="example-text-input" class="form-control-label">
                                                                                 Tank Lorry Product Dips(MM)
                                                                             </label>
-                                                                            <input type="number" placeholder=" Tank Lorry Product Dips(MM)" @bind="Invoices.ReceivingDetail.Chamber3.LorryDip" class="form-control">
+                                                                            <input type="number" placeholder=" Tank Lorry Product Dips(MM)" id="RChamber3D" @onfocus="@(async () => await SelectAllInputValue("RChamber3D"))" @bind="Invoices.ReceivingDetail.Chamber3.LorryDip" class="form-control">
 
                                                                         </div>
                                                                         <div class="form-group">
@@ -496,14 +496,14 @@
                                                                         </div>
                                                                         <div class="form-group">
                                                                             <label for="example-text-input" class="form-control-label">Chamber Quantity</label>
-                                                                            <input type="number" placeholder="Chamber Quantity" @bind="Invoices.ReceivingDetail.Chamber4.ChamberQuantity" @oninput="@(e => TextChangedReceiving(4, e))" class="form-control">
+                                                                            <input type="number" placeholder="Chamber Quantity" id="RChamber4Q" @onfocus="@(async () => await SelectAllInputValue("RChamber4Q"))" @bind="Invoices.ReceivingDetail.Chamber4.ChamberQuantity" @oninput="@(e => TextChangedReceiving(4, e))" class="form-control">
 
                                                                         </div>
                                                                         <div class="form-group">
                                                                             <label for="example-text-input" class="form-control-label">
                                                                                 Tank Lorry Product Dips(MM)
                                                                             </label>
-                                                                            <input type="number" placeholder=" Tank Lorry Product Dips(MM)" @bind="Invoices.ReceivingDetail.Chamber4.LorryDip" class="form-control">
+                                                                            <input type="number" placeholder=" Tank Lorry Product Dips(MM)" id="RChamber4D" @onfocus="@(async () => await SelectAllInputValue("RChamber4D"))" @bind="Invoices.ReceivingDetail.Chamber4.LorryDip" class="form-control">
 
                                                                         </div>
                                                                         <div class="form-group">
@@ -535,14 +535,14 @@
                                                                         </div>
                                                                         <div class="form-group">
                                                                             <label for="example-text-input" class="form-control-label">Chamber Quantity</label>
-                                                                            <input type="number" placeholder="Chamber Quantity" @bind="Invoices.ReceivingDetail.Chamber5.ChamberQuantity" @oninput="@(e => TextChangedReceiving(5, e))" class="form-control">
+                                                                            <input type="number" placeholder="Chamber Quantity" id="RChamber5Q" @onfocus="@(async () => await SelectAllInputValue("RChamber5Q"))" @bind="Invoices.ReceivingDetail.Chamber5.ChamberQuantity" @oninput="@(e => TextChangedReceiving(5, e))" class="form-control">
 
                                                                         </div>
                                                                         <div class="form-group">
                                                                             <label for="example-text-input" class="form-control-label">
                                                                                 Tank Lorry Product Dips(MM)
                                                                             </label>
-                                                                            <input type="number" placeholder=" Tank Lorry Product Dips(MM)" @bind="Invoices.ReceivingDetail.Chamber5.LorryDip" class="form-control">
+                                                                            <input type="number" placeholder=" Tank Lorry Product Dips(MM)" id="RChamber5D" @onfocus="@(async () => await SelectAllInputValue("RChamber5D"))" @bind="Invoices.ReceivingDetail.Chamber5.LorryDip" class="form-control">
 
                                                                         </div>
                                                                         <div class="form-group">
@@ -863,6 +863,7 @@
             </div>
         </div>
 
+
         <Loader isLoading="@IsLoading" />
     </Authorized>
     <NotAuthorized>
@@ -874,6 +875,10 @@
 
 @code {
     private Invoicing Invoices { get; set; } = new Invoicing();
+    private GetChamberDetails Shipping { get; set; } = new GetChamberDetails();
+    public List<VehicleDTO> VehicleList = new List<VehicleDTO>();
+    public List<string> Vehicle = new List<string>();
+
     private string TabHeading { get; set; }
     private string _activeColor = "White";
     private string _inactiveColor = "White";
@@ -885,9 +890,7 @@
     private bool _allTabsDisabled = false;
     private bool IsLoading = false;
     private bool CheckChamber1 = true;
-
     private bool _isTabHidden = false;
-
     private int _tabsCount;
 
     private bool DisableChamber1 = true;
@@ -907,38 +910,66 @@
     private TabItem _tab6;
     private TabItem _tab7;
 
-
     protected override async void OnInitialized()
     {
 
-
-
-
-
-        // Retrieve the encoded JSON string from the query parameters if it exists
-        string encodedJson = NavigationManager.ToAbsoluteUri(NavigationManager.Uri).Query;
-
-        // Check if the "json" query parameter exists
-        if (encodedJson.Contains("Edit="))
+        try
         {
-            // Extract the value of the "json" query parameter
-            encodedJson = encodedJson.Split("Edit=")[1];
 
-            // Decode the URL-safe Base64 string
-            string base64EncodedJson = HttpUtility.UrlDecode(encodedJson);
+            await GetAllVehicleID();
 
-            // Convert the Base64 string back to UTF-8 encoded bytes
-            byte[] base64EncodedBytes = Convert.FromBase64String(base64EncodedJson);
+            // Retrieve the encoded JSON string from the query parameters if it exists
+            string encodedJson = NavigationManager.ToAbsoluteUri(NavigationManager.Uri).Query;
 
-            // Decode the UTF-8 bytes back to the original JSON string
-            string jsonString = Encoding.UTF8.GetString(base64EncodedBytes);
+            // Check if the "json" query parameter exists
+            if (encodedJson.Contains("Edit="))
+            {
+                // Extract the value of the "json" query parameter
+                encodedJson = encodedJson.Split("Edit=")[1];
 
-            // Deserialize the JSON string back into the Invoices object
-            Invoices = JsonSerializer.Deserialize<Invoicing>(jsonString);
+                // Decode the URL-safe Base64 string
+                string base64EncodedJson = HttpUtility.UrlDecode(encodedJson);
+
+                // Convert the Base64 string back to UTF-8 encoded bytes
+                byte[] base64EncodedBytes = Convert.FromBase64String(base64EncodedJson);
+
+                // Decode the UTF-8 bytes back to the original JSON string
+                string jsonString = Encoding.UTF8.GetString(base64EncodedBytes);
+
+                // Deserialize the JSON string back into the Invoices object
+                Invoices = JsonSerializer.Deserialize<Invoicing>(jsonString);
+            }
+
+
+
+
 
         }
-    }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex.Message);
+        }
 
+    }
+    public async Task GetAllVehicleID()
+    {
+
+        try
+        {
+
+            var Vehicles = await API.GetRequest($"Vehicle/GetAllVehicleID");
+            if (Vehicles != "")
+            {
+
+                Vehicle = JsonSerializer.Deserialize<List<string>>(Vehicles);
+
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex.Message);
+        }
+    }
     private void Chamber1Check(ChangeEventArgs e)
     {
         DisableChamber1 = (bool)e.Value;
@@ -993,7 +1024,7 @@
 
     private async Task LoadFiles(InputFileChangeEventArgs e)
     {
-
+        IsLoading = true;
 
         foreach (var file in e.GetMultipleFiles())
         {
@@ -1020,11 +1051,13 @@
             }
             catch (Exception ex)
             {
-                toastService.ShowError($"Error : {ex.Message}");
+                toastService.ShowError($"Error while uploading image please try again");
+
+                IsLoading = false;
             }
 
         }
-
+        IsLoading = false;
 
     }
     protected override async Task OnAfterRenderAsync(bool firstRender)
@@ -1033,26 +1066,25 @@
         {
             try
             {
-                // var Login2 = await API.GetRequest($"Authenticate/Authentication");
-                // var useraccount2 = JsonSerializer.Deserialize<GetLogin>(Login2);
-
                 if (_tabs != null)
                 {
                     await _tabs.InnerElementReference.FocusAsync();
-
-
                     _activeTab = _tab1;
                     _tabsCount = _tabs.TabCount;
                     TabHeading = "01- General Details";
                     StateHasChanged();
                 }
-
+                await JS.InvokeVoidAsync("initializeAutoComplete", "vehicleID", Vehicle);
             }
             catch (Exception ex)
             {
                 string e = ex.Message;
             }
 
+        }
+        else
+        {
+            await JS.InvokeVoidAsync("initializeAutoComplete", "vehicleID", Vehicle);
         }
     }
 
@@ -1087,7 +1119,10 @@
             toastService.ShowError($"Error : {ex.Message}");
         }
     }
-
+    private bool QtyDipFilledInChamber(Ship_Chamber chamber)
+    {
+        return chamber.ChamberQuantity != 0 && chamber.LorryDip != 0;
+    }
     private bool AreAllFieldsFilledInChamber(Ship_Chamber chamber)
     {
         return chamber.ChamberQuantity != 0 && chamber.LorryDip != 0 && chamber.Quantity != 0 && Invoices.ShippingDetail.TempF != 0 && Invoices.ShippingDetail.SG != 0;
@@ -1096,8 +1131,51 @@
     {
         return chamber.ChamberQuantity != 0 && chamber.LorryDip != 0 && chamber.Quantity != 0 && Invoices.ReceivingDetail.TempF != 0 && Invoices.ReceivingDetail.SG != 0;
     }
+    public async Task<int> GetShippingChamberDetails(string VehicleID)
+    {
+
+        try
+        {
+
+            var VehicleIDs = await API.GetRequest($"Invoice/GetChamberDetails/{VehicleID}");
+            if (VehicleIDs != "")
+            {
+
+                Shipping = JsonSerializer.Deserialize<GetChamberDetails>(VehicleIDs);
+                if (Shipping != null)
+                {
+                    Invoices.ShippingDetail.Chamber1.ChamberQuantity = Shipping.chamber1Quantity;
+                    Invoices.ShippingDetail.Chamber1.LorryDip = Shipping.chamber1Dip;
+                    Invoices.ShippingDetail.Chamber2.ChamberQuantity = Shipping.chamber2Quantity;
+                    Invoices.ShippingDetail.Chamber2.LorryDip = Shipping.chamber2Dip;
+                    Invoices.ShippingDetail.Chamber3.ChamberQuantity = Shipping.chamber3Quantity;
+                    Invoices.ShippingDetail.Chamber3.LorryDip = Shipping.chamber3Dip;
+                    Invoices.ShippingDetail.Chamber4.ChamberQuantity = Shipping.chamber4Quantity;
+                    Invoices.ShippingDetail.Chamber4.LorryDip = Shipping.chamber4Dip;
+                    Invoices.ShippingDetail.Chamber5.ChamberQuantity = Shipping.chamber5Quantity;
+                    Invoices.ShippingDetail.Chamber5.LorryDip = Shipping.chamber5Dip;
+                    return 200;
+                }
+                else
+                {
+                    return 404;
+                }
+
+            }
+            else
+            {
+                return 404;
+            }
+        }
+        catch (Exception ex)
+        {
+            return 404;
+            Console.WriteLine(ex.Message);
+        }
+    }
     private async Task NextTab()
     {
+        IsLoading = true;
         try
         {
             Dictionary<int, string> tabHeadings = new Dictionary<int, string>()
@@ -1109,12 +1187,37 @@
      { 3, "04- Shortage Calculation" },
      { 4, "05- Calculation Diff" }
  };
-
             var currentIndex = _tabs.Tabs.ToList().IndexOf(_activeTab);
             var nextIndex = (currentIndex + 1) % _tabsCount;
 
             if (currentIndex == 0 && Invoices.Details.TankLorryNO != null)
             {
+
+                int ChamberStatus = await GetShippingChamberDetails(Invoices.Details.TankLorryNO);
+                if (ChamberStatus == 200)
+                {
+                    if (QtyDipFilledInChamber(Invoices.ShippingDetail.Chamber1))
+                    {
+                        DisableChamber1 = false;
+                    }
+                    if (QtyDipFilledInChamber(Invoices.ShippingDetail.Chamber2))
+                    {
+                        DisableChamber2 = false;
+                    }
+                    if (QtyDipFilledInChamber(Invoices.ShippingDetail.Chamber3))
+                    {
+                        DisableChamber3 = false;
+                    }
+                    if (QtyDipFilledInChamber(Invoices.ShippingDetail.Chamber4))
+                    {
+                        DisableChamber4 = false;
+                    }
+                    if (QtyDipFilledInChamber(Invoices.ShippingDetail.Chamber5))
+                    {
+                        DisableChamber5 = false;
+                    }
+                }
+
                 if (Invoices.IsFromDisplay && AreAllFieldsFilledInChamber(Invoices.ShippingDetail.Chamber1))
                 {
                     DisableChamber1 = false;
@@ -1135,10 +1238,14 @@
                 {
                     DisableChamber5 = false;
                 }
+
+
             }
             else if (Invoices.Details.TankLorryNO == null)
             {
                 toastService.ShowWarning("Tank Lorry Number is Manadatory");
+                IsLoading = false;
+
                 return;
             }
 
@@ -1148,31 +1255,43 @@
                 if (DisableChamber1 && DisableChamber2 && DisableChamber3 && DisableChamber4 && DisableChamber5)
                 {
                     toastService.ShowError("Please Select Chamber");
+                    IsLoading = false;
+
                     return;
                 }
                 if (!DisableChamber1 && !AreAllFieldsFilledInChamber(Invoices.ShippingDetail.Chamber1))
                 {
                     toastService.ShowError("Please insert all fields in Chamber 1");
+                    IsLoading = false;
+
                     return;
                 }
                 else if (!DisableChamber2 && !AreAllFieldsFilledInChamber(Invoices.ShippingDetail.Chamber2))
                 {
                     toastService.ShowError("Please insert all fields in Chamber 2");
+                    IsLoading = false;
+
                     return;
                 }
                 else if (!DisableChamber3 && !AreAllFieldsFilledInChamber(Invoices.ShippingDetail.Chamber3))
                 {
                     toastService.ShowError("Please insert all fields in Chamber 3");
+                    IsLoading = false;
+
                     return;
                 }
                 else if (!DisableChamber4 && !AreAllFieldsFilledInChamber(Invoices.ShippingDetail.Chamber4))
                 {
                     toastService.ShowError("Please insert all fields in Chamber 4");
+                    IsLoading = false;
+
                     return;
                 }
                 else if (!DisableChamber5 && !AreAllFieldsFilledInChamber(Invoices.ShippingDetail.Chamber5))
                 {
                     toastService.ShowError("Please insert all fields in Chamber 5");
+                    IsLoading = false;
+
                     return;
                 }
 
@@ -1184,28 +1303,55 @@
                 {
                     if (!CalculateShortageForChamber1(Invoices))
                     {
+                        IsLoading = false;
+
                         return;
                     }
 
                     if (!CalculateShortageForChamber2(Invoices))
                     {
+                        IsLoading = false;
+
                         return;
                     }
 
                     if (!CalculateShortageForChamber3(Invoices))
                     {
+                        IsLoading = false;
+
                         return;
                     }
 
                     if (!CalculateShortageForChamber4(Invoices))
                     {
+                        IsLoading = false;
+
                         return;
                     }
 
                     if (!CalculateShortageForChamber5(Invoices))
                     {
+                        IsLoading = false;
+
                         return;
+
                     }
+
+
+                }
+                catch (Exception ex)
+                {
+                    toastService.ShowError($"Invalid calculations detected");
+                }
+
+
+            }
+
+            else if (currentIndex == 3)
+            {
+                try
+                {
+                    Invoices.CalculationDifference = new CalculationDiff();
 
                     float ReceivingTempF = Invoices.ReceivingDetail.TempF;
                     float ShippingTempF = Invoices.ShippingDetail.TempF;
@@ -1252,21 +1398,23 @@
                 }
                 catch (Exception ex)
                 {
+                    IsLoading = false;
                     toastService.ShowError($"Invalid calculations detected");
                 }
-
-
             }
-
-
             TabHeading = tabHeadings[nextIndex];
             _activeTab = _tabs.Tabs.ElementAt(nextIndex);
         }
         catch (Exception ex)
         {
+            IsLoading = false;
             toastService.ShowError($"Error occured");
         }
-
+        IsLoading = false;
+    }
+    private async Task SelectAllInputValue(string Input)
+    {
+        await JS.InvokeVoidAsync("selectAllInputValue", Input);
     }
     bool CalculateShortageForChamber1(Invoicing chamber)
     {
@@ -1376,6 +1524,7 @@
 
     private void PreviousTab()
     {
+        IsLoading = true;
         Dictionary<int, string> tabHeadings = new Dictionary<int, string>()
     {
 
@@ -1393,6 +1542,8 @@
         var nextIndex = currentIndex - 1;
         _activeTab = _tabs.Tabs.ElementAt(nextIndex);
         TabHeading = tabHeadings[nextIndex];
+        IsLoading = false;
+
     }
 
 
@@ -1401,16 +1552,56 @@
         _activeTab = tab;
         var index = _tabs.Tabs.ToList().IndexOf(tab);
     }
+
+    private async Task GetQuantitiesBySG(ChangeEventArgs e)
+    {
+        if(e.Value!="")
+        {
+            float Val = float.Parse(e.Value.ToString());
+            double calculated6Quantity1 = await GetQtyAt85F(Val, Invoices.ShippingDetail.TempF, Invoices.ShippingDetail.Chamber1.ChamberQuantity);
+            double calculated6Quantity2 = await GetQtyAt85F(Val, Invoices.ShippingDetail.TempF, Invoices.ShippingDetail.Chamber2.ChamberQuantity);
+            double calculated6Quantity3 = await GetQtyAt85F(Val, Invoices.ShippingDetail.TempF, Invoices.ShippingDetail.Chamber3.ChamberQuantity);
+            double calculated6Quantity4 = await GetQtyAt85F(Val, Invoices.ShippingDetail.TempF, Invoices.ShippingDetail.Chamber4.ChamberQuantity);
+            double calculated6Quantity5 = await GetQtyAt85F(Val, Invoices.ShippingDetail.TempF, Invoices.ShippingDetail.Chamber5.ChamberQuantity);
+
+            // Set the quantity for each chamber
+            Invoices.ShippingDetail.Chamber1.Quantity = int.Parse(calculated6Quantity1.ToString());
+            Invoices.ShippingDetail.Chamber2.Quantity = int.Parse(calculated6Quantity2.ToString());
+            Invoices.ShippingDetail.Chamber3.Quantity = int.Parse(calculated6Quantity3.ToString());
+            Invoices.ShippingDetail.Chamber4.Quantity = int.Parse(calculated6Quantity4.ToString());
+            Invoices.ShippingDetail.Chamber5.Quantity = int.Parse(calculated6Quantity5.ToString());
+        } 
+    }
+
+    private async Task GetReceivingQuantitiesBySG(ChangeEventArgs e)
+    {
+        if (e.Value != "")
+        {
+            float Val = float.Parse(e.Value.ToString());
+            double calculated6Quantity1 = await GetQtyAt85F(Val, Invoices.ReceivingDetail.TempF, Invoices.ReceivingDetail.Chamber1.ChamberQuantity);
+            double calculated6Quantity2 = await GetQtyAt85F(Val, Invoices.ReceivingDetail.TempF, Invoices.ReceivingDetail.Chamber2.ChamberQuantity);
+            double calculated6Quantity3 = await GetQtyAt85F(Val, Invoices.ReceivingDetail.TempF, Invoices.ReceivingDetail.Chamber3.ChamberQuantity);
+            double calculated6Quantity4 = await GetQtyAt85F(Val, Invoices.ReceivingDetail.TempF, Invoices.ReceivingDetail.Chamber4.ChamberQuantity);
+            double calculated6Quantity5 = await GetQtyAt85F(Val, Invoices.ReceivingDetail.TempF, Invoices.ReceivingDetail.Chamber5.ChamberQuantity);
+
+            // Set the quantity for each chamber
+            Invoices.ReceivingDetail.Chamber1.Quantity = int.Parse(calculated6Quantity1.ToString());
+            Invoices.ReceivingDetail.Chamber2.Quantity = int.Parse(calculated6Quantity2.ToString());
+            Invoices.ReceivingDetail.Chamber3.Quantity = int.Parse(calculated6Quantity3.ToString());
+            Invoices.ReceivingDetail.Chamber4.Quantity = int.Parse(calculated6Quantity4.ToString());
+            Invoices.ReceivingDetail.Chamber5.Quantity = int.Parse(calculated6Quantity5.ToString());
+        }
+    }
     private async Task TextChangedShipment(int chamberNumber, ChangeEventArgs e)
     {
         try
         {
             if (Invoices.ShippingDetail.SG != 0 && Invoices.ShippingDetail.TempF != 0)
             {
+
                 int quantity = int.Parse(e.Value.ToString());
                 double calculatedQuantity = await GetQtyAt85F(Invoices.ShippingDetail.SG, Invoices.ShippingDetail.TempF, quantity);
 
-                // Set the quantity for the specified chamber
                 switch (chamberNumber)
                 {
                     case 1:
@@ -1438,13 +1629,10 @@
             {
 
             }
-            else
-            {
-                toastService.ShowWarning("Please insert Tempreture and SG first");
-            }
+
 
         }
-        catch(Exception ex)
+        catch (Exception ex)
         {
 
         }
@@ -1481,20 +1669,20 @@
                         break;
                 }
             }
-            else if(e.Value!="")
+            else if (e.Value != "")
             {
-                
+
             }
             else
             {
                 toastService.ShowWarning("Please insert Tempreture and SG first");
             }
         }
-        catch(Exception ex)
+        catch (Exception ex)
         {
 
         }
-    
+
     }
 
     public async Task<double> GetQtyAt85F(double sg, double temp, double qty)
@@ -1913,6 +2101,7 @@
         };
         }
     }
+
 
 }
 

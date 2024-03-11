@@ -26,6 +26,8 @@
                         <div class="card-body px-0 pt-0 pb-2">
                             <div class="table-responsive p-0">
                                 <table class="table align-items-center mb-0">
+                                    @if (DriverList.Count > 0)
+                                    {
                                     <thead>
                                         <tr>
                                             <th class="text-uppercase font-colors  text-xxs font-weight-bolder opacity-7">Driver ID</th>
@@ -39,8 +41,7 @@
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        @if (DriverList.Count > 0)
-                                        {
+                                       
                                             @foreach (var item in DriverList)
                                             {
                                                 <tr>
@@ -78,15 +79,20 @@
                                                         }
                                                     </td>
                                                     <td class="align-middle text-center">
-                                                        <span class="text-secondary text-xs font-weight-bold" @onclick="@(() => EditDriver(item.driverdbID))">Edit</span>
+                                                        <span class="text-secondary text-xs font-weight-bold" style="cursor:pointer" @onclick="@(() => EditDriver(item.driverdbID))">Edit</span>
                                                     </td>
 
                                                 </tr>
                                             }
-                                        }
+                                        </tbody>
+                                    }
+                                    else
+                                    {
+                                        <DataLoaderComponent IsLoading="@IsChildLoading" LoadingText="Loading Driver Data..."/>
+                                    }
 
 
-                                    </tbody>
+                                   
                                 </table>
                             </div>
                         </div>
@@ -180,6 +186,7 @@
     private Modal modal;
 
     public bool IsLoading = false;
+    public bool IsChildLoading = false;
     public bool IsEdit = false;
     public int DriverDBID = 0;
     private AddDriver Driver = new AddDriver();
@@ -207,14 +214,17 @@
     }
     protected override async Task OnInitializedAsync()
     {
+        IsChildLoading = true;
         try
         {
             await GetAllDriver();
         }
         catch (Exception ex)
         {
+            IsChildLoading = false ;
             Console.WriteLine(ex.Message);
         }
+        IsChildLoading = false;
     }
     private async Task EditDriver(int DriverID)
     {
@@ -266,7 +276,7 @@
                 int Result = JsonSerializer.Deserialize<int>(AddUser);
                 if (Result == 200)
                 {
-                    toastService.ShowSuccess($"User: {Driver.DriverName} Update Success");
+                    toastService.ShowSuccess($"Driver: {Driver.DriverName} Update Success");
                     Driver = new AddDriver();
                     modal.CloseModal();
 
