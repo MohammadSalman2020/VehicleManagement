@@ -7,7 +7,7 @@
 <AuthorizeView>
     <Authorized>
         <div class="topnav" id="myTopnav">
-            <a href="/">@context.User.Identity.Name.ToUpper()</a>
+            @* <a href="/">@context.User.Identity.Name.ToUpper()</a> *@
             <a href="/" class="@GetActiveClass("Home")" @onclick=@(()=>OnClick("Home"))>Home</a>
             <div class="dropdown">
                 <button class="dropbtn">
@@ -17,7 +17,7 @@
                 <div class="dropdown-content">
                     <a href="/fleet" class="@GetActiveClass("Fleet")" @onclick=@(()=>OnClick("Fleet"))>Fleet</a>
                     <a href="/avail">Availability</a>
-                    <a href="/map">Fleet  on Map</a>
+                    <a href="/map">Satellite View</a>
                     <a href="/driver">Drivers</a>
                     <a href="/vehicles">Vehicles</a>
                 </div>
@@ -63,13 +63,31 @@
                     <a href="/usermanagement">User Management</a>
                 </div>
             </div>
-            <a href="/" @onclick="Logout" style="float:right;">Logout</a>
-            <a href="javascript:void(0);" style="font-size:15px;" class="icon" onclick="myFunction()">&#9776;</a>
+            <div class="dropdown" style="float:right;">
+                <button class="dropbtn">
+                    @context.User.Identity.Name.ToUpper()
+                    <i class="fa fa-caret-down"></i>
+                </button>
+                <div class="dropdown-content">
+                    <a href="/" @onclick="Logout" >Logout</a>
+                </div>
+            </div>
+            @* <a href="/" @onclick="Logout" style="float:right;">Logout</a> *@
+            <a href="javascript:void(0);" style="font-size:15px;" class="icon" onclick="toggleMenu()">&#9776;</a>
         </div>
     </Authorized>
 </AuthorizeView>
 
-
+<script>
+    function toggleMenu() {
+        var nav = document.getElementById("myTopnav");
+        if (nav.className === "topnav") {
+            nav.className += " responsive";
+        } else {
+            nav.className = "topnav";
+        }
+    }
+</script>
 
 @code {
     private Dictionary<string, bool> linkStates = new Dictionary<string, bool>
