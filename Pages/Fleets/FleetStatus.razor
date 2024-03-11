@@ -6,102 +6,153 @@
 @using System.Threading.Tasks
 @inject IJSRuntime JSRuntime
 @using System.Text
+@using System.Text.RegularExpressions
 @using VehicleManagement.ApiService
 @using VehicleManagement.Models.General
 @inject NavigationManager NavigationManager
 @using VehicleManagement.Models.DB
 @using VehicleManagement.Models.General.Fleet
 @inject IApiService API
-<div class="container-fluid py-4">
+<style>
+    .contact-info {
+        cursor: pointer; 
+        text-align:center;
+    }
+
+    .modal {
+        display: @modalDisplay;
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        z-index: 1000;
+        /* background-color: rgba(0, 0, 0, 0.5); */
+        max-width: 250px; /* Set the maximum width of the modal based on your preference */
+        max-height: 260px; /* Set the maximum width of the modal based on your preference */
+        padding: 20px;
+        border-radius: 5px;
+    }
+
+    .modal-content {
+        background-color: white;
+        padding: 20px;
+        border-radius: 5px;
+    }
+
+    .close {
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        cursor: pointer;
+    }
+
+</style>
+<div style="margin-top:10px;padding:0px;">
     <div class="row">
         <div class="col-12">
             <div class="card mb-4">
-                <div class="card-header pb-0">
+                <div class="card-header d-flex justify-content-between">
                     <span>Fleet Status Report (HTL)</span>
+                    <button class="btn btn-primary" @onclick="ExportToCSV">Export To CSV</button>
                 </div>
-                <div class="form-group">
-                    <button class="btn btn-primary btn-sm ms-auto" @onclick="ExportToCSV">Export To CSV</button>
-                </div>
-                <div class="card-body px-0 pt-0 pb-2">
+               
+                <div class="card-body">
                     <div class="table-responsive">
-                        <div style="overflow-x: auto; max-width: 100%;">
+                        <div style="overflow-x: scroll; max-width: 100%;">
+                            <div class="modal" style="display: @modalDisplay;">
+                                <div class="modal-content">
+                                    <span class="close" @onclick="CloseModal">&times;</span>
+                                    <div>
+                                       
+                                        <button class="btn btn-link" @onclick="MakeCall">Call</button>
+                                        <button class="btn btn-link" @onclick="whatsapp">Whatsapp</button>
+                                        <button class="btn btn-link" @onclick="SendSMS">Send SMS</button>
+                                    </div>
+                                </div>
+                            </div>
+                            @if (fleet.Count > 0)
+                            {
+                                sr = 0;
 
-                            <!-- Your table code -->
-                            <table class="table align-items-center mb-0 table-bordered">
-                                <!-- Added 'table-bordered' class -->
-                                <thead>
-                                    <tr>
-                                        <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Sr#</th>
-                                        <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Vehicle #</th>
-                                        <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Qty</th>
-                                        <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Driver 1</th>
-                                        <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Driver 2</th>
-                                        <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Report/FillingData</th>
-                                        <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Product</th>
-                                        <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Filling Point</th>
-                                        <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Heading</th>
-                                        <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Destination</th>
-                                        <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">CurrentLocation</th>
-                                        <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Remarks</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
+                                <!-- Your table code -->
+                                <table class="table-bordered">
+                                    <!-- Added 'table-bordered' class -->
+                                    <thead style="background-color:#5e72e4;color:white">
+                                        <tr style="text-align:center">
+                                            <th>Sr#</th>
+                                            <th style="padding:5px">Vehicle_#</th>
+                                            <th>Qty</th>
+                                            <th>Driver_1</th>
+                                            <th>Driver_2</th>
+                                            <th>Report/FillingData</th>
+                                            <th>Product</th>
+                                            <th>FillingPoint</th>
+                                            <th>Heading</th>
+                                            <th>Destination</th>
+                                            <th>CurrentLocation</th>
+                                            <th>Remarks</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
 
-                                    @if (fleet.Count > 0)
-                                    {
+                                        
                                         @foreach (var item in fleet)
-                                        {
-                                            <tr>
-                                                <td>
-                                                    <p class="text-xs font-weight-bold mb-0">@(sr = (sr + 1))</p>
-                                                </td>
-                                                <td>
-                                                    <div class="d-flex px-2 py-1">
-                                                        <div class="d-flex flex-column justify-content-center">
-                                                            <h6 class="mb-0 text-sm">@item.vehicleID</h6>
-                                                        </div>
-                                                    </div>
-                                                </td>
-                                                <td>
-                                                    <p class="text-xs font-weight-bold mb-0">@item.qty</p>
-                                                </td>
-                                                <td class="align-middle text-center">
-                                                    <span class="text-secondary text-xs font-weight-bold">@item.driver1</span>
-                                                </td>
-                                                <td class="align-middle text-center">
-                                                    <span class="text-secondary text-xs font-weight-bold">@item.driver2</span>
-                                                </td>
-                                                <td class="align-middle text-center">
-                                                    <span class="text-secondary text-xs font-weight-bold">@item.reportingFillingdate</span>
-                                                </td>
-                                                <td class="align-middle text-center text-sm">
-                                                    <span class="text-secondary text-xs font-weight-bold">@item.product</span>
-                                                </td>
-                                                <td class="align-middle text-center text-sm">
-                                                    <span class="text-secondary text-xs font-weight-bold">@item.fillingPoint</span>
-                                                </td>
-                                                <td class="align-middle text-center text-sm">
-                                                    <span class="badge badge-sm bg-gradient-success">@item.heading</span>
-                                                </td>
-                                                <td class="align-middle text-center text-sm">
-                                                    <span class="text-secondary text-xs font-weight-bold">@item.destination</span>
-                                                </td>
-                                                <td class="align-middle text-sm">
-                                                    <span class="text-secondary text-xs font-weight-bold">@item.current_location</span>
-                                                </td>
-                                                <td class="align-middle text-center text-sm">
-                                                    <span class="text-secondary text-xs font-weight-bold">@item.Remarks</span>
-                                                </td>
-                                            </tr>
-                                        }
-
-                                    }
-                                    else
                                     {
-                                        <h3>Loading...</h3>
+                                        <tr>
+                                            <td style="text-align:center">
+                                                <p>@(sr = (sr + 1))</p>
+                                            </td>
+                                                <td style="text-align:center">
+                                                <p>@item.vehicleID</p>
+                                            </td>
+                                                <td style="text-align:center">
+                                                <p>@item.qty</p>
+                                            </td>
+                                            <td class="contact-info">
+                                                    <p  @onclick="() => HandleButtonClick(item.driver1)">@item.driver1</p>
+                                                </td>
+                                            <td class="contact-info">
+                                                    <p @onclick="() => HandleButtonClick(item.driver2)">@item.driver2</p>
+                                                </td>
+                                                <td style="text-align:center">
+                                                <span>@item.reportingFillingdate</span>
+                                            </td>
+                                                <td style="text-align:center">
+                                                <span>@item.product</span>
+                                            </td>
+                                                <td style="text-align:center">
+                                                <span>@item.fillingPoint</span>
+                                            </td>
+                                                <td style="text-align:center">
+                                                <span>@item.heading</span>
+                                            </td>
+                                                <td style="text-align:center">
+                                                <span>@item.destination</span>
+                                            </td>
+                                            <td>
+                                                <span>@item.current_location</span>
+                                            </td>
+                                            <td>
+                                                <span>@item.Remarks</span>
+                                            </td>
+                                        </tr>
                                     }
+
+
+
                                 </tbody>
                             </table>
+
+                            }
+                            else
+                            {
+                                <div class="text-center">
+                                    <div class="spinner-border" role="status">
+                                        <span class="visually-hidden">Loading...</span>
+                                    </div>
+                                    <p>Loading...</p>
+                                </div>
+                            }
                         </div>
                     </div>
                 </div>
@@ -123,11 +174,54 @@
 
 @code {
 
+    string modalDisplay = "none";
+    string phoneNumber;
 
     int sr = 0;
 
     List<FleetStatusreport> fleet = new List<FleetStatusreport>();
 
+    void HandleButtonClick(string s)
+    {
+        var match = Regex.Match(s, @"\(([^)]*)\)");
+        if (match.Success)
+        {
+            // Get the phone number from the regex match
+            phoneNumber = match.Groups[1].Value.Trim();
+            phoneNumber = phoneNumber.Replace(" ", "").Replace("-", "");
+            phoneNumber = "+92" + phoneNumber.Substring(1);
+            modalDisplay = "block";
+        }
+    }
+    // Method to close the modal
+    void CloseModal()
+    {
+        modalDisplay = "none";
+    }
+    void SendSMS()
+    {
+        // Open the default SMS application with the recipient's number pre-filled
+        string smsUri = $"sms:{phoneNumber}";
+        JSRuntime.InvokeVoidAsync("open", smsUri);
+    }
+
+    void MakeCall()
+    {
+        // Initiate a phone call
+        string telUri = $"tel:{phoneNumber}";
+        JSRuntime.InvokeVoidAsync("open", telUri);
+    }
+    void whatsapp()
+    {
+        // Replace spaces and dashes from the phone number, if any
+        string formattedPhoneNumber = phoneNumber.Replace(" ", "").Replace("-", "");
+
+        // Construct the WhatsApp message with the phone number and any additional content
+        string whatsappMessage = $"https://wa.me/{formattedPhoneNumber}?text=Hello";
+
+        // Open WhatsApp with the pre-filled message
+        JSRuntime.InvokeVoidAsync("open", whatsappMessage);
+    }
     private async Task ExportToCSV()
     {
         if (fleet != null && fleet.Count > 0)

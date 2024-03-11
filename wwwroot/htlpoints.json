@@ -1,0 +1,462 @@
+[
+ {
+  "name": "One Stop Filling Station",
+  "LAT": "74.323828",
+  "Long": 31.522951
+ },
+ {
+  "name": "Minhas CNG",
+  "LAT": "74.261235",
+  "Long": 31.489837
+ },
+ {
+  "name": "Al-Karam",
+  "LAT": "74.111689",
+  "Long": 31.333233
+ },
+ {
+  "name": "Ibrahim FS",
+  "LAT": "74.313836",
+  "Long": 32.124204
+ },
+ {
+  "name": "Lali Sons Petroleum",
+  "LAT": "72.840046",
+  "Long": 31.808481
+ },
+ {
+  "name": "Al Fazal FS",
+  "LAT": "72.274776",
+  "Long": 31.630202
+ },
+ {
+  "name": "Raja Adeel Anwar FS",
+  "LAT": "73.040239",
+  "Long": 30.310647
+ },
+ {
+  "name": "Gondal PS",
+  "LAT": "74.121719",
+  "Long": 32.438889
+ },
+ {
+  "name": "Rehman PS",
+  "LAT": "72.569395",
+  "Long": 29.701265
+ },
+ {
+  "name": "Hussain PS",
+  "LAT": "71.469186",
+  "Long": 30.24625
+ },
+ {
+  "name": "Karmanwala",
+  "LAT": "73.41104",
+  "Long": 31.341482
+ },
+ {
+  "name": "Jillani CNG",
+  "LAT": "73.161366",
+  "Long": 33.643594
+ },
+ {
+  "name": "City PS",
+  "LAT": "73.812685",
+  "Long": 30.753471
+ },
+ {
+  "name": "AB PS",
+  "LAT": "70.8034802",
+  "Long": 29.012285
+ },
+ {
+  "name": "Rana PS",
+  "LAT": "73.329873",
+  "Long": 30.950065
+ },
+ {
+  "name": "Green Fuel CNG",
+  "LAT": "73.964956",
+  "Long": 32.688821
+ },
+ {
+  "name": "Al-Yousaf CNG",
+  "LAT": "71.518892",
+  "Long": 30.211509
+ },
+ {
+  "name": "Dasti FS",
+  "LAT": "70.643248",
+  "Long": 30.02292
+ },
+ {
+  "name": "Green City",
+  "LAT": "71.695798",
+  "Long": 29.391389
+ },
+ {
+  "name": "Khokhar Fuels",
+  "LAT": "74.174322",
+  "Long": 32.177142
+ },
+ {
+  "name": "Al-Saeed & Samdani PS",
+  "LAT": "72.3416535",
+  "Long": 31.2032376
+ },
+ {
+  "name": "Shahid & Co",
+  "LAT": "74.2362938",
+  "Long": 32.2201999
+ },
+ {
+  "name": "Mudassir CNG",
+  "LAT": "71.6477704",
+  "Long": 30.0954232
+ },
+ {
+  "name": "Benzina II",
+  "LAT": "73.46644444444445",
+  "Long": 30.8166944444444
+ },
+ {
+  "name": "Numberdar Petroleum services",
+  "LAT": "72.9615392",
+  "Long": 33.0396031
+ },
+ {
+  "name": "Iftikhar Nadeem & CO",
+  "LAT": "73.0901993",
+  "Long": 33.6355577
+ },
+ {
+  "name": "Punjab F\/S",
+  "LAT": "73.1409127",
+  "Long": 31.3623639
+ },
+ {
+  "name": "Meezan Petroleum",
+  "LAT": "72.440744",
+  "Long": 31.048592
+ },
+ {
+  "name": "Ghuman",
+  "LAT": "74.3569394",
+  "Long": 31.4999302
+ },
+ {
+  "name": "Khalifa FS",
+  "LAT": "72.6719903",
+  "Long": 31.1533758
+ },
+ {
+  "name": "Al-Mustafa FS",
+  "LAT": "72.9969875",
+  "Long": 29.7151835
+ },
+ {
+  "name": "Al Sheikh FSÂ ",
+  "LAT": "74.0940294",
+  "Long": 32.5120418
+ },
+ {
+  "name": "Moon CNG",
+  "LAT": "73.1450652",
+  "Long": 33.5232888
+ },
+ {
+  "name": "Aabroo CNG",
+  "LAT": "73.2886009",
+  "Long": 31.4835019
+ },
+ {
+  "name": "Suntrust CNG",
+  "LAT": "73.1038313",
+  "Long": 31.4705426
+ },
+ {
+  "name": "Haji M Nawaz F\/S",
+  "LAT": "70.862885",
+  "Long": 31.824981
+ },
+ {
+  "name": "Big Khan & Brother Pet. Ltd",
+  "LAT": "72.0344977",
+  "Long": 34.6626791
+ },
+ {
+  "name": "Naik Muhammad F\/S",
+  "LAT": "72.058419",
+  "Long": 34.642335
+ },
+ {
+  "name": "Imdad Mir F\/S",
+  "LAT": "73.170903",
+  "Long": 34.336048
+ },
+ {
+  "name": "Arab Emirate F\/S 1",
+  "LAT": "72.4538657",
+  "Long": 34.9190115
+ },
+ {
+  "name": "Rashid Khan F\/S",
+  "LAT": "72.332752",
+  "Long": 34.774081
+ },
+ {
+  "name": "Bhadar F\/S",
+  "LAT": "70.6534525",
+  "Long": 32.9473814
+ },
+ {
+  "name": "Al Rahman F\/S",
+  "LAT": "70.8434081",
+  "Long": 31.8701435
+ },
+ {
+  "name": "Rahat Filling Station",
+  "LAT": "72.3532312",
+  "Long": 34.7575295
+ },
+ {
+  "name": "Shah Sardar",
+  "LAT": "73.2493803",
+  "Long": 34.1581037
+ },
+ {
+  "name": "Kohala FS",
+  "LAT": "73.4962113",
+  "Long": 34.1018827
+ },
+ {
+  "name": "Shams F\/S",
+  "LAT": "72.958603",
+  "Long": 34.731488
+ },
+ {
+  "name": "Qazalbash Chowk",
+  "LAT": "74.2445063",
+  "Long": 31.4505034
+ },
+ {
+  "name": "Chawinda FS",
+  "LAT": "74.550717",
+  "Long": 32.5076347
+ },
+ {
+  "name": "HTL Pump",
+  "LAT": "74.3495145",
+  "Long": 31.5249109
+ },
+ {
+  "name": "Roshan FS",
+  "LAT": "73.9355067",
+  "Long": 31.7227551
+ },
+ {
+  "name": "Ittehad CNG",
+  "LAT": "74.3456653",
+  "Long": 32.3331056
+ },
+ {
+  "name": "KB Petroleum",
+  "LAT": "73.1580412",
+  "Long": 31.3979627
+ },
+ {
+  "name": "Aftab FS",
+  "LAT": "71.598827",
+  "Long": 34.000273
+ },
+ {
+  "name": "Arab Emirate F\/S 2",
+  "LAT": "72.4351169",
+  "Long": 34.9490346
+ },
+ {
+  "name": "ARP filling Station",
+  "LAT": "73.2302637",
+  "Long": 34.1810729
+ },
+ {
+  "name": "Attock CNG",
+  "LAT": "72.3567804",
+  "Long": 33.7662641
+ },
+ {
+  "name": "Big Khan 2 Filling Station",
+  "LAT": "72.0180607",
+  "Long": 34.6397472
+ },
+ {
+  "name": "Brothers CNG",
+  "LAT": "72.3461647",
+  "Long": 34.7713369
+ },
+ {
+  "name": "Ekwaan F\/S",
+  "LAT": "71.71556",
+  "Long": 34.149143
+ },
+ {
+  "name": "Four Star CNG",
+  "LAT": "72.0429913",
+  "Long": 34.2104635
+ },
+ {
+  "name": "Friends Filling StationÂ ",
+  "LAT": "72.1084159",
+  "Long": 34.1976892
+ },
+ {
+  "name": "GAP Enterprises",
+  "LAT": "71.5165009",
+  "Long": 34.008681
+ },
+ {
+  "name": "GAP 2 CNG",
+  "LAT": "71.5189967",
+  "Long": 33.976394
+ },
+ {
+  "name": "Habib Filling StationÂ ",
+  "LAT": "73.647541",
+  "Long": 34.8952524
+ },
+ {
+  "name": "Haidery Filling Station",
+  "LAT": "71.584129",
+  "Long": 34.0049223
+ },
+ {
+  "name": "Hussain",
+  "LAT": "71.6103348",
+  "Long": 34.0970387
+ },
+ {
+  "name": "Jan Muhammad",
+  "LAT": "71.5027914",
+  "Long": 34.2340275
+ },
+ {
+  "name": "Mashallah CNG",
+  "LAT": "72.3599243",
+  "Long": 33.7928677
+ },
+ {
+  "name": "Nasapa CNG",
+  "LAT": "71.5911163",
+  "Long": 34.0656695
+ },
+ {
+  "name": "Niaz 2 CNG",
+  "LAT": "71.608865",
+  "Long": 34.0003455
+ },
+ {
+  "name": "Pandu F\/S",
+  "LAT": "71.631917",
+  "Long": 33.984852
+ },
+ {
+  "name": "Power Gas",
+  "LAT": "72.0393356",
+  "Long": 34.0095031
+ },
+ {
+  "name": "Toru F\/S",
+  "LAT": "72.013757",
+  "Long": 34.100166
+ },
+ {
+  "name": "Unique CNG",
+  "LAT": "72.0274109",
+  "Long": 34.1401024
+ },
+ {
+  "name": "PARCO",
+  "LAT": "70.939171",
+  "Long": 30.167911
+ },
+ {
+  "name": "PRL",
+  "LAT": "67.119255",
+  "Long": 24.801111
+ },
+ {
+  "name": "NRL",
+  "LAT": "67.125016",
+  "Long": 24.846483
+ },
+ {
+  "name": "Byco RefineryÂ ",
+  "LAT": "66.709499",
+  "Long": 24.91493
+ },
+ {
+  "name": "ARL",
+  "LAT": "73.072289",
+  "Long": 33.553269
+ },
+ {
+  "name": "HTL Depot SWL",
+  "LAT": "73.071897",
+  "Long": 30.549205
+ },
+ {
+  "name": "HTL Depot - TJB",
+  "LAT": "71.870065",
+  "Long": 34.0041034
+ },
+ {
+  "name": "MHK",
+  "LAT": "70.921418",
+  "Long": 30.168344
+ },
+ {
+  "name": "SWL",
+  "LAT": "73.1387875",
+  "Long": 30.5909126
+ },
+ {
+  "name": "GATTI",
+  "LAT": "73.1467368",
+  "Long": 31.4838133
+ },
+ {
+  "name": "MCH",
+  "LAT": "73.895309",
+  "Long": 31.733661
+ },
+ {
+  "name": "VHR",
+  "LAT": "72.347899",
+  "Long": 30.044746
+ },
+ {
+  "name": "CPI",
+  "LAT": "73.9136441",
+  "Long": 32.7488793
+ },
+ {
+  "name": "SIH",
+  "LAT": "73.2249305",
+  "Long": 33.4445058
+ },
+ {
+  "name": "KHT",
+  "LAT": "71.57876",
+  "Long": 33.525903
+ },
+ {
+  "name": "PSO Depot TJB",
+  "LAT": "71.7297837",
+  "Long": 34.0191058
+ },
+ {
+  "name": "T-Chowk Office",
+  "LAT": "73.1809554",
+  "Long": 33.514317
+ }
+]

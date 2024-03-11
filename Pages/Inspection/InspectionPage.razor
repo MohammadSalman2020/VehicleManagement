@@ -7,6 +7,7 @@
 @inject IApiService API
 @inject NavigationManager navmanager
 <div class="inspectionprint">
+    <br />
     <button @onclick="OnPrint" class="btn btn-primary btn-sm">Print</button>
     <div style="background-color:white">
         @* <div class="left-section"></div> <!-- Left section --> *@
@@ -181,15 +182,15 @@
                 <span> or faulty marked ( <img src="css/cross.png" alt="Cross" class="icon"> )</span>
                 <span> or irrelevant marked ( <img src="css/na.png" alt="Not Applicable" class="icon"> )</span>
             </div>
+            <table class="gen">
+                @for (int j = 0; j <= Scopes.Count - 1; j++)
 
-            @for (int j = 0; j <= Scopes.Count - 1; j++)
-           
-            {
-                var scopeObservations = getScopeObservations(Scopes[j]);
+                {
+                    var scopeObservations = getScopeObservations(Scopes[j]);
 
-                <table class="gen">
+
                     <thead>
-                    <th>@(j+1)</th>
+                    <th>@(j + 1)</th>
                     <th>@Scopes[j]</th>
                     <th>Inspector Remarks</th>
                     <th>Response</th>
@@ -198,7 +199,7 @@
                         @for (int i = 0; i < @scopeObservations.Count; i++)
                         {
                             <tr>
-                                <td>@(j+1).@(i+1)</td>
+                                <td>@(j + 1).@(i + 1)</td>
                                 <td>@scopeObservations[i].scopeDesc</td>
                                 <td>@scopeObservations[i].remarks</td>
                                 <td>
@@ -227,8 +228,9 @@
                         }
 
                     </tbody>
-                </table>
-            }
+
+                }
+            </table>
             <div class="signature-container">
                 <div class="signature">Safety Supervisor</div>
                 <div class="signature">Driver Sign</div>
