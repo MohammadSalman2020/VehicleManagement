@@ -1357,7 +1357,7 @@
                     float ShippingTempF = Invoices.ShippingDetail.TempF;
 
                     float Total = ReceivingTempF - ShippingTempF;
-                    float ReceivingTemp = Math.Abs((float)Math.Round(Total));
+                    float ReceivingTemp = (float)Math.Round(Total,3);
                     Invoices.CalculationDifference.TempDiff = ReceivingTemp;
 
 
@@ -1391,7 +1391,7 @@
 
                     float Shortage1F = ShortOnTempExempt / ReceivingTemp;
 
-                    Invoices.CalculationDifference.Shortage1FTemp = (float)Math.Round(Shortage1F);
+                    Invoices.CalculationDifference.Shortage1FTemp = Math.Abs((float)Math.Round(Shortage1F,3));
 
                     float QunatityShouldR = TotalChamberQuantityS - ShortOnTempExempt;
                     Invoices.CalculationDifference.QtyShouldRecieved = QunatityShouldR;
@@ -1453,7 +1453,7 @@
             float LoadingDivision = (TotalChamberLtr / Loading);
             float Total = LoadingDivision * ShortMM;
 
-            Invoices.ShortageCalculation.Chamber2.TotalShortageLtr = Math.Abs((int)Math.Round(Total));
+            Invoices.ShortageCalculation.Chamber2.TotalShortageLtr = Math.Abs((int)Math.Round(Total,2));
         }
 
         return true;

@@ -1,11 +1,12 @@
 ﻿@page "/fleet"
 
 @inject NavigationManager NavigationManager
+@using Microsoft.AspNetCore.Authentication
 @using Microsoft.AspNetCore.WebUtilities
 @using VehicleManagement.Pages.Fleets
 @using VehicleManagement.Pages.Redirects
 <PageTitle>Fleet</PageTitle>
-<AuthorizeView>
+<AuthorizeView Policy="Testing">
     <Authorized>
 
         <Nav PageName="Fleet" />
@@ -14,12 +15,16 @@
 
     </Authorized>
     <NotAuthorized>
+        
       <_403/>
     </NotAuthorized>
 </AuthorizeView>
 
 
 @code {
+
+  
+
     public string ISFrom { get; set; } = "";
 
     public bool IsMaintainance { get; set; } = false;
@@ -32,6 +37,8 @@
     public string? Name { get; set; } = "Total";
     protected override void OnInitialized()
     {
+                
+
         var uri = new Uri(NavigationManager.Uri);
         var queryStrings = QueryHelpers.ParseQuery(uri.Query);
         if (queryStrings.TryGetValue("IsFrom", out var name))

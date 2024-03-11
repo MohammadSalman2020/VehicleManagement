@@ -2,29 +2,75 @@
 @using System.Text.Json
 @using VehicleManagement.ApiService
 @using VehicleManagement.Models.General
+@inject IWebHostEnvironment WebHostEnvironment
 @inject IJSRuntime JSRuntime
 @inject IApiService API
+<div class="container-fluid py-4">
+    <div class="row">
+        <div class="col-md-12">
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <input type="text" @bind="@vhiclenumber" placeholder="search vehicle" class="form-control" @onkeyup="SearchOnEnter" />
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <button class="btn btn-warning btn-sm" @onclick="@SearchData">Search</button>
+                    @*                     <button class="btn btn-primary btn-sm" onclick="window.location.reload();">Refresh</button>
+                    *@
+                </div>
+                <div class="col-md-3">
+                    @if (data.Count > 0)
+                    {
 
-<button class="btn btn-warning btn-sm ms-auto" @onclick="LoadData">Load Fleet</button>
+                    }
+                    else
+                    {
+                        @* <label for="example-text-input" class="form-control-label">Loading please wait...</label> *@
+                        <div class="text-center">
+                            <div class="spinner-border" role="status">
+                                <span class="visually-hidden">Loading...</span>
+                            </div>
+                            <p>Loading...</p>
+                        </div>
+                    }
+
+                </div>
+
+            </div>
+            <div id="map" style="height:90vh;width:100%">
+            </div>
+        </div>
+    </div>
+</div>
 @* <span>Number of Markers: @count</span>
 <span>Number of exceptions: @excount</span> *@
 
 
-<div id="map" style="height:90vh;width:100%">
 
-</div>
+
 
 @code {
 
 
     int count = 0;
     int excount = 0;
+    int Lat = 0;
+    int Long = 0;
+    string vhiclenumber = "";
     protected override async Task OnAfterRenderAsync(bool firstrender)
     {
         if (firstrender)
         {
             await JSRuntime.InvokeVoidAsync("loadGoogleMaps");
         }
+    }
+
+    public class MarkerData
+    {
+        public string name { get; set; }
+        public string LAT { get; set; }
+        public double Long { get; set; }
     }
     List<string> vehicles = new List<string>();
     private async Task Getvhicles()
@@ -40,9 +86,16 @@
             Console.WriteLine("API request returned null.");
         }
     }
-    List<TrackerData> data; 
+    List<TrackerData> data=new List<TrackerData>();
+    List<MarkerData> points = new List<MarkerData>();
     protected override async Task OnInitializedAsync()
     {
+        ///   poligons = new List<LatLng>();
+        // poligons.Add(new LatLng (4.817815,67.313360 ));
+       
+        await LoadData();
+        await Addmarkers();
+        //  await AddPolygon(poligons);
         // try
         // {
         //     data = new List<TrackerData>();
@@ -71,11 +124,62 @@
         //     Console.WriteLine($"Error adding markers: {ex.Message}");
         // }
     }
+    private async Task Addmarkers()
+    {
 
+        string webRootPath = WebHostEnvironment.WebRootPath;
+        string filePath = Path.Combine(webRootPath, "htlpoints.json");
+        if (File.Exists(filePath))
+        {
+            try
+            {
+
+
+                string jsonContent = File.ReadAllText(filePath);
+                points = JsonSerializer.Deserialize<List<MarkerData>>(jsonContent);
+            }
+            catch (Exception ex)
+            {
+
+                string s = ex.Message;
+            }
+
+        }
+
+        foreach(var x  in points)        
+        {
+            await AddMarkerWithDelay(double.Parse(x.LAT), double.Parse(x.Long.ToString()), x.name, "", "", "", "", 100);
+            
+            StateHasChanged();
+        }
+
+       
+    }
     private async Task AddMarkerWithDelay(double lat, double lng, string vehicle, string speed, string driver, string location, string status, int delayMilliseconds)
     {
-       // await Task.Delay(delayMilliseconds);
+        // await Task.Delay(delayMilliseconds);
         await JSRuntime.InvokeVoidAsync("addMarker", lat, lng, vehicle, speed, driver, location, status);
+    }
+    void SearchOnEnter(KeyboardEventArgs e)
+    {
+        if (e.Key == "Enter")
+        {
+            // Call your search function here
+            SearchData();
+        }
+    }
+    private async Task SearchData()
+    {
+        if (vhiclenumber.Trim() != "")
+        {
+            var rec = data.Where(a => a.vehicleId.Contains(vhiclenumber)).FirstOrDefault();
+            if (rec != null)
+            {
+                // await Task.Delay(delayMilliseconds);
+                await JSRuntime.InvokeVoidAsync("searchMarkerWithLatLong", rec.lat, rec.@long);
+            }
+        }
+
     }
 
     private async Task LoadData()
@@ -84,17 +188,21 @@
         {
             data = new List<TrackerData>();
             await Getvhicles();
-            foreach (var veh in vehicles)
-            {
-                TrackerData tpl = new TrackerData();
-                var location = await API.GetRequest($"Fleet/GetVehiclelastLocation/{veh}?vehiceID={veh}");
-                if (location != null)
+            string Token = "";
+            JsonSerializerOptions options = new JsonSerializerOptions
                 {
-                    tpl = JsonSerializer.Deserialize<TrackerData>(location);
-                    data.Add(tpl);
-                }
+                    WriteIndented = true,
+                    ReferenceHandler = null
+                };
+            string jsonData = JsonSerializer.Serialize(vehicles, options);
+            var location = await API.PostRequest($"Fleet/GetVehiclesGpsData", jsonData);
+            if (location != null)
+            {
+                data = JsonSerializer.Deserialize<List<TrackerData>>(location);
 
             }
+
+
 
             foreach (var tpl in data)
             {
@@ -109,7 +217,7 @@
                 {
                     excount++;
                     Console.WriteLine($"Error adding marker: {tpl.vehicleId}");
-                  
+
                 }
             }
             //   await AddMarkers();
