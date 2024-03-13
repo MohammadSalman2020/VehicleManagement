@@ -1,9 +1,15 @@
 ﻿@page "/avail"
+@using System.Text.Json
+@using VehicleManagement.ApiService
+@using VehicleManagement.Models.General
+@using VehicleManagement.Models.General.Driver
 @using VehicleManagement.Pages.Redirects
+@inject IToastService toastService
+@inject IApiService API
 <AuthorizeView>
     <Authorized>
         <Nav PageName="Availibility" />
-     
+
         <div class="container-fluid">
             <div class="row">
                 <div class="col-12">
@@ -15,7 +21,7 @@
                             <div class="row col-md-12" style="text-align:center;">
                                 <div class="col-md-4">
                                     <div class="form-group">
-                                        <button class="btn btn-danger btn-sm ms-auto">Push To Client</button>
+                                        <button class="btn btn-danger btn-sm ms-auto" @onclick="PushToClient">Push To Client</button>
 
                                     </div>
                                 </div>
@@ -36,64 +42,77 @@
 
                         </div>
 
-                        <div class="card-body px-0 pt-0 pb-2">
-                            <div class="table-responsive p-0">
-                                <table class="table align-items-center mb-0">
-                                    <thead>
-                                        <tr>
-                                            <th class="text-uppercase font-colors  text-xxs font-weight-bolder opacity-7">Vehicle #</th>
-                                            <th class="text-uppercase font-colors  text-xxs font-weight-bolder opacity-7 ps-2">1st Driver Name</th>
-                                            <th class="text-center font-colors text-uppercase  text-xxs font-weight-bolder opacity-7">Contact</th>
-                                            <th class="text-center font-colors text-uppercase  text-xxs font-weight-bolder opacity-7">2nd Driver Name</th>
-                                            <th class="text-center font-colors text-uppercase  text-xxs font-weight-bolder opacity-7">Contact</th>
-                                            <th class="text-center font-colors text-uppercase text-xxs font-weight-bolder opacity-7">Location</th>
-                                            <th class="text-secondary opacity-7"></th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <tr>
-                                            <td>
-                                                <div class="d-flex px-2 py-1">
-                                                    <div>
-                                                        <img src="css/assets/Truck.jpg" class="avatar avatar-sm me-3" alt="user1">
-                                                    </div>
-                                                    <div class="d-flex flex-column justify-content-center">
-                                                        <h6 class="mb-0 text-sm">12201554</h6>
 
+                        <div class="card">
+                            <div class="card-body">
+                                <div class="row row-cols-1 row-cols-md-2 row-cols-xl-5 g-4">
+                                    <div class="col mb-3">
+                                        <div class="card bg-gradient-warning" style="color: white;">
+                                            <div class="card-body p-3">
+                                                <div class="row">
+                                                    <div class="col-12">
+                                                        <div class="numbers">
+
+                                                            <div class="row col-12">
+                                                                <div class="col-6">
+                                                                    <p class="text-sm mb-0 text-uppercase font-weight-bold" style="color:black;">Vehicle #</p>
+                                                                    <h5 class="font-weight-bolder" style="color:white;">
+                                                                        C-2837
+                                                                    </h5>
+                                                                </div>
+
+                                                                <div class="col-6" style="cursor:pointer;">
+                                                                    <div class="text-end">
+                                                                        <div class="col-6 icon icon-shape bg-gradient-warning shadow-primary text-center rounded-circle">
+                                                                            <i class="fas fa-ban text-lg opacity-10" aria-hidden="true"></i>
+                                                                        </div>
+
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+
+
+                                                            <p class="text-sm mb-0 text-uppercase font-weight-bold" style="color:black;">1st Driver</p>
+                                                            <h5 class="font-weight-bolder" style="color:white;">
+                                                                Zain Ul Haque
+                                                            </h5>
+                                                            <p class="text-sm mb-0 text-uppercase font-weight-bold" style="color:black;">2nd Driver</p>
+                                                            <h5 class="font-weight-bolder" style="color:white;">
+                                                                Siddique Albaloshi
+                                                            </h5>
+                                                            <p class="text-sm mb-0 text-uppercase font-weight-bold" style="color:black;">Date</p>
+                                                            <h5 class="font-weight-bolder" style="color:white;">
+                                                                12-05-2024
+                                                            </h5>
+                                                            <p class="text-sm mb-0 text-uppercase font-weight-bold" style="color:black;">Business</p>
+                                                            <h5 class="font-weight-bolder" style="color:white;">
+                                                                HTL
+                                                            </h5>
+                                                            <p class="text-sm mb-0 text-uppercase font-weight-bold" style="color:black;">Location</p>
+                                                            <h5 class="font-weight-bolder" style="color:white;">
+                                                                Shakoor & Company Limited
+                                                            </h5>
+                                                            <p class="text-sm mb-0 text-uppercase font-weight-bold" style="color:black;">Status</p>
+                                                            <h5 class="font-weight-bolder" style="color:white;">
+                                                                In-Active
+                                                            </h5>
+                                                        </div>
                                                     </div>
+
                                                 </div>
-                                            </td>
-                                            <td>
-                                                <p class="text-xs font-weight-bold mb-0">Abdul Ghafoor</p>
-
-                                            </td>
-                                            <td class="align-middle text-center">
-                                                <span class="text-secondary text-xs font-weight-bold">090078601</span>
-                                            </td>
-                                            <td class="align-middle text-center">
-                                                <span class="text-secondary text-xs font-weight-bold">Abdul Majid</span>
-                                            </td>
-                                            <td class="align-middle text-center">
-                                                <span class="text-secondary text-xs font-weight-bold">090078601</span>
-                                            </td>
-                                            <td class="align-middle text-center">
-                                                <span class="text-secondary text-xs font-weight-bold">Karachi</span>
-                                            </td>
-                                            <td class="align-middle">
-                                                <img src="css/minus.png" />
-                                             
-                                            </td>
-                                        </tr>
-
-                                    </tbody>
-                                </table>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
+
                         </div>
+
                     </div>
                 </div>
             </div>
         </div>
-
+        <Loader isLoading="@IsLoading" />
         <Modal @ref="modal" Title="Add Availability">
             <Body>
                 <div class="col-md-12">
@@ -104,56 +123,100 @@
                             <div class="row">
                                 <div class="col-md-6">
                                     <div class="form-group">
+                                        <label for="example-text-input" class="form-control-label">Business</label>
+
+                                        <select class="form-control" placeholder="Role" id="Role" @onchange="AvailBusiness" name="Roles">
+                                            @if (BusinessList.Count > 0)
+                                            {
+                                                <option value="0">Select One</option>
+                                                foreach (var item in BusinessList)
+                                                {
+                                                    <option value="@item" selected="@(item==Avail.Business ? "selected" : null)">@item</option>
+                                                }
+                                            }
+                                            else
+                                            {
+                                                <option value="0"></option>
+                                            }
+
+
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group">
                                         <label for="example-text-input" class="form-control-label">Vehicle</label>
-                                        <select class="form-control">
-                                            <option value="">Tax-128</option>
-                                            <option value="">Tax-128</option>
-                                            <option value="">Tax-128</option>
+                                        <select class="form-control" @onchange="VeicleChange">
+                                            <option value="0">Select One</option>
+
+                                            @if (VehicleList.Count > 0)
+                                            {
+
+                                                foreach (var item in VehicleList)
+                                                {
+                                                    <option value="@item">@item</option>
+
+                                                }
+                                            }
+                                            else
+                                            {
+                                                <option value="0">Loading...</option>
+
+                                            }
+
 
                                         </select>
 
                                     </div>
                                 </div>
-                                <div class="col-md-6">
-                                    <div class="form-group">
-                                        <label for="example-text-input" class="form-control-label">Capacity</label>
-                                        <input type="text" placeholder="Capacity" class="form-control">
 
-                                    </div>
-                                </div>
-                                <div class="col-md-6">
-                                    <div class="form-group">
-                                        <label for="example-text-input" class="form-control-label">Chamber Sequence</label>
-                                        <input type="text" placeholder="Chamber Sequence" class="form-control">
 
-                                    </div>
-                                </div>
                                 <div class="col-md-6">
                                     <div class="form-group">
                                         <label for="example-text-input" class="form-control-label">1st Driver</label>
-                                        <select class="form-control">
-                                            <option value="">Tax-128</option>
-                                            <option value="">Tax-128</option>
-                                            <option value="">Tax-128</option>
+                                        <select class="form-control" @onchange="Driver1">
+                                            @if (Driver1List.Count > 0)
+                                            {
+                                                <option value="0">Select One</option>
+                                                @foreach (var item in Driver1List)
+                                                {
+                                                    <option value="@item.driverID.ToString()">@item.driverNameID</option>
+
+                                                }
+                                            }
+                                            else
+                                            {
+                                                <option value="0">Loading....</option>
+
+                                            }
+
 
                                         </select>
 
                                     </div>
                                 </div>
-                                <div class="col-md-6">
-                                    <div class="form-group">
-                                        <label for="example-text-input" class="form-control-label">1st Driver Contact</label>
-                                        <input type="text" placeholder="1st Driver Contact" class="form-control">
 
-                                    </div>
-                                </div>
                                 <div class="col-md-6">
                                     <div class="form-group">
                                         <label for="example-text-input" class="form-control-label">Second Driver</label>
-                                        <select class="form-control">
-                                            <option value="">Tax-128</option>
-                                            <option value="">Tax-128</option>
-                                            <option value="">Tax-128</option>
+                                        <select class="form-control" @onchange="Driver2">
+
+                                            @if (Driver2List.Count > 0)
+                                            {
+                                                <option value="0">Select One</option>
+                                                @foreach (var item in Driver2List)
+                                                {
+                                                    <option value="@item.driverID.ToString()">@item.driverNameID</option>
+
+                                                }
+                                            }
+                                            else
+                                            {
+                                                <option value="0">Loading....</option>
+
+                                            }
+
+
 
                                         </select>
 
@@ -161,14 +224,23 @@
                                 </div>
                                 <div class="col-md-6">
                                     <div class="form-group">
-                                        <label for="example-text-input" class="form-control-label">2nd Driver Contact</label>
-                                        <input type="text" placeholder="2nd Driver Contact" class="form-control">
+                                        <label for="example-text-input" class="form-control-label">Location</label>
+                                        <input type="text" @bind="Avail.VehicleLocation" placeholder="Location" class="form-control">
+
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <div class="form-control">
+                                            <input checked="@Avail.IsActive" @onchange="AvailStatus" type="checkbox">
+                                            <span class="form-control-label">Active</span>
+                                        </div>
 
                                     </div>
                                 </div>
                                 <div class="col-md-12">
                                     <div class="form-group" style="text-align:center;">
-                                        <button class="btn btn-primary btn-sm ms-auto">Submit</button>
+                                        <button class="btn btn-primary btn-sm ms-auto" @onclick="AddAvail">Submit</button>
 
                                     </div>
                                 </div>
@@ -223,9 +295,243 @@
 @code {
     private Modal modal;
     private Modal ClearModal;
+    public List<string> BusinessList = new List<string>();
+    public List<string> VehicleList = new List<string>();
+    public List<DriversList> Driver1List = new List<DriversList>();
+    public List<DriversList> Driver2List = new List<DriversList>();
+    public AddAvailability Avail = new AddAvailability();
+
+    public bool IsLoading = false;
+    public bool IsChildLoading = false;
+
+    private void AvailStatus(ChangeEventArgs e)
+    {
+        Avail.IsActive = (bool)e.Value;
+    }
+    private void AvailBusiness(ChangeEventArgs e)
+    {
+        Avail.Business = e.Value.ToString();
+    }
+
+    private void Driver2(ChangeEventArgs e)
+    {
+        if (e.Value != "0")
+        {
+            try
+            {
+                Avail.Driver2ID = int.Parse(e.Value.ToString());
+
+            }
+            catch (Exception ex)
+            {
+
+            }
+        }
+    }
+    private void Driver1(ChangeEventArgs e)
+    {
+        if (e.Value != "0")
+        {
+            try
+            {
+                Avail.Driver1ID = int.Parse(e.Value.ToString());
+
+            }
+            catch (Exception ex)
+            {
+
+            }
+        }
+    }
+    private void VeicleChange(ChangeEventArgs e)
+    {
+        if (e.Value != "0")
+        {
+            Avail.VehicleID = e.Value.ToString();
+        }
+    }
+
+    public bool isEmpty()
+    {
+        if (Avail.VehicleLocation != null && Avail.Business != null && Avail.VehicleID != null && Avail.Driver1ID != 0
+        && Avail.Driver2ID != 0)
+        {
+            return false;
+        }
+        else
+        {
+            return true;
+        }
+
+    }
+    private async Task Clear()
+    {
+        try
+        {
+            IsLoading = true;
+
+            var AddUser = await API.GetRequest($"Available/Clear");
+            int Result = JsonSerializer.Deserialize<int>(AddUser);
+            if (Result == 200)
+            {
+                toastService.ShowSuccess($"Availability Cleared Success");
+            }
+        }
+        catch (Exception ex)
+        {
+            toastService.ShowError($"Error {ex}");
+        }
+
+        IsLoading = false;
+    }
+    private async Task PushToClient()
+    {
+        try
+        {
+            IsLoading = true;
+
+            var AddUser = await API.GetRequest($"Available/PushToClient");
+            int Result = JsonSerializer.Deserialize<int>(AddUser);
+            if (Result == 200)
+            {
+                toastService.ShowSuccess($"Availability Pushed Success");
+            }
+        }
+        catch (Exception ex)
+        {
+            toastService.ShowError($"Error {ex}");
+        }
+
+        IsLoading = false;
+    }
+    private async Task AddAvail()
+    {
+        try
+        {
+
+            if (Avail != null && !isEmpty())
+            {
+                IsLoading = true;
+                Avail.AvailDate = DateTime.Now;
+                string jsonData = JsonSerializer.Serialize(Avail);
+                var AddUser = await API.PostRequest($"Available/AddAvailability", jsonData);
+                int Result = JsonSerializer.Deserialize<int>(AddUser);
+                if (Result == 200)
+                {
+                    toastService.ShowSuccess($"Availability Added Success");
+                    Avail = new AddAvailability();
+                    modal.CloseModal();
+
+
+                }
+
+            }
+            else
+            {
+                toastService.ShowError("Empty Fields are not Allowed");
+            }
+        }
+        catch (Exception ex)
+        {
+            toastService.ShowError($"Error {ex}");
+        }
+
+        IsLoading = false;
+    }
+    protected override async Task OnInitializedAsync()
+    {
+        IsChildLoading = true;
+        try
+        {
+            await GetAllBusiness();
+            await GetAllVehicle();
+            await GetAll1Driver();
+            await GetAll2Driver();
+        }
+        catch (Exception ex)
+        {
+            IsChildLoading = false;
+        }
+        IsChildLoading = false;
+    }
+    public async Task GetAll1Driver()
+    {
+
+        try
+        {
+
+            var Driver = await API.GetRequest($"Available/GetDrivers");
+            if (Driver != "")
+            {
+
+                Driver1List = JsonSerializer.Deserialize<List<DriversList>>(Driver);
+
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex.Message);
+        }
+    }
+    public async Task GetAll2Driver()
+    {
+
+        try
+        {
+
+            var Driver = await API.GetRequest($"Available/GetDrivers2");
+            if (Driver != "")
+            {
+
+                Driver2List = JsonSerializer.Deserialize<List<DriversList>>(Driver);
+
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex.Message);
+        }
+    }
+    public async Task GetAllVehicle()
+    {
+
+        try
+        {
+
+            var Vehicles = await API.GetRequest($"Available/GetVehicles");
+            if (Vehicles != "")
+            {
+
+                VehicleList = JsonSerializer.Deserialize<List<string>>(Vehicles);
+
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex.Message);
+        }
+    }
+    public async Task GetAllBusiness()
+    {
+
+        try
+        {
+
+            var Vehicles = await API.GetRequest($"Available/GetBusiness");
+            if (Vehicles != "")
+            {
+
+                BusinessList = JsonSerializer.Deserialize<List<string>>(Vehicles);
+
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex.Message);
+        }
+    }
     private void CheckModal()
     {
-        Console.WriteLine("Test");
         modal.CloseModal();
     }
     private void OpenClearModal()
