@@ -58,7 +58,7 @@
                                                             <div class="col-md-6">
                                                                 <div class="form-group">
                                                                     <label for="example-text-input" class="form-control-label">Tank Lorry No</label>
-                                                                    <input type="text" id="vehicleID" required placeholder="Tank Lorry No" @bind="Invoices.Details.TankLorryNO" class="form-control"></input>
+                                                                    <input type="text" id="vehicleID" required placeholder="Tank Lorry No" text="@Invoices.Details.TankLorryNO" @bind="Invoices.Details.TankLorryNO" class="form-control">
 
                                                                 </div>
                                                             </div>
@@ -141,14 +141,14 @@
                                                                     </div>
                                                                     <div class="form-group">
                                                                         <label for="example-text-input" class="form-control-label">Tempreture F</label>
-                                                                        <input type="number" tabindex="1" placeholder="Tempreture F" id="STemp"  @onfocus="@(async () => await SelectAllInputValue("STemp"))" @bind="Invoices.ShippingDetail.TempF" class="form-control">
+                                                                        <input type="number" tabindex="1" placeholder="Tempreture F" id="STemp" @oninput="GetQuantitiesByTemp" @onfocus="@(async () => await SelectAllInputValue("STemp"))" @bind="Invoices.ShippingDetail.TempF" class="form-control">
 
                                                                     </div>
                                                                     <div class="form-group">
                                                                         <label for="example-text-input" class="form-control-label">
                                                                             S.G
                                                                         </label>
-                                                                        <input step="0.01" type="number" tabindex="2" placeholder="Gravity" id="SGravity" @oninput="@(e => GetQuantitiesBySG(e))" @onfocus="@(async () => await SelectAllInputValue("SGravity"))" @bind="Invoices.ShippingDetail.SG" class="form-control" >
+                                                                        <input step="0.01" type="number" tabindex="2" placeholder="Gravity" id="SGravity" @oninput="@(e => GetQuantitiesBySG(e))" @onfocus="@(async () => await SelectAllInputValue("SGravity"))" @bind="Invoices.ShippingDetail.SG" class="form-control">
 
                                                                     </div>
                                                                 </div>
@@ -357,7 +357,7 @@
                                                                     </div>
                                                                     <div class="form-group">
                                                                         <label for="example-text-input" class="form-control-label">Tempreture F</label>
-                                                                        <input type="number" placeholder="Tempreture F" id="tf" @onfocus="@(async () => await SelectAllInputValue("tf"))" @bind="Invoices.ReceivingDetail.TempF" class="form-control">
+                                                                        <input type="number" placeholder="Tempreture F" id="tf" @oninput="GetReceivingQuantitiesByTemp" @onfocus="@(async () => await SelectAllInputValue("tf"))" @bind="Invoices.ReceivingDetail.TempF" class="form-control">
 
                                                                     </div>
                                                                     <div class="form-group">
@@ -938,6 +938,7 @@
 
                 // Deserialize the JSON string back into the Invoices object
                 Invoices = JsonSerializer.Deserialize<Invoicing>(jsonString);
+                StateHasChanged();
             }
 
 
@@ -1299,6 +1300,7 @@
             }
             else if (currentIndex == 2)
             {
+
                 try
                 {
                     if (!CalculateShortageForChamber1(Invoices))
@@ -1344,7 +1346,6 @@
                     toastService.ShowError($"Invalid calculations detected");
                 }
 
-
             }
 
             else if (currentIndex == 3)
@@ -1357,8 +1358,8 @@
                     float ShippingTempF = Invoices.ShippingDetail.TempF;
 
                     float Total = ReceivingTempF - ShippingTempF;
-                    float ReceivingTemp = (float)Math.Round(Total,3);
-                    Invoices.CalculationDifference.TempDiff = ReceivingTemp;
+                    float ReceivingTemp = (float)Math.Round(Total, 3);
+                    Invoices.CalculationDifference.TempDiff = Math.Abs(ReceivingTemp);
 
 
                     float TotalChamberQuantityS = Invoices.ShippingDetail.Chamber1.ChamberQuantity + Invoices.ShippingDetail.Chamber2.ChamberQuantity +
@@ -1391,7 +1392,7 @@
 
                     float Shortage1F = ShortOnTempExempt / ReceivingTemp;
 
-                    Invoices.CalculationDifference.Shortage1FTemp = Math.Abs((float)Math.Round(Shortage1F,3));
+                    Invoices.CalculationDifference.Shortage1FTemp = Math.Abs((float)Math.Round(Shortage1F, 3));
 
                     float QunatityShouldR = TotalChamberQuantityS - ShortOnTempExempt;
                     Invoices.CalculationDifference.QtyShouldRecieved = QunatityShouldR;
@@ -1412,6 +1413,9 @@
         }
         IsLoading = false;
     }
+
+
+
     private async Task SelectAllInputValue(string Input)
     {
         await JS.InvokeVoidAsync("selectAllInputValue", Input);
@@ -1425,6 +1429,7 @@
         }
         else if (!DisableChamber1 && AreAllFieldsFilledInReceivingChamber(Invoices.ReceivingDetail.Chamber1))
         {
+            Invoices.ShortageCalculation.Chamber1 = new ShortageChamber();
             Invoices.ShortageCalculation.Chamber1.ShortageMM = Math.Abs(Invoices.ReceivingDetail.Chamber1.LorryDip - Invoices.ShippingDetail.Chamber1.LorryDip);
             float ShortMM = Invoices.ShortageCalculation.Chamber1.ShortageMM;
             float TotalChamberLtr = Invoices.ShippingDetail.Chamber1.ChamberQuantity;
@@ -1446,6 +1451,7 @@
         }
         else if (!DisableChamber2 && AreAllFieldsFilledInReceivingChamber(Invoices.ReceivingDetail.Chamber2))
         {
+            Invoices.ShortageCalculation.Chamber2 = new ShortageChamber();
             Invoices.ShortageCalculation.Chamber2.ShortageMM = Math.Abs(Invoices.ReceivingDetail.Chamber2.LorryDip - Invoices.ShippingDetail.Chamber2.LorryDip);
             float ShortMM = Invoices.ShortageCalculation.Chamber2.ShortageMM;
             float TotalChamberLtr = Invoices.ShippingDetail.Chamber2.ChamberQuantity;
@@ -1453,7 +1459,7 @@
             float LoadingDivision = (TotalChamberLtr / Loading);
             float Total = LoadingDivision * ShortMM;
 
-            Invoices.ShortageCalculation.Chamber2.TotalShortageLtr = Math.Abs((int)Math.Round(Total,2));
+            Invoices.ShortageCalculation.Chamber2.TotalShortageLtr = Math.Abs((int)Math.Round(Total));
         }
 
         return true;
@@ -1467,6 +1473,7 @@
         }
         else if (!DisableChamber3 && AreAllFieldsFilledInReceivingChamber(Invoices.ReceivingDetail.Chamber3))
         {
+            Invoices.ShortageCalculation.Chamber3 = new ShortageChamber();
             Invoices.ShortageCalculation.Chamber3.ShortageMM = Math.Abs(Invoices.ReceivingDetail.Chamber3.LorryDip - Invoices.ShippingDetail.Chamber3.LorryDip);
             float ShortMM = Invoices.ShortageCalculation.Chamber3.ShortageMM;
             float TotalChamberLtr = Invoices.ShippingDetail.Chamber3.ChamberQuantity;
@@ -1487,6 +1494,7 @@
         }
         else if (!DisableChamber4 && AreAllFieldsFilledInReceivingChamber(Invoices.ReceivingDetail.Chamber4))
         {
+            Invoices.ShortageCalculation.Chamber4 = new ShortageChamber();
             Invoices.ShortageCalculation.Chamber4.ShortageMM = Math.Abs(Invoices.ReceivingDetail.Chamber4.LorryDip - Invoices.ShippingDetail.Chamber4.LorryDip);
             float ShortMM = Invoices.ShortageCalculation.Chamber4.ShortageMM;
             float TotalChamberLtr = Invoices.ShippingDetail.Chamber4.ChamberQuantity;
@@ -1507,6 +1515,7 @@
         }
         else if (!DisableChamber5 && AreAllFieldsFilledInReceivingChamber(Invoices.ReceivingDetail.Chamber5))
         {
+            Invoices.ShortageCalculation.Chamber5 = new ShortageChamber();
             Invoices.ShortageCalculation.Chamber5.ShortageMM = Math.Abs(Invoices.ReceivingDetail.Chamber5.LorryDip - Invoices.ShippingDetail.Chamber5.LorryDip);
             float ShortMM = Invoices.ShortageCalculation.Chamber5.ShortageMM;
             float TotalChamberLtr = Invoices.ShippingDetail.Chamber5.ChamberQuantity;
@@ -1555,7 +1564,7 @@
 
     private async Task GetQuantitiesBySG(ChangeEventArgs e)
     {
-        if(e.Value!="")
+        if (e.Value != "")
         {
             float Val = float.Parse(e.Value.ToString());
             double calculated6Quantity1 = await GetQtyAt85F(Val, Invoices.ShippingDetail.TempF, Invoices.ShippingDetail.Chamber1.ChamberQuantity);
@@ -1570,7 +1579,45 @@
             Invoices.ShippingDetail.Chamber3.Quantity = int.Parse(calculated6Quantity3.ToString());
             Invoices.ShippingDetail.Chamber4.Quantity = int.Parse(calculated6Quantity4.ToString());
             Invoices.ShippingDetail.Chamber5.Quantity = int.Parse(calculated6Quantity5.ToString());
-        } 
+        }
+    }
+    private async Task GetQuantitiesByTemp(ChangeEventArgs e)
+    {
+        if (e.Value != "")
+        {
+            float Val = float.Parse(e.Value.ToString());
+            double calculated6Quantity1 = await GetQtyAt85F(Invoices.ShippingDetail.SG, Val, Invoices.ShippingDetail.Chamber1.ChamberQuantity);
+            double calculated6Quantity2 = await GetQtyAt85F(Invoices.ShippingDetail.SG, Val, Invoices.ShippingDetail.Chamber2.ChamberQuantity);
+            double calculated6Quantity3 = await GetQtyAt85F(Invoices.ShippingDetail.SG, Val, Invoices.ShippingDetail.Chamber3.ChamberQuantity);
+            double calculated6Quantity4 = await GetQtyAt85F(Invoices.ShippingDetail.SG, Val, Invoices.ShippingDetail.Chamber4.ChamberQuantity);
+            double calculated6Quantity5 = await GetQtyAt85F(Invoices.ShippingDetail.SG, Val, Invoices.ShippingDetail.Chamber5.ChamberQuantity);
+
+            // Set the quantity for each chamber
+            Invoices.ShippingDetail.Chamber1.Quantity = int.Parse(calculated6Quantity1.ToString());
+            Invoices.ShippingDetail.Chamber2.Quantity = int.Parse(calculated6Quantity2.ToString());
+            Invoices.ShippingDetail.Chamber3.Quantity = int.Parse(calculated6Quantity3.ToString());
+            Invoices.ShippingDetail.Chamber4.Quantity = int.Parse(calculated6Quantity4.ToString());
+            Invoices.ShippingDetail.Chamber5.Quantity = int.Parse(calculated6Quantity5.ToString());
+        }
+    }
+    private async Task GetReceivingQuantitiesByTemp(ChangeEventArgs e)
+    {
+        if (e.Value != "")
+        {
+            float Val = float.Parse(e.Value.ToString());
+            double calculated6Quantity1 = await GetQtyAt85F(Invoices.ReceivingDetail.SG, Val, Invoices.ReceivingDetail.Chamber1.ChamberQuantity);
+            double calculated6Quantity2 = await GetQtyAt85F(Invoices.ReceivingDetail.SG, Val, Invoices.ReceivingDetail.Chamber2.ChamberQuantity);
+            double calculated6Quantity3 = await GetQtyAt85F(Invoices.ReceivingDetail.SG, Val, Invoices.ReceivingDetail.Chamber3.ChamberQuantity);
+            double calculated6Quantity4 = await GetQtyAt85F(Invoices.ReceivingDetail.SG, Val, Invoices.ReceivingDetail.Chamber4.ChamberQuantity);
+            double calculated6Quantity5 = await GetQtyAt85F(Invoices.ReceivingDetail.SG, Val, Invoices.ReceivingDetail.Chamber5.ChamberQuantity);
+
+            // Set the quantity for each chamber
+            Invoices.ReceivingDetail.Chamber1.Quantity = int.Parse(calculated6Quantity1.ToString());
+            Invoices.ReceivingDetail.Chamber2.Quantity = int.Parse(calculated6Quantity2.ToString());
+            Invoices.ReceivingDetail.Chamber3.Quantity = int.Parse(calculated6Quantity3.ToString());
+            Invoices.ReceivingDetail.Chamber4.Quantity = int.Parse(calculated6Quantity4.ToString());
+            Invoices.ReceivingDetail.Chamber5.Quantity = int.Parse(calculated6Quantity5.ToString());
+        }
     }
 
     private async Task GetReceivingQuantitiesBySG(ChangeEventArgs e)

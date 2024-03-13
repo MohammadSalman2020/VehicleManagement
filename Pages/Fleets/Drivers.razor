@@ -28,20 +28,20 @@
                                 <table class="table align-items-center mb-0">
                                     @if (DriverList.Count > 0)
                                     {
-                                    <thead>
-                                        <tr>
-                                            <th class="text-uppercase font-colors  text-xxs font-weight-bolder opacity-7">Driver ID</th>
-                                            <th class="text-uppercase font-colors  text-xxs font-weight-bolder opacity-7 ps-2" style="text-align:center">Driver Full Name</th>
-                                            <th class="text-center font-colors text-uppercase  text-xxs font-weight-bolder opacity-7">Contact</th>
-                                            <th class="text-center font-colors text-uppercase  text-xxs font-weight-bolder opacity-7">Designation</th>
-                                            <th class="text-center font-colors text-uppercase  text-xxs font-weight-bolder opacity-7">Status</th>
-                                            <th class="text-center font-colors text-uppercase  text-xxs font-weight-bolder opacity-7"></th>
+                                        <thead>
+                                            <tr>
+                                                <th class="text-uppercase font-colors  text-xxs font-weight-bolder opacity-7">Driver ID</th>
+                                                <th class="text-uppercase font-colors  text-xxs font-weight-bolder opacity-7 ps-2" style="text-align:center">Driver Full Name</th>
+                                                <th class="text-center font-colors text-uppercase  text-xxs font-weight-bolder opacity-7">Contact</th>
+                                                <th class="text-center font-colors text-uppercase  text-xxs font-weight-bolder opacity-7">Designation</th>
+                                                <th class="text-center font-colors text-uppercase  text-xxs font-weight-bolder opacity-7">Status</th>
+                                                <th class="text-center font-colors text-uppercase  text-xxs font-weight-bolder opacity-7"></th>
 
 
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                       
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+
                                             @foreach (var item in DriverList)
                                             {
                                                 <tr>
@@ -88,11 +88,11 @@
                                     }
                                     else
                                     {
-                                        <DataLoaderComponent IsLoading="@IsChildLoading" LoadingText="Loading Driver Data..."/>
+                                        <DataLoaderComponent IsLoading="@IsChildLoading" LoadingText="Loading Driver Data..." />
                                     }
 
 
-                                   
+
                                 </table>
                             </div>
                         </div>
@@ -133,7 +133,12 @@
                                 <div class="col-md-6">
                                     <div class="form-group">
                                         <label for="example-text-input" class="form-control-label">Designation</label>
-                                        <input type="text" placeholder="Designation" @bind="Driver.Designation" class="form-control">
+                                        <select class="form-control"  @onchange="DriverDesignation">
+                                            <option value="0">Select One</option>
+                                            <option selected="@(Driver.Designation=="1st"? "selected" : null)" value="1st">1st</option>
+                                            <option selected="@(Driver.Designation=="2nd"? "selected" : null)" value="2nd">2nd</option>
+
+                                        </select>
 
                                     </div>
                                 </div>
@@ -195,6 +200,14 @@
     {
         Driver.isActive = (bool)e.Value;
     }
+
+    private void DriverDesignation(ChangeEventArgs e)
+    {
+        if (e.Value != "0")
+        {
+            Driver.Designation = (string)e.Value;
+        }
+    }
     private void OpenModal()
     {
         modal.Show();
@@ -221,7 +234,7 @@
         }
         catch (Exception ex)
         {
-            IsChildLoading = false ;
+            IsChildLoading = false;
             Console.WriteLine(ex.Message);
         }
         IsChildLoading = false;
