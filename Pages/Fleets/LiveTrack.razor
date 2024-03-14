@@ -1,0 +1,139 @@
+﻿@page "/track"
+@using Microsoft.AspNetCore.WebUtilities
+@using System.Timers
+@using System.Text.Json
+@using VehicleManagement.ApiService
+@using VehicleManagement.Models.General
+@using static VehicleManagement.Pages.Fleets.Map
+@inject IJSRuntime JSRuntime
+@inject IApiService API
+@inject NavigationManager NavigationManager
+<div class="container-fluid py-4">
+    <div class="row">
+        <div class="col-md-12">            
+            <div id="map" style="height:90vh;width:100%">
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+    string vhiclenumber = "";
+    string Speed = "0";
+    private Timer timer;
+    private int elapsedTime;
+    List<TrackerData> data = new List<TrackerData>();
+    List<MarkerData> points = new List<MarkerData>();
+    protected override async Task OnAfterRenderAsync(bool firstrender)
+    {
+        if (firstrender)
+        {
+            await JSRuntime.InvokeVoidAsync("loadGoogleMaps");
+        }
+    }
+
+    private async Task AddMarkerWithDelay(double lat, double lng, string vehicle, string speed, string driver, string location, string status, int Vehicledirectionangle, int delayMilliseconds)
+    {
+        // await Task.Delay(delayMilliseconds);
+        await JSRuntime.InvokeVoidAsync("addMarker", lat, lng, vehicle, speed, driver, location, status, Vehicledirectionangle);
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        var uri = new Uri(NavigationManager.Uri);
+        var queryStrings = QueryHelpers.ParseQuery(uri.Query);
+        if (queryStrings.TryGetValue("vehicle", out var name))
+        {
+            vhiclenumber = name;
+        }
+     //   LoadData();
+        timer = new Timer(1000);
+        timer.Elapsed += TimerElapsed;
+        timer.AutoReset = true;
+        timer.Start();
+    }
+    private void TimerElapsed(object sender, ElapsedEventArgs e)
+    {
+        // Increment elapsed time by 1 second
+        elapsedTime++;
+
+        // Notify Blazor to re-render the UI
+        InvokeAsync(async () =>
+        {
+        await LoadData();
+            StateHasChanged();
+        });
+    }
+
+    public void Dispose()
+    {
+        // Dispose of the timer when the component is disposed
+        timer?.Dispose();
+    }
+    int count = 0;
+    private async Task LoadData()
+    {
+        try
+        {
+            List<TrackerData> data = new List<TrackerData>();
+            List<string> vehicles = new List<string>();
+            vehicles.Add(vhiclenumber);
+            JsonSerializerOptions options = new JsonSerializerOptions
+                {
+                    WriteIndented = true,
+                    ReferenceHandler = null
+                };
+            string jsonData = JsonSerializer.Serialize(vehicles, options);
+            var location = await API.PostRequest($"Fleet/GetVehiclesGpsData", jsonData);
+            if (location != null)
+            {
+                data = JsonSerializer.Deserialize<List<TrackerData>>(location);
+            }
+
+            var markerDataList = new List<object>(); // Create a list to hold marker data
+
+
+            try
+            {
+                if (data[0].vehicledirectionangle == null)
+                {
+                    data[0].vehicledirectionangle = "0";
+                }
+
+                // Add marker data to the list
+                markerDataList.Add(new
+                {
+                    lat = double.Parse(data[0].lat),
+                    lng = double.Parse(data[0].@long),
+                    vehicle = data[0].vehicleId,
+                    speed = data[0].speed,
+                    driver = "Siddique",
+                    location = data[0].locationname.ToString(),
+                    status = data[0].engineStatus,
+                    directionAngle = int.Parse(data[0].vehicledirectionangle)
+                });
+
+                Console.WriteLine($"Marker data added successfully: {data[0].vehicleId}");
+            }
+            catch (Exception ex)
+            {
+
+                Console.WriteLine($"Error adding marker data: {data[0].vehicleId}");
+            }
+
+
+            // Convert the list to JSON
+            string jsonMarkerData = JsonSerializer.Serialize(markerDataList);
+          
+                await JSRuntime.InvokeVoidAsync("addMarker", jsonMarkerData);
+            
+        }
+        catch (Exception ex)
+        {
+            // Handle exceptions
+            Console.WriteLine($"Error: {ex.Message}");
+        }
+    }
+ 
+
+}

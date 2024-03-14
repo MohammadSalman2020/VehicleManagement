@@ -86,16 +86,17 @@
             Console.WriteLine("API request returned null.");
         }
     }
-    List<TrackerData> data=new List<TrackerData>();
+    List<TrackerData> data = new List<TrackerData>();
     List<MarkerData> points = new List<MarkerData>();
     protected override async Task OnInitializedAsync()
     {
         ///   poligons = new List<LatLng>();
         // poligons.Add(new LatLng (4.817815,67.313360 ));
-       
+
         await LoadData();
-        await Addmarkers();
-        //  await AddPolygon(poligons);
+        //  await Addmarkers();
+        await AddPointsAsync();
+
         // try
         // {
         //     data = new List<TrackerData>();
@@ -146,19 +147,63 @@
 
         }
 
-        foreach(var x  in points)        
+        foreach (var x in points)
         {
-            await AddMarkerWithDelay(double.Parse(x.LAT), double.Parse(x.Long.ToString()), x.name, "", "", "", "", 100);
-            
+            await AddPint(double.Parse(x.Long.ToString()), double.Parse(x.LAT.ToString()), x.name);
+            //   List<(double Latitude, double Longitude)> dataset = GeoLocation.GenerateDataset(double.Parse(x.LAT.ToString()), double.Parse(x.Long.ToString()));
+            //   await AddPolyGon(dataset);
             StateHasChanged();
         }
 
-       
+
     }
-    private async Task AddMarkerWithDelay(double lat, double lng, string vehicle, string speed, string driver, string location, string status, int delayMilliseconds)
+
+    public async Task AddPointsAsync()
+    {
+        try
+        {
+            string webRootPath = WebHostEnvironment.WebRootPath;
+            string filePath = Path.Combine(webRootPath, "htlpoints.json");
+
+            if (File.Exists(filePath))
+            {
+                string jsonContent = File.ReadAllText(filePath);
+                var points = JsonSerializer.Deserialize<List<MarkerData>>(jsonContent);
+
+                // Convert MarkerData instances into JavaScript objects
+                var jsPoints = points.Select(p => new
+                {
+                    lat = double.Parse(p.Long.ToString()),
+                    lng = double.Parse(p.LAT.ToString()),
+                    description = p.name
+                }).ToList();
+
+                // Call JavaScript function to add points on the map
+                await JSRuntime.InvokeVoidAsync("addpoint", jsPoints);
+            }
+        }
+        catch (Exception ex)
+        {
+            // Handle exceptions
+            Console.WriteLine(ex.Message);
+        }
+    }
+
+
+    private async Task AddMarkerWithDelay(double lat, double lng, string vehicle, string speed, string driver, string location, string status, int Vehicledirectionangle, int delayMilliseconds)
     {
         // await Task.Delay(delayMilliseconds);
-        await JSRuntime.InvokeVoidAsync("addMarker", lat, lng, vehicle, speed, driver, location, status);
+        await JSRuntime.InvokeVoidAsync("addMarker", lat, lng, vehicle, speed, driver, location, status, Vehicledirectionangle);
+    }
+    private async Task AddPint(double lat, double lng, string description)
+    {
+        // await Task.Delay(delayMilliseconds);
+        await JSRuntime.InvokeVoidAsync("addpoint", lat, lng, description);
+    }
+    private async Task AddPolyGon(List<(double Latitude, double Longitude)> dataset)
+    {
+        // await Task.Delay(delayMilliseconds);
+        await JSRuntime.InvokeVoidAsync("addPolygon", dataset);
     }
     void SearchOnEnter(KeyboardEventArgs e)
     {
@@ -187,8 +232,7 @@
         try
         {
             data = new List<TrackerData>();
-            await Getvhicles();
-            string Token = "";
+            await Getvhicles();           
             JsonSerializerOptions options = new JsonSerializerOptions
                 {
                     WriteIndented = true,
@@ -202,29 +246,51 @@
 
             }
 
-
+            var markerDataList = new List<object>(); // Create a list to hold marker data
 
             foreach (var tpl in data)
             {
                 try
                 {
-                    await AddMarkerWithDelay(double.Parse(tpl.lat), double.Parse(tpl.@long), tpl.vehicleId, tpl.speed, "Siddique", tpl.locationname.ToString(), tpl.engineStatus, 100);
-                    count++;
-                    StateHasChanged();
-                    Console.WriteLine($"Marker added successfully: {tpl.vehicleId}");
+                    if (tpl.vehicledirectionangle == null)
+                    {
+                        tpl.vehicledirectionangle = "0";
+                    }
+
+                    // Add marker data to the list
+                    markerDataList.Add(new
+                    {
+                        lat = double.Parse(tpl.lat),
+                        lng = double.Parse(tpl.@long),
+                        vehicle = tpl.vehicleId,
+                        speed = tpl.speed,
+                        driver = "Siddique",
+                        location = tpl.locationname.ToString(),
+                        status = tpl.engineStatus,
+                        directionAngle = int.Parse(tpl.vehicledirectionangle)
+                    });
+
+                    Console.WriteLine($"Marker data added successfully: {tpl.vehicleId}");
                 }
                 catch (Exception ex)
                 {
                     excount++;
-                    Console.WriteLine($"Error adding marker: {tpl.vehicleId}");
-
+                    Console.WriteLine($"Error adding marker data: {tpl.vehicleId}");
                 }
             }
-            //   await AddMarkers();
+
+            // Convert the list to JSON
+            string jsonMarkerData = JsonSerializer.Serialize(markerDataList);
+
+            // Call the JavaScript function to add markers
+            await JSRuntime.InvokeVoidAsync("addMarker", jsonMarkerData);
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"Error adding markers: {ex.Message}");
+            // Handle exceptions
+            Console.WriteLine($"Error: {ex.Message}");
         }
     }
+
+
 }
