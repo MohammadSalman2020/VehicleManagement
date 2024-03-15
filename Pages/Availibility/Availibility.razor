@@ -6,7 +6,7 @@
 @using VehicleManagement.Pages.Redirects
 @inject IToastService toastService
 @inject IApiService API
-<AuthorizeView>
+<AuthorizeView Policy="Testing">
     <Authorized>
         <Nav PageName="Availibility" />
 
@@ -19,12 +19,16 @@
                         </div>
                         <div class="card-header pb-0">
                             <div class="row col-md-12" style="text-align:center;">
-                                <div class="col-md-4">
-                                    <div class="form-group">
-                                        <button class="btn btn-danger btn-sm ms-auto" @onclick="PushToClient">Push To Client</button>
-
-                                    </div>
-                                </div>
+                                   <AuthorizeView Roles="admin">
+                                    <Authorized Context="AdminAuthorized">
+                                        <div class="col-md-4">
+                                            <div class="form-group">
+                                                <button class="btn btn-danger btn-sm ms-auto" @onclick="OpenPushModal">Push To Client</button>
+                                            </div>
+                                        </div>
+                                    </Authorized>
+                                </AuthorizeView>
+                             
                                 <div class="col-md-4">
                                     <div class="form-group">
                                         <button class="btn btn-primary btn-sm ms-auto" @onclick="OpenModal">Add New</button>
@@ -42,70 +46,54 @@
 
                         </div>
 
+                        <div class="fleet-cards">
 
-                        <div class="card">
-                            <div class="card-body">
-                                <div class="row row-cols-1 row-cols-md-2 row-cols-xl-5 g-4">
-                                    <div class="col mb-3">
-                                        <div class="card bg-gradient-warning" style="color: white;">
-                                            <div class="card-body p-3">
-                                                <div class="row">
-                                                    <div class="col-12">
-                                                        <div class="numbers">
+                            <div class="container">
+                                @if (AvailDraftList.Count > 0)
+                                {
+                                    @foreach (var item in AvailDraftList)
+                                    {
+                                        <div class="card">
 
-                                                            <div class="row col-12">
-                                                                <div class="col-6">
-                                                                    <p class="text-sm mb-0 text-uppercase font-weight-bold" style="color:black;">Vehicle #</p>
-                                                                    <h5 class="font-weight-bolder" style="color:white;">
-                                                                        C-2837
-                                                                    </h5>
-                                                                </div>
+                                            <div class="card-body">
+                                                <AuthorizeView>
+                                                    <Authorized Context="User">
+                                                        <div class="card-header">
+                                                            <span class="edit-icon"><i class="fa fa-edit"></i></span>
+                                                            <span style="color: red;" class="delete-icon"><i class="fa fa-trash"></i></span>
 
-                                                                <div class="col-6" style="cursor:pointer;">
-                                                                    <div class="text-end">
-                                                                        <div class="col-6 icon icon-shape bg-gradient-warning shadow-primary text-center rounded-circle">
-                                                                            <i class="fas fa-ban text-lg opacity-10" aria-hidden="true"></i>
-                                                                        </div>
-
-                                                                    </div>
-                                                                </div>
-                                                            </div>
-
-
-                                                            <p class="text-sm mb-0 text-uppercase font-weight-bold" style="color:black;">1st Driver</p>
-                                                            <h5 class="font-weight-bolder" style="color:white;">
-                                                                Zain Ul Haque
-                                                            </h5>
-                                                            <p class="text-sm mb-0 text-uppercase font-weight-bold" style="color:black;">2nd Driver</p>
-                                                            <h5 class="font-weight-bolder" style="color:white;">
-                                                                Siddique Albaloshi
-                                                            </h5>
-                                                            <p class="text-sm mb-0 text-uppercase font-weight-bold" style="color:black;">Date</p>
-                                                            <h5 class="font-weight-bolder" style="color:white;">
-                                                                12-05-2024
-                                                            </h5>
-                                                            <p class="text-sm mb-0 text-uppercase font-weight-bold" style="color:black;">Business</p>
-                                                            <h5 class="font-weight-bolder" style="color:white;">
-                                                                HTL
-                                                            </h5>
-                                                            <p class="text-sm mb-0 text-uppercase font-weight-bold" style="color:black;">Location</p>
-                                                            <h5 class="font-weight-bolder" style="color:white;">
-                                                                Shakoor & Company Limited
-                                                            </h5>
-                                                            <p class="text-sm mb-0 text-uppercase font-weight-bold" style="color:black;">Status</p>
-                                                            <h5 class="font-weight-bolder" style="color:white;">
-                                                                In-Active
-                                                            </h5>
                                                         </div>
-                                                    </div>
-
-                                                </div>
+                                                    </Authorized>
+                                                </AuthorizeView>
+                                             
+                                                <span class="tag tag-success">Available</span>
+                                                <h4 style="padding-top: 30px;">
+                                                    @item.vehicleCap &nbsp;&nbsp;@item.chamberSEQ
+                                                </h4>
+                                                <p>
+                                                    <i class="fa fa-map-marker" aria-hidden="true"></i>
+                                                    &nbsp;@item.location
+                                                </p>
+                                                <p>
+                                                    <i class="fa fa-user" aria-hidden="true"></i>
+                                                    &nbsp;@item.driver1
+                                                    <br /><br />
+                                                    <i class="fa fa-user" aria-hidden="true"></i>
+                                                    &nbsp;@item.driver2
+                                                </p>
+                                                <span class="btn tag-btn btn-warning btn-sm ms-auto">Assign Load</span>
                                             </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
 
+                                        </div>
+                                    }
+                                }
+                                else
+                                {
+                                    <DataLoaderComponent IsLoading="@IsChildLoading" LoadingText="Loading Available Fleets..."/>
+                                }
+
+                                
+                            </div>
                         </div>
 
                     </div>
@@ -232,6 +220,7 @@
                                 <div class="col-md-6">
                                     <div class="form-group">
                                         <div class="form-control">
+                                            <label for="example-text-input" class="form-control-label">Status</label>
                                             <input checked="@Avail.IsActive" @onchange="AvailStatus" type="checkbox">
                                             <span class="form-control-label">Active</span>
                                         </div>
@@ -271,7 +260,7 @@
 
                                 <div class="col-md-12">
                                     <div class="form-group" style="text-align:center;">
-                                        <button class="btn btn-danger btn-sm ms-auto">Clear</button>
+                                        <button class="btn btn-danger btn-sm ms-auto" @onclick="Clear">Clear</button>
 
                                     </div>
                                 </div>
@@ -283,6 +272,40 @@
                 </div>
             </Body>
         </Modal>
+   
+        <Modal @ref="PushModal" Title="Push To Client">
+            <Body>
+                <div class="col-md-12">
+                    <div class="card">
+
+                        <div class="card-body">
+
+                            <div class="row">
+                                <div class="col-md-12" style="text-align:center;">
+                                    <div class="form-group">
+
+                                        <h3 class="form-control-label"> Are you sure want to push all availability to client?</h3>
+
+                                    </div>
+                                </div>
+
+                                <div class="col-md-12">
+                                    <div class="form-group" style="text-align:center;">
+                                        <button class="btn btn-danger btn-sm ms-auto" @onclick="PushToClient">Push</button>
+
+                                    </div>
+                                </div>
+
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+            </Body>
+        </Modal>
+
+
+
     </Authorized>
     <NotAuthorized>
         <_403 />
@@ -295,10 +318,12 @@
 @code {
     private Modal modal;
     private Modal ClearModal;
+    private Modal PushModal;
     public List<string> BusinessList = new List<string>();
     public List<string> VehicleList = new List<string>();
     public List<DriversList> Driver1List = new List<DriversList>();
     public List<DriversList> Driver2List = new List<DriversList>();
+    public List<AvailDraft> AvailDraftList = new List<AvailDraft>();
     public AddAvailability Avail = new AddAvailability();
 
     public bool IsLoading = false;
@@ -374,7 +399,9 @@
             int Result = JsonSerializer.Deserialize<int>(AddUser);
             if (Result == 200)
             {
+                await GetAllAvail();
                 toastService.ShowSuccess($"Availability Cleared Success");
+                ClearModal.CloseModal();
             }
         }
         catch (Exception ex)
@@ -394,6 +421,8 @@
             int Result = JsonSerializer.Deserialize<int>(AddUser);
             if (Result == 200)
             {
+                await GetAllAvail();
+                PushModal.CloseModal();
                 toastService.ShowSuccess($"Availability Pushed Success");
             }
         }
@@ -420,6 +449,7 @@
                 {
                     toastService.ShowSuccess($"Availability Added Success");
                     Avail = new AddAvailability();
+                    await GetAllAvail();
                     modal.CloseModal();
 
 
@@ -443,6 +473,7 @@
         IsChildLoading = true;
         try
         {
+            await GetAllAvail();
             await GetAllBusiness();
             await GetAllVehicle();
             await GetAll1Driver();
@@ -453,6 +484,25 @@
             IsChildLoading = false;
         }
         IsChildLoading = false;
+    }
+    public async Task GetAllAvail()
+    {
+
+        try
+        {
+
+            var AvailDrafts = await API.GetRequest($"Available/GetAllAvailDraft");
+            if (AvailDrafts != "")
+            {
+
+                AvailDraftList = JsonSerializer.Deserialize<List<AvailDraft>>(AvailDrafts);
+
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex.Message);
+        }
     }
     public async Task GetAll1Driver()
     {
@@ -541,5 +591,9 @@
     private void OpenModal()
     {
         modal.Show();
+    }
+    private void OpenPushModal()
+    {
+        PushModal.Show();
     }
 }

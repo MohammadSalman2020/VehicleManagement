@@ -1,4 +1,6 @@
-﻿
+﻿@import url("https://fonts.googleapis.com/css2?family=Roboto&display=swap");
+
+
 .color-black {
     color: black !important;
 }
@@ -1089,4 +1091,140 @@ th {
     display: inline-block;
     margin: 10px 5px 5px 5px; /* Top, right, bottom, left margin */
 }
+}
+
+
+.fleet-cards {
+
+  
+    *
+
+{
+    box-sizing: border-box;
+}
+
+body {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding-top: 10rem;
+    background-color: #f7f8fc;
+    font-family: "Roboto", sans-serif;
+    color: #10182f;
+}
+
+.container {
+    display: flex;
+/*    justify-content: space-evenly;
+*/    flex-wrap: wrap;
+}
+
+.card {
+    margin: 5px;
+    background-color: #fff;
+    border-radius: 10px;
+    box-shadow: 0 2px 20px rgba(10, 10, 10, 0.2);
+    overflow: hidden;
+    width: 280;
+    position: relative;
+}
+
+
+
+.card-header {
+    position: absolute;
+    top: 5px;
+    right: 5px;
+    padding-top: 10px;
+    padding-right: 10px;
+}
+
+.card-footer {
+    position: absolute;
+    width: 100%;
+    right: 4px;
+}
+
+.card-body {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: flex-start;
+    padding: 15px;
+    min-height: auto;
+}
+
+.tag {
+    background: #cccccc;
+    border-radius: 50px;
+    font-size: 12px;
+    margin: 0;
+    color: #fff;
+    padding: 2px 10px;
+    text-transform: uppercase;
+}
+
+.btn {
+    background: #cccccc;
+    border-radius: 80px;
+    font-size: 12px;
+    margin: 0;
+    color: #fff;
+    padding: 2px 10px;
+    text-transform: uppercase;
+    width: 100%;
+    text-align: center;
+}
+
+.tag-danger {
+    background-color: #D4403A;
+}
+
+.tag-btn {
+    background-color: #5e72e4;
+    cursor: pointer;
+}
+
+.tag-success {
+    background-color: #3A833A;
+}
+
+.tag-yellow {
+    background-color: #8B8000;
+}
+
+.card-body p {
+    font-size: 13px;
+    margin: 0 0 10px;
+}
+
+.user {
+    display: flex;
+    margin-top: auto;
+}
+
+
+    .user img {
+        border-radius: 50%;
+        width: 40px;
+        height: 40px;
+        margin-right: 10px;
+    }
+
+.user-info h5 {
+    margin: 0;
+}
+
+.user-info small {
+    color: #545d7a;
+}
+
+.edit-icon {
+    cursor: pointer;
+}
+
+.delete-icon {
+    cursor: pointer;
+}
+
 }

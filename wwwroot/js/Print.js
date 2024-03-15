@@ -9,6 +9,11 @@
 window.selectAllInputValue = function (inputId) {
     var input = document.getElementById(inputId);
     if (input) {
-        input.select();
+        if (input.value === '0') {
+            input.value = ''; // Clear the value
+        } else {
+            input.select(); // Select the input
+        }
     }
 };
+
