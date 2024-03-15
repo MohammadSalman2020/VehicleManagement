@@ -174,6 +174,8 @@ namespace VehicleManagement.Models.General
         public float ShortOnTemp { get; set; }
         [JsonProperty("shortageCharge")]
         public float ShortageCharge { get; set; }
+        [JsonProperty("status")]
+        public string Status { get; set; }
 
     }
 
