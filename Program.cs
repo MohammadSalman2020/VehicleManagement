@@ -21,6 +21,7 @@ builder.Services.AddServerSideBlazor();
 builder.Services.AddSingleton<WeatherForecastService>();
 builder.Services.AddSingleton<UserAccountService>();
 builder.Services.AddScoped<AuthenticationStateProvider, CustomAuthenticationStateProvider>();
+builder.Services.AddScoped<IUserClaimsService, UserClaimsService>();
 builder.Services.AddScoped<IApiService, ApiService>();
 builder.Services.AddScoped<ProtectedSessionStorage>();
 builder.Services.AddSingleton<IConfiguration>(builder.Configuration);

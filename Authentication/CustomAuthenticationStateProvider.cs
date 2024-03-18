@@ -72,7 +72,11 @@ namespace VehicleManagement.Authentication
                 {
 
                     new Claim(ClaimTypes.Name,userSession.Username),
-                    new Claim(ClaimTypes.Role,userSession.Role)
+                    new Claim(ClaimTypes.Role,userSession.Role),
+                    new Claim(ClaimTypes.NameIdentifier,userSession.BusinessName),
+                    new Claim("BusinessID",userSession.BusinessID),
+                                        new Claim("rolee",userSession.Role)
+
                 }, "CustomAuth"));
                 return await Task.FromResult(new AuthenticationState(ClaimsPrinciple));
 
@@ -93,7 +97,10 @@ namespace VehicleManagement.Authentication
             {
 
                 new Claim(ClaimTypes.Name,userSession.Username),
-                new Claim(ClaimTypes.Role,userSession.Role)
+                new Claim(ClaimTypes.Role,userSession.Role),
+                    new Claim(ClaimTypes.NameIdentifier,userSession.BusinessName),
+                    new Claim("BusinessID",userSession.BusinessID),
+                    new Claim("rolee",userSession.Role),
             }));
 
             }
