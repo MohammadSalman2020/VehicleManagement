@@ -1,0 +1,141 @@
+﻿@page "/test"
+@using VehicleManagement.ApiService
+@using VehicleManagement.Models.General.Inspection
+@inject IApiService API
+@inject NavigationManager NavigationManager
+@using System.Text.Json;
+
+<h3>Inspections List</h3>
+
+<div class="row mb-2">
+    <div class="col">
+        <input @bind="vehicleIdFilter" class="form-control" placeholder="Filter by Vehicle ID" />
+    </div>
+    <div class="col">
+        <select @bind="sortBy" class="form-select">
+
+            <option value="Date_Time">Date/Time</option>
+            <option value="VehicleID">Vehicle ID</option>
+        </select>
+    </div>
+    <div class="col">
+        <button @onclick="ToggleSortDirection" class="btn btn-secondary">@sortDirectionText</button>
+    </div>
+    <div class="col">
+        <button @onclick="ApplyFilter" class="btn btn-primary">Apply Filter</button>
+    </div>
+</div>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>Inspection ID</th>
+            <th>Vehicle ID</th>
+            <th>Date/Time</th>
+            <th>Origin</th>
+            <th>Destination</th>
+            <!-- Add more headers as needed -->
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var inspection in inspections)
+        {
+            <tr>
+                <td>@inspection.inspID</td>
+                <td>@inspection.vehicleID</td>
+                <td>@inspection.date_Time</td>
+                <td>@inspection.origian</td>
+                <td>@inspection.destination</td>
+                <!-- Add more data cells as needed -->
+            </tr>
+        }
+    </tbody>
+</table>
+
+@if (inspections.Count == 0)
+{
+    <div>No data available.</div>
+}
+
+<!-- Pagination Controls -->
+<div class="d-flex justify-content-center my-2">
+    <button @onclick="PreviousPage" class="btn btn-info mx-1">Previous</button>
+    <div>@currentPage</div>
+    <button @onclick="NextPage" class="btn btn-info mx-1">Next</button>
+</div>
+
+@code {
+    private List<tblInspection> inspections = new List<tblInspection>();
+    private string vehicleIdFilter = "";
+    private string sortBy = "Date_Time";
+    private bool sortDescending = false;
+    private int currentPage = 1;
+    private int pageSize = 10;
+
+    private string sortDirectionText => sortDescending ? "Descending" : "Ascending";
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadInspections();
+    }
+
+    private async Task LoadInspections()
+    {
+        string endpoint = "Inspection/GetInspections";
+        string parameters = $"?sortBy={sortBy}&descending={sortDescending}&page={currentPage}&pageSize={pageSize}";
+
+        if (!string.IsNullOrWhiteSpace(vehicleIdFilter))
+        {
+            parameters = $"?vehicleId={vehicleIdFilter}&" + parameters.TrimStart('?');
+        }
+        string fullUrl = endpoint + parameters;
+
+        var response = await API.GetRequest(fullUrl);
+        if (!string.IsNullOrEmpty(response))
+        {
+            try
+            {
+                inspections = JsonSerializer.Deserialize<List<tblInspection>>(response, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+            }
+            catch (JsonException ex)
+            {
+                Console.WriteLine($"JSON Error: {ex.Message}");
+                // Handle the error (e.g., log it, notify the user, etc.)
+            }
+        }
+        else
+        {
+            Console.WriteLine("API response is null or empty.");
+            // Handle the case where the API response is null or empty
+        }
+    }
+
+
+
+    private async void ApplyFilter()
+    {
+        currentPage = 1;
+        await LoadInspections();
+    }
+
+    private async void ToggleSortDirection()
+    {
+        sortDescending = !sortDescending;
+        await LoadInspections();
+    }
+
+    private async void PreviousPage()
+    {
+        if (currentPage > 1)
+        {
+            currentPage--;
+            await LoadInspections();
+        }
+    }
+
+    private async void NextPage()
+    {
+        currentPage++; // You might want to check the total available pages here if your API supports it.
+        await LoadInspections();
+    }
+}

@@ -11,7 +11,7 @@
             <div class="row">
                 <div class="col-md-6">
                     <div class="form-group">
-                        <input type="text" @bind="@vhiclenumber" placeholder="search vehicle" class="form-control" @onkeyup="SearchOnEnter" />
+                        <input id="vehicleid" type="text" @bind="@vhiclenumber" placeholder="search vehicle" class="form-control" @onkeyup="SearchOnEnter" />
                     </div>
                 </div>
                 <div class="col-md-3">
@@ -47,7 +47,20 @@
 <span>Number of exceptions: @excount</span> *@
 
 
-
+<script>
+    window.initializeAutoComplete = (inputId, source) => {
+    $(`#${inputId}`).autocomplete({
+        source: source,
+        open: function () {
+            $(this).data("uiAutocomplete").menu.element.css({
+                "max-height": "300px",
+                "overflow-y": "auto",
+                "overflow-x": "hidden"
+            });
+        }
+    });
+};
+</script>
 
 
 @code {
@@ -58,12 +71,22 @@
     int Lat = 0;
     int Long = 0;
     string vhiclenumber = "";
+    //this is source
+    List<string> vehiclelist = new List<string>();
     protected override async Task OnAfterRenderAsync(bool firstrender)
     {
         if (firstrender)
         {
             await JSRuntime.InvokeVoidAsync("loadGoogleMaps");
+            await JSRuntime.InvokeVoidAsync("initializeAutoComplete", "vehicleid", vehicles);
         }
+        else
+        {
+            await JSRuntime.InvokeVoidAsync("initializeAutoComplete", "vehicleid", vehicles);
+        }
+
+       
+
     }
 
     public class MarkerData
@@ -96,7 +119,15 @@
         await LoadData();
         //  await Addmarkers();
         await AddPointsAsync();
-
+        // var veh = await API.GetRequest($"Inspection/GetVehicles");
+        // if (veh != "")
+        // {
+        //     var vehicle = JsonSerializer.Deserialize<List<vehicleinfo>>(veh);
+        //     foreach (var vehi in vehicle)
+        //     {
+        //         vehiclelist.Add(vehi);
+        //     }
+        // }
         // try
         // {
         //     data = new List<TrackerData>();
