@@ -18,8 +18,6 @@
 
     <div class="parent clearfix">
         <div class="bg-illustration">
-
-
         </div>
 
         <div class="login">
@@ -191,9 +189,11 @@
             {
                 Username = Username,
                 Role = userAccount.role,
+                BusinessID = userAccount.businessID,
+                BusinessName = userAccount.business
             });
 
-        if (rememberMe)
+            if (rememberMe)
         {
             await JSRuntime.InvokeVoidAsync("localStorage.setItem", "username", Username);
             await JSRuntime.InvokeVoidAsync("localStorage.setItem", "password", Password);

@@ -3,7 +3,7 @@
 @inject NavigationManager Nav
 @inject IJSRuntime JSRuntime
 @inject Microsoft.AspNetCore.Http.IHttpContextAccessor HttpContextAccessor
-
+@inject AuthenticationStateProvider _authenticationStateProvider
 <AuthorizeView>
     <Authorized>
         <div class="topnav" id="myTopnav">
@@ -11,7 +11,7 @@
             <a href="/" class="@GetActiveClass("Home")" @onclick=@(()=>OnClick("Home"))>Home</a>
             <div class="dropdown">
                 <button class="dropbtn">
-                    Manage 
+                    Manage
                     <i class="fa fa-caret-down"></i>
                 </button>
                 <div class="dropdown-content">
@@ -42,7 +42,7 @@
                     @* <a href="#">Link 3</a> *@
                 </div>
             </div>
-          @*   <a href="/addinvoice" class="@GetActiveClass("Invoice")" @onclick=@(()=>OnClick("Invoice"))>Invoice</a> *@
+            @*   <a href="/addinvoice" class="@GetActiveClass("Invoice")" @onclick=@(()=>OnClick("Invoice"))>Invoice</a> *@
             <div class="dropdown">
                 <button class="dropbtn">
                     Inspection
@@ -51,7 +51,7 @@
                 <div class="dropdown-content">
                     <a href="/checklists">New Inspections</a>
                     <a href="/create_template">Create Template</a>
-                    
+
                 </div>
             </div>
             <div class="dropdown">
@@ -65,11 +65,13 @@
             </div>
             <div class="dropdown" style="float:right;">
                 <button class="dropbtn">
-                    @context.User.Identity.Name.ToUpper()
+                    @context.User.Identity.Name.ToUpper() -
+                    (@GetRole)
                     <i class="fa fa-caret-down"></i>
                 </button>
+               
                 <div class="dropdown-content">
-                    <a href="/" @onclick="Logout" >Logout</a>
+                    <a href="/" @onclick="Logout">Logout</a>
                 </div>
             </div>
             @* <a href="/" @onclick="Logout" style="float:right;">Logout</a> *@
@@ -90,6 +92,8 @@
 </script>
 
 @code {
+    public string GetRole { get; set; }
+
     private Dictionary<string, bool> linkStates = new Dictionary<string, bool>
     {
         { "Home", false },
@@ -105,18 +109,23 @@
     {
         return linkStates[link] ? "active" : "";
     }
-
+    protected override async Task OnInitializedAsync()
+    {
+        var authState = await _authenticationStateProvider.GetAuthenticationStateAsync();
+        var user = authState.User;
+        GetRole = user.Claims.FirstOrDefault(c => c.Type == "rolee")?.Value;
+    }
     private void OnClick(string link)
     {
         foreach (var key in linkStates.Keys.ToList())
         {
             linkStates[key] = (key == link);
         }
-        if (link == "Fleet")
-        {
-            JSRuntime.InvokeVoidAsync("location.reload", true);
-        }
-       
+        // if (link == "Fleet")
+        // {
+        //     JSRuntime.InvokeVoidAsync("location.reload", true);
+        // }
+
     }
 
     // private bool IsLogin { get; set; }
@@ -125,13 +134,13 @@
     // private ElementReference sidenavCollapseMain;
 
     // private string ShowNav { get; set; } = "";
-    protected  async Task Logout()
+    protected async Task Logout()
     {
         var CustomAuth = (CustomAuthenticationStateProvider)AuthStateProvider;
         await CustomAuth.UpdateAuthenticationState(null);
         await JSRuntime.InvokeVoidAsync("sessionStorage.removeItem", "BearerToken");
 
-        Nav.NavigateTo("/",true);
+        Nav.NavigateTo("/", true);
 
     }
     // protected override async Task OnAfterRenderAsync(bool firstRender)

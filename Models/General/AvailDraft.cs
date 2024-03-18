@@ -9,5 +9,6 @@
         public string location { get; set; }
         public string driver1 { get; set; }
         public string driver2 { get; set; }
+        public int business { get; set; }
     }
 }
