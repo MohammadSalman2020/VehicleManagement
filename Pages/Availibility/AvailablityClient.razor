@@ -1,8 +1,18 @@
 ﻿@page "/availclient"
-@using VehicleManagement.Models.General
-@using VehicleManagement.Models.General.User_Management
 
-<AuthorizeView Policy="Testing2">
+
+@using System.Security.Claims
+@using System.Text.Json
+@using VehicleManagement.ApiService
+@using VehicleManagement.Authentication
+@using VehicleManagement.Models.General
+@using VehicleManagement.Models.General.Driver
+@using VehicleManagement.Models.General.User_Management
+@using VehicleManagement.Pages.Redirects
+@inject IToastService toastService
+@inject IApiService API
+@inject IUserClaimsService UserClaimsService
+<AuthorizeView Policy="AllAccess">
     <Authorized>
         <Nav PageName="Availibility" />
 
@@ -10,29 +20,26 @@
             <div class="row">
                 <div class="col-12">
                     <div class="card mb-4">
-                    
-                   
-
                         <div class="fleet-cards">
-
                             <div class="container">
                                 @if (AvailDraftList.Count > 0)
                                 {
                                     @foreach (var item in AvailDraftList)
                                     {
                                         <div class="card">
-
                                             <div class="card-body">
-
-                                            
-
                                                 <span class="tag tag-success">Available</span>
+                                          
                                                 <h4 style="padding-top: 30px;">
                                                     @item.vehicleCap &nbsp;&nbsp;@item.chamberSEQ
                                                 </h4>
                                                 <p>
                                                     <i class="fa fa-map-marker" aria-hidden="true"></i>
                                                     &nbsp;@item.location
+                                                </p>
+                                                <p>
+                                                    <i class="fas fa-building" aria-hidden="true"></i>
+                                                    &nbsp;@item.businessName
                                                 </p>
                                                 <p>
                                                     <i class="fa fa-user" aria-hidden="true"></i>
@@ -42,10 +49,9 @@
                                                     &nbsp;@item.driver2
                                                 </p>
 
-                                                <span class="btn tag-btn btn-warning btn-sm ms-auto">Assign Load</span>
+                                                <span class="btn tag-btn btn-warning btn-sm ms-auto" @onclick="@(()=>OpenLoadModal(item.availID))">Assign Load</span>
 
                                             </div>
-
                                         </div>
                                     }
                                 }
@@ -53,19 +59,14 @@
                                 {
                                     <DataLoaderComponent IsLoading="@IsChildLoading" LoadingText="Loading Available Fleets..." />
                                 }
-
-
                             </div>
                         </div>
-
-
-
                     </div>
                 </div>
             </div>
         </div>
         <Loader isLoading="@IsLoading" />
-        <Modal @ref="modal" Title="Add Availability">
+        <Modal @ref="modal" Title="Assign Load">
             <Body>
                 <div class="col-md-12">
                     <div class="card">
@@ -73,141 +74,40 @@
                         <div class="card-body">
 
                             <div class="row">
+
+
+
                                 <div class="col-md-6">
                                     <div class="form-group">
-                                        <label for="example-text-input" class="form-control-label">Business</label>
+                                        <label for="example-text-input" class="form-control-label">Loading Point</label>
+                                        <input type="text" @bind="Load.loading" placeholder="Location" class="form-control">
 
-                                        <select class="form-control" >
-                                            @if (BusinessList.Count > 0)
-                                            {
-                                                <option value="0" selected="@(Avail.Business==0?"selected":null)">Select One</option>
-                                                foreach (var item in BusinessList)
-                                                {
-                                                    <option value="@item.busID" selected="@(item.busID==Avail.Business ? "selected" : null)">@item.busDesc</option>
-                                                }
-                                            }
-                                            else
-                                            {
-                                                <option value="0"></option>
-                                            }
-
-
-                                        </select>
                                     </div>
                                 </div>
-                                @if (VehicleList.Count > 0)
-                                {
-                                    <div class="col-md-6">
-                                        <div class="form-group">
-                                            <label for="example-text-input" class="form-control-label">Vehicle</label>
-                                            <select class="form-control">
-                                                <option value="0" selected="@(Avail.VehicleID==null?"selected":null)">Select One</option>
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label for="example-text-input" class="form-control-label">Decenting Point</label>
+                                        <input type="text" @bind="Load.decenting" placeholder="Location" class="form-control">
 
-                                                @if (VehicleList.Count > 0)
-                                                {
-
-                                                    foreach (var item in VehicleList)
-                                                    {
-                                                        <option value="@item">@item</option>
-
-                                                    }
-                                                }
-                                                else
-                                                {
-                                                    <option value="0">Loading...</option>
-
-                                                }
-
-
-                                            </select>
-
-                                        </div>
                                     </div>
-
-                                    @if (Driver1List.Count > 0)
-                                    {
-                                        <div class="col-md-6">
-                                            <div class="form-group">
-                                                <label for="example-text-input" class="form-control-label">1st Driver</label>
-                                                <select class="form-control" >
-                                                    @if (Driver1List.Count > 0)
-                                                    {
-                                                        <option value="0" selected="@(Avail.Driver1ID==null?"selected":null)">Select One</option>
-                                                        @foreach (var item in Driver1List)
-                                                        {
-                                                            <option value="@item">@item</option>
-
-                                                        }
-                                                    }
-                                                    else
-                                                    {
-                                                        <option value="0">Loading....</option>
-
-                                                    }
-
-
-                                                </select>
-
-                                            </div>
-                                        </div>
-                                    }
-                                    @if (Driver2List.Count > 0)
-                                    {
-                                        <div class="col-md-6">
-                                            <div class="form-group">
-                                                <label for="example-text-input" class="form-control-label">Second Driver</label>
-                                                <select class="form-control" >
-
-                                                    @if (Driver2List.Count > 0)
-                                                    {
-                                                        <option value="0" selected="@(Avail.Driver2ID==null?"selected":null)">Select One</option>
-                                                        @foreach (var item in Driver2List)
-                                                        {
-                                                            <option value="@item">@item</option>
-
-                                                        }
-                                                    }
-                                                    else
-                                                    {
-                                                        <option value="0">Loading....</option>
-
-                                                    }
-
-
-
-                                                </select>
-
-                                            </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <div class="form-control">
+                                            <label for="example-text-input" class="form-control-label">Status</label>
+                                            <input checked="@Load.isActive" @onchange="LoadStatus" type="checkbox">
+                                            <span class="form-control-label">Active</span>
                                         </div>
 
+                                    </div>
+                                </div>
+                                <div class="col-md-12">
+                                    <div class="form-group" style="text-align:center;">
+                                        <button class="btn btn-primary btn-sm ms-auto" @onclick="AddLoad">Submit</button>
 
+                                    </div>
+                                </div>
 
-                                        <div class="col-md-6">
-                                            <div class="form-group">
-                                                <label for="example-text-input" class="form-control-label">Location</label>
-                                                <input type="text" @bind="Avail.VehicleLocation" placeholder="Location" class="form-control">
-
-                                            </div>
-                                        </div>
-                                        <div class="col-md-6">
-                                            <div class="form-group">
-                                                <div class="form-control">
-                                                    <label for="example-text-input" class="form-control-label">Status</label>
-                                                    <input checked="@Avail.IsActive"  type="checkbox">
-                                                    <span class="form-control-label">Active</span>
-                                                </div>
-
-                                            </div>
-                                        </div>
-                                        <div class="col-md-12">
-                                            <div class="form-group" style="text-align:center;">
-                                                <button class="btn btn-primary btn-sm ms-auto" >Submit</button>
-
-                                            </div>
-                                        </div>
-                                    }
-
-                                }
 
                             </div>
 
@@ -216,9 +116,6 @@
                 </div>
             </Body>
         </Modal>
-
-    
-
 
     </Authorized>
     <NotAuthorized>
@@ -229,17 +126,108 @@
 
 @code {
     private Modal modal;
-    private Modal ClearModal;
-    private Modal PushModal;
-    public List<GetBusiness> BusinessList = new List<GetBusiness>();
-    public List<string> VehicleList = new List<string>();
-    public List<string> Driver1List = new List<string>();
-    public List<string> Driver2List = new List<string>();
-    public List<int> BusinessID = new List<int>();
     public List<AvailDraft> AvailDraftList = new List<AvailDraft>();
-    public AddAvailability Avail = new AddAvailability();
+    public AddLoad Load = new AddLoad();
+    public List<int> BusinessID = new List<int>();
 
     public bool IsLoading = false;
     public bool IsChildLoading = false;
 
+
+    private void LoadStatus(ChangeEventArgs e)
+    {
+        Load.isActive = (bool)e.Value;
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        IsChildLoading = true;
+        try
+        {
+
+            BusinessID = await UserClaimsService.GetBusinessIdsAsync();
+            await GetAllAvail();
+
+
+        }
+        catch (Exception ex)
+        {
+            IsChildLoading = false;
+        }
+        IsChildLoading = false;
+    }
+    public bool isEmpty()
+    {
+        if (Load.loading != null && Load.decenting != null)
+        {
+            return false;
+        }
+        else
+        {
+            return true;
+        }
+
+    }
+    private async Task AddLoad()
+    {
+        try
+        {
+            var rec = AvailDraftList.Where(p => p.availID == Load.availID).FirstOrDefault();
+
+            if (rec != null)
+            {
+                IsLoading = true;
+                Load.dated = DateTime.Now;
+                Load.businessID = rec.business;
+
+                string jsonData = JsonSerializer.Serialize(Load);
+                var AddUser = await API.PostRequest($"Available/AddLoad", jsonData);
+                int Result = JsonSerializer.Deserialize<int>(AddUser);
+                if (Result == 200)
+                {
+                    toastService.ShowSuccess($"Load Added Success");
+                    Load = new AddLoad();
+                    await GetAllAvail();
+                    modal.CloseModal();
+
+                }
+
+            }
+            else
+            {
+                toastService.ShowError("Empty Fields are not Allowed");
+            }
+        }
+        catch (Exception ex)
+        {
+            toastService.ShowError($"Error {ex}");
+        }
+
+        IsLoading = false;
+    }
+    public async Task GetAllAvail()
+    {
+
+        try
+        {
+
+            var AvailDrafts = await API.GetRequest($"Available/GetAllAvailClient");
+            if (AvailDrafts != "")
+            {
+
+                var rec = JsonSerializer.Deserialize<List<AvailDraft>>(AvailDrafts);
+                AvailDraftList = rec.Where(b => BusinessID.Contains(b.business)).ToList();
+
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex.Message);
+        }
+    }
+    private void OpenLoadModal(int ID)
+    {
+        Load.availID = ID;
+        modal.Show();
+    }
 }
