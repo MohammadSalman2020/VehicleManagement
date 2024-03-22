@@ -188,7 +188,7 @@
     {
         try
         {
-            var rec = await API.GetRequest($"Inspection/GetInspections");
+            var rec = await API.GetRequest($"Inspection/GetInspections2");
             if (rec != "")
             {
                 inspections = JsonSerializer.Deserialize<List<tblInspection>>(rec);

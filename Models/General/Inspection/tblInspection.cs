@@ -28,5 +28,6 @@ namespace VehicleManagement.Models.General.Inspection
         public bool hydroTest { get; set; }
         public string tankNo { get; set; }
         public string trailerNo { get; set; }
+        public int busid { get; set; }
     }
 }
