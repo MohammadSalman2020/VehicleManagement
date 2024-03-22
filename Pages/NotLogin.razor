@@ -73,6 +73,7 @@
                 </div>
             </div>
         </div>
+        <DataLoaderComponent IsLoading="@isChildLoading" LoadingText="Updating Secret Key..." />
     </Body>
 </Modal>
 <Loader isLoading="@isLoading" />
@@ -81,6 +82,7 @@
     public string Username { get; set; }
     public string Password { get; set; }
     public bool isLoading { get; set; } = false;
+    public bool isChildLoading { get; set; } = false;
     private bool rememberMe;
     private Modal modal;
 
@@ -89,6 +91,7 @@
     {
         try
         {
+            isChildLoading = true;
             if (SecretModel.SecretKey != null)
             {
                 SecretModel.UserName = Username;
@@ -98,16 +101,19 @@
                 int Result = JsonSerializer.Deserialize<int>(AddUser);
                 if (Result == 200)
                 {
+                    isChildLoading = false;
                     await Authenticate();
                 }
                 else
                 {
+                    isChildLoading = false;
                     toastService.ShowError($"Invalid Secret Key");
                 }
             }
         }
         catch (Exception ex)
         {
+            isChildLoading = false;
             toastService.ShowError($"Error please try again in a while");
         }
     }

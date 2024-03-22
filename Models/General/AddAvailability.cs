@@ -9,5 +9,6 @@
         public int Business { get; set; }
         public DateTime AvailDate { get; set; }
         public bool IsActive { get; set; } = true;
+
     }
 }

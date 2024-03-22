@@ -10,7 +10,7 @@
 @inject IToastService toastService
 @inject IApiService API
 @inject IUserClaimsService UserClaimsService
-
+@inject AuthenticationStateProvider _authenticationStateProvider
 <AuthorizeView Policy="Testing">
     <Authorized>
         <Nav PageName="Availibility" />
@@ -24,13 +24,13 @@
                         </div>
                         <div class="card-header pb-0">
                             <div class="row col-md-12" style="text-align:center;">
-                             
-                                        <div class="col-md-4">
-                                            <div class="form-group">
-                                                <button class="btn btn-danger btn-sm ms-auto" @onclick="OpenPushModal">Push To Client</button>
-                                            </div>
-                                        </div>
-                                  
+
+                                <div class="col-md-4">
+                                    <div class="form-group">
+                                        <button class="btn btn-danger btn-sm ms-auto" @onclick="OpenPushModal">Push To Client</button>
+                                    </div>
+                                </div>
+
                                 <div class="col-md-4">
                                     <div class="form-group">
                                         <button class="btn btn-primary btn-sm ms-auto" @onclick="OpenModal">Add New</button>
@@ -47,57 +47,71 @@
 
 
                         </div>
-                     
-                                <div class="fleet-cards">
 
-                                    <div class="container">
-                                        @if (AvailDraftList.Count > 0)
-                                        {
-                                            @foreach (var item in AvailDraftList)
-                                            {
-                                                <div class="card">
+                        <div class="fleet-cards">
 
-                                                    <div class="card-body">
+                            <div class="container">
+                                @if (AvailDraftList.Count > 0)
+                                {
+                                    @foreach (var item in AvailDraftList)
+                                    {
+                                        <div class="card">
 
-                                                        <div class="card-header">
-                                                            <span class="edit-icon"><i class="fa fa-edit"></i></span>
-                                                            <span style="color: red;" class="delete-icon"><i class="fa fa-trash"></i></span>
+                                            <div class="card-body">
 
-                                                        </div>
-
-                                                        <span class="tag tag-success">Available</span>
-                                                        <h4 style="padding-top: 30px;">
-                                                            @item.vehicleCap &nbsp;&nbsp;@item.chamberSEQ
-                                                        </h4>
-                                                        <p>
-                                                            <i class="fa fa-map-marker" aria-hidden="true"></i>
-                                                            &nbsp;@item.location
-                                                        </p>
-                                                        <p>
-                                                            <i class="fa fa-user" aria-hidden="true"></i>
-                                                            &nbsp;@item.driver1
-                                                            <br /><br />
-                                                            <i class="fa fa-user" aria-hidden="true"></i>
-                                                            &nbsp;@item.driver2
-                                                        </p>
-
-                                                        <span class="btn tag-btn btn-warning btn-sm ms-auto">Assign Load</span>
-                                                        <span class="btn tag-btn btn-warning btn-sm ms-auto">Assign Load</span>
-
-                                                    </div>
+                                                <div class="card-header">
+                                                    <span class="edit-icon" @onclick="@(() => EditDriver(item.availID))"><i class="fa fa-edit"></i></span>
+                                                    <span style="color: red;" @onclick="@(() => Delete(item.availID))" class="delete-icon"><i class="fa fa-trash"></i></span>
 
                                                 </div>
-                                            }
-                                        }
-                                        else
-                                        {
-                                            <DataLoaderComponent IsLoading="@IsChildLoading" LoadingText="Loading Available Fleets..." />
-                                        }
+
+                                                <span class="tag tag-success">Available</span>
+                                                &nbsp;
+                                                @if (@item.isActive)
+                                                {
+                                                    <span class="badge badge-sm bg-gradient-success">@(item.isActive == true ? "Active" : "In-Active")</span>
+
+                                                }
+                                                else
+                                                {
+                                                    <span class="badge badge-sm bg-gradient-danger">@(item.isActive == true ? "Active" : "In-Active")</span>
+
+                                                }
+                                                <h4 style="padding-top: 30px;">
+                                                    @item.vehicleCap &nbsp;&nbsp;@item.chamberSEQ
+                                                </h4>
+                                                <p>
+                                                    <i class="fa fa-map-marker" aria-hidden="true"></i>
+                                                    &nbsp;@item.location
+                                                </p>
+                                                <p>
+                                                    <i class="fas fa-building" aria-hidden="true"></i>
+                                                    &nbsp;@item.businessName
+                                                </p>
+                                                <p>
+                                                    <i class="fa fa-user" aria-hidden="true"></i>
+                                                    &nbsp;@item.driver1
+                                                    <br /><br />
+                                                    <i class="fa fa-user" aria-hidden="true"></i>
+                                                    &nbsp;@item.driver2
+                                                </p>
 
 
-                                    </div>
-                                </div>
-                      
+
+                                            </div>
+
+                                        </div>
+                                    }
+                                }
+                                else
+                                {
+                                    <DataLoaderComponent IsLoading="@IsChildLoading" LoadingText="Loading Available Fleets..." />
+                                }
+
+
+                            </div>
+                        </div>
+
 
 
                     </div>
@@ -113,6 +127,7 @@
                         <div class="card-body">
 
                             <div class="row">
+
                                 <div class="col-md-6">
                                     <div class="form-group">
                                         <label for="example-text-input" class="form-control-label">Business</label>
@@ -135,6 +150,8 @@
                                         </select>
                                     </div>
                                 </div>
+
+
                                 @if (VehicleList.Count > 0)
                                 {
                                     <div class="col-md-6">
@@ -148,7 +165,7 @@
 
                                                     foreach (var item in VehicleList)
                                                     {
-                                                        <option value="@item">@item</option>
+                                                        <option value="@item" selected="@(Avail.VehicleID==item?"selected":null)">@item</option>
 
                                                     }
                                                 }
@@ -175,7 +192,7 @@
                                                         <option value="0" selected="@(Avail.Driver1ID==null?"selected":null)">Select One</option>
                                                         @foreach (var item in Driver1List)
                                                         {
-                                                            <option value="@item">@item</option>
+                                                            <option value="@item" selected="@(item == Avail.Driver1ID?"selected":null)">@item</option>
 
                                                         }
                                                     }
@@ -203,7 +220,7 @@
                                                         <option value="0" selected="@(Avail.Driver2ID==null?"selected":null)">Select One</option>
                                                         @foreach (var item in Driver2List)
                                                         {
-                                                            <option value="@item">@item</option>
+                                                            <option value="@item" selected="@(item == Avail.Driver2ID?"selected":null)">@item</option>
 
                                                         }
                                                     }
@@ -239,12 +256,25 @@
 
                                             </div>
                                         </div>
-                                        <div class="col-md-12">
-                                            <div class="form-group" style="text-align:center;">
-                                                <button class="btn btn-primary btn-sm ms-auto" @onclick="AddAvail">Submit</button>
+                                        @if (IsEdit)
+                                        {
+                                            <div class="col-md-12">
+                                                <div class="form-group" style="text-align:center;">
+                                                    <button class="btn btn-warning btn-sm ms-auto" @onclick="UpdateAvail">Update</button>
 
+                                                </div>
                                             </div>
-                                        </div>
+                                        }
+                                        else
+                                        {
+                                            <div class="col-md-12">
+                                                <div class="form-group" style="text-align:center;">
+                                                    <button class="btn btn-primary btn-sm ms-auto" @onclick="AddAvail">Submit</button>
+
+                                                </div>
+                                            </div>
+                                        }
+
                                     }
 
                                 }
@@ -342,21 +372,130 @@
     public List<AvailDraft> AvailDraftList = new List<AvailDraft>();
     public AddAvailability Avail = new AddAvailability();
 
+    public bool IsEdit = false;
     public bool IsLoading = false;
     public bool IsChildLoading = false;
+    public string GetRole { get; set; }
+    public int EditAvailID { get; set; }
 
     private void AvailStatus(ChangeEventArgs e)
     {
         Avail.IsActive = (bool)e.Value;
     }
+    public async Task<string> Get1DriverID(int AvailID)
+    {
+
+        try
+        {
+
+            var AvailDrafts = await API.GetRequest($"Available/GetDriver1ID/{AvailID}");
+            if (AvailDrafts != "")
+            {
+
+                return JsonSerializer.Deserialize<string>(AvailDrafts);
+
+
+            }
+            return null;
+        }
+        catch (Exception ex)
+        {
+            return null;
+        }
+    }
+    public async Task<string> Get2DriverID(int AvailID)
+    {
+
+        try
+        {
+
+            var AvailDrafts = await API.GetRequest($"Available/GetDriver2ID/{AvailID}");
+            if (AvailDrafts != "")
+            {
+
+                return JsonSerializer.Deserialize<string>(AvailDrafts);
+
+
+            }
+            return null;
+        }
+        catch (Exception ex)
+        {
+            return null;
+        }
+    }
+    private async Task EditDriver(int AvailID)
+    {
+        try
+        {
+            IsLoading = true;
+            Avail = new AddAvailability();
+            var rec = AvailDraftList.Where(p => p.availID == AvailID).FirstOrDefault();
+            if (rec != null)
+            {
+                IsEdit = true;
+                EditAvailID = AvailID;
+                Avail.VehicleLocation = rec.location;
+                Avail.VehicleID = rec.vehicleID;
+                Avail.Business = rec.business;
+                Avail.Driver1ID = await Get1DriverID(rec.availID);
+                Avail.Driver2ID = await Get2DriverID(rec.availID);
+                Avail.IsActive = rec.isActive;
+                await GetAllVehicle(Avail.Business);
+                await GetAll1Driver(Avail.VehicleID, Avail.Business);
+                await GetAll2Driver(Avail.VehicleID, Avail.Business);
+
+                modal.Show();
+
+            }
+            IsLoading = false;
+        }
+        catch (Exception ex)
+        {
+            IsLoading = false;
+        }
+    }
+    private async Task Delete(int AvailID)
+    {
+        try
+        {
+            IsLoading = true;
+            var AvailDrafts = await API.GetRequest($"Available/RemoveAvail/{AvailID}");
+            if (AvailDrafts != "")
+            {
+
+                var rec= JsonSerializer.Deserialize<int>(AvailDrafts);
+                if(rec==200)
+                {
+                    await GetAllAvail();
+                    toastService.ShowSuccess("Availibility Record Removed");
+                }
+
+            }
+
+            IsLoading = false;
+        }
+        catch (Exception ex)
+        {
+
+            IsLoading = false;
+            toastService.ShowError("Removal not available");
+        }
+    }
     private async Task AvailBusiness(ChangeEventArgs e)
     {
-        if (e.Value != "")
+        if (e.Value != "0")
         {
             Avail.Business = int.Parse(e.Value.ToString());
-
             await GetAllVehicle(Avail.Business);
 
+        }
+        else
+        {
+            BusinessList = new List<GetBusiness>();
+            VehicleList = new List<string>();
+            Driver1List = new List<string>();
+            Driver2List = new List<string>();
         }
     }
 
@@ -374,6 +513,11 @@
 
             }
         }
+        else
+        {
+            Driver2List = new List<string>();
+
+        }
     }
     private void Driver1(ChangeEventArgs e)
     {
@@ -389,6 +533,10 @@
 
             }
         }
+        else
+        {
+            Driver1List = new List<string>();
+        }
     }
     private async Task VeicleChange(ChangeEventArgs e)
     {
@@ -397,6 +545,12 @@
             Avail.VehicleID = e.Value.ToString();
             await GetAll1Driver(Avail.VehicleID, Avail.Business);
             await GetAll2Driver(Avail.VehicleID, Avail.Business);
+        }
+        else
+        {
+            VehicleList = new List<string>();
+            Driver1List = new List<string>();
+            Driver2List = new List<string>();
         }
     }
 
@@ -418,8 +572,13 @@
         try
         {
             IsLoading = true;
-
-            var AddUser = await API.GetRequest($"Available/Clear");
+            JsonSerializerOptions options = new JsonSerializerOptions
+                {
+                    WriteIndented = true,
+                    ReferenceHandler = null
+                };
+            string jsonData = JsonSerializer.Serialize(BusinessID, options);
+            var AddUser = await API.PostRequest($"Available/Clear", jsonData);
             int Result = JsonSerializer.Deserialize<int>(AddUser);
             if (Result == 200)
             {
@@ -441,13 +600,60 @@
         {
             IsLoading = true;
 
-            var AddUser = await API.GetRequest($"Available/PushToClient");
+            JsonSerializerOptions options = new JsonSerializerOptions
+                {
+                    WriteIndented = true,
+                    ReferenceHandler = null
+                };
+            string jsonData = JsonSerializer.Serialize(BusinessID, options);
+            var AddUser = await API.PostRequest($"Available/PushToClient", jsonData);
             int Result = JsonSerializer.Deserialize<int>(AddUser);
             if (Result == 200)
             {
                 await GetAllAvail();
                 PushModal.CloseModal();
                 toastService.ShowSuccess($"Availability Pushed Success");
+            }
+            else
+            {
+                PushModal.CloseModal();
+                toastService.ShowWarning($"Some In-Active Push Detected");
+            }
+        }
+        catch (Exception ex)
+        {
+            toastService.ShowError($"Error {ex}");
+        }
+
+        IsLoading = false;
+    }
+    private async Task UpdateAvail()
+    {
+        try
+        {
+
+            if (Avail != null && !isEmpty())
+            {
+                IsLoading = true;
+                string jsonData = JsonSerializer.Serialize(Avail);
+                var AddUser = await API.PostRequest($"Available/UpdateAvailability/{EditAvailID}", jsonData);
+                int Result = JsonSerializer.Deserialize<int>(AddUser);
+                if (Result == 200)
+                {
+                    toastService.ShowSuccess($"Availability Update Success");
+                    Avail = new AddAvailability();
+                    await GetAllAvail();
+                    modal.CloseModal();
+                    VehicleList = new List<string>();
+                    Driver1List = new List<string>();
+                    Driver2List = new List<string>();
+
+                }
+
+            }
+            else
+            {
+                toastService.ShowError("Empty Fields are not Allowed");
             }
         }
         catch (Exception ex)
@@ -496,13 +702,19 @@
     }
     protected override async Task OnInitializedAsync()
     {
+
         IsChildLoading = true;
         try
         {
+
             BusinessID = await UserClaimsService.GetBusinessIdsAsync();
 
             await GetAllAvail();
+
             await GetAllBusiness();
+
+
+
 
 
         }
@@ -521,14 +733,7 @@
             var AvailDrafts = await API.GetRequest($"Available/GetAllAvailDraft");
             if (AvailDrafts != "")
             {
-                if (BusinessID.Count > 0)
-                {
-                    if (BusinessID[0] == 090078601) // Default ID for Admin
-                    {
-                        AvailDraftList = JsonSerializer.Deserialize<List<AvailDraft>>(AvailDrafts);
-                        return;
-                    }
-                }
+
                 var rec = JsonSerializer.Deserialize<List<AvailDraft>>(AvailDrafts);
                 AvailDraftList = rec.Where(b => BusinessID.Contains(b.business)).ToList();
 
@@ -601,8 +806,13 @@
 
         try
         {
-
-            var Vehicles = await API.GetRequest($"Available/GetBusinessAll");
+            JsonSerializerOptions options = new JsonSerializerOptions
+                {
+                    WriteIndented = true,
+                    ReferenceHandler = null
+                };
+            string jsonData = JsonSerializer.Serialize(BusinessID, options);
+            var Vehicles = await API.PostRequest($"Available/GetBusinessAll", jsonData);
             if (Vehicles != "")
             {
 

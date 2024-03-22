@@ -28,7 +28,7 @@
 
             if (user != null)
             {
-              
+
                 var businessesClaim = user.Claims.FirstOrDefault(c => c.Type == "BusinessID");
 
                 if (businessesClaim != null)
