@@ -49,8 +49,18 @@
                     <i class="fa fa-caret-down"></i>
                 </button>
                 <div class="dropdown-content">
-                    <a href="/checklists">New Inspections</a>
-                    <a href="/create_template">Create Template</a>
+                    <AuthorizeView Roles="Client">
+                        <Authorized Context="clientaccess">
+                            <a href="/inspections">View Inspections</a>
+                        </Authorized>
+                    </AuthorizeView>
+                    <AuthorizeView Roles="SafetySupervisor,admin">
+                        <Authorized Context="clientaccess">
+                            <a href="/inspections">View Inspections</a>
+                            <a href="/checklists">New Inspections</a>
+                            <a href="/create_template">Create Template</a>
+                        </Authorized>
+                    </AuthorizeView>
 
                 </div>
             </div>
@@ -69,7 +79,7 @@
                     (@GetRole)
                     <i class="fa fa-caret-down"></i>
                 </button>
-               
+
                 <div class="dropdown-content">
                     <a href="/" @onclick="Logout">Logout</a>
                 </div>

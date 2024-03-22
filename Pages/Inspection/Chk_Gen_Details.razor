@@ -199,9 +199,11 @@
     private DateTime txtdate=DateTime.Now;
     private string? txttank;
     private string? txtrailer;
+    private int busid;
     int insID=0;
     async void Next()
     {
+        getvehiclebusiness();
 
         tblInspection ins = new tblInspection();
         ins.destination = txtdestination;
@@ -226,6 +228,7 @@
         ins.date_Time = txtdate;
         ins.tankNo = txttank;
         ins.trailerNo = txtrailer;
+        ins.busid = busid;
 
         JsonSerializerOptions options = new JsonSerializerOptions
             {
@@ -242,6 +245,16 @@
             navmanager.NavigateTo($"/Chk_Details?Vehicle={txtvehicle}&tempid={tempid}&InspectionID={Result}");
         }
 
+    }
+    private async Task getvehiclebusiness()
+    {
+        var rec = await API.GetRequest($"Fleet/GetVehicleBus/{txtvehicle}");
+
+        if (rec != null)
+        {
+            busid = int.Parse(JsonSerializer.Deserialize<string>(rec));
+        }
+       
     }
     string tempid;
     protected override async Task OnInitializedAsync()
