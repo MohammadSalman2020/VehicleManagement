@@ -1,0 +1,116 @@
+﻿@page "/loadassign"
+
+@using System.Text.Json
+@using VehicleManagement.ApiService
+@using VehicleManagement.Authentication
+@using VehicleManagement.Models.General
+
+@inject IApiService API
+@inject IUserClaimsService UserClaimsService
+<AuthorizeView Policy="SuperVisorAdmin">
+    <Authorized>
+        <Nav PageName="Assign Load" />
+
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col-12">
+                    <div class="card mb-4">
+                        <div class="fleet-cards">
+                            <div class="container">
+                                @if (LoadList.Count > 0)
+                                {
+                                    @foreach (var item in LoadList)
+                                    {
+                                        <div class="card">
+                                            <div class="card-header">
+                                            </div>
+                                            <div class="card-body">
+                                                <span class="tag tag-success">Load Assigned</span>
+                                                &nbsp;
+                                                @if (@item.isActive)
+                                                {
+                                                    <span class="badge badge-sm bg-gradient-success">@(item.isActive == true ? "Active" : "In-Active")</span>
+
+                                                }
+                                                else
+                                                {
+                                                    <span class="badge badge-sm bg-gradient-danger">@(item.isActive == true ? "Active" : "In-Active")</span>
+
+                                                }
+                                                <h4>@item.vehicle &nbsp;&nbsp;@item.chamberSeq</h4>
+                                                <p>
+                                                    <i class="fa fa-map-marker" aria-hidden="true"></i>
+                                                    &nbsp;Shipping:  @item.loading
+                                                    <br> <i class="fa fa-map-marker" aria-hidden="true"></i>
+                                                    &nbsp;Receiving: @item.decenting
+                                                </p>
+                                                <span class="btn tag-btn">Create Trip</span>
+                                            </div>
+
+                                        </div>
+                                    }
+                                }
+                                else
+                                {
+                                    <DataLoaderComponent IsLoading="@IsChildLoading" LoadingText="Loading..." />
+                                }
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </Authorized>
+    <NotAuthorized>
+        <_403 />
+    </NotAuthorized>
+</AuthorizeView>
+
+
+@code {
+    public List<GetAllLoad> LoadList = new List<GetAllLoad>();
+    public bool IsChildLoading = false;
+    public List<int> BusinessID = new List<int>();
+
+    protected override async Task OnInitializedAsync()
+    {
+
+        IsChildLoading = true;
+        try
+        {
+
+            BusinessID = await UserClaimsService.GetBusinessIdsAsync();
+
+            await GetAllLoad();
+
+
+
+
+
+        }
+        catch (Exception ex)
+        {
+            IsChildLoading = false;
+        }
+        IsChildLoading = false;
+    }
+    public async Task GetAllLoad()
+    {
+        try
+        {
+            var AvailDrafts = await API.GetRequest($"Available/GetAllLoad");
+            if (AvailDrafts != "")
+            {
+
+                var rec = JsonSerializer.Deserialize<List<GetAllLoad>>(AvailDrafts);
+                LoadList = rec.Where(b => BusinessID.Contains(b.businessID)).ToList();
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex.Message);
+        }
+    }
+
+}

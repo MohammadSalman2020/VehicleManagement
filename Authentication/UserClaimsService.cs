@@ -28,12 +28,7 @@
 
             if (user != null)
             {
-                if (user.IsInRole("admin"))
-                {
-                    businessIds.Add(090078601);
-
-                    return businessIds;
-                }
+                
                 var businessesClaim = user.Claims.FirstOrDefault(c => c.Type == "BusinessID");
 
                 if (businessesClaim != null)
