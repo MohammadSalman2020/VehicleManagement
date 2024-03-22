@@ -5,6 +5,7 @@
 @using VehicleManagement.Authentication
 @using VehicleManagement.Models.General
 
+@inject IToastService toast
 @inject IApiService API
 @inject IUserClaimsService UserClaimsService
 <AuthorizeView Policy="SuperVisorAdmin">
@@ -23,6 +24,13 @@
                                     {
                                         <div class="card">
                                             <div class="card-header">
+                                                @if (!item.isActive)
+                                                {
+                                                    <span class="edit-icon" @onclick="@(() => OpenModal(item.availID))"><i class="fa fa-edit"></i></span>
+
+                                                }
+
+
                                             </div>
                                             <div class="card-body">
                                                 <span class="tag tag-success">Load Assigned</span>
@@ -44,7 +52,7 @@
                                                     <br> <i class="fa fa-map-marker" aria-hidden="true"></i>
                                                     &nbsp;Receiving: @item.decenting
                                                 </p>
-                                                <span class="btn tag-btn">Create Trip</span>
+                                                <span class="btn tag-btn" @onclick=@(()=>OpenTripModal(item.loadID))>Create Trip</span>
                                             </div>
 
                                         </div>
@@ -60,6 +68,135 @@
                 </div>
             </div>
         </div>
+        <Modal @ref="PushModal" Title="Activate Load">
+            <Body>
+                <div class="col-md-12">
+                    <div class="card">
+
+                        <div class="card-body">
+
+                            <div class="row">
+                                <div class="col-md-12" style="text-align:center;">
+                                    <div class="form-group">
+
+                                        <h3 class="form-control-label"> Are you sure want to ACTIVE this load?</h3>
+
+                                    </div>
+                                </div>
+
+                                <div class="col-md-12">
+                                    <div class="form-group" style="text-align:center;">
+                                        @if (IsLoading2)
+                                        {
+                                            <DataLoaderComponent IsLoading="@IsLoading2" LoadingText="Activating Load...." />
+
+                                        }
+                                        else
+                                        {
+                                            <button class="btn btn-danger btn-sm ms-auto" @onclick="UpdateStatus">Active</button>
+                                        }
+
+
+                                    </div>
+                                </div>
+
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+            </Body>
+        </Modal>
+        <Modal @ref="TripConfirmModal" Title="Confirm Trip">
+            <Body>
+
+                <div class="col-md-12">
+                    <div class="card">
+
+                        <div class="card-body">
+
+                            <div class="row">
+                                @if (TripDetails.driver1 != null)
+                                {
+
+
+                                    <div class="col-md-12" style="text-align:center;">
+                                        <div class="form-group">
+
+                                            <h3 class="form-control-label"> Are you sure want to create Trip for Vehicle: @TripDetails.vehicleID?</h3>
+
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+
+                                            <label for="example-text-input" style="font-weight:bolder;" class="form-control-label">Business</label>
+                                            <label for="example-text-input" style="color:blue;" class="form-control-label">@TripDetails.business</label>
+
+
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label for="example-text-input" style="font-weight:bolder;" class="form-control-label">Loading Point</label>
+                                            <label for="example-text-input" style="color:blue;" class="form-control-label">@TripDetails.loadingPoint</label>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label for="example-text-input" style="font-weight:bolder;" class="form-control-label">Decenting Point</label>
+                                            <label for="example-text-input" style="color:blue;" class="form-control-label">@TripDetails.decentingPoint</label>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label for="example-text-input" style="font-weight:bolder;" class="form-control-label">Load Assign Date</label>
+                                            <label for="example-text-input" style="color:blue;" class="form-control-label">@TripDetails.loadAssignDate.ToString("MM-dd-yyyy")</label>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+
+                                            <label for="example-text-input" style="font-weight:bolder;" class="form-control-label">Driver 1</label>
+                                            <label for="example-text-input" style="color:blue;" class="form-control-label">@TripDetails.driver1</label>
+
+
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+
+                                            <label for="example-text-input" style="font-weight:bolder;" class="form-control-label">Driver 2</label>
+                                            <label for="example-text-input" style="color:blue;" class="form-control-label">@TripDetails.driver2</label>
+
+
+                                        </div>
+                                    </div>
+                                }
+                                <div class="col-md-12">
+                                    <div class="form-group" style="text-align:center;">
+                                        @if (TripLoading)
+                                        {
+                                            <DataLoaderComponent IsLoading="@TripLoading" LoadingText="Adding Trip...." />
+
+                                        }
+                                        else
+                                        {
+                                            <button class="btn btn-danger btn-sm ms-auto" @onclick="@(()=>AddTrip(LoadIDs))">Add Trip</button>
+                                        }
+
+
+                                    </div>
+                                </div>
+
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+            </Body>
+        </Modal>
 
     </Authorized>
     <NotAuthorized>
@@ -69,10 +206,16 @@
 
 
 @code {
+    public TripConfirm TripDetails = new TripConfirm();
     public List<GetAllLoad> LoadList = new List<GetAllLoad>();
     public bool IsChildLoading = false;
+    public bool IsLoading2 = false;
+    public bool TripLoading = false;
     public List<int> BusinessID = new List<int>();
-
+    private Modal PushModal;
+    private Modal TripConfirmModal;
+    private int AvailIDs;
+    private int LoadIDs;
     protected override async Task OnInitializedAsync()
     {
 
@@ -112,5 +255,99 @@
             Console.WriteLine(ex.Message);
         }
     }
+    private async Task OpenModal(int AvailID)
+    {
+        AvailIDs = AvailID;
+        PushModal.Show();
+
+    }
+    private async Task OpenTripModal(int LoadID)
+    {
+        TripDetails = new TripConfirm();
+        LoadIDs = LoadID;
+        TripConfirmModal.Show();
+        await GetLoadData(LoadID);
+
+
+    }
+    public async Task GetLoadData(int LoadID)
+    {
+        TripLoading = true;
+
+
+        try
+        {
+            var AvailDrafts = await API.GetRequest($"Available/GetTripConfirm/{LoadID}");
+            if (AvailDrafts != "")
+            {
+               
+                TripDetails = JsonSerializer.Deserialize<TripConfirm>(AvailDrafts);
+
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex.Message);
+        }
+        TripLoading = false;
+    }
+    public async Task AddTrip(int LoadID)
+    {
+        TripLoading = true;
+        try
+        {
+
+            var Driver = await API.GetRequest($"Available/AddTrip/{LoadID}");
+            if (Driver != "")
+            {
+                LoadList = new List<GetAllLoad>();
+                int ID = JsonSerializer.Deserialize<int>(Driver);
+                if (ID == 200)
+                {
+                    toast.ShowSuccess("Trip Added Success");
+                    TripConfirmModal.CloseModal();
+                    await GetAllLoad();
+                }
+                else
+                {
+                    toast.ShowError("Error While Adding Trip");
+                }
+
+
+
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex.Message);
+        }
+        TripLoading = false;
+    }
+
+    public async Task UpdateStatus()
+    {
+        IsLoading2 = true;
+        try
+        {
+
+            var Driver = await API.GetRequest($"Available/UpdateStatus/{AvailIDs}");
+            if (Driver != "")
+            {
+
+                int ID = JsonSerializer.Deserialize<int>(Driver);
+                toast.ShowSuccess("Status Updated");
+                await GetAllLoad();
+                PushModal.CloseModal();
+
+
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex.Message);
+        }
+        IsLoading2 = false;
+    }
+
 
 }

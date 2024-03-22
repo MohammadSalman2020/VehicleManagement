@@ -1,0 +1,110 @@
+﻿@page "/trips"
+
+@using System.Text.Json
+@using VehicleManagement.ApiService
+@using VehicleManagement.Authentication
+@using VehicleManagement.Models.General
+
+@inject IToastService toast
+@inject IApiService API
+@inject IUserClaimsService UserClaimsService
+<AuthorizeView Policy="SuperVisorAdmin">
+    <Authorized>
+        <Nav PageName="Trips" />
+
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col-12">
+                    <div class="card mb-4">
+                        <div class="fleet-cards">
+                            <div class="container">
+                                @if(TripList.Count>0)
+                                {
+                                    @foreach (var item in TripList)
+                                    {
+                                        <div class="card">
+
+                                            <div class="card-body">
+
+                                                <span class="tag tag-yellow">On Trip</span>
+                                                <h4>@item.vehicleID</h4>
+                                                <p>
+                                                    <i class="fa fa-map-marker" aria-hidden="true"></i>
+                                                    &nbsp;@item.decentingPoint
+                                                </p>
+                                                <p>
+                                                    <i class="fa fa-user" aria-hidden="true"></i>
+                                                    &nbsp;@item.driver1
+                                                    <br /><br />
+                                                    <i class="fa fa-user" aria-hidden="true"></i>
+                                                    &nbsp;@item.driver2
+                                                </p>
+
+                                            </div>
+
+                                        </div>
+                                    }
+                                }
+                                else
+                                {
+                                    <DataLoaderComponent IsLoading="IsChildLoading" LoadingText="Loading Trips..."/>
+                                }
+
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </Authorized>
+</AuthorizeView>
+@code {
+    public List<TripConfirm> TripList = new List<TripConfirm>();
+    public bool IsChildLoading = false;
+    public List<int> BusinessID = new List<int>();
+
+
+    protected override async Task OnInitializedAsync()
+    {
+
+        IsChildLoading = true;
+        try
+        {
+
+            BusinessID = await UserClaimsService.GetBusinessIdsAsync();
+
+            await GetAllTrips();
+
+
+
+
+
+        }
+        catch (Exception ex)
+        {
+            IsChildLoading = false;
+        }
+        IsChildLoading = false;
+    }
+    public async Task GetAllTrips()
+    {
+        try
+        {
+            var AvailDrafts = await API.GetRequest($"Available/GetAllTrip");
+            if (AvailDrafts != "")
+            {
+
+                var rec = JsonSerializer.Deserialize<List<TripConfirm>>(AvailDrafts);
+                if(rec.Count>0)
+                {
+                    TripList = rec.Where(b => BusinessID.Contains(b.businessID)).ToList();
+
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex.Message);
+        }
+    }
+}
