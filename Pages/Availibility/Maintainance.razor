@@ -1,0 +1,191 @@
+﻿@page "/maintainance"
+
+@using System.Security.Claims
+@using System.Text.Json
+@using VehicleManagement.ApiService
+@using VehicleManagement.Authentication
+@using VehicleManagement.Models.General
+@using VehicleManagement.Models.General.Driver
+@using VehicleManagement.Models.General.User_Management
+@using VehicleManagement.Pages.Redirects
+@inject IToastService toastService
+@inject IApiService API
+@inject IUserClaimsService UserClaimsService
+<AuthorizeView Policy="AllAccess">
+    <Authorized>
+        <Nav PageName="Maintainance" />
+
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col-12">
+                    <div class="card mb-4">
+                        <div class="fleet-cards">
+                            <div class="container">
+                                @if (MaintainanceList.Count > 0)
+                                {
+                                    @foreach (var item in MaintainanceList)
+                                    {
+                                        <div class="card">
+                                            <div class="card-header">
+                                                <span class="edit-icon" @onclick="@(() => OpenModal(item.mainid))"><i class="fa fa-edit"></i></span>
+                                               
+                                            </div>
+                                            <div class="card-body">
+                                                <span class="tag tag-danger">On Maintenance</span>
+                                                <h4>TLK-960 (48KL) &nbsp;&nbsp;8,8,16,8,8</h4>
+                                                <p>
+                                                    <i class="fa fa-map-marker" aria-hidden="true"></i>
+                                                    &nbsp;NHHB Shakoor & Company Limited
+                                                </p>
+                                                <p>
+                                                    <i class="fa fa-user" aria-hidden="true"></i>
+                                                    &nbsp;Mumahhad Siddique(03356545644)
+                                                    <br /><br />
+                                                    <i class="fa fa-user" aria-hidden="true"></i>
+                                                    &nbsp;Mumahhad Salman(03356545644)
+                                                </p>
+
+                                            </div>
+
+                                        </div>
+                                    }
+                                }
+                                else
+                                {
+                                    <DataLoaderComponent IsLoading="@IsChildLoading" LoadingText="Loading Maintainance..." />
+
+                                }
+
+
+
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <Modal @ref="modal" Title="Finish Maintainance">
+            <Body>
+                <div class="col-md-12">
+                    <div class="card">
+
+                        <div class="card-body">
+
+                            <div class="row">
+                                <div class="col-md-12" style="text-align:center;">
+                                    <div class="form-group">
+
+                                        <h3 class="form-control-label"> Are you sure want to finish Maintainance for this Vehicle?</h3>
+
+                                    </div>
+                                </div>
+                              
+                                <div class="col-md-12">
+                                    <div class="form-group" style="text-align:center;">
+                                        @if (IsLoading)
+                                        {
+                                            <DataLoaderComponent IsLoading="@IsLoading" LoadingText="Submiting Details" />
+
+                                        }
+                                        else
+                                        {
+                                            <button class="btn btn-danger btn-sm ms-auto" @onclick="UpdateStatus">Submit</button>
+                                        }
+
+
+
+                                    </div>
+                                </div>
+
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </Body>
+        </Modal>
+
+    </Authorized>
+    <NotAuthorized>
+        <_403 />
+    </NotAuthorized>
+</AuthorizeView>
+
+
+
+@code {
+    private Modal modal;
+    public List<MaintainanceVehicle> MaintainanceList = new List<MaintainanceVehicle>();
+    public AddLoad Load = new AddLoad();
+    public List<int> BusinessID = new List<int>();
+
+    public bool IsLoading = false;
+    public bool IsChildLoading = false;
+    public int MainIDs = 0;
+
+    private async Task OpenModal(int MainID)
+    {
+        MainIDs = MainID;
+        modal.Show();
+
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            IsChildLoading = true;
+            BusinessID = await UserClaimsService.GetBusinessIdsAsync();
+
+            await GetAllMaintainance();
+
+            IsChildLoading = false;
+        }
+        catch (Exception ex)
+        {
+            IsChildLoading = false;
+        }
+    }
+    public async Task GetAllMaintainance()
+    {
+        try
+        {
+            var Main = await API.GetRequest($"Fleet/GetMaintaince");
+            if (Main != "")
+            {
+
+                var rec = JsonSerializer.Deserialize<List<MaintainanceVehicle>>(Main);
+                MaintainanceList = rec.Where(b => BusinessID.Contains(b.busID)).ToList();
+
+
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex.Message);
+        }
+    }
+    public async Task UpdateStatus()
+    {
+        IsLoading = true;
+        try
+        {
+
+            var Driver = await API.GetRequest($"Fleet/UpdateMain/{MainIDs}");
+            if (Driver != "")
+            {
+
+                int ID = JsonSerializer.Deserialize<int>(Driver);
+                toastService.ShowSuccess("Status Updated");
+                await GetAllMaintainance();
+                modal.CloseModal();
+
+
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex.Message);
+        }
+        IsLoading = false;
+    }
+}

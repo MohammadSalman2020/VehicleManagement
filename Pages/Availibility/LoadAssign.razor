@@ -29,6 +29,7 @@
                                                     <span class="edit-icon" @onclick="@(() => OpenModal(item.availID))"><i class="fa fa-edit"></i></span>
 
                                                 }
+                                                <span class="edit-icon" @onclick="@(() => OpenMainModal(item.availID))"><i class="fa fa-wrench"></i></span>
 
 
                                             </div>
@@ -107,6 +108,56 @@
                 </div>
             </Body>
         </Modal>
+
+        <Modal @ref="MaintainanceModal" Title="Send To Maintainance">
+            <Body>
+                <div class="col-md-12">
+                    <div class="card">
+
+                        <div class="card-body">
+
+                            <div class="row">
+                                <div class="col-md-12" style="text-align:center;">
+                                    <div class="form-group">
+
+                                        <h3 class="form-control-label"> Are you sure want to Send this Vehicle To Maintainance?</h3>
+
+                                    </div>
+                                </div>
+                                <div class="col-md-12">
+                                    <div class="form-group">
+
+                                        <label for="example-text-input" style="font-weight:bolder;" class="form-control-label">Enter Reason</label>
+                                        <input type="text" for="example-text-input" @bind="@Main.reason" class="form-control">
+
+                                    </div>
+                                </div>
+                                <div class="col-md-12">
+                                    <div class="form-group" style="text-align:center;">
+                                        @if (IsLoading2)
+                                        {
+                                            <DataLoaderComponent IsLoading="@IsLoading2" LoadingText="Sending To Maintainance..." />
+
+                                        }
+                                        else
+                                        {
+                                            <button class="btn btn-danger btn-sm ms-auto" @onclick="SendVehicle">Send Vehicle</button>
+                                        }
+
+
+
+                                    </div>
+                                </div>
+
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+            </Body>
+        </Modal>
+
+
         <Modal @ref="TripConfirmModal" Title="Confirm Trip">
             <Body>
 
@@ -207,14 +258,17 @@
 
 @code {
     public TripConfirm TripDetails = new TripConfirm();
+    public MaintainanceVehicle Main = new MaintainanceVehicle();
     public List<GetAllLoad> LoadList = new List<GetAllLoad>();
     public bool IsChildLoading = false;
     public bool IsLoading2 = false;
     public bool TripLoading = false;
     public List<int> BusinessID = new List<int>();
+    private Modal MaintainanceModal;
     private Modal PushModal;
     private Modal TripConfirmModal;
     private int AvailIDs;
+    private int MainAvailIDs;
     private int LoadIDs;
     protected override async Task OnInitializedAsync()
     {
@@ -255,6 +309,12 @@
             Console.WriteLine(ex.Message);
         }
     }
+    private async Task OpenMainModal(int AvailID)
+    {
+        MainAvailIDs = AvailID;
+        MaintainanceModal.Show();
+
+    }
     private async Task OpenModal(int AvailID)
     {
         AvailIDs = AvailID;
@@ -280,7 +340,7 @@
             var AvailDrafts = await API.GetRequest($"Available/GetTripConfirm/{LoadID}");
             if (AvailDrafts != "")
             {
-               
+
                 TripDetails = JsonSerializer.Deserialize<TripConfirm>(AvailDrafts);
 
             }
@@ -349,5 +409,36 @@
         IsLoading2 = false;
     }
 
+    public async Task SendVehicle()
+    {
+        IsLoading2 = true;
+        try
+        {
+            var rec = LoadList.Where(p => p.availID == MainAvailIDs).FirstOrDefault();
+            Main.onMainDate = DateTime.Now;
+            Main.isActive = true;
+            Main.vehicleNumber = rec.vehicle;
+            Main.mainFrom = "On-Load";
+            Main.busID = rec.businessID;
+            Main.loadid = rec.loadID;
+            Main.business = "";
+            string jsonData = JsonSerializer.Serialize(Main);
+            var AddUser = await API.PostRequest($"Available/Sent", jsonData);
+            int Result = JsonSerializer.Deserialize<int>(AddUser);
+            if (Result == 200)
+            {
+                await GetAllLoad();
+                MainAvailIDs = 0;
+                Main = new MaintainanceVehicle();
+                MaintainanceModal.CloseModal();
+                toast.ShowSuccess($"Vehicle Sent to Maintainance");
 
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex.Message);
+        }
+        IsLoading2 = false;
+    }
 }

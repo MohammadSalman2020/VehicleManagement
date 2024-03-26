@@ -246,7 +246,7 @@
 
                                             </div>
                                         </div>
-                                        <div class="col-md-6">
+                                   @*      <div class="col-md-6">
                                             <div class="form-group">
                                                 <div class="form-control">
                                                     <label for="example-text-input" class="form-control-label">Status</label>
@@ -255,7 +255,7 @@
                                                 </div>
 
                                             </div>
-                                        </div>
+                                        </div> *@
                                         @if (IsEdit)
                                         {
                                             <div class="col-md-12">
@@ -672,6 +672,7 @@
             {
                 IsLoading = true;
                 Avail.AvailDate = DateTime.Now;
+                Avail.IsActive = true;
                 string jsonData = JsonSerializer.Serialize(Avail);
                 var AddUser = await API.PostRequest($"Available/AddAvailability", jsonData);
                 int Result = JsonSerializer.Deserialize<int>(AddUser);

@@ -1,7 +1,9 @@
 @using System.Text.Json
 @using VehicleManagement.ApiService
+@using VehicleManagement.Authentication
 @using VehicleManagement.Models.General
 @inject NavigationManager NavigationManager
+@inject IUserClaimsService UserClaimsService
 @using VehicleManagement.Models.DB
 @inject IApiService API
 <div class="container-fluid py-4">
@@ -19,8 +21,22 @@
                             <option value="OT">On Trip</option>
                             <option value="M">Maintenance</option>
                             <option value="A">Available</option>
+                            <option value="LA">On Load</option>
                         </select>
                     </div>
+                }
+                else
+                {
+                    <div class="card-header pb-0">
+                        <div class="form-group">
+                            <div class="form-control">
+                                <input @onchange="DrivertStatus" type="checkbox">
+                                <span class="form-control-label">Show All Filters</span>
+                            </div>
+
+                        </div>
+                    </div>
+
                 }
 
 
@@ -32,24 +48,22 @@
                                 {
                                     <tr>
                                         <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Vehicle #</th>
-                                        <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Last Update</th>
-                                        <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Location</th>
-                                        <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Capacity</th>
-                                        <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Chamber SEQ</th>
-                                        <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Status</th>
+                                        <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">1st Driver</th>
+                                        <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">2nd Driver</th>
+                                        <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Vehicle Location</th>
+                                        <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Business</th>
 
-                                        <th class="text-secondary opacity-7"></th>
+                                        @*   <th class="text-secondary opacity-7"></th> *@
                                     </tr>
                                 }
                                 @if (IsMaintainance)
                                 {
                                     <tr>
                                         <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Vehicle #</th>
-                                        <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Work Description</th>
-                                        <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Work Start Date</th>
-                                        <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Expected End Date</th>
-                                        <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Location</th>
-                                        <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Status</th>
+                                        <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Reason</th>
+                                        <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Maintainance Report From</th>
+                                        <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Maintainance Report Date</th>
+                                        <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Business</th>
 
                                         <th class="text-secondary opacity-7"></th>
                                     </tr>
@@ -58,13 +72,13 @@
                                 {
                                     <tr>
                                         <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Vehicle #</th>
-                                        <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Trip Start Location</th>
-                                        <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Trip End Location</th>
-                                        <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Current Location</th>
+                                        <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2" style="text-align:center">Business</th>
+                                        @*                                      <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Trip End Location</th>
+                                    <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Current Location</th>
 
-                                        <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Status</th>
+                                    <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Status</th>
 
-                                        <th class="text-secondary opacity-7"></th>
+                                    <th class="text-secondary opacity-7"></th> *@
                                     </tr>
                                 }
                                 @if (IsTotal)
@@ -72,11 +86,27 @@
                                     <tr>
                                         <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Vehicle #</th>
                                         <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2" style="text-align:center;">Status</th>
-                                        <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Location</th>
+                                        <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">1st Driver</th>
+                                        <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">2nd Driver</th>
+                                        <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Business</th>
 
-                                        <th class="text-secondary opacity-7"></th>
+
                                     </tr>
                                 }
+
+                                @if (IsFromOnLoad)
+                                {
+                                    <tr>
+                                        <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Vehicle #</th>
+                                        <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2" style="text-align:center">Loading Point</th>
+                                        <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Decanting Point</th>
+                                        <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Load Assign Date</th>
+                                        <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Business</th>
+
+                                    </tr>
+
+                                }
+
                             </thead>
                             <tbody>
                                 @if (IsAvailable)
@@ -98,29 +128,31 @@
                                                     </div>
                                                 </td>
                                                 <td>
-                                                    <p class="text-xs font-weight-bold mb-0">@item.lastUpdate</p>
+                                                    <p class="text-xs font-weight-bold mb-0">@item.driverID1</p>
 
                                                 </td>
 
                                                 <td class="align-middle text-center">
-                                                    <span class="text-secondary text-xs font-weight-bold">@item.location</span>
+                                                    <span class="text-secondary text-xs font-weight-bold">@item.driverID2</span>
                                                 </td>
-                                                   <td class="align-middle text-center">
-                                                    <span class="text-secondary text-xs font-weight-bold">48KL</span>
-                                                </td>
-                                                <td class="align-middle text-center">
-                                                    <span class="text-secondary text-xs font-weight-bold">8+8+16+8+8</span>
+
+                                                <td class="align-middle text-center text-sm">
+                                                    <span class="badge badge-sm bg-gradient-success">@item.vehicleLocation</span>
                                                 </td>
                                                 <td class="align-middle text-center text-sm">
-                                                    <span class="badge badge-sm bg-gradient-success">@item.status</span>
+                                                    <span class="badge badge-sm bg-gradient-danger">@item.business</span>
                                                 </td>
-                                                <td class="align-middle">
-                                                    <a @onclick="@(()=> NavigateToLiveTracing(item.currentlatitude,item.currentlongitude))" class="text-secondary font-weight-bold text-xs cursor-pointer" data-toggle="tooltip" data-original-title="Edit user">
-                                                        Live Tracing
-                                                    </a>
-                                                </td>
+                                                @*     <td class="align-middle">
+                                    <a @onclick="@(()=> NavigateToLiveTracing(item.currentlatitude,item.currentlongitude))" class="text-secondary font-weight-bold text-xs cursor-pointer" data-toggle="tooltip" data-original-title="Edit user">
+                                    Live Tracing
+                                    </a>
+                                    </td> *@
                                             </tr>
                                         }
+                                    }
+                                    else
+                                    {
+                                        <DataLoaderComponent IsLoading="@IsChildLoading" LoadingText="Loading Availability...." />
                                     }
 
 
@@ -145,31 +177,41 @@
                                                     </div>
                                                 </td>
                                                 <td>
-                                                    <p class="text-xs font-weight-bold mb-0">@item.work</p>
+                                                    <p class="text-xs font-weight-bold mb-0">@item.reason</p>
+
+                                                </td>
+
+                                                 <td>
+                                                    <p class="text-xs font-weight-bold mb-0">@item.mainFrom</p>
 
                                                 </td>
 
                                                 <td class="align-middle text-center">
-                                                    <span class="text-secondary text-xs font-weight-bold">@item.workStartDate</span>
-                                                </td>
-                                                <td class="align-middle text-center">
-                                                    <span class="text-secondary text-xs font-weight-bold">@item.expEndDate</span>
-                                                </td>
-                                                <td class="align-middle text-center">
-                                                    <span class="text-secondary text-xs font-weight-bold">@item.location</span>
+                                                    <span class="text-secondary text-xs font-weight-bold">@item.onMainDate.ToString("MM-dd-yyyy")</span>
                                                 </td>
                                                 <td class="align-middle text-center text-sm">
-                                                    <span class="badge badge-sm bg-gradient-danger">@item.status</span>
+                                                    <span class="badge badge-sm bg-gradient-danger">@item.business</span>
                                                 </td>
-                                                <td class="align-middle">
-                                                    <a @onclick="@(()=> NavigateToLiveTracing(item.currentlatitude,item.currentlongitude))" class="text-secondary font-weight-bold text-xs cursor-pointer" data-toggle="tooltip" data-original-title="Edit user">
-                                                        Live Tracing
-                                                    </a>
-                                                </td>
+                                                @*   <td class="align-middle text-center">
+                                    <span class="text-secondary text-xs font-weight-bold">@item.location</span>
+                                    </td>
+                                    <td class="align-middle text-center text-sm">
+                                    <span class="badge badge-sm bg-gradient-danger">@item.status</span>
+                                    </td>
+                                    <td class="align-middle">
+                                    <a @onclick="@(()=> NavigateToLiveTracing(item.currentlatitude,item.currentlongitude))" class="text-secondary font-weight-bold text-xs cursor-pointer" data-toggle="tooltip" data-original-title="Edit user">
+                                    Live Tracing
+                                    </a>
+                                    </td> *@
                                             </tr>
                                         }
                                     }
+                                    else
+                                    {
+                                        <DataLoaderComponent IsLoading="@IsChildLoading" LoadingText="Loading On Maintainance...." />
+                                    }
                                 }
+
                                 @if (IsOnTrip)
                                 {
                                     @if (OntripList.Count > 0)
@@ -191,27 +233,32 @@
                                                 </td>
 
 
-                                                <td class="align-middle text-center">
-                                                    <span class="text-secondary text-xs font-weight-bold">@item.tripStart</span>
-                                                </td>
-                                                <td class="align-middle text-center">
-                                                    <span class="text-secondary text-xs font-weight-bold">@item.tripEnd</span>
-                                                </td>
-                                                <td class="align-middle text-center">
-                                                    <span class="text-secondary text-xs font-weight-bold">@item.currentLocation</span>
-                                                </td>
                                                 <td class="align-middle text-center text-sm">
-                                                    <span class="badge badge-sm bg-gradient-warning">@item.status</span>
+                                                    <span class="badge badge-sm bg-gradient-danger">@item.business</span>
                                                 </td>
-                                                <td class="align-middle">
-                                                    <a @onclick="@(()=> NavigateToLiveTracing(item.currentlatitude,item.currentlongitude,item.startlongitude,item.startlatitude,item.endlongitude,item.endlatitude))" class="text-secondary font-weight-bold text-xs cursor-pointer" data-toggle="tooltip" data-original-title="Edit user">
-                                                        Live Tracing
-                                                    </a>
-                                                </td>
+                                                @*     <td class="align-middle text-center">
+                                    <span class="text-secondary text-xs font-weight-bold">@item.tripEnd</span>
+                                    </td>
+                                    <td class="align-middle text-center">
+                                    <span class="text-secondary text-xs font-weight-bold">@item.currentLocation</span>
+                                    </td>
+                                    <td class="align-middle text-center text-sm">
+                                    <span class="badge badge-sm bg-gradient-warning">@item.status</span>
+                                    </td>
+                                    <td class="align-middle">
+                                    <a @onclick="@(()=> NavigateToLiveTracing(item.currentlatitude,item.currentlongitude,item.startlongitude,item.startlatitude,item.endlongitude,item.endlatitude))" class="text-secondary font-weight-bold text-xs cursor-pointer" data-toggle="tooltip" data-original-title="Edit user">
+                                    Live Tracing
+                                    </a>
+                                    </td> *@
                                             </tr>
                                         }
                                     }
+                                    else
+                                    {
+                                        <DataLoaderComponent IsLoading="@IsChildLoading" LoadingText="Loading Trips...." />
+                                    }
                                 }
+
                                 @if (IsTotal)
                                 {
                                     @if (AllVehicles.Count > 0)
@@ -237,21 +284,86 @@
                                                     <span class="badge badge-sm @(GetBadgeColor(item.status))">@item.status</span>
                                                 </td>
 
+
                                                 <td class="align-middle text-center">
-                                                    <span class="text-secondary text-xs font-weight-bold">@item.location</span>
+                                                    <span class="text-secondary text-xs font-weight-bold">@item.driver1</span>
+                                                </td>
+                                                <td class="align-middle text-center">
+                                                    <span class="text-secondary text-xs font-weight-bold">@item.driver2</span>
+                                                </td>
+                                                <td class="align-middle text-center text-sm">
+                                                    <span class="badge badge-sm bg-gradient-danger">@item.businessName</span>
                                                 </td>
 
-                                                <td class="align-middle">
-                                                    <a @onclick="@(()=> NavigateToLiveTracing(item.location,"Lahore"))" class="text-secondary font-weight-bold text-xs cursor-pointer" data-toggle="tooltip" data-original-title="Edit user">
-                                                        Live Tracing
-                                                    </a>
-                                                </td>
+
+                                                @*     <td class="align-middle">
+                                    <a @onclick="@(()=> NavigateToLiveTracing(item.location,"Lahore"))" class="text-secondary font-weight-bold text-xs cursor-pointer" data-toggle="tooltip" data-original-title="Edit user">
+                                    Live Tracing
+                                    </a>
+                                    </td> *@
                                             </tr>
 
 
                                         }
                                     }
+                                    else
+                                    {
+                                        <DataLoaderComponent IsLoading="@IsChildLoading" LoadingText="Loading All Vehicles...." />
+                                    }
                                 }
+
+                                @if (IsFromOnLoad)
+                                {
+                                    @if (OnLoadList.Count > 0)
+                                    {
+                                        foreach (var item in OnLoadList)
+                                        {
+
+                                            <tr>
+                                                <td>
+                                                    <div class="d-flex px-2 py-1">
+                                                        <div>
+                                                            <img src="css/assets/Truck.jpg" class="avatar avatar-sm me-3" alt="user1">
+                                                        </div>
+                                                        <div class="d-flex flex-column justify-content-center">
+                                                            <h6 class="mb-0 text-sm">@item.vehicleID</h6>
+
+                                                        </div>
+                                                    </div>
+                                                </td>
+
+
+
+                                                <td class="align-middle text-center">
+                                                    <span class="text-secondary text-xs font-weight-bold">@item.loadingPoint</span>
+                                                </td>
+                                                <td class="align-middle text-center">
+                                                    <span class="text-secondary text-xs font-weight-bold">@item.decantingPoint</span>
+                                                </td>
+                                                <td class="align-middle text-center">
+                                                    <span class="text-secondary text-xs font-weight-bold">@item.loadAssignDate.ToString("MM-dd-yyyy")</span>
+                                                </td>
+                                                <td class="align-middle text-center text-sm">
+                                                    <span class="badge badge-sm bg-gradient-danger">@item.business</span>
+                                                </td>
+
+
+                                                @*     <td class="align-middle">
+                                    <a @onclick="@(()=> NavigateToLiveTracing(item.location,"Lahore"))" class="text-secondary font-weight-bold text-xs cursor-pointer" data-toggle="tooltip" data-original-title="Edit user">
+                                    Live Tracing
+                                    </a>
+                                    </td> *@
+                                            </tr>
+
+
+                                        }
+                                    }
+                                    else
+                                    {
+                                        <DataLoaderComponent IsLoading="@IsChildLoading" LoadingText="Loading On-Load Vehicles...." />
+                                    }
+                                }
+
 
                             </tbody>
                         </table>
@@ -268,6 +380,8 @@
     [Parameter]
     public bool IsMaintainance { get; set; } = false;
     [Parameter]
+    public bool IsFromOnLoad { get; set; } = false;
+    [Parameter]
     public bool IsAvailable { get; set; } = false;
     [Parameter]
     public bool IsOnTrip { get; set; } = false;
@@ -275,16 +389,28 @@
     public bool IsTotal { get; set; } = false;
     [Parameter]
     public string? Name { get; set; }
+    public bool IsChildLoading = false;
 
+    public List<int> BusinessID = new List<int>();
 
     public List<AvailableVehicle> AvailableList = new List<AvailableVehicle>();
     public List<MaintainanceVehicle> MaintainanceList = new List<MaintainanceVehicle>();
     public List<OntripVehicles> OntripList = new List<OntripVehicles>();
     public List<TotalVehicles> AllVehicles = new List<TotalVehicles>();
+    public List<OnLoadVehicle> OnLoadList = new List<OnLoadVehicle>();
 
     private string selectedStatus;
     private bool ShowDrop;
-
+    private bool isFromShowDrop = false;
+    private void DrivertStatus(ChangeEventArgs e)
+    {
+        ShowDrop = true;
+        IsMaintainance = false;
+        IsTotal = true;
+        IsAvailable = false;
+        IsOnTrip = false;
+        IsFromOnLoad = false;
+    }
     string GetBadgeColor(string status)
     {
         switch (status)
@@ -295,6 +421,8 @@
                 return "bg-gradient-warning";
             case "On Maintenance":
                 return "bg-gradient-danger";
+            case "On Load":
+                return "bg-gradient-info";
             default:
                 return "bg-secondary";
         }
@@ -307,7 +435,28 @@
             if (Main != "")
             {
 
-                MaintainanceList = JsonSerializer.Deserialize<List<MaintainanceVehicle>>(Main);
+                var rec = JsonSerializer.Deserialize<List<MaintainanceVehicle>>(Main);
+                MaintainanceList = rec.Where(b => BusinessID.Contains(b.busID)).ToList();
+
+
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex.Message);
+        }
+    }
+    public async Task GetAllOnLoad()
+    {
+        try
+        {
+            var Main = await API.GetRequest($"Fleet/GetOnLoad");
+            if (Main != "")
+            {
+
+                var rec = JsonSerializer.Deserialize<List<OnLoadVehicle>>(Main);
+                OnLoadList = rec.Where(b => BusinessID.Contains(b.busID)).ToList();
+
 
             }
         }
@@ -325,7 +474,8 @@
             if (Available != "")
             {
 
-                AvailableList = JsonSerializer.Deserialize<List<AvailableVehicle>>(Available);
+                var rec = JsonSerializer.Deserialize<List<AvailableVehicle>>(Available);
+                AvailableList = rec.Where(b => BusinessID.Contains(b.businessID)).ToList();
 
             }
         }
@@ -343,7 +493,8 @@
             if (GetOnTrip != "")
             {
 
-                OntripList = JsonSerializer.Deserialize<List<OntripVehicles>>(GetOnTrip);
+                var rec = JsonSerializer.Deserialize<List<OntripVehicles>>(GetOnTrip);
+                OntripList = rec.Where(b => BusinessID.Contains(b.businessID)).ToList();
 
             }
         }
@@ -361,7 +512,9 @@
             if (GetAll != "")
             {
 
-                AllVehicles = JsonSerializer.Deserialize<List<TotalVehicles>>(GetAll);
+                var rec = JsonSerializer.Deserialize<List<TotalVehicles>>(GetAll);
+                AllVehicles = rec.Where(b => BusinessID.Contains(b.businessID)).ToList();
+
 
             }
         }
@@ -374,18 +527,27 @@
 
     protected override async Task OnInitializedAsync()
     {
-        ShowDrop = IsTotal ? true : false;
-    
-        await GetAllAvailable();
-        await GetAllMaintainance();
-        await GetAllOntrip();
-        await GetAll();
-
+        try
+        {
+            IsChildLoading = true;
+            ShowDrop = IsTotal ? true : false;
+            BusinessID = await UserClaimsService.GetBusinessIdsAsync();
+            await GetAllAvailable();
+            await GetAllOnLoad();
+            await GetAllMaintainance();
+            await GetAllOntrip();
+            await GetAll();
+            IsChildLoading = false;
+        }
+        catch (Exception ex)
+        {
+            IsChildLoading = false;
+        }
     }
 
     private void NavigateToLiveTracing(string CurrentLatitide, string CurrentLongitude, string StartLongitude = null,
 
-      string StartLatitude = null,string EndLongitude = null,string EndLatitude = null)
+      string StartLatitude = null, string EndLongitude = null, string EndLatitude = null)
     {
         NavigationManager.NavigateTo($"/livetracing?CurrentLatitide={CurrentLatitide}&CurrentLongitude={CurrentLongitude}&StartLongitude={StartLongitude}&StartLatitude={StartLatitude}&EndLongitude={EndLongitude}&EndLatitude={EndLatitude}", true);
 
@@ -401,6 +563,7 @@
             IsTotal = false;
             IsAvailable = false;
             IsOnTrip = false;
+            IsFromOnLoad = false;
 
         }
         if (selectedStatus == "A")
@@ -409,6 +572,7 @@
             IsTotal = false;
             IsAvailable = true;
             IsOnTrip = false;
+            IsFromOnLoad = false;
 
         }
         if (selectedStatus == "OT")
@@ -417,6 +581,7 @@
             IsTotal = false;
             IsAvailable = false;
             IsOnTrip = true;
+            IsFromOnLoad = false;
 
         }
         if (selectedStatus == "T")
@@ -425,6 +590,17 @@
             IsTotal = true;
             IsAvailable = false;
             IsOnTrip = false;
+            IsFromOnLoad = false;
+
+
+        }
+        if (selectedStatus == "LA")
+        {
+            IsMaintainance = false;
+            IsTotal = false;
+            IsAvailable = false;
+            IsOnTrip = false;
+            IsFromOnLoad = true;
 
         }
     }
