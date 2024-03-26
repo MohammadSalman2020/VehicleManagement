@@ -11,7 +11,7 @@
 
         <Nav PageName="Fleet" />
 
-        <FleetDetailTable IsAvailable="@IsAvailable" IsMaintainance="@IsMaintainance" IsOnTrip="@IsOnTrip" IsTotal="@IsTotal" Name="@Name"/>
+        <FleetDetailTable IsAvailable="@IsAvailable" IsMaintainance="@IsMaintainance" IsOnTrip="@IsOnTrip" IsTotal="@IsTotal" IsFromOnLoad="@IsFromOnLoad" Name="@Name"/>
 
     </Authorized>
     <NotAuthorized>
@@ -32,6 +32,7 @@
     public bool IsAvailable { get; set; } = false;
 
     public bool IsOnTrip { get; set; } = false;
+    public bool IsFromOnLoad { get; set; } = false;
 
     public bool IsTotal { get; set; } = true;
     public string? Name { get; set; } = "Total";
@@ -68,6 +69,12 @@
             IsOnTrip = true;
             IsTotal = false;
             Name = "On Trip";
+        }
+        else if (ISFrom == "LA")
+        {
+            IsFromOnLoad = true;
+            IsTotal = false;
+            Name = "Load Assigned";
         }
     }
 }

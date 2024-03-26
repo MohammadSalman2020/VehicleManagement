@@ -91,7 +91,7 @@
 
                                     </div>
                                 </div>
-                                <div class="col-md-6">
+                        @*         <div class="col-md-6">
                                     <div class="form-group">
                                         <div class="form-control">
                                             <label for="example-text-input" class="form-control-label">Status</label>
@@ -100,7 +100,7 @@
                                         </div>
 
                                     </div>
-                                </div>
+                                </div> *@
                                 <div class="col-md-12">
                                     <div class="form-group" style="text-align:center;">
                                         <button class="btn btn-primary btn-sm ms-auto" @onclick="AddLoad">Submit</button>
@@ -179,7 +179,7 @@
                 IsLoading = true;
                 Load.dated = DateTime.Now;
                 Load.businessID = rec.business;
-
+                Load.isActive = true;
                 string jsonData = JsonSerializer.Serialize(Load);
                 var AddUser = await API.PostRequest($"Available/AddLoad", jsonData);
                 int Result = JsonSerializer.Deserialize<int>(AddUser);
