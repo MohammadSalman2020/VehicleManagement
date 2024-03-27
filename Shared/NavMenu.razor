@@ -15,26 +15,44 @@
                     <i class="fa fa-caret-down"></i>
                 </button>
                 <div class="dropdown-content">
-                    <a href="/fleet" class="@GetActiveClass("Fleet")" @onclick=@(()=>OnClick("Fleet"))>Fleet</a>
-                    <a href="/avail">Availability</a>
-                      <a href="/availclient">Availability Client</a>
-                    <a href="/loadassign">Load Assign</a>
-                    <a href="/trips">Trips</a>
-                    <a href="/maintainance">Maintainance</a>
-                    <a href="/map">Satellite View</a>
-                    <a href="/driver">Drivers</a>
-                    <a href="/vehicles">Vehicles</a>
+                    <AuthorizeView Roles="admin,FleetManager">
+                        <Authorized Context="adminaccess">
+                            <a href="/fleet">Fleet</a>
+                            <a href="/avail">Availability</a>
+                            <a href="/availclient">Availability Client</a>
+                            <a href="/loadassign">Load Assign</a>
+                            <a href="/trips">Trips</a>
+                            <a href="/maintainance">Maintainance</a>
+                            <a href="/map">Satellite View</a>
+                           
+                        </Authorized>
+                    </AuthorizeView>
+               
+                    <AuthorizeView Roles="Client">
+                        <Authorized Context="clientaccess">
+                            <a href="/map">Satellite View</a>
+                            <a href="/fleet">Fleet</a>
+                            <a href="/availclient">Availability</a>
+                        </Authorized>
+                    </AuthorizeView>
                 </div>
             </div>
-            <div class="dropdown">
-                <button class="dropbtn">
-                    Reports
-                    <i class="fa fa-caret-down"></i>
-                </button>
-                <div class="dropdown-content">
-                    <a href="/fleetstatus">Fleet Status</a>
-                </div>
-            </div>
+            <AuthorizeView Roles="admin,FleetManager">
+                <Authorized Context="access">
+                    <div class="dropdown">
+                        <button class="dropbtn">
+                            Registration
+                            <i class="fa fa-caret-down"></i>
+                        </button>
+                        <div class="dropdown-content">
+                            @*   <a href="/fleetstatus">Fleet Status</a> *@
+                            <a href="/driver">Drivers</a>
+                            <a href="/vehicles">Vehicles</a>
+                        </div>
+                    </div>
+                </Authorized>
+            </AuthorizeView>
+   
             <div class="dropdown">
                 <button class="dropbtn">
                     Invoice
@@ -53,7 +71,7 @@
                     <i class="fa fa-caret-down"></i>
                 </button>
                 <div class="dropdown-content">
-                    <AuthorizeView Roles="Client">
+                    <AuthorizeView Roles="Client,FleetManager">
                         <Authorized Context="clientaccess">
                             <a href="/inspections">View Inspections</a>
                         </Authorized>
@@ -68,15 +86,20 @@
 
                 </div>
             </div>
-            <div class="dropdown">
-                <button class="dropbtn">
-                    Admin
-                    <i class="fa fa-caret-down"></i>
-                </button>
-                <div class="dropdown-content">
-                    <a href="/usermanagement">User Management</a>
-                </div>
-            </div>
+            <AuthorizeView Roles="admin">
+                <Authorized Context="adminaccess">
+                    <div class="dropdown">
+                        <button class="dropbtn">
+                            Admin
+                            <i class="fa fa-caret-down"></i>
+                        </button>
+                        <div class="dropdown-content">
+                            <a href="/usermanagement">User Management</a>
+                        </div>
+                    </div>
+                </Authorized>
+            </AuthorizeView>
+          
             <div class="dropdown" style="float:right;">
                 <button class="dropbtn">
                     @context.User.Identity.Name.ToUpper() -

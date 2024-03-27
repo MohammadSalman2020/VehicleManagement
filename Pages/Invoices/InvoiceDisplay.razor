@@ -9,7 +9,7 @@
 @using VehicleManagement.Pages.Redirects
 @inject IToastService toastService
 @inject IApiService API
-<AuthorizeView Policy="Testing">
+<AuthorizeView>
     <Authorized>
         <Nav PageName="Invoice Display" />
         @if (Invoices != null)

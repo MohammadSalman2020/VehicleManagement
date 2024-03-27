@@ -139,7 +139,7 @@
             if (InvoiceList != "")
             {
 
-                _InvoiceList = JsonSerializer.Deserialize<List<InvoiceList>>(InvoiceList);
+                _InvoiceList = JsonSerializer.Deserialize<List<InvoiceList>>(InvoiceList).OrderByDescending(p=>p.invoiceID).ToList();
             }
         }
         catch (Exception ex)
