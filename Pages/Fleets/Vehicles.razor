@@ -5,7 +5,7 @@
 @using VehicleManagement.Pages.Redirects
 @inject IToastService toastService
 @inject IApiService API
-<AuthorizeView>
+<AuthorizeView Policy="MainCom">
     <Authorized>
         <Nav PageName="Vehicles" />
 
