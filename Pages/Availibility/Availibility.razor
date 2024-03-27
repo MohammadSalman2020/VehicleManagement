@@ -192,7 +192,7 @@
                                                         <option value="0" selected="@(Avail.Driver1ID==null?"selected":null)">Select One</option>
                                                         @foreach (var item in Driver1List)
                                                         {
-                                                            <option value="@item" selected="@(item == Avail.Driver1ID?"selected":null)">@item</option>
+                                                            <option value="@item" selected="@(item.driverID == Avail.Driver1ID?"selected":null)">@item.fullname (@item.driverID)</option>
 
                                                         }
                                                     }
@@ -220,7 +220,7 @@
                                                         <option value="0" selected="@(Avail.Driver2ID==null?"selected":null)">Select One</option>
                                                         @foreach (var item in Driver2List)
                                                         {
-                                                            <option value="@item" selected="@(item == Avail.Driver2ID?"selected":null)">@item</option>
+                                                            <option value="@item" selected="@(item.driverID == Avail.Driver2ID?"selected":null)">@item.fullname (@item.driverID)</option>
 
                                                         }
                                                     }
@@ -246,16 +246,16 @@
 
                                             </div>
                                         </div>
-                                   @*      <div class="col-md-6">
-                                            <div class="form-group">
-                                                <div class="form-control">
-                                                    <label for="example-text-input" class="form-control-label">Status</label>
-                                                    <input checked="@Avail.IsActive" @onchange="AvailStatus" type="checkbox">
-                                                    <span class="form-control-label">Active</span>
-                                                </div>
+                                        @*      <div class="col-md-6">
+                                <div class="form-group">
+                                <div class="form-control">
+                                <label for="example-text-input" class="form-control-label">Status</label>
+                                <input checked="@Avail.IsActive" @onchange="AvailStatus" type="checkbox">
+                                <span class="form-control-label">Active</span>
+                                </div>
 
-                                            </div>
-                                        </div> *@
+                                </div>
+                                </div> *@
                                         @if (IsEdit)
                                         {
                                             <div class="col-md-12">
@@ -366,8 +366,8 @@
     private Modal PushModal;
     public List<GetBusiness> BusinessList = new List<GetBusiness>();
     public List<string> VehicleList = new List<string>();
-    public List<string> Driver1List = new List<string>();
-    public List<string> Driver2List = new List<string>();
+    public List<DriverName> Driver1List = new List<DriverName>();
+    public List<DriverName> Driver2List = new List<DriverName>();
     public List<int> BusinessID = new List<int>();
     public List<AvailDraft> AvailDraftList = new List<AvailDraft>();
     public AddAvailability Avail = new AddAvailability();
@@ -381,6 +381,28 @@
     private void AvailStatus(ChangeEventArgs e)
     {
         Avail.IsActive = (bool)e.Value;
+    }
+
+    public async Task<string> GetName(string DriverID)
+    {
+
+        try
+        {
+
+            var AvailDrafts = await API.GetRequest($"Available/GetDriverName/{DriverID}");
+            if (AvailDrafts != "")
+            {
+
+                var rec = JsonSerializer.Deserialize<string>(AvailDrafts);
+                return rec.ToString();
+
+            }
+            return null;
+        }
+        catch (Exception ex)
+        {
+            return null;
+        }
     }
     public async Task<string> Get1DriverID(int AvailID)
     {
@@ -464,8 +486,8 @@
             if (AvailDrafts != "")
             {
 
-                var rec= JsonSerializer.Deserialize<int>(AvailDrafts);
-                if(rec==200)
+                var rec = JsonSerializer.Deserialize<int>(AvailDrafts);
+                if (rec == 200)
                 {
                     await GetAllAvail();
                     toastService.ShowSuccess("Availibility Record Removed");
@@ -494,8 +516,8 @@
         {
             BusinessList = new List<GetBusiness>();
             VehicleList = new List<string>();
-            Driver1List = new List<string>();
-            Driver2List = new List<string>();
+            Driver1List = new List<DriverName>();
+            Driver2List = new List<DriverName>();
         }
     }
 
@@ -515,7 +537,7 @@
         }
         else
         {
-            Driver2List = new List<string>();
+            Driver2List = new List<DriverName>();
 
         }
     }
@@ -535,7 +557,7 @@
         }
         else
         {
-            Driver1List = new List<string>();
+            Driver1List = new List<DriverName>();
         }
     }
     private async Task VeicleChange(ChangeEventArgs e)
@@ -549,8 +571,8 @@
         else
         {
             VehicleList = new List<string>();
-            Driver1List = new List<string>();
-            Driver2List = new List<string>();
+            Driver1List = new List<DriverName>();
+            Driver2List = new List<DriverName>();
         }
     }
 
@@ -645,8 +667,8 @@
                     await GetAllAvail();
                     modal.CloseModal();
                     VehicleList = new List<string>();
-                    Driver1List = new List<string>();
-                    Driver2List = new List<string>();
+                    Driver1List = new List<DriverName>();
+                    Driver2List = new List<DriverName>();
 
                 }
 
@@ -683,8 +705,8 @@
                     await GetAllAvail();
                     modal.CloseModal();
                     VehicleList = new List<string>();
-                    Driver1List = new List<string>();
-                    Driver2List = new List<string>();
+                    Driver1List = new List<DriverName>();
+                    Driver2List = new List<DriverName>();
 
                 }
 
@@ -755,7 +777,7 @@
             if (Driver != "")
             {
 
-                Driver1List = JsonSerializer.Deserialize<List<string>>(Driver);
+                Driver1List = JsonSerializer.Deserialize<List<DriverName>>(Driver);
 
             }
         }
@@ -774,7 +796,7 @@
             if (Driver != "")
             {
 
-                Driver2List = JsonSerializer.Deserialize<List<string>>(Driver);
+                Driver2List = JsonSerializer.Deserialize<List<DriverName>>(Driver);
 
             }
         }
