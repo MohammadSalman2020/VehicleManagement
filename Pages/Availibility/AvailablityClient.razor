@@ -91,6 +91,13 @@
 
                                     </div>
                                 </div>
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label for="example-text-input" class="form-control-label">Product</label>
+                                        <input type="text" @bind="Load.product" placeholder="Location" class="form-control">
+
+                                    </div>
+                                </div>
                         @*         <div class="col-md-6">
                                     <div class="form-group">
                                         <div class="form-control">
@@ -188,6 +195,13 @@
                     toastService.ShowSuccess($"Load Added Success");
                     Load = new AddLoad();
                     await GetAllAvail();
+                    modal.CloseModal();
+
+                }
+                else
+                {
+
+                    toastService.ShowError("Error...");
                     modal.CloseModal();
 
                 }

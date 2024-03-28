@@ -297,6 +297,12 @@
                     IsEdit = false;
                     DriverDBID = 0;
                 }
+                else
+                {
+                    modal.CloseModal();
+
+                    toastService.ShowError("Error");
+                }
             }
             else
             {
@@ -329,6 +335,12 @@
                     modal.CloseModal();
 
 
+                }
+                else
+                {
+                    modal.CloseModal();
+
+                    toastService.ShowError("Error");
                 }
 
             }

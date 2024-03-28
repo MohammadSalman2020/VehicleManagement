@@ -32,7 +32,7 @@
                                             </div>
                                             <div class="card-body">
                                                 <span class="tag tag-danger">On Maintenance</span>
-                                                <h4>TLK-960 (48KL) &nbsp;&nbsp;8,8,16,8,8</h4>
+                                                <h4>@item.vehicleNumber</h4>
                                                 <p>
                                                     <i class="fa fa-map-marker" aria-hidden="true"></i>
                                                     &nbsp;NHHB Shakoor & Company Limited
@@ -115,7 +115,6 @@
 @code {
     private Modal modal;
     public List<MaintainanceVehicle> MaintainanceList = new List<MaintainanceVehicle>();
-    public AddLoad Load = new AddLoad();
     public List<int> BusinessID = new List<int>();
 
     public bool IsLoading = false;

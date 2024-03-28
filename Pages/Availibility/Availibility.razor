@@ -105,7 +105,7 @@
                                 }
                                 else
                                 {
-                                    <DataLoaderComponent IsLoading="@IsChildLoading" LoadingText="Loading Available Fleets..." />
+                                    <DataLoaderComponent IsLoading="@IsChildLoad" LoadingText="Loading Available Fleets..." />
                                 }
 
 
@@ -192,7 +192,7 @@
                                                         <option value="0" selected="@(Avail.Driver1ID==null?"selected":null)">Select One</option>
                                                         @foreach (var item in Driver1List)
                                                         {
-                                                            <option value="@item" selected="@(item.driverID == Avail.Driver1ID?"selected":null)">@item.fullname (@item.driverID)</option>
+                                                            <option value="@item.driverID" selected="@(item.driverID == Avail.Driver1ID?"selected":null)">@item.fullname (@item.driverID)</option>
 
                                                         }
                                                     }
@@ -208,6 +208,7 @@
                                             </div>
                                         </div>
                                     }
+                                
                                     @if (Driver2List.Count > 0)
                                     {
                                         <div class="col-md-6">
@@ -220,7 +221,7 @@
                                                         <option value="0" selected="@(Avail.Driver2ID==null?"selected":null)">Select One</option>
                                                         @foreach (var item in Driver2List)
                                                         {
-                                                            <option value="@item" selected="@(item.driverID == Avail.Driver2ID?"selected":null)">@item.fullname (@item.driverID)</option>
+                                                            <option value="@item.driverID" selected="@(item.driverID == Avail.Driver2ID?"selected":null)">@item.fullname (@item.driverID)</option>
 
                                                         }
                                                     }
@@ -239,13 +240,13 @@
 
 
 
-                                        <div class="col-md-6">
-                                            <div class="form-group">
-                                                <label for="example-text-input" class="form-control-label">Location</label>
-                                                <input type="text" @bind="Avail.VehicleLocation" placeholder="Location" class="form-control">
+                                        @*       <div class="col-md-6">
+                                <div class="form-group">
+                                <label for="example-text-input" class="form-control-label">Location</label>
+                                <input type="text" @bind="Avail.VehicleLocation" placeholder="Location" class="form-control">
 
-                                            </div>
-                                        </div>
+                                </div>
+                                </div> *@
                                         @*      <div class="col-md-6">
                                 <div class="form-group">
                                 <div class="form-control">
@@ -276,6 +277,18 @@
                                         }
 
                                     }
+                                    else
+
+                                    {
+                                        <DataLoaderComponent IsLoading="@IsChildLoading" LoadingText="Loading Drivers..." />
+
+                                    }
+
+                                }
+                                else
+
+                                {
+                                    <DataLoaderComponent IsLoading="@IsChildLoading" LoadingText="Loading Vehicles..." />
 
                                 }
 
@@ -375,6 +388,7 @@
     public bool IsEdit = false;
     public bool IsLoading = false;
     public bool IsChildLoading = false;
+    public bool IsChildLoad = false;
     public string GetRole { get; set; }
     public int EditAvailID { get; set; }
 
@@ -492,6 +506,12 @@
                     await GetAllAvail();
                     toastService.ShowSuccess("Availibility Record Removed");
                 }
+                else
+                {
+
+                    toastService.ShowError("Error...");
+
+                }
 
             }
 
@@ -506,9 +526,13 @@
     }
     private async Task AvailBusiness(ChangeEventArgs e)
     {
+        IsChildLoading = true;
         if (e.Value != "0")
         {
             Avail.Business = int.Parse(e.Value.ToString());
+            VehicleList = new List<string>();
+            Driver1List = new List<DriverName>();
+            Driver2List = new List<DriverName>();
             await GetAllVehicle(Avail.Business);
 
         }
@@ -519,10 +543,12 @@
             Driver1List = new List<DriverName>();
             Driver2List = new List<DriverName>();
         }
+        IsChildLoading = false;
     }
 
     private void Driver2(ChangeEventArgs e)
     {
+        IsChildLoading = true;
         if (e.Value != "0")
         {
             try
@@ -540,9 +566,12 @@
             Driver2List = new List<DriverName>();
 
         }
+        IsChildLoading = false;
     }
     private void Driver1(ChangeEventArgs e)
     {
+        IsChildLoading = true;
+
         if (e.Value != "0")
         {
             try
@@ -559,14 +588,21 @@
         {
             Driver1List = new List<DriverName>();
         }
+        IsChildLoading = false;
+
     }
     private async Task VeicleChange(ChangeEventArgs e)
     {
+        IsChildLoading = true;
+
         if (e.Value != "0")
         {
             Avail.VehicleID = e.Value.ToString();
+            Driver1List = new List<DriverName>();
+            Driver2List = new List<DriverName>();
             await GetAll1Driver(Avail.VehicleID, Avail.Business);
             await GetAll2Driver(Avail.VehicleID, Avail.Business);
+
         }
         else
         {
@@ -574,12 +610,13 @@
             Driver1List = new List<DriverName>();
             Driver2List = new List<DriverName>();
         }
+        IsChildLoading = false;
     }
 
     public bool isEmpty()
     {
-        if (Avail.VehicleLocation != null && Avail.Business != 0 && Avail.VehicleID != null && Avail.Driver1ID != null
-        && Avail.Driver2ID != null)
+        if (Avail.Business != 0 && Avail.VehicleID != "0" && Avail.Driver1ID != "0"
+        && Avail.Driver2ID != "0")
         {
             return false;
         }
@@ -607,6 +644,13 @@
                 await GetAllAvail();
                 toastService.ShowSuccess($"Availability Cleared Success");
                 ClearModal.CloseModal();
+            }
+            else
+            {
+
+                toastService.ShowError("Error...");
+                ClearModal.CloseModal();
+
             }
         }
         catch (Exception ex)
@@ -669,6 +713,13 @@
                     VehicleList = new List<string>();
                     Driver1List = new List<DriverName>();
                     Driver2List = new List<DriverName>();
+                    IsEdit = false;
+                }
+                else
+                {
+
+                    toastService.ShowError("Error...");
+                    modal.CloseModal();
 
                 }
 
@@ -695,6 +746,7 @@
                 IsLoading = true;
                 Avail.AvailDate = DateTime.Now;
                 Avail.IsActive = true;
+                Avail.VehicleLocation = "";
                 string jsonData = JsonSerializer.Serialize(Avail);
                 var AddUser = await API.PostRequest($"Available/AddAvailability", jsonData);
                 int Result = JsonSerializer.Deserialize<int>(AddUser);
@@ -707,6 +759,13 @@
                     VehicleList = new List<string>();
                     Driver1List = new List<DriverName>();
                     Driver2List = new List<DriverName>();
+
+                }
+                else
+                {
+
+                    toastService.ShowError("Error...");
+                    modal.CloseModal();
 
                 }
 
@@ -726,7 +785,7 @@
     protected override async Task OnInitializedAsync()
     {
 
-        IsChildLoading = true;
+        IsChildLoad = true;
         try
         {
 
@@ -743,9 +802,9 @@
         }
         catch (Exception ex)
         {
-            IsChildLoading = false;
+            IsChildLoad = false;
         }
-        IsChildLoading = false;
+        IsChildLoad = false;
     }
     public async Task GetAllAvail()
     {
@@ -858,6 +917,10 @@
     }
     private void OpenModal()
     {
+        if(!IsEdit)
+        {
+            Avail = new AddAvailability();
+        }
         modal.Show();
     }
     private void OpenPushModal()
