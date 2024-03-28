@@ -819,6 +819,11 @@
 
 
                 }
+                else
+                {
+                    UserModal.CloseModal();
+                    toastService.ShowError($"Error while Adding to User");
+                }
 
             }
             else
@@ -853,6 +858,11 @@
                     await GetAllUsers();
                     IsUserEdit = false;
                     UpdateUserID = 0;
+                }
+                else
+                {
+                    UserModal.CloseModal();
+                    toastService.ShowError($"Error while Updating");
                 }
             }
             else
@@ -1019,6 +1029,12 @@
                     await GetAllSecrets();
                     IsSecretEdit = false;
                     UpdateSecretID = 0;
+                    SecretModal.CloseModal();
+                }
+                else
+                {
+                    SecretModal.CloseModal();
+                    toastService.ShowError($"Error");
                 }
             }
             else
@@ -1157,7 +1173,7 @@
                 else
                 {
                     PolicyModal.CloseModal();
-                    toastService.ShowError("Error While Adding Secret Key...");
+                    toastService.ShowError("Error While Adding Policy...");
                 }
 
             }
@@ -1290,12 +1306,14 @@
                     await GetUserBusiness(addUserBusiness.UserID);
                     await GetAllUsers();
                     toastService.ShowSuccess("User Business Added Success");
+                    BusinessModal.CloseModal();
 
 
                 }
                 else if(Result == 504)
                 {
                     toastService.ShowWarning("User with this business already exists");
+                    BusinessModal.CloseModal();
 
                 }
 
@@ -1303,6 +1321,8 @@
                 {
                    
                     toastService.ShowError("Error While Adding User Business...");
+                    BusinessModal.CloseModal();
+
                 }
 
             }

@@ -375,6 +375,8 @@
                 }
                 else
                 {
+                    TripConfirmModal.CloseModal();
+
                     toast.ShowError("Error While Adding Trip");
                 }
 
@@ -438,6 +440,11 @@
                 MaintainanceModal.CloseModal();
                 toast.ShowSuccess($"Vehicle Sent to Maintainance");
 
+            }
+            else
+            {
+                MaintainanceModal.CloseModal();
+                toast.ShowError($"Error while Adding to Maintaince");
             }
         }
         catch (Exception ex)

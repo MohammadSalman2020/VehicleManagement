@@ -51,7 +51,9 @@
                                         <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">1st Driver</th>
                                         <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">2nd Driver</th>
                                         <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Vehicle Location</th>
+                                        <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Vehicle Current Location</th>
                                         <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Business</th>
+                                        <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Live Tracing</th>
 
                                         @*   <th class="text-secondary opacity-7"></th> *@
                                     </tr>
@@ -140,13 +142,17 @@
                                                     <span class="badge badge-sm bg-gradient-success">@item.vehicleLocation</span>
                                                 </td>
                                                 <td class="align-middle text-center text-sm">
+                                                    <span class="badge badge-sm bg-gradient-info">@item.currentLocation</span>
+                                                </td>
+                                                <td class="align-middle text-center text-sm">
                                                     <span class="badge badge-sm bg-gradient-danger">@item.business</span>
                                                 </td>
-                                                @*     <td class="align-middle">
-                                    <a @onclick="@(()=> NavigateToLiveTracing(item.currentlatitude,item.currentlongitude))" class="text-secondary font-weight-bold text-xs cursor-pointer" data-toggle="tooltip" data-original-title="Edit user">
-                                    Live Tracing
-                                    </a>
-                                    </td> *@
+
+                                                <td class="align-middle">
+                                                    <a @onclick="@(()=> NavigateToLiveTracing(item.lat,item.longi))" class="text-secondary font-weight-bold text-xs cursor-pointer" data-toggle="tooltip" data-original-title="Edit user">
+                                                        Live Tracing
+                                                    </a>
+                                                </td>
                                             </tr>
                                         }
                                     }
@@ -181,7 +187,7 @@
 
                                                 </td>
 
-                                                 <td>
+                                                <td>
                                                     <p class="text-xs font-weight-bold mb-0">@item.mainFrom</p>
 
                                                 </td>
@@ -549,7 +555,7 @@
 
       string StartLatitude = null, string EndLongitude = null, string EndLatitude = null)
     {
-        NavigationManager.NavigateTo($"/livetracing?CurrentLatitide={CurrentLatitide}&CurrentLongitude={CurrentLongitude}&StartLongitude={StartLongitude}&StartLatitude={StartLatitude}&EndLongitude={EndLongitude}&EndLatitude={EndLatitude}", true);
+        NavigationManager.NavigateTo($"/livetracing?CurrentLatitide={CurrentLatitide}&CurrentLongitude={CurrentLongitude}&StartLongitude={StartLongitude}&StartLatitude={StartLatitude}&EndLongitude={EndLongitude}&EndLatitude={EndLatitude}");
 
     }
 

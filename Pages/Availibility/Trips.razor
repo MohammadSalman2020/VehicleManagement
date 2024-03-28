@@ -195,6 +195,12 @@
                 toast.ShowSuccess($"Vehicle Sent to Maintainance");
 
             }
+            else
+            {
+                MaintainanceModal.CloseModal();
+
+                toast.ShowError("Error");
+            }
         }
         catch (Exception ex)
         {
