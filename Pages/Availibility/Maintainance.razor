@@ -35,14 +35,14 @@
                                                 <h4>@item.vehicleNumber</h4>
                                                 <p>
                                                     <i class="fa fa-map-marker" aria-hidden="true"></i>
-                                                    &nbsp;NHHB Shakoor & Company Limited
+                                                    &nbsp;@item.location
                                                 </p>
                                                 <p>
-                                                    <i class="fa fa-user" aria-hidden="true"></i>
-                                                    &nbsp;Mumahhad Siddique(03356545644)
+                                                    <i class="fa fa-building" aria-hidden="true"></i>
+                                                    &nbsp;@item.mainFrom
                                                     <br /><br />
                                                     <i class="fa fa-user" aria-hidden="true"></i>
-                                                    &nbsp;Mumahhad Salman(03356545644)
+                                                    &nbsp;@item.onMainDate.ToString("MM-dd-yyyy")
                                                 </p>
 
                                             </div>
@@ -114,7 +114,7 @@
 
 @code {
     private Modal modal;
-    public List<MaintainanceVehicle> MaintainanceList = new List<MaintainanceVehicle>();
+    public List<GetMain> MaintainanceList = new List<GetMain>();
     public List<int> BusinessID = new List<int>();
 
     public bool IsLoading = false;
@@ -152,7 +152,7 @@
             if (Main != "")
             {
 
-                var rec = JsonSerializer.Deserialize<List<MaintainanceVehicle>>(Main);
+                var rec = JsonSerializer.Deserialize<List<GetMain>>(Main);
                 MaintainanceList = rec.Where(b => BusinessID.Contains(b.busID)).ToList();
 
 
