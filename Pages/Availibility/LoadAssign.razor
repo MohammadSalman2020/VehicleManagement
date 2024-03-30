@@ -40,6 +40,7 @@
                                             </div>
                                             <div class="card-body">
                                                 <span class="tag tag-success">Load Assigned</span>
+                                              
                                                 &nbsp;
                                                 @if (@item.isActive)
                                                 {
@@ -52,6 +53,7 @@
 
                                                 }
                                                 <h4>@item.vehicle &nbsp;&nbsp;@item.chamberSeq</h4>
+                                                <span class="fa fa-map-marker">@item.location</span>
                                                 <p>
                                                     <i class="fa fa-map-marker" aria-hidden="true"></i>
                                                     &nbsp;Shipping:  @item.loading
@@ -314,7 +316,7 @@
             {
 
                 var rec = JsonSerializer.Deserialize<List<GetAllLoad>>(AvailDrafts);
-                LoadList = rec.Where(b => BusinessID.Contains(b.businessID)).ToList();
+                LoadList = rec.Where(b => BusinessID.Contains(b.businessID)).OrderByDescending(p => p.loadID).ToList();
             }
         }
         catch (Exception ex)

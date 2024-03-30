@@ -38,7 +38,7 @@
                                                     &nbsp;Product: @item.product
                                                 </p>
                                                 <p>
-                                                    <i class="fa fa-marker" aria-hidden="true"></i>
+                                                    <i class="fa fa-map-marker" aria-hidden="true"></i>
                                                     &nbsp;Location: @item.loadingPoint
                                                 </p>
                                                 <p>
@@ -165,7 +165,7 @@
                 var rec = JsonSerializer.Deserialize<List<TripConfirm>>(AvailDrafts);
                 if(rec.Count>0)
                 {
-                    TripList = rec.Where(b => BusinessID.Contains(b.businessID)).ToList();
+                    TripList = rec.Where(b => BusinessID.Contains(b.businessID)).OrderByDescending(p => p.loadID).ToList();
 
                 }
             }

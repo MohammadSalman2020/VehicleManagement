@@ -10,6 +10,8 @@
         public string chamberSeq { get; set; }
         public string loading { get; set; }
         public string decenting { get; set; }
+        public string location { get; set; }
+
         public bool isActive{ get; set; }
     }
 }

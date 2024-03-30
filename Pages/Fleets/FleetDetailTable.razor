@@ -66,6 +66,7 @@
                                         <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Maintainance Report From</th>
                                         <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Maintainance Report Date</th>
                                         <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Business</th>
+                                        <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Location</th>
 
                                         <th class="text-secondary opacity-7"></th>
                                     </tr>
@@ -74,7 +75,9 @@
                                 {
                                     <tr>
                                         <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Vehicle #</th>
+                                        <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7" style="text-align:center">Current Location</th>
                                         <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2" style="text-align:center">Business</th>
+                                        <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2" style="text-align:center"></th>
                                         @*                                      <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Trip End Location</th>
                                     <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Current Location</th>
 
@@ -104,6 +107,8 @@
                                         <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Decanting Point</th>
                                         <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Load Assign Date</th>
                                         <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Business</th>
+
+                                        <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Current Location</th>
 
                                     </tr>
 
@@ -198,17 +203,15 @@
                                                 <td class="align-middle text-center text-sm">
                                                     <span class="badge badge-sm bg-gradient-danger">@item.business</span>
                                                 </td>
-                                                @*   <td class="align-middle text-center">
-                                    <span class="text-secondary text-xs font-weight-bold">@item.location</span>
-                                    </td>
-                                    <td class="align-middle text-center text-sm">
-                                    <span class="badge badge-sm bg-gradient-danger">@item.status</span>
-                                    </td>
-                                    <td class="align-middle">
-                                    <a @onclick="@(()=> NavigateToLiveTracing(item.currentlatitude,item.currentlongitude))" class="text-secondary font-weight-bold text-xs cursor-pointer" data-toggle="tooltip" data-original-title="Edit user">
-                                    Live Tracing
-                                    </a>
-                                    </td> *@
+                                                <td class="align-middle text-center">
+                                                    <span class="badge badge-sm bg-gradient-warning">@item.location</span>
+                                                </td>
+
+                                                <td class="align-middle">
+                                                    <a @onclick="@(()=> NavigateToLiveTracing(item.lat,item.longii))" class="text-secondary font-weight-bold text-xs cursor-pointer" data-toggle="tooltip" data-original-title="Edit user">
+                                                        Live Tracing
+                                                    </a>
+                                                </td>
                                             </tr>
                                         }
                                     }
@@ -240,22 +243,17 @@
 
 
                                                 <td class="align-middle text-center text-sm">
+                                                    <span class="badge badge-sm bg-gradient-danger">@item.location</span>
+                                                </td>
+                                                <td class="align-middle text-center text-sm">
                                                     <span class="badge badge-sm bg-gradient-danger">@item.business</span>
                                                 </td>
-                                                @*     <td class="align-middle text-center">
-                                    <span class="text-secondary text-xs font-weight-bold">@item.tripEnd</span>
-                                    </td>
-                                    <td class="align-middle text-center">
-                                    <span class="text-secondary text-xs font-weight-bold">@item.currentLocation</span>
-                                    </td>
-                                    <td class="align-middle text-center text-sm">
-                                    <span class="badge badge-sm bg-gradient-warning">@item.status</span>
-                                    </td>
-                                    <td class="align-middle">
-                                    <a @onclick="@(()=> NavigateToLiveTracing(item.currentlatitude,item.currentlongitude,item.startlongitude,item.startlatitude,item.endlongitude,item.endlatitude))" class="text-secondary font-weight-bold text-xs cursor-pointer" data-toggle="tooltip" data-original-title="Edit user">
-                                    Live Tracing
-                                    </a>
-                                    </td> *@
+
+                                                <td class="align-middle">
+                                                    <a @onclick="@(()=> NavigateToLiveTracing(item.lat,item.longii))" class="text-secondary font-weight-bold text-xs cursor-pointer" data-toggle="tooltip" data-original-title="Edit user">
+                                                        Live Tracing
+                                                    </a>
+                                                </td>
                                             </tr>
                                         }
                                     }
@@ -353,12 +351,16 @@
                                                     <span class="badge badge-sm bg-gradient-danger">@item.business</span>
                                                 </td>
 
+                                                <td class="align-middle text-center text-sm">
+                                                    <span class="badge badge-sm bg-gradient-warning">@item.location</span>
+                                                </td>
 
-                                                @*     <td class="align-middle">
-                                    <a @onclick="@(()=> NavigateToLiveTracing(item.location,"Lahore"))" class="text-secondary font-weight-bold text-xs cursor-pointer" data-toggle="tooltip" data-original-title="Edit user">
-                                    Live Tracing
-                                    </a>
-                                    </td> *@
+
+                                                <td class="align-middle">
+                                                    <a @onclick="@(()=> NavigateToLiveTracing(item.lat,item.longii))" class="text-secondary font-weight-bold text-xs cursor-pointer" data-toggle="tooltip" data-original-title="Edit user">
+                                                        Live Tracing
+                                                    </a>
+                                                </td>
                                             </tr>
 
 
@@ -400,7 +402,7 @@
     public List<int> BusinessID = new List<int>();
 
     public List<AvailableVehicle> AvailableList = new List<AvailableVehicle>();
-    public List<MaintainanceVehicle> MaintainanceList = new List<MaintainanceVehicle>();
+    public List<GetMain> MaintainanceList = new List<GetMain>();
     public List<OntripVehicles> OntripList = new List<OntripVehicles>();
     public List<TotalVehicles> AllVehicles = new List<TotalVehicles>();
     public List<OnLoadVehicle> OnLoadList = new List<OnLoadVehicle>();
@@ -441,8 +443,8 @@
             if (Main != "")
             {
 
-                var rec = JsonSerializer.Deserialize<List<MaintainanceVehicle>>(Main);
-                MaintainanceList = rec.Where(b => BusinessID.Contains(b.busID)).ToList();
+                var rec = JsonSerializer.Deserialize<List<GetMain>>(Main);
+                MaintainanceList = rec.Where(b => BusinessID.Contains(b.busID)).OrderByDescending(p=>p.mainid).ToList();
 
 
             }

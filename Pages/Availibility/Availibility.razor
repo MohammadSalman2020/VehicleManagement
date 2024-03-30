@@ -817,7 +817,7 @@
             {
 
                 var rec = JsonSerializer.Deserialize<List<AvailDraft>>(AvailDrafts);
-                AvailDraftList = rec.Where(b => BusinessID.Contains(b.business)).ToList();
+                AvailDraftList = rec.Where(b => BusinessID.Contains(b.business)).OrderByDescending(p => p.availID).ToList();
 
             }
         }
