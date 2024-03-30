@@ -8,6 +8,8 @@
         public string business { get; set; }
         public string reason { get; set; }
         public string location { get; set; }
+        public string lat { get; set; }
+        public string longii { get; set; }
         public int busID { get; set; }
         public int loadid { get; set; }
         public int mainid { get; set; }
