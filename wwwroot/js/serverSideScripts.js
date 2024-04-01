@@ -71,8 +71,8 @@ window.addMarker = function (data) {
 
         marker.addListener('click', function () {
             infoWindow.open(map, marker);
-            map.setZoom(15);
-            map.setCenter(marker.getPosition());
+           // map.setZoom(15);
+          //  map.setCenter(marker.getPosition());
         });
     });
 };
@@ -112,8 +112,8 @@ function addpoint(points) {
 
         marker.addListener('click', function () {
             infoWindow.open(map, marker);
-            map.setZoom(18);
-            map.setCenter(marker.getPosition());
+           // map.setZoom(18);
+          //  map.setCenter(marker.getPosition());
         });
     });
 

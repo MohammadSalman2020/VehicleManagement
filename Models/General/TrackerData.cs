@@ -15,7 +15,7 @@ namespace VehicleManagement.Models.General
         public string engineStatus { get; set; }
         public string locationname { get; set; }
         public string vehicledirectionangle { get; set; }
-        public string Fueldata { get; set; }
+        public string fueldata { get; set; }
     }
     public class CustomDateTimeConverter : JsonConverter<DateTime>
     {
