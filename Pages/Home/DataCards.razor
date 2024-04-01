@@ -1,11 +1,14 @@
 ﻿@using Microsoft.EntityFrameworkCore
 @using System.Text.Json
 @using VehicleManagement.ApiService
+@using VehicleManagement.Authentication
 @using VehicleManagement.Models.DB
 @using VehicleManagement.Models.General
 @inject IToastService toastService
 @inject NavigationManager Nav
 @inject IApiService API
+@inject IUserClaimsService UserClaimsService
+
 <div class="card">
     <div class="card-body">
         <div class="row row-cols-1 row-cols-md-2 row-cols-xl-5 g-4">
@@ -127,14 +130,21 @@
     public int TotalOnLoad;
     public int Total;
     public DataCardCount dataCard = new DataCardCount();
-
+    public List<int> BusinessID = new List<int>();
     public async Task GetAllData()
     {
 
         try
         {
+            BusinessID = await UserClaimsService.GetBusinessIdsAsync();
+            JsonSerializerOptions options = new JsonSerializerOptions
+                {
+                    WriteIndented = true,
+                    ReferenceHandler = null
+                };
+            string jsonData = JsonSerializer.Serialize(BusinessID, options);
 
-            var Roles = await API.GetRequest($"Fleet/GetDataCount");
+            var Roles = await API.PostRequest($"Fleet/GetDataCount", jsonData);
             if (Roles != "")
             {
 

@@ -3,6 +3,7 @@
 
 @using System.Security.Claims
 @using System.Text.Json
+@using System.Text.RegularExpressions
 @using VehicleManagement.ApiService
 @using VehicleManagement.Authentication
 @using VehicleManagement.Models.General
@@ -21,6 +22,7 @@
                 <div class="col-12">
                     <div class="card mb-4">
                         <div class="fleet-cards">
+                           
                             <div class="container">
                                 @if (AvailDraftList.Count > 0)
                                 {
@@ -29,7 +31,7 @@
                                         <div class="card">
                                             <div class="card-body">
                                                 <span class="tag tag-success">Available</span>
-                                          
+
                                                 <h4 style="padding-top: 30px;">
                                                     @item.vehicleCap &nbsp;&nbsp;@item.chamberSEQ
                                                 </h4>
@@ -41,14 +43,20 @@
                                                     <i class="fas fa-building" aria-hidden="true"></i>
                                                     &nbsp;@item.businessName
                                                 </p>
-                                                <p>
-                                                    <i class="fa fa-user" aria-hidden="true"></i>
-                                                    &nbsp;@item.driver1
+                                                <p class="contact-info">
+                                                    <CallModal @ref="Call" phoneNumber="@phoneNumber" />
+                                                    <a @onclick="@(()=>HandleButtonClick(item.driver1))">
+                                                        <i class="fa fa-user" aria-hidden="true"></i>
+                                                        &nbsp;@item.driver1
+                                                    </a>
                                                     <br /><br />
-                                                    <i class="fa fa-user" aria-hidden="true"></i>
-                                                    &nbsp;@item.driver2
-                                                </p>
+                                                    <a @onclick="@(()=>HandleButtonClick(item.driver2))">
 
+                                                        <i class="fa fa-user" aria-hidden="true"></i>
+                                                        &nbsp;@item.driver2
+                                                    </a>
+                                                </p>
+                                               
                                                 <span class="btn tag-btn btn-warning btn-sm ms-auto" @onclick="@(()=>OpenLoadModal(item.availID))">Assign Load</span>
 
                                             </div>
@@ -98,15 +106,15 @@
 
                                     </div>
                                 </div>
-                        @*         <div class="col-md-6">
-                                    <div class="form-group">
-                                        <div class="form-control">
-                                            <label for="example-text-input" class="form-control-label">Status</label>
-                                            <input checked="@Load.isActive" @onchange="LoadStatus" type="checkbox">
-                                            <span class="form-control-label">Active</span>
-                                        </div>
+                                @*         <div class="col-md-6">
+                                <div class="form-group">
+                                <div class="form-control">
+                                <label for="example-text-input" class="form-control-label">Status</label>
+                                <input checked="@Load.isActive" @onchange="LoadStatus" type="checkbox">
+                                <span class="form-control-label">Active</span>
+                                </div>
 
-                                    </div>
+                                </div>
                                 </div> *@
                                 <div class="col-md-12">
                                     <div class="form-group" style="text-align:center;">
@@ -133,14 +141,29 @@
 
 @code {
     private Modal modal;
+    private CallModal Call;
     public List<AvailDraft> AvailDraftList = new List<AvailDraft>();
     public AddLoad Load = new AddLoad();
     public List<int> BusinessID = new List<int>();
 
     public bool IsLoading = false;
     public bool IsChildLoading = false;
+    public string modalDisplay { get; set; } = "none";
 
+    public string phoneNumber { get; set; } = "316 2385804";
 
+    void HandleButtonClick(string s)
+    {
+        var match = Regex.Match(s, @"\(([^)]*)\)");
+        if (match.Success)
+        {
+            // Get the phone number from the regex match
+            phoneNumber = match.Groups[1].Value.Trim();
+            phoneNumber = phoneNumber.Replace(" ", "").Replace("-", "");
+            phoneNumber = "+92" + phoneNumber;
+            Call.Open();
+        }
+    }
     private void LoadStatus(ChangeEventArgs e)
     {
         Load.isActive = (bool)e.Value;

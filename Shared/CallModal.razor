@@ -1,0 +1,96 @@
+﻿@using System.Text.RegularExpressions
+
+@inject IJSRuntime JSRuntime
+
+<style>
+    .contact-info {
+        cursor: pointer;
+        text-align: center;
+    }
+
+    .modals {
+        display: @modalDisplay;
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        z-index: 1000;
+        /* background-color: rgba(0, 0, 0, 0.5); */
+        max-width: 250px; /* Set the maximum width of the modal based on your preference */
+        max-height: 260px; /* Set the maximum width of the modal based on your preference */
+        padding: 20px;
+        border-radius: 5px;
+    }
+    .btn-calls{
+        background: #5e72e4 !important
+        margin-bottom: 5px !important;
+    }
+
+    .modals-content {
+        background-color: white;
+        padding: 20px;
+        border-radius: 5px;
+    }
+
+    .closes {
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        cursor: pointer;
+    }
+
+</style>
+<div class="modals" style="display: @modalDisplay;">
+    <div class="modals-content">
+        <span class="closes" @onclick="CloseModal">&times;</span>
+        <div>
+
+            <button class="btn btn-calls" @onclick="MakeCall">Call</button>
+            <button class="btn btn-calls" @onclick="whatsapp">Whatsapp</button>
+            <button class="btn btn-calls" @onclick="SendSMS">Send SMS</button>
+        </div>
+    </div>
+</div>
+@code {
+    
+    public string modalDisplay { get; set; } = "none";
+    [Parameter]
+    public string phoneNumber { get; set; }
+
+    public void Open()
+    {
+        modalDisplay = "block";
+        StateHasChanged();
+    }
+ 
+    // Method to close the modal
+    public void CloseModal()
+    {
+        modalDisplay = "none";
+        StateHasChanged();
+    }
+    void SendSMS()
+    {
+        // Open the default SMS application with the recipient's number pre-filled
+        string smsUri = $"sms:{phoneNumber}";
+        JSRuntime.InvokeVoidAsync("open", smsUri);
+    }
+
+    void MakeCall()
+    {
+        // Initiate a phone call
+        string telUri = $"tel:{phoneNumber}";
+        JSRuntime.InvokeVoidAsync("open", telUri);
+    }
+    void whatsapp()
+    {
+        // Replace spaces and dashes from the phone number, if any
+        string formattedPhoneNumber = phoneNumber.Replace(" ", "").Replace("-", "");
+
+        // Construct the WhatsApp message with the phone number and any additional content
+        string whatsappMessage = $"https://wa.me/{formattedPhoneNumber}?text=Hello";
+
+        // Open WhatsApp with the pre-filled message
+        JSRuntime.InvokeVoidAsync("open", whatsappMessage);
+    }
+}
