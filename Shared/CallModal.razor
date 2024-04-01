@@ -21,8 +21,9 @@
         padding: 20px;
         border-radius: 5px;
     }
-    .btn-calls{
-        background: #5e72e4 !important
+
+    .btn-calls {
+        background: #5e72e4 !important;
         margin-bottom: 5px !important;
     }
 
@@ -44,7 +45,7 @@
     <div class="modals-content">
         <span class="closes" @onclick="CloseModal">&times;</span>
         <div>
-
+            <h5>@phoneNumber</h5>
             <button class="btn btn-calls" @onclick="MakeCall">Call</button>
             <button class="btn btn-calls" @onclick="whatsapp">Whatsapp</button>
             <button class="btn btn-calls" @onclick="SendSMS">Send SMS</button>
@@ -52,7 +53,7 @@
     </div>
 </div>
 @code {
-    
+
     public string modalDisplay { get; set; } = "none";
     [Parameter]
     public string phoneNumber { get; set; }
@@ -62,7 +63,7 @@
         modalDisplay = "block";
         StateHasChanged();
     }
- 
+
     // Method to close the modal
     public void CloseModal()
     {

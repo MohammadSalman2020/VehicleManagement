@@ -22,7 +22,7 @@
                 <div class="col-12">
                     <div class="card mb-4">
                         <div class="fleet-cards">
-                           
+
                             <div class="container">
                                 @if (AvailDraftList.Count > 0)
                                 {
@@ -45,18 +45,18 @@
                                                 </p>
                                                 <p class="contact-info">
                                                     <CallModal @ref="Call" phoneNumber="@phoneNumber" />
-                                                    <a @onclick="@(()=>HandleButtonClick(item.driver1))">
+                                                    <a @onclick="@(()=>HandleButtonClick(item.phoneDriver1))">
                                                         <i class="fa fa-user" aria-hidden="true"></i>
                                                         &nbsp;@item.driver1
                                                     </a>
                                                     <br /><br />
-                                                    <a @onclick="@(()=>HandleButtonClick(item.driver2))">
+                                                    <a @onclick="@(()=>HandleButtonClick(item.phoneDriver2))">
 
                                                         <i class="fa fa-user" aria-hidden="true"></i>
                                                         &nbsp;@item.driver2
                                                     </a>
                                                 </p>
-                                               
+
                                                 <span class="btn tag-btn btn-warning btn-sm ms-auto" @onclick="@(()=>OpenLoadModal(item.availID))">Assign Load</span>
 
                                             </div>
@@ -150,19 +150,29 @@
     public bool IsChildLoading = false;
     public string modalDisplay { get; set; } = "none";
 
-    public string phoneNumber { get; set; } = "316 2385804";
+    public string? phoneNumber { get; set; } 
 
     void HandleButtonClick(string s)
     {
-        var match = Regex.Match(s, @"\(([^)]*)\)");
-        if (match.Success)
+        if (s == null)
         {
-            // Get the phone number from the regex match
-            phoneNumber = match.Groups[1].Value.Trim();
-            phoneNumber = phoneNumber.Replace(" ", "").Replace("-", "");
-            phoneNumber = "+92" + phoneNumber;
-            Call.Open();
+            toastService.ShowError("Phone Number is Empty please update driver contact number");
+            return;
         }
+        phoneNumber = s;
+        // Check if the first character is '0'
+        if (phoneNumber.Length > 0 && phoneNumber[0] == '0')
+        {
+            // Remove the first character '0' and prepend '+92'
+            phoneNumber = "+92" + phoneNumber.Substring(1);
+        }
+
+        // Remove spaces from the whole string
+        phoneNumber = phoneNumber.Replace(" ", "");
+
+        // Now you can proceed with your further operations
+        Call.Open();
+
     }
     private void LoadStatus(ChangeEventArgs e)
     {
@@ -251,7 +261,6 @@
             var AvailDrafts = await API.GetRequest($"Available/GetAllAvailClient");
             if (AvailDrafts != "")
             {
-
                 var rec = JsonSerializer.Deserialize<List<AvailDraft>>(AvailDrafts);
                 AvailDraftList = rec.Where(b => BusinessID.Contains(b.business)).OrderByDescending(p => p.availID).ToList();
 
