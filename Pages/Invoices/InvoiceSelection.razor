@@ -1,0 +1,200 @@
+﻿@page "/inv_selection"
+@using System.Text.Json
+@using VehicleManagement.ApiService
+
+@inject NavigationManager navmgr
+@inject IApiService API
+<div class="container-fluid py-4">
+    <div class="row">
+        <div class="col-12">
+            <div class="card mb-12">
+                <div class="card-header pb-0" id="contentToPrint">
+                    <div class="form-group">
+                    </div>
+                    <div class="container">
+                        <div class="col-12">
+                            <div class="row">
+                                <div class="col-md-4">
+                                    <h4 style="text-align:center">Please Select Invoice Type</h4>
+
+                                    <div class="form-group d-grid gap-2">
+                                        <!-- Use d-grid to make button stretch -->
+                                        <button class="btn btn-warning btn-sm btn-block" @onclick="Primary">Primary</button> <!-- Removed @onclick for demonstration -->
+                                    </div>
+
+                                    <div class="form-group d-grid gap-2">
+                                        <!-- Use d-grid to make button stretch -->
+                                        <button class="btn btn-warning btn-sm btn-block" @onclick="Secondary">Secondary</button> <!-- Removed @onclick for demonstration -->
+                                    </div>
+                                </div>
+                                <div class="col-md-8">
+                                    <h5>InComplete Secondary Invoices</h5>
+                                    <div class="table-responsive p-0">
+                                        <table class="table align-items-center mb-0">
+                                            @if (invoices.Count > 0)
+                                            {
+                                                <thead>
+                                                    <tr>
+                                                        <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Secondary Invoice #</th>
+                                                        <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">PK Ref.</th>
+                                                        <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Date</th>
+                                                        <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Shipping Point</th>
+                                                        <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Receiving Point</th>
+                                                        <th class="text-secondary opacity-7">Action</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+
+                                                    @foreach (var item in invoices)
+                                                    {
+
+
+                                                        <tr>
+                                                            <td>
+                                                                <div class="d-flex px-2 py-1">
+                                                                    <div>
+                                                                        <img src="css/assets/Truck.jpg" class="avatar avatar-sm me-3" alt="user1">
+                                                                    </div>
+                                                                    <div class="d-flex flex-column justify-content-center">
+                                                                        <h6 class="mb-0 text-sm">@item.invoicenumber</h6>
+
+                                                                    </div>
+                                                                </div>
+                                                            </td>
+                                                            <td>
+                                                                <p class="text-xs font-weight-bold mb-0">@item.primaryreferences</p>
+
+                                                            </td>
+                                                            <td class="align-middle text-center">
+                                                                <span class="text-secondary text-xs font-weight-bold">@item.Date</span>
+                                                            </td>
+                                                            <td class="align-middle text-center">
+                                                                <span class="text-secondary text-xs font-weight-bold">@item.shipping</span>
+                                                            </td>
+                                                            <td class="align-middle text-center">
+                                                                <span class="text-secondary text-xs font-weight-bold">@item.receiving</span>
+                                                            </td>
+                                                            <td class="align-middle">
+                                                                <a @onclick="@(()=>ShowMessage(item.invoicenumber))" class="text-secondary font-weight-bold text-xs cursor-pointer">
+                                                                    View
+                                                                </a>
+                                                            </td>
+                                                        </tr>
+                                                    }
+                                                </tbody>
+                                            }
+                                            else
+                                            {
+                                                @*                                                 <DataLoaderComponent IsLoading="@IsLoading" LoadingText="Loading Invoice Data..." />
+                                            *@                                            }
+
+
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<Modal @ref="modal" Title="Add Primary Reference">
+    <Body>
+        <div class="container-fluid">
+            <!-- Ensure full width of the viewport -->
+            <div class="row justify-content-center">
+                <!-- Center your column for visual appeal -->
+                <div class="col-12">
+                    <!-- Full width on small screens, half on medium and up -->
+                    <div class="card">
+                        <div class="card-body">
+                            <div class="form-group d-grid gap-2">
+                                <label for="textBoxId">Primary Invoice Reference</label>
+                                <input required type="text" class="form-control" @onkeydown="HandleEnterPress" id="textBoxId" @bind-value="primaryinvoice" @bind-value:event="oninput" />
+                            </div>
+                            <div class="form-group d-grid gap-2">
+                                <button class="btn btn-warning btn-sm btn-block" @onclick="Submit">Submit</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </Body>
+</Modal>
+
+
+
+@code {
+
+    private Modal modal;
+    private string primaryinvoice;
+    private async Task Primary()
+    {
+        navmgr.NavigateTo($"/invoicepanel");
+
+    }
+
+    List<SecondaryInvoices> invoices = new List<SecondaryInvoices>();
+    private async Task Secondary()
+    {
+        modal.Show();
+
+    }
+    protected override async void OnInitialized()
+    {
+        await LoadInvoices();
+    }
+
+    private async Task LoadInvoices()
+    {
+        try
+        {
+            var rec = await API.GetRequest($"Invoice/GetIncompleteInvoices");
+
+            if (rec != null)
+            {
+                invoices = JsonSerializer.Deserialize<List<SecondaryInvoices>>(rec);
+
+                StateHasChanged();
+            }
+            else
+            {
+                Console.WriteLine("API request returned null.");
+            }
+
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error: {ex.Message}");
+            // Handle the exception appropriately (e.g., log, display error message, etc.)
+        }
+    }
+    private async Task Submit()
+    {
+        navmgr.NavigateTo($"/sc_invoice?pk={primaryinvoice.Trim()}");
+    }
+    private async Task HandleEnterPress(KeyboardEventArgs e)
+    {
+        if (e.Code == "Enter" || e.Key == "Enter")
+        {
+            navmgr.NavigateTo($"/sc_invoice?pk={primaryinvoice.Trim()}");
+        }
+    }
+    private async Task ShowMessage(string x)
+    {
+
+    }
+
+    public class SecondaryInvoices
+    {
+        public string invoicenumber { get; set; }
+        public string primaryreferences { get; set; }
+        public DateTime Date { get; set; }
+        public string shipping { get; set; }
+        public string receiving { get; set; }
+    }
+}
