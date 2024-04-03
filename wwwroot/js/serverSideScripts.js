@@ -37,6 +37,7 @@ function convertToThreeDigit(number) {
 }
 window.addMarker = function (data) {
     var markersData = JSON.parse(data);
+    var currentOpenInfoWindow = null; // Initialize a reference to store the currently open info window
 
     markersData.forEach(function (markerData) {
         var position = { lat: markerData.lat, lng: markerData.lng };
@@ -47,19 +48,17 @@ window.addMarker = function (data) {
             scaledSize: new google.maps.Size(30, 30), // Adjust the size of the marker image as needed
             origin: new google.maps.Point(0, 0),
             anchor: new google.maps.Point(25, 50), // Adjust the anchor point of the marker image as needed
-            // rotation: parseFloat(markerData.directionAngle) // Convert directionAngle to float
-            // rotation: parseFloat(90) // Convert directionAngle to float
         };
 
         var marker = new google.maps.Marker({
             position: position,
             map: map,
-            icon: icon // Set the custom marker image with rotation
+            icon: icon
         });
 
         // Create an info window with the provided content and custom styling
         var infoWindowContent = '';
-        if (markerData.status == "Driving") {
+        if (markerData.status.includes("Driving")) {
             infoWindowContent = '<div  style="background-color: #228B22;font-size:12px;font-weight:bold;width:auto; color: white; padding: 10px; margin:0px;">' + markerData.vehicle + ' speed: ' + markerData.speed + ' <br/><div style="color:orange;"> Driver:' + markerData.driver + '</div><div style="color:orange">Location:' + markerData.location + ' </div><div style="color:orange">Status:' + markerData.status + '</div> </div>'; // Custom styling for the content
         } else {
             infoWindowContent = '<div  style="background-color: red;font-size:12px;font-weight:bold;width:auto; color: white; padding: 10px; margin:0px;">' + markerData.vehicle + ' speed: ' + markerData.speed + ' <br/><div style="color:blue;"> Driver:' + markerData.driver + '</div><div style="color:blue">Location:' + markerData.location + ' </div><div style="color:blue">Status:' + markerData.status + '</div> </div>'; // Custom styling for the content
@@ -70,17 +69,25 @@ window.addMarker = function (data) {
         });
 
         marker.addListener('click', function () {
+            // Close the currently open InfoWindow if it exists
+            if (currentOpenInfoWindow) {
+                currentOpenInfoWindow.close();
+            }
+            // Open the new InfoWindow
             infoWindow.open(map, marker);
-           // map.setZoom(15);
-          //  map.setCenter(marker.getPosition());
+            // Update the reference to the currently open InfoWindow
+            currentOpenInfoWindow = infoWindow;
         });
     });
 };
 
 
+
 function addpoint(points) {
     // Define an array to store all markers
     var markers = [];
+    // Variable to keep track of the currently open info window
+    var currentOpenInfoWindow = null;
 
     // Iterate over each point
     points.forEach(function (point) {
@@ -104,16 +111,19 @@ function addpoint(points) {
         markers.push(marker);
 
         // Create an info window with the provided content
-        var infoWindowContent = point.description;
-
         var infoWindow = new google.maps.InfoWindow({
-            content: infoWindowContent
+            content: point.description
         });
 
         marker.addListener('click', function () {
+            // Close the currently open InfoWindow if it exists
+            if (currentOpenInfoWindow) {
+                currentOpenInfoWindow.close();
+            }
+            // Open the new InfoWindow
             infoWindow.open(map, marker);
-           // map.setZoom(18);
-          //  map.setCenter(marker.getPosition());
+            // Update the reference to the currently open InfoWindow
+            currentOpenInfoWindow = infoWindow;
         });
     });
 
@@ -124,6 +134,7 @@ function addpoint(points) {
     });
     map.fitBounds(bounds);
 }
+
 function addPolygon(coordinates) {
     // Sort coordinates based on longitude
     coordinates.sort((a, b) => a.lng - b.lng);

@@ -290,9 +290,9 @@
                         lng = double.Parse(tpl.@long),
                         vehicle = tpl.vehicleId,
                         speed = tpl.speed,
-                        driver = "Siddique",
+                        driver = tpl.fueldata,
                         location = tpl.locationname.ToString(),
-                        status = tpl.engineStatus,
+                        status = tpl.engineStatus+ "("+tpl.timestamp+")",
                         directionAngle = int.Parse(tpl.vehicledirectionangle)
                     });
 

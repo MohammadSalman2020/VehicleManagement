@@ -1,0 +1,284 @@
+﻿@page "/sc_invoice"
+@inject NavigationManager navmanager
+@using Microsoft.AspNetCore.WebUtilities;
+@inject IToastService toastService
+@using System.Text.Json
+@using VehicleManagement.ApiService
+@inject IApiService API
+<div class="container-fluid py-4">
+    <div class="row">
+        <div class="col-12">
+            <div class="card mb-12">
+                <div class="card-header pb-0" id="contentToPrint">
+
+
+                    <div class="container">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="textBoxId">Invoice Number</label>
+                                    <input required class="form-control" id="invoice" @bind="txtinvoice" />
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="textBoxId">Vehicle ID</label>
+                                    <input type="text" required class="form-control mb-2" id="textBoxId" @bind="txtvehicle" />
+                                </div>
+                                <div class="form-group">
+                                    <label for="textBoxId">Invoice Date</label>
+                                    <input type="datetime-local" required class="form-control mb-2" id="textBoxId" @bind="txtdate" />
+                                </div>
+
+
+                                <div class="form-group">
+                                    <label for="textBoxId">Shipping Point</label>
+                                    <input type="text" required class="form-control mb-2" id="textBoxId" @bind="txtshipping" />
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="textBoxId">Receiving Point</label>
+                                    <input type="text" required class="form-control mb-2" id="textBoxId" @bind="txtreveiving" />
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="textBoxId">Contracter</label>
+                                    <input type="text" required class="form-control mb-2" id="textBoxId" @bind="txtcontracter" />
+                                </div>
+
+
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="textBoxId">Select Loaded Chambers</label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="chamber1" @bind="chamber1" />
+                                    <label class="form-check-label" for="chamber1">
+                                        @if (pkdetails.chamber1 != null)
+                                        {
+                                            @("Chamber 1 " + pkdetails.chamber1.Split("*")[1] + "( " + pkdetails.chamber1.Split("*")[2] + " )")
+
+                                        }
+                                        else
+                                        {
+                                            @("Chamber 1")
+                                            ;
+                                        }
+                                    </label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="chamber2" @bind="chamber2" />
+                                    <label class="form-check-label" for="chamber2">
+                                        @if (pkdetails.chamber2 != null)
+                                        {
+                                            @("Chamber 2 " + pkdetails.chamber2.Split("*")[1] + "( " + pkdetails.chamber2.Split("*")[2] + " )")
+
+                                        }
+                                        else
+                                        {
+                                            @("Chamber 2")
+                                            ;
+                                        }
+                                    </label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="chamber3" @bind="chamber3" />
+                                    <label class="form-check-label" for="chamber1">
+                                        @if (pkdetails.chamber3 != null)
+                                        {
+                                            @("Chamber 3 " + pkdetails.chamber3.Split("*")[1] + "( " + pkdetails.chamber3.Split("*")[2] + " )")
+
+                                        }
+                                        else
+                                        {
+                                            @("Chamber 3")
+                                            ;
+                                        }
+                                    </label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="chamber4" @bind="chamber4" />
+                                    <label class="form-check-label" for="chamber4">
+                                        @if (pkdetails.chamber4 != null)
+                                        {
+                                            @("Chamber 4 " + pkdetails.chamber4.Split("*")[1] + "( " + pkdetails.chamber4.Split("*")[2] + " )")
+
+                                        }
+                                        else
+                                        {
+                                            @("Chamber 4")
+                                            ;
+                                        }
+                                    </label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="chamber5" @bind="chamber5" />
+                                    <label class="form-check-label" for="chamber5">
+                                        @if (pkdetails.chamber5 != null)
+                                        {
+                                            @("Chamber 5 " + pkdetails.chamber5.Split("*")[1] + "( " + pkdetails.chamber5.Split("*")[2] + " )")
+
+                                        }
+                                        else
+                                        {
+                                            @("Chamber 5")
+                                            ;
+                                        }
+                                    </label>
+                                </div>
+
+                                <div class="form-group">
+                                    <button class="btn btn-success " @onclick="Saveonly">Generate Invoice</button>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+</div>
+@code {
+    public string txtinvoice;
+    public string pkinvoice;
+    public string txtvehicle;
+    public DateTime txtdate = DateTime.Now.Date;
+    public string txtshipping;
+    public string txtreveiving;
+    public string txtcontracter = "Shakoor & Co";
+    public bool chamber1;
+    public bool chamber2;
+    public bool chamber3;
+    public bool chamber4;
+    public bool chamber5;
+    protected override async void OnInitialized()
+    {
+        // Get the query string parameter value for 'id'
+        var uri = navmanager.ToAbsoluteUri(navmanager.Uri);
+        var id = QueryHelpers.ParseQuery(uri.Query).TryGetValue("pk", out var value);
+        pkinvoice = value;
+
+        await LoadPKInvoiceData();
+    }
+    private async Task Saveonly()
+    {
+        await SaveScInvoice();
+    }
+
+    PKInvoice pkdetails = new PKInvoice();
+    private async Task SaveScInvoice()
+    {
+
+        try
+        {
+
+            List<string> chambers = new List<string>();
+            if (chamber1)
+            {
+                chambers.Add("chamber1");
+            }
+            if (chamber2)
+            {
+                chambers.Add("chamber2");
+            }
+            if (chamber3)
+            {
+                chambers.Add("chamber3");
+            }
+            if (chamber4)
+            {
+                chambers.Add("chamber4");
+            }
+            if (chamber5)
+            {
+                chambers.Add("chamber5");
+            }
+
+            var obj = new SecondaryInvoice
+                {
+                    primaryreference = pkinvoice,
+                    vehicle = txtvehicle,
+                    scondaryinvoice = txtinvoice.ToString(),
+                    _date = txtdate.Date,
+                    supplypoint = txtshipping,
+                    receiivingpoint = txtreveiving,
+                    contractor = txtcontracter,
+                    chambers = chambers
+                };
+
+            JsonSerializerOptions options = new JsonSerializerOptions
+                {
+                    WriteIndented = true,
+                    ReferenceHandler = null
+                };
+            string jsonData = JsonSerializer.Serialize(obj, options);
+
+            var scinvoice = await API.PostRequest($"Invoice/SaveSecondaryInvoice", jsonData);
+            string Result = JsonSerializer.Deserialize<string>(scinvoice);
+            if (Result == "200")
+            {
+                navmanager.NavigateTo($"/inv_selection");
+                toastService.ShowSuccess($"Secondary Invoice Added");
+            }
+
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error: {ex.Message}");
+            toastService.ShowError($"Error: {ex.Message}");
+
+            // Handle the exception appropriately (e.g., log, display error message, etc.)
+        }
+    }
+    private async Task LoadPKInvoiceData()
+    {
+        try
+        {
+            var rec = await API.GetRequest($"Invoice/GetPkInvoiceData/{pkinvoice.ToString()}");
+
+            if (rec != null)
+            {
+                pkdetails = JsonSerializer.Deserialize<PKInvoice>(rec);
+                txtvehicle = pkdetails.vehicle;
+                txtshipping = pkdetails.shipping;
+                StateHasChanged();
+            }
+            else
+            {
+                Console.WriteLine("API request returned null.");
+            }
+
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error: {ex.Message}");
+            // Handle the exception appropriately (e.g., log, display error message, etc.)
+        }
+    }
+    public class PKInvoice
+    {
+        public int invoiceid { get; set; }
+        public string vehicle { get; set; }
+        public string shipping { get; set; }
+        public string chamber1 { get; set; }
+        public string chamber2 { get; set; }
+        public string chamber3 { get; set; }
+        public string chamber4 { get; set; }
+        public string chamber5 { get; set; }
+    }
+    public class SecondaryInvoice
+    {
+        public string primaryreference { get; set; }
+        public string vehicle { get; set; }
+        public string scondaryinvoice { get; set; }
+        public DateTime _date { get; set; }
+        public string supplypoint { get; set; }
+        public string receiivingpoint { get; set; }
+        public string contractor { get; set; }
+        public List<string> chambers { get; set; }
+    }
+}
