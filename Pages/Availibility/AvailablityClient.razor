@@ -13,6 +13,8 @@
 @inject IToastService toastService
 @inject IApiService API
 @inject IUserClaimsService UserClaimsService
+@inject AuthenticationStateProvider _authenticationStateProvider
+
 <AuthorizeView Policy="AvailabilityCom">
     <Authorized>
         <Nav PageName="Availibility" />
@@ -56,8 +58,10 @@
                                                         &nbsp;@item.driver2
                                                     </a>
                                                 </p>
-
-                                                <span class="btn tag-btn btn-warning btn-sm ms-auto" @onclick="@(()=>OpenLoadModal(item.availID))">Assign Load</span>
+                                                @if (!IsFleetManager)
+                                                {
+                                                    <span class="btn tag-btn btn-warning btn-sm ms-auto" @onclick="@(()=>OpenLoadModal(item.availID))">Assign Load</span>
+                                                }
 
                                             </div>
                                         </div>
@@ -78,32 +82,24 @@
             <Body>
                 <div class="col-md-12">
                     <div class="card">
-
                         <div class="card-body">
-
                             <div class="row">
-
-
-
                                 <div class="col-md-6">
                                     <div class="form-group">
                                         <label for="example-text-input" class="form-control-label">Loading Point</label>
                                         <input type="text" @bind="Load.loading" placeholder="Location" class="form-control">
-
                                     </div>
                                 </div>
                                 <div class="col-md-6">
                                     <div class="form-group">
                                         <label for="example-text-input" class="form-control-label">Decenting Point</label>
                                         <input type="text" @bind="Load.decenting" placeholder="Location" class="form-control">
-
                                     </div>
                                 </div>
                                 <div class="col-md-6">
                                     <div class="form-group">
                                         <label for="example-text-input" class="form-control-label">Product</label>
-                                        <input type="text" @bind="Load.product" placeholder="Location" class="form-control">
-
+                                        <input type="text" @bind="Load.product" placeholder="Product" class="form-control">
                                     </div>
                                 </div>
                                 @*         <div class="col-md-6">
@@ -147,10 +143,11 @@
     public List<int> BusinessID = new List<int>();
 
     public bool IsLoading = false;
+    public bool IsFleetManager = false;
     public bool IsChildLoading = false;
     public string modalDisplay { get; set; } = "none";
 
-    public string? phoneNumber { get; set; } 
+    public string? phoneNumber { get; set; }
 
     void HandleButtonClick(string s)
     {
@@ -184,7 +181,12 @@
         IsChildLoading = true;
         try
         {
-
+            var authState = await _authenticationStateProvider.GetAuthenticationStateAsync();
+            var user = authState.User;
+            if (user.IsInRole("FleetManager"))
+            {
+                IsFleetManager = true;
+            }
             BusinessID = await UserClaimsService.GetBusinessIdsAsync();
             await GetAllAvail();
 

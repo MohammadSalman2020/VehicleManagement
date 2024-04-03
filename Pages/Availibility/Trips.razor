@@ -45,6 +45,11 @@
                                                     <i class="fa fa-building" aria-hidden="true"></i>
                                                     &nbsp;To: @item.decentingPoint
                                                 </p>
+    <p>
+                                                    <i class="fa fa-calendar" aria-hidden="true"></i>
+                                                    &nbsp;Trip Started On: @item.tripStart
+                                                </p>
+
                                                 <p>
                                                     <i class="fa fa-user" aria-hidden="true"></i>
                                                     &nbsp;Driver 1: @item.driver1
@@ -115,6 +120,9 @@
 
 
     </Authorized>
+    <NotAuthorized>
+        <_403/>
+</NotAuthorized>
 </AuthorizeView>
 @code {
     public List<TripConfirm> TripList = new List<TripConfirm>();

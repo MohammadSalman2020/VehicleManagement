@@ -10,7 +10,7 @@
 @inject IUserClaimsService UserClaimsService
 <AuthorizeView Policy="LoadPolicy">
     <Authorized>
-        <Nav PageName="Assign Load" />
+        <Nav PageName="Assigned Load" />
 
         <div class="container-fluid">
             <div class="row">
@@ -266,7 +266,7 @@
 
     </Authorized>
     <NotAuthorized>
-        <_403 />
+        <_403/>
     </NotAuthorized>
 </AuthorizeView>
 
@@ -284,7 +284,7 @@
     private Modal TripConfirmModal;
     private int AvailIDs;
     private int MainAvailIDs;
-    private int LoadIDs;
+    private int LoadIDs=0;
     protected override async Task OnInitializedAsync()
     {
 
@@ -340,8 +340,9 @@
     {
         TripDetails = new TripConfirm();
         LoadIDs = LoadID;
-        TripConfirmModal.Show();
         await GetLoadData(LoadID);
+        TripConfirmModal.Show();
+      
 
 
     }
@@ -379,14 +380,11 @@
                 int ID = JsonSerializer.Deserialize<int>(Driver);
                 if (ID == 200)
                 {
-                    toast.ShowSuccess("Trip Added Success");
-                    TripConfirmModal.CloseModal();
+                    toast.ShowSuccess("Trip Added Success");                    
                     await GetAllLoad();
                 }
                 else
                 {
-                    TripConfirmModal.CloseModal();
-
                     toast.ShowError("Error While Adding Trip");
                 }
 
@@ -398,6 +396,8 @@
         {
             Console.WriteLine(ex.Message);
         }
+        LoadIDs = 0;
+        TripConfirmModal.CloseModal();
         TripLoading = false;
     }
 

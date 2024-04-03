@@ -9,34 +9,45 @@
         <div class="topnav" id="myTopnav">
             @* <a href="/">@context.User.Identity.Name.ToUpper()</a> *@
             <a href="/" class="@GetActiveClass("Home")" @onclick=@(()=>OnClick("Home"))>Home</a>
-            <div class="dropdown">
-                <button class="dropbtn">
-                    Manage
-                    <i class="fa fa-caret-down"></i>
-                </button>
-                <div class="dropdown-content">
-                    <AuthorizeView Roles="admin,FleetManager">
-                        <Authorized Context="adminaccess">
+
+            <AuthorizeView Roles="admin,FleetManager">
+                <Authorized Context="adminaccess">
+                    <div class="dropdown">
+                        <button class="dropbtn">
+                            Manage
+                            <i class="fa fa-caret-down"></i>
+                        </button>
+                        <div class="dropdown-content">
                             <a href="/fleet">Fleet</a>
                             <a href="/avail">Availability</a>
-                            <a href="/availclient">Availability Client</a>
-                            <a href="/loadassign">Load Assign</a>
-                            <a href="/trips">Trips</a>
-                            <a href="/maintainance">Maintainance</a>
                             <a href="/map">Satellite View</a>
-                           
-                        </Authorized>
-                    </AuthorizeView>
-               
-                    <AuthorizeView Roles="Client">
-                        <Authorized Context="clientaccess">
+                        </div>
+                    </div>
+                </Authorized>
+            </AuthorizeView>
+
+            <AuthorizeView Roles="Client">
+                <Authorized Context="clientaccess">
+                    <div class="dropdown">
+                        <button class="dropbtn">
+                            Manage
+                            <i class="fa fa-caret-down"></i>
+                        </button>
+                        <div class="dropdown-content">
                             <a href="/map">Satellite View</a>
                             <a href="/fleet">Fleet</a>
                             <a href="/availclient">Availability</a>
-                        </Authorized>
-                    </AuthorizeView>
-                </div>
-            </div>
+                        </div>
+                    </div>
+                </Authorized>
+            </AuthorizeView>
+
+            <AuthorizeView Roles="SafetySupervisor">
+                <Authorized Context="Supervisor">
+                    <a href="/loadassign" >Create Trip</a>
+                </Authorized>
+            </AuthorizeView>
+
             <AuthorizeView Roles="admin,FleetManager">
                 <Authorized Context="access">
                     <div class="dropdown">
@@ -52,7 +63,7 @@
                     </div>
                 </Authorized>
             </AuthorizeView>
-   
+
             <div class="dropdown">
                 <button class="dropbtn">
                     Invoice
@@ -71,7 +82,7 @@
                     <i class="fa fa-caret-down"></i>
                 </button>
                 <div class="dropdown-content">
-                    <AuthorizeView Roles="Client,FleetManager">
+                    <AuthorizeView Roles="admin,Client,FleetManager">
                         <Authorized Context="clientaccess">
                             <a href="/inspections">View Inspections</a>
                         </Authorized>
@@ -99,7 +110,7 @@
                     </div>
                 </Authorized>
             </AuthorizeView>
-          
+
             <div class="dropdown" style="float:right;">
                 <button class="dropbtn">
                     @context.User.Identity.Name.ToUpper() -
