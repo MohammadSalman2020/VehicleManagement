@@ -1,5 +1,5 @@
 ﻿@import url("https://fonts.googleapis.com/css2?family=Roboto&display=swap");
-
+@import url('https://rsms.me/inter/inter-ui.css');
 
 .color-black {
     color: black !important;
@@ -1125,7 +1125,7 @@ body {
     border-radius: 10px;
     box-shadow: 0 2px 20px rgba(10, 10, 10, 0.2);
     overflow: hidden;
-    width: 380px;
+    width: 320px;
     position: relative;
 }
 

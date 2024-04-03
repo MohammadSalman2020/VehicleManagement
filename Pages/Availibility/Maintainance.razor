@@ -151,11 +151,8 @@
             var Main = await API.GetRequest($"Fleet/GetMaintaince");
             if (Main != "")
             {
-
                 var rec = JsonSerializer.Deserialize<List<GetMain>>(Main);
                 MaintainanceList = rec.Where(b => BusinessID.Contains(b.busID)).OrderByDescending(p => p.mainid).ToList();
-
-
             }
         }
         catch (Exception ex)

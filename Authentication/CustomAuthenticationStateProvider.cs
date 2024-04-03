@@ -13,27 +13,27 @@ namespace VehicleManagement.Authentication
         {
             _sessionStorage = sessionStorage;
         }
-           
 
+        public static UserSession Session = new UserSession();
         public override async Task<AuthenticationState> GetAuthenticationStateAsync()
         {
             try
             {
-                var userSessionStorageResult = await _sessionStorage.GetAsync<UserSession>("UserSession");
+                //var userSessionStorageResult = await _sessionStorage.GetAsync<UserSession>("UserSession");
 
-                var userSession = userSessionStorageResult.Success ? userSessionStorageResult.Value : null;
-                if (userSession == null)
+                //var userSession = userSessionStorageResult.Success ? userSessionStorageResult.Value : null;
+                if (Session.Username == null)
                 {
                     return await Task.FromResult(new AuthenticationState(_anonymous));
                 }
                 var ClaimsPrinciple = new ClaimsPrincipal(new ClaimsIdentity(new List<Claim>
                 {
 
-                    new Claim(ClaimTypes.Name,userSession.Username),
-                    new Claim(ClaimTypes.Role,userSession.Role),
-                    new Claim(ClaimTypes.NameIdentifier,userSession.BusinessName),
-                    new Claim("BusinessID",userSession.BusinessID),
-                                        new Claim("rolee",userSession.Role)
+                    new Claim(ClaimTypes.Name,Session.Username),
+                    new Claim(ClaimTypes.Role,Session.Role),
+                    new Claim(ClaimTypes.NameIdentifier,Session.BusinessName),
+                    new Claim("BusinessID",Session.BusinessID),
+                                        new Claim("rolee",Session.Role)
 
                 }, "CustomAuth"));
                 return await Task.FromResult(new AuthenticationState(ClaimsPrinciple));
@@ -50,7 +50,7 @@ namespace VehicleManagement.Authentication
             ClaimsPrincipal claimsPrincipal;
             if (userSession != null)
             {
-                await _sessionStorage.SetAsync("UserSession", userSession);
+               Session = userSession;
                 claimsPrincipal = new ClaimsPrincipal(new ClaimsIdentity(new List<Claim>
             {
 
@@ -64,7 +64,8 @@ namespace VehicleManagement.Authentication
             }
             else
             {
-                await _sessionStorage.DeleteAsync("UserSession");
+                Session = new UserSession();
+                //await _sessionStorage.DeleteAsync("UserSession");
                 claimsPrincipal = _anonymous;
             }
             NotifyAuthenticationStateChanged(Task.FromResult(new AuthenticationState(claimsPrincipal)));

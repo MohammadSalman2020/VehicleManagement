@@ -8,5 +8,7 @@
         public string? lat { get; set; }
         public string? longii { get; set; }
         public int businessID { get; set; }
+        public DateTime? tripStart { get; set; }
+        public DateTime? tripEnd { get; set; }
     }
 }
