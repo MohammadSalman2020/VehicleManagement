@@ -10,6 +10,7 @@
         public string loadingPoint { get; set; }
         public string decentingPoint { get; set; }
         public DateTime loadAssignDate { get; set; }
+        public DateTime? tripStart { get; set; }
         public string driver1 { get; set; }
         public string driver2 { get; set; }
         public string? product { get; set; }

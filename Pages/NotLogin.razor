@@ -26,13 +26,13 @@
 
                 <div class="login-form">
                     <div class="form">
-                        <input type="text" @bind="@Username" placeholder="Username">
-                        <input type="password" @bind="@Password" placeholder="Password">
+                        <input type="text" @oninput="HandleUsername" placeholder="Username">
+                        <input type="password" @oninput="HandlePassword" placeholder="Password">
 
-                        <div class="remember-form">
-                            <input @bind-value="@rememberMe" checked="@rememberMe" type="checkbox">
-                            <span>Remember me</span>
-                        </div>
+                        @*      <div class="remember-form">
+                        <input @bind-value="@rememberMe" checked="@rememberMe" type="checkbox">
+                        <span>Remember me</span>
+                        </div> *@
 
                         <button class="btn-auth" @onclick="Authenticate" @onkeydown="HandleKeyPress">LOG-IN</button>
 
@@ -43,6 +43,7 @@
         </div>
     </div>
 </div>
+
 <Modal @ref="modal" Title="Add Secret Key">
     <Body>
         <div class="col-md-12">
@@ -87,6 +88,20 @@
     private Modal modal;
 
     public ActivateSecret SecretModel = new ActivateSecret();
+
+
+    private void HandleUsername(ChangeEventArgs e)
+    {
+        Username = e.Value.ToString();
+
+    }
+
+    private void HandlePassword(ChangeEventArgs e)
+    {
+        Password = e.Value.ToString();
+
+    }
+
     private async Task SubmitSecret()
     {
         try
@@ -133,17 +148,25 @@
     {
         if (firstRender)
         {
-            // Check if remembered credentials exist
-            var storedUsername = await JSRuntime.InvokeAsync<string>("localStorage.getItem", "username");
-            var storedPassword = await JSRuntime.InvokeAsync<string>("localStorage.getItem", "password");
+            // try
+            // {
+            //     // Check if remembered credentials exist
+            //     var storedUsername = await JSRuntime.InvokeAsync<string>("localStorage.getItem", "username");
+            //     var storedPassword = await JSRuntime.InvokeAsync<string>("localStorage.getItem", "password");
 
-            if (!string.IsNullOrEmpty(storedUsername) && !string.IsNullOrEmpty(storedPassword))
-            {
-                Username = storedUsername;
-                Password = storedPassword;
-                rememberMe = true;
-                StateHasChanged();
-            }
+            //     if (!string.IsNullOrEmpty(storedUsername) && !string.IsNullOrEmpty(storedPassword))
+            //     {
+            //         Username = storedUsername;
+            //         Password = storedPassword;
+            //         rememberMe = true;
+            //         StateHasChanged();
+            //     }
+            // }
+            // catch(Exception ex)
+            // {
+
+            // }
+
 
         }
     }
@@ -199,11 +222,11 @@
                 BusinessName = userAccount.business
             });
 
-            if (rememberMe)
-        {
-            await JSRuntime.InvokeVoidAsync("localStorage.setItem", "username", Username);
-            await JSRuntime.InvokeVoidAsync("localStorage.setItem", "password", Password);
-        }
+   //     if (rememberMe)
+        // {
+        //     await JSRuntime.InvokeVoidAsync("localStorage.setItem", "username", Username);
+        //     await JSRuntime.InvokeVoidAsync("localStorage.setItem", "password", Password);
+        // }     
 
         toastService.ShowSuccess("Login Success");
         Nav.NavigateTo("/", true);
