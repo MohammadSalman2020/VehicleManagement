@@ -1,0 +1,221 @@
+﻿@page "/rec_sec"
+@inject NavigationManager navmanager
+@using Microsoft.AspNetCore.WebUtilities;
+@using System.Text.Json
+@using VehicleManagement.ApiService
+@inject IToastService toastService
+@inject IWebHostEnvironment Environment
+@inject IApiService API
+<h3>ReceiveSecondary</h3>
+<div class="row">
+    <div class="col-md-6">
+        <!-- Updated this line -->
+        <div class="card mb-6">
+            <div class="card-header pb-0" id="contentToPrint1">
+                <div class="container">
+                    <div style="overflow-x: auto;">
+                        <table class="table table-responsive" style="font-size:12px">
+                            <tbody>
+                                <tr>
+                                    <td>Ch#</td>
+                                    <td>Disp Dip(MM)</td>
+                                    <td>Quantity (Ltrs)</td>
+                                    <td>Rec Dip(MM)</td>
+                                    <td>Quantity (Ltrs)</td>
+                                    <td>Short/Excess</td>
+                                </tr>
+                                @if (chambers.Count > 0)
+                                {
+                                    @foreach (var cham in chambers)
+                                    {
+                                        <tr>
+                                            <td><span>@cham.ch_no</span></td>
+                                            <td><span>@cham.disp_dip</span></td>
+                                            <td><span>@cham.dis_liters</span></td>
+                                            <td>
+                                                <input type="number" class="form-control" @bind="cham.RecDip" @bind:event="oninput" />
+                                            </td>
+                                            <td><span>@cham.RecLiters</span></td>
+                                            <td><span>@cham.ShortExcess</span></td>
+                                        </tr>
+                                    }
+                                    <tr>
+                                        <td></td>
+                                        <td></td>
+                                        <td></td>
+                                        <td></td>
+                                        <td></td>
+                                        <td><span>@chambers.Sum(a => a.ShortExcess)</span></td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+
+                    </div>
+                    <br />
+                    <div class="form-group">
+                        <InputFile OnChange="@LoadFiles" MaxSize="10485760" />
+                        <button class="btn btn-success" @onclick="SaveInvoice">Save Invoice</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <!-- Updated this line -->
+        <div class="card mb-6">
+            <div class="card-header pb-0" id="contentToPrint2">
+                <div class="container">
+                    <div class="table-responsive inv-img">
+                        <img src="@invoicepath" style="width:480px;" />
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+@code {
+    List<RecInv> chambers = new List<RecInv>();
+    public int invoiceno;
+
+    protected override async void OnInitialized()
+    {
+        // Get the query string parameter value for 'id'
+        var uri = navmanager.ToAbsoluteUri(navmanager.Uri);
+        var id = QueryHelpers.ParseQuery(uri.Query).TryGetValue("inv", out var value);
+        invoiceno = int.Parse(value);
+        await LoadInvocie();
+    }
+    public string invoicepath;
+    private async Task SaveInvoice()
+    {
+        try
+        {
+            List<string> selectedchambers = new List<string>();
+            foreach(var x in chambers)
+            {
+               
+                x.InvoicePath = invoicepath;
+                x.invoiceno = invoiceno;
+            }
+
+
+           
+
+            JsonSerializerOptions options = new JsonSerializerOptions
+                {
+                    WriteIndented = true,
+                    ReferenceHandler = null
+                };
+            string jsonData = JsonSerializer.Serialize(chambers, options);
+
+            var scinvoice = await API.PostRequest($"Invoice/SaveSecondaryWithImage", jsonData);
+            string Result = JsonSerializer.Deserialize<string>(scinvoice);
+            if (Result == "200")
+            {
+                navmanager.NavigateTo($"/inv_selection");
+                toastService.ShowSuccess($"Secondary Invoice Added");
+            }
+
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error: {ex.Message}");
+            toastService.ShowError($"Error: {ex.Message}");
+
+            // Handle the exception appropriately (e.g., log, display error message, etc.)
+        }
+
+    }
+    public string pathtosave;
+    private async Task LoadFiles(InputFileChangeEventArgs e)
+    {
+        foreach (var file in e.GetMultipleFiles())
+        {
+            try
+            {
+                var fileExtension = Path.GetExtension(file.Name);
+                var trustedFileNameForFileStorage = invoiceno.ToString() + fileExtension;
+                var folderPath = Path.Combine(Environment.ContentRootPath, "wwwroot\\css\\Development", "HTL_Reports");
+
+                // Create the directory if it doesn't exist
+                if (!Directory.Exists(folderPath))
+                {
+                    Directory.CreateDirectory(folderPath);
+                }
+
+                var filePath = Path.Combine(folderPath, trustedFileNameForFileStorage);
+                if (File.Exists(filePath))
+                {
+                    File.Delete(filePath);
+                }
+                await using FileStream fs = new(filePath, FileMode.Create);
+                await file.OpenReadStream().CopyToAsync(fs);
+                string correctedFilePath = Path.Combine("css/Development", "HTL_Reports", trustedFileNameForFileStorage);
+               
+                invoicepath = correctedFilePath.Replace("\\", "/");
+                toastService.ShowSuccess($"File {trustedFileNameForFileStorage} Upload Success");
+                StateHasChanged();
+            }
+            catch (Exception ex)
+            {
+                toastService.ShowError($"Error: {ex.Message}");
+
+
+            }
+
+        }
+
+
+    }
+    private async Task LoadInvocie()
+    {
+        try
+        {
+            var rec = await API.GetRequest($"Invoice/Rec_Sec_Invoice/{invoiceno}");
+
+            if (rec != null)
+            {
+                chambers = JsonSerializer.Deserialize<List<RecInv>>(rec);
+                StateHasChanged();
+            }
+            else
+            {
+                Console.WriteLine("API request returned null.");
+            }
+
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error: {ex.Message}");
+            // Handle the exception appropriately (e.g., log, display error message, etc.)
+        }
+    }
+    public class RecInv
+    {
+        public int invoiceno { get; set; }
+        public int ch_no { get; set; }
+        public int disp_dip { get; set; }
+        public double dis_liters { get; set; }
+        public int rec_dip { get; set; }
+        public int RecDip
+        {
+            get => rec_dip;
+            set
+            {
+                rec_dip = value;
+                // Assuming a correct calculation here; adjust as necessary
+                RecLiters = Math.Round((dis_liters / disp_dip) * rec_dip, 0);
+                ShortExcess = Math.Round(dis_liters - RecLiters, 0);
+            }
+        }
+        // Calculated property for RecLiters
+        public double RecLiters { get; set; }
+
+        // Calculated property for ShortExcess
+        public double ShortExcess { get; set; }
+        public string InvoicePath { get; set; }
+    }
+}
