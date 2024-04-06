@@ -38,22 +38,23 @@ function convertToThreeDigit(number) {
 window.addMarker = function (data) {
     var markersData = JSON.parse(data);
     var currentOpenInfoWindow = null; // Initialize a reference to store the currently open info window
+    var markers = []; // Initialize an array to hold the markers for clustering
 
     markersData.forEach(function (markerData) {
         var position = { lat: markerData.lat, lng: markerData.lng };
 
         // Define the custom marker image
         var icon = {
-            url: 'Truck/image_' + convertToThreeDigit(markerData.directionAngle) + '.png', // Replace with the URL of your custom marker image
-            scaledSize: new google.maps.Size(30, 30), // Adjust the size of the marker image as needed
+            url: 'Truck/image_' + convertToThreeDigit(markerData.directionAngle) + '.png', // Ensure this path is correct
+            scaledSize: new google.maps.Size(30, 30), // Adjust size as needed
             origin: new google.maps.Point(0, 0),
-            anchor: new google.maps.Point(25, 50), // Adjust the anchor point of the marker image as needed
+            anchor: new google.maps.Point(15, 15), // Adjust anchor as needed
         };
 
         var marker = new google.maps.Marker({
             position: position,
             map: map,
-            icon: icon
+            icon: icon,
         });
 
         // Create an info window with the provided content and custom styling
@@ -67,7 +68,6 @@ window.addMarker = function (data) {
         var infoWindow = new google.maps.InfoWindow({
             content: infoWindowContent
         });
-
         marker.addListener('click', function () {
             // Close the currently open InfoWindow if it exists
             if (currentOpenInfoWindow) {
@@ -78,6 +78,13 @@ window.addMarker = function (data) {
             // Update the reference to the currently open InfoWindow
             currentOpenInfoWindow = infoWindow;
         });
+
+        markers.push(marker); // Add the marker to the array for clustering
+    });
+
+    // Create and initialize the MarkerClusterer after all markers have been created
+    var markerCluster = new MarkerClusterer(map, markers, {
+        imagePath: 'https://developers.google.com/maps/documentation/javascript/examples/markerclusterer/m'
     });
 };
 

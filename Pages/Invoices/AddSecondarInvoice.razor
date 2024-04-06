@@ -140,6 +140,7 @@
     </div>
 
 </div>
+<Loader isLoading="@IsLoading" />
 @code {
     public string txtinvoice;
     public string pkinvoice;
@@ -152,6 +153,7 @@
     public bool chamber2;
     public bool chamber3;
     public bool chamber4;
+    private bool IsLoading = false;
     public bool chamber5;
     protected override async void OnInitialized()
     {
@@ -164,7 +166,9 @@
     }
     private async Task Saveonly()
     {
+        IsLoading = true;
         await SaveScInvoice();
+        IsLoading = false;
     }
 
     PKInvoice pkdetails = new PKInvoice();
@@ -228,6 +232,7 @@
         {
             Console.WriteLine($"Error: {ex.Message}");
             toastService.ShowError($"Error: {ex.Message}");
+            IsLoading = false;
 
             // Handle the exception appropriately (e.g., log, display error message, etc.)
         }
