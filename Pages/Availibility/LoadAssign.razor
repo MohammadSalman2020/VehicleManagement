@@ -8,7 +8,7 @@
 @inject IToastService toast
 @inject IApiService API
 @inject IUserClaimsService UserClaimsService
-<AuthorizeView Policy="LoadPolicy">
+<AuthorizeView>
     <Authorized>
         <Nav PageName="Assigned Load" />
 
@@ -60,7 +60,11 @@
                                                     <br> <i class="fa fa-map-marker" aria-hidden="true"></i>
                                                     &nbsp;Receiving: @item.decenting
                                                 </p>
-                                                <span class="btn tag-btn" @onclick=@(()=>OpenTripModal(item.loadID))>Create Trip</span>
+                                                <AuthorizeView Policy="LoadPolicy">
+                                                    <Authorized Context="NotClient">
+                                                        <span class="btn tag-btn" @onclick=@(()=>OpenTripModal(item.loadID))>Create Trip</span>
+                                                    </Authorized>
+                                                </AuthorizeView>
                                             </div>
 
                                         </div>

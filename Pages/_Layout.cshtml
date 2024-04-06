@@ -75,6 +75,24 @@
     <script async defer src="https://buttons.github.io/buttons.js"></script>
     <!-- Control Center for Soft Dashboard: parallax effects, scripts for the example pages etc -->
     <script src="css/assets/js/argon-dashboard.min.js"></script>
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            var toggleButtons = document.querySelectorAll('[data-toggle="toggle"]');
+            toggleButtons.forEach(function (button) {
+                button.addEventListener("click", function () {
+                    var accordionBody = this.parentElement.nextElementSibling;
+                    if (accordionBody.classList.contains("tbl-accordion-body")) {
+                        if (window.getComputedStyle(accordionBody).display === "none") {
+                            accordionBody.style.display = "block";
+                        } else {
+                            accordionBody.style.display = "none";
+                        }
+                    }
+                });
+            });
+        });
+
+        </script>
     <script src="_framework/blazor.server.js"></script>
 </body>
 </html>
