@@ -1,6 +1,8 @@
 ﻿@import url("https://fonts.googleapis.com/css2?family=Roboto&display=swap");
 @import url('https://rsms.me/inter/inter-ui.css');
-
+@import url('https://netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.css');
+@import url(https://fonts.googleapis.com/css?family=Oswald:700);
+@import url(https://fonts.googleapis.com/css?family=Droid+Serif);
 .color-black {
     color: black !important;
 }
@@ -1226,5 +1228,47 @@ body {
 .delete-icon {
     cursor: pointer;
 }
+
+}
+
+
+
+.table-test {
+    table
+
+{
+    width: 900px;
+    border-collapse: collapse;
+    margin: 50px auto;
+}
+
+th {
+    background: #3498db;
+    color: white;
+    font-weight: bold;
+}
+
+td, th {
+    padding: 10px;
+    border-bottom: 1px solid #ccc;
+    text-align: center;
+    font-size: 18px;
+}
+
+.tbl-accordion-header a {
+    color: #28c76f !important;
+}
+
+.tbl-accordion-body {
+    display: none;
+}
+
+    .tbl-accordion-body td {
+        border-bottom: 0px;
+    }
+
+    .tbl-accordion-body tr:last-child {
+        border-bottom: 1px solid #ccc;
+    }
 
 }

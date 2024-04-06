@@ -1,0 +1,243 @@
+﻿@page "/shortageledger"
+
+
+<Nav PageName="Shortage Ledger" />
+
+<div class="container-fluid py-4">
+    <div class="row">
+        <AuthorizeView Roles="admin">
+            <Authorized>
+                <div class="col-md-4">
+                    <div class="card">
+
+                        <div class="card-body">
+
+                            <div class="row">
+
+
+                                <div class="col-md-12">
+
+                                    <div class="form-group">
+                                        <label for="example-text-input" class="form-control-label">Search :</label>
+                                        <input id="VehicleID" type="text" class="form-control" required />
+                                    </div>
+
+
+
+                                    <div class="form-group">
+                                        <button class="btn btn-primary  btn-sm ms-auto">Search</button>
+                                    </div>
+                                </div>
+
+
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+
+
+
+
+                <div class="col-md-8">
+                    <div class="card">
+
+                        <div class="card-body">
+
+                            <div class="row">
+
+                                <div class="col-md-12">
+                                    <div class="card-body px-0 pt-0 pb-2" style="overflow-x: auto;height: 500px;">
+                                        <div class="table-responsive p-0">
+                                            <div class="table-test">
+
+                                                <table>
+                                                    <thead>
+                                                        <tr>
+                                                            <th>ID</th>
+                                                            <th>Product</th>
+                                                            <th>PromoCode</th>
+                                                            <th>Base Price</th>
+                                                            <th>Retail Price</th>
+                                                            <th>State</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                    <tbody class="tbl-accordion-header">
+                                                        <tr>
+                                                            <td>
+                                                                <a data-toggle="toggle"><strong>39576380</strong></a>
+                                                            </td>
+                                                            <td>Ymbo Shirt</td>
+                                                            <td>WELCOME10</td>
+                                                            <td>$ 29.00</td>
+                                                            <td>$ 49.00</td>
+                                                            <td>Sold</td>
+                                                        </tr>
+                                                    </tbody>
+                                                    <tbody class="tbl-accordion-body">
+                                                        <tr>
+                                                        <tr>
+                                                            <td><strong>Category:</strong></td>
+                                                            <td>Clothes</td>
+                                                            <td><strong>Group:</strong></td>
+                                                            <td>Tops</td>
+                                                            <td><strong>Sub-group:</strong></td>
+                                                            <td>Shirts</td>
+                                                        </tr>
+                                                        </tr>
+                                                        <tr>
+                                                            <td><strong>Profit</strong></td>
+                                                            <td>$ 20.00</td>
+                                                        </tr>
+                                                    </tbody>
+                                                    <tbody class="tbl-accordion-header">
+                                                        <tr>
+                                                            <td>
+                                                                <a data-toggle="toggle"><strong>97132598</strong></a>
+                                                            </td>
+                                                            <td>Table Rockefeller</td>
+                                                            <td>IDXPTO</td>
+                                                            <td>$ 294.00</td>
+                                                            <td>$ 644.00</td>
+                                                            <td>Sold</td>
+                                                        </tr>
+                                                    </tbody>
+                                                    <tbody class="tbl-accordion-body">
+                                                        <tr>
+                                                            <td><strong>Category:</strong></td>
+                                                            <td>Furniture</td>
+                                                            <td><strong>Group:</strong></td>
+                                                            <td>Tables</td>
+                                                            <td><strong>Sub-group:</strong></td>
+                                                            <td>Dinning Table</td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td><strong>Profit:</strong></td>
+                                                            <td>$ 350</td>
+                                                        </tr>
+                                                    </tbody>
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                            @*      <table class="table align-items-center mb-0">
+                                            <thead>
+                                            <tr>
+                                            <th class="text-uppercase font-colors  text-xxs font-weight-bolder opacity-7">Date</th>
+                                            <th class="text-uppercase font-colors  text-xxs font-weight-bolder opacity-7">Invoice #</th>
+                                            <th class="text-uppercase font-colors  text-xxs font-weight-bolder opacity-7">Type</th>
+                                            <th class="text-center font-colors text-uppercase  text-xxs font-weight-bolder opacity-7">Driver</th>
+
+                                            <th class="text-uppercase font-colors  text-xxs font-weight-bolder opacity-7">Vehicle #</th>
+                                            <th class="text-center font-colors text-uppercase  text-xxs font-weight-bolder opacity-7">Quantity</th>
+                                            <th class="text-center font-colors text-uppercase  text-xxs font-weight-bolder opacity-7">Status</th>
+                                            </tr>
+                                            </thead>
+                                            <tbody>
+
+                                            <tr>
+                                            <td class="align-middle text-center">
+                                            <p class="text-xs font-weight-bold mb-0 text-center">20-12-202</p>
+
+                                            </td>
+                                            <td class="align-middle text-center">
+                                            <div class="d-flex px-2 py-1">
+                                            <div>
+                                            <img src="css/Policy.png" class="avatar avatar-sm me-3" alt="user1">
+                                            </div>
+                                            <div class="d-flex flex-column justify-content-center">
+                                            <h6 class="mb-0 text-sm">10254</h6>
+
+                                            </div>
+                                            </div>
+                                            </td>
+
+                                            <td class="align-middle text-center">
+                                            <span class="badge badge-sm bg-gradient-info">Primary</span>
+                                            </td>
+                                            <td class="align-middle text-center">
+                                            <span class="text-secondary text-xs font-weight-bold">Abdul Ghafoor</span>
+                                            </td>
+
+                                            <td class="align-middle text-center">
+                                            <span class="text-secondary text-xs font-weight-bold">TKL-1298</span>
+                                            </td>
+                                            <td class="align-middle text-center">
+                                            <span class="badge badge-sm bg-gradient-danger">98</span>
+                                            </td>
+                                            <td class="align-middle text-center">
+                                            <span class="badge badge-sm bg-gradient-danger">Short</span>
+                                            </td>
+
+
+
+                                            </tr>
+                                            <tr>
+                                            <td class="align-middle text-center">
+                                            <p class="text-xs font-weight-bold mb-0 text-center">02-12-202</p>
+
+                                            </td>
+                                            <td class="align-middle text-center">
+                                            <div class="d-flex px-2 py-1">
+                                            <div>
+                                            <img src="css/Policy.png" class="avatar avatar-sm me-3" alt="user1">
+                                            </div>
+                                            <div class="d-flex flex-column justify-content-center">
+                                            <h6 class="mb-0 text-sm">10254</h6>
+
+                                            </div>
+                                            </div>
+                                            </td>
+
+                                            <td class="align-middle text-center">
+                                            <span class="badge badge-sm bg-gradient-warning">Secondary</span>
+                                            </td>
+
+                                            <td class="align-middle text-center">
+                                            <span class="text-secondary text-xs font-weight-bold">Abdul Ghafoor</span>
+                                            </td>
+
+                                            <td class="align-middle text-center">
+                                            <span class="text-secondary text-xs font-weight-bold">TKL-1298</span>
+                                            </td>
+                                            <td class="align-middle text-center">
+                                            <span class="badge badge-sm bg-gradient-success">275</span>
+                                            </td>
+                                            <td class="align-middle text-center">
+                                            <span class="badge badge-sm bg-gradient-success">Extra</span>
+                                            </td>
+
+
+
+                                            </tr>
+                                            </tbody>
+                                            </table>
+                                            *@
+                                        </div>
+                                    </div>
+                                </div>
+
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+
+
+
+            </Authorized>
+            <NotAuthorized>
+                <_403 />
+            </NotAuthorized>
+        </AuthorizeView>
+    </div>
+</div>
+
+@code {
+      bool IsAccordionOpen { get; set; } = false;
+
+    void ToggleAccordion()
+    {
+        IsAccordionOpen = !IsAccordionOpen;
+    }
+}

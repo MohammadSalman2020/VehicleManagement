@@ -842,6 +842,14 @@
                 IsLoading = false;
                 NavigationManager.NavigateTo("/addinvoice");
             }
+            else if (Result == "403")
+            {
+                toastService.ShowError("Empty STO No");
+            }
+            else if (Result == "504")
+            {
+                toastService.ShowError($"Invoice Already Exists: {Invoices.Details.STONo}");
+            }
             else
             {
                 toastService.ShowError("Error while adding invoice");
