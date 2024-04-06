@@ -74,9 +74,10 @@
         </div>
     </div>
 </div>
-
+<Loader isLoading="@IsLoading" />
 
 @code {
+    private bool IsLoading = false;
     List<RecInv> chambers = new List<RecInv>();
     public int invoiceno;
 
@@ -91,6 +92,7 @@
     public string invoicepath;
     private async Task SaveInvoice()
     {
+        IsLoading = true;
         try
         {
             List<string> selectedchambers = new List<string>();
@@ -115,13 +117,15 @@
             string Result = JsonSerializer.Deserialize<string>(scinvoice);
             if (Result == "200")
             {
-                navmanager.NavigateTo($"/inv_selection");
+                navmanager.NavigateTo($"/addinvoice");
                 toastService.ShowSuccess($"Secondary Invoice Added");
             }
+            IsLoading = false;
 
         }
         catch (Exception ex)
         {
+            IsLoading = false;
             Console.WriteLine($"Error: {ex.Message}");
             toastService.ShowError($"Error: {ex.Message}");
 
@@ -132,6 +136,7 @@
     public string pathtosave;
     private async Task LoadFiles(InputFileChangeEventArgs e)
     {
+        IsLoading = true;
         foreach (var file in e.GetMultipleFiles())
         {
             try
@@ -158,12 +163,13 @@
                 invoicepath = correctedFilePath.Replace("\\", "/");
                 toastService.ShowSuccess($"File {trustedFileNameForFileStorage} Upload Success");
                 StateHasChanged();
+                IsLoading = false;
             }
             catch (Exception ex)
             {
                 toastService.ShowError($"Error: {ex.Message}");
 
-
+                IsLoading = false;
             }
 
         }
