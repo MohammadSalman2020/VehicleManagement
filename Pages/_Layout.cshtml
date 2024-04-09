@@ -76,21 +76,53 @@
     <!-- Control Center for Soft Dashboard: parallax effects, scripts for the example pages etc -->
     <script src="css/assets/js/argon-dashboard.min.js"></script>
     <script>
-        document.addEventListener("DOMContentLoaded", function () {
-            var toggleButtons = document.querySelectorAll('[data-toggle="toggle"]');
-            toggleButtons.forEach(function (button) {
-                button.addEventListener("click", function () {
-                    var accordionBody = this.parentElement.nextElementSibling;
-                    if (accordionBody.classList.contains("tbl-accordion-body")) {
-                        if (window.getComputedStyle(accordionBody).display === "none") {
-                            accordionBody.style.display = "block";
-                        } else {
-                            accordionBody.style.display = "none";
+        // Get the input field and table
+        var input = document.getElementById("searchInput");
+        var table = document.getElementById("invoiceTable");
+
+        // Add event listener for input field
+        input.addEventListener("keyup", function (event) {
+            // Get the search query
+            var filter = event.target.value.toUpperCase();
+
+            // Get the rows of the table
+            var rows = table.getElementsByTagName("tr");
+
+            // Loop through all table rows, and hide those who don't match the search query
+            for (var i = 0; i < rows.length; i++) {
+                var row = rows[i];
+                var cells = row.getElementsByTagName("td");
+                var found = false;
+                console.log(row);
+                // Loop through all cells of the row
+                for (var j = 0; j < cells.length; j++) {
+                    var cell = cells[j];
+
+                    // Check if the cell content matches the search query
+                    if (cell) {
+                        var textValue = cell.textContent || cell.innerText;
+                        if (textValue.toUpperCase().indexOf(filter) > -1) {
+                            found = true;
+                            break;
                         }
                     }
-                });
-            });
+                }
+
+                // Toggle the visibility of the row based on search result
+                if (found) {
+                    row.style.display = "";
+                } else {
+                    row.style.display = "none";
+                }
+            }
         });
+    </script>
+    <script>
+        function toggleDiv(divId) {
+            console.log('click begins');
+            $("[data-div-id='" + divId + "']").toggle();
+        }
+
 
         </script>
     <script src="_framework/blazor.server.js"></script>
