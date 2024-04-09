@@ -1,5 +1,11 @@
 ﻿@page "/shortageledger"
-
+@using System.Text.Json
+@using VehicleManagement.ApiService
+@using VehicleManagement.Authentication
+@using VehicleManagement.Models.General.Driver
+@inject IToastService toastService
+@inject IApiService API
+@inject IUserClaimsService UserClaimsService
 
 <Nav PageName="Shortage Ledger" />
 
@@ -19,7 +25,7 @@
 
                                     <div class="form-group">
                                         <label for="example-text-input" class="form-control-label">Search :</label>
-                                        <input id="VehicleID" type="text" class="form-control" required />
+                                        <input id="searchInput" type="text" class="form-control" required />
                                     </div>
 
 
@@ -51,74 +57,132 @@
                                         <div class="table-responsive p-0">
                                             <div class="table-test">
 
-                                                <table>
+                                                <table class="table align-items-center mb-0" id="invoiceTable">
                                                     <thead>
                                                         <tr>
-                                                            <th>ID</th>
-                                                            <th>Product</th>
-                                                            <th>PromoCode</th>
-                                                            <th>Base Price</th>
-                                                            <th>Retail Price</th>
-                                                            <th>State</th>
+                                                            <th class="text-center font-colors text-uppercase  text-xxs font-weight-bolder opacity-7">Invoice #</th>
+                                                            <th class="text-center font-colors text-uppercase  text-xxs font-weight-bolder opacity-7">Type</th>
+                                                            @*  <th>Driver Name</th> *@
+                                                            <th class="text-center font-colors text-uppercase  text-xxs font-weight-bolder opacity-7">Liters (ltr)</th>
+                                                            <th class="text-center font-colors text-uppercase  text-xxs font-weight-bolder opacity-7">Date</th>
+                                                            <th class="text-center font-colors text-uppercase  text-xxs font-weight-bolder opacity-7">Status</th>
                                                         </tr>
                                                     </thead>
                                                     <tbody>
-                                                    <tbody class="tbl-accordion-header">
+                                                        @if (DriverShortages.Count > 0)
+                                                        {
+                                                            foreach (var item in DriverShortages)
+                                                            {
+                                                                <tr class="tbl-accordion-header">
+                                                                    <td class="align-middle text-center">
+                                                                        <div class="d-flex px-2 py-1">
+                                                                            <div>
+                                                                                <img src="css/invoice-icon.png" class="avatar avatar-sm me-3" alt="user1">
+                                                                            </div>
+                                                                            <div class="d-flex flex-column justify-content-center" onclick="toggleDiv('@item.invoiceNumber')">
+                                                                                <h6 class="mb-0 text-sm">@item.invoiceNumber</h6>
+
+                                                                            </div>
+                                                                        </div>
+                                                                    </td>
+                                                                  
+                                                                    <td class="align-middle text-center text-sm">
+
+                                                                        <span class="badge badge-sm bg-gradient-success">@(item.invoiceType == "pk" ? "Primary" : "Secondary")</span>
+
+
+                                                                    </td>
+
+
+                                                                    @*   <td>@item.driverName</td> *@
+                                                                    <td class="align-middle text-center">
+                                                                        <span class="text-secondary text-xs font-weight-bold">@item.ltr</span>
+                                                                    </td>
+                                                                    <td class="align-middle text-center">
+                                                                        <span class="text-secondary text-xs font-weight-bold">@item.dated.ToString("MM-dd-yyyy")</span>
+                                                                    </td>
+
+                                                                    <td class="align-middle text-center text-sm">
+                                                                        @if (item.status == "Short")
+                                                                        {
+                                                                            <span class="badge badge-sm bg-gradient-danger">@item.status</span>
+                                                                        }
+                                                                        else if (item.status == "Extra")
+                                                                        {
+                                                                            <span class="badge badge-sm bg-gradient-info">@item.status</span>
+                                                                        }
+                                                                        else
+                                                                        {
+                                                                            <span>@item.status</span>
+                                                                        }
+                                                                    </td>
+                                                                </tr>
+
+
+                                                                @if (item.shortages.Count > 0)
+                                                                {
+                                                                    <tr class="tbl-accordion-body" data-div-id="@item.invoiceNumber">
+                                                                        @* <th>Invoice #</th> *@
+                                                                        <th class="text-center font-colors text-uppercase  text-xxs font-weight-bolder opacity-7">Invoice Type</th>
+                                                                        <th class="text-center font-colors text-uppercase  text-xxs font-weight-bolder opacity-7">Driver Name</th>
+                                                                        <th class="text-center font-colors text-uppercase  text-xxs font-weight-bolder opacity-7"> Liters (ltr)</th>
+                                                                        <th class="text-center font-colors text-uppercase  text-xxs font-weight-bolder opacity-7"> Date</th>
+                                                                        <th class="text-center font-colors text-uppercase  text-xxs font-weight-bolder opacity-7">Status</th>
+                                                                    </tr>
+                                                                    foreach (var shorts in item.shortages)
+                                                                    {
+                                                                        <tr class="tbl-accordion-body" data-div-id="@item.invoiceNumber">
+
+                                                                          @*   <td><strong>@shorts.invoiceNumber</strong></td> *@
+                                                                            <td class="align-middle text-center text-sm">
+                                                                                <span class="badge badge-sm bg-gradient-warning">@(shorts.invoiceType == "pk" ? "Primary" : "Secondary")</span>
+                                                                            </td>
+                                                                            <td class="align-middle text-center">
+                                                                                <span class="text-secondary text-xs font-weight-bold">@shorts.driverName</span>
+                                                                            </td>
+                                                                            <td class="align-middle text-center">
+                                                                                <span class="text-secondary text-xs font-weight-bold">@shorts.ltr</span>
+                                                                            </td>
+                                                                            <td class="align-middle text-center">
+                                                                                <span class="text-secondary text-xs font-weight-bold">@shorts.dated.ToString("MM-dd-yyyy")</span>
+                                                                            </td>
+                                                                            <td class="align-middle text-center text-sm">
+                                                                                @if (shorts.status == "Short")
+                                                                                {
+                                                                                    <span class="badge badge-sm bg-gradient-danger">@shorts.status</span>
+                                                                                }
+                                                                                else if (shorts.status == "Extra")
+                                                                                {
+                                                                                    <span class="badge badge-sm bg-gradient-info">@shorts.status</span>
+                                                                                }
+                                                                                else
+                                                                                {
+                                                                                    <span>@shorts.status</span>
+                                                                                }
+                                                                            </td>
+                                                                        </tr>
+
+                                                                    }
+                                                                }
+                                                                else
+                                                                {
+                                                                <td colspan="6">No Data Available</td>
+                                                                }
+
+
+                                                            }
+                                                        }
+                                                        else
+                                                        {
                                                         <tr>
-                                                            <td>
-                                                                <a data-toggle="toggle"><strong>39576380</strong></a>
+                                                            <td colspan="6">
+                                                                <DataLoaderComponent IsLoading="@IsChildLoad" LoadingText="Loading Driver Shortages..." />
                                                             </td>
-                                                            <td>Ymbo Shirt</td>
-                                                            <td>WELCOME10</td>
-                                                            <td>$ 29.00</td>
-                                                            <td>$ 49.00</td>
-                                                            <td>Sold</td>
                                                         </tr>
-                                                    </tbody>
-                                                    <tbody class="tbl-accordion-body">
-                                                        <tr>
-                                                        <tr>
-                                                            <td><strong>Category:</strong></td>
-                                                            <td>Clothes</td>
-                                                            <td><strong>Group:</strong></td>
-                                                            <td>Tops</td>
-                                                            <td><strong>Sub-group:</strong></td>
-                                                            <td>Shirts</td>
-                                                        </tr>
-                                                        </tr>
-                                                        <tr>
-                                                            <td><strong>Profit</strong></td>
-                                                            <td>$ 20.00</td>
-                                                        </tr>
-                                                    </tbody>
-                                                    <tbody class="tbl-accordion-header">
-                                                        <tr>
-                                                            <td>
-                                                                <a data-toggle="toggle"><strong>97132598</strong></a>
-                                                            </td>
-                                                            <td>Table Rockefeller</td>
-                                                            <td>IDXPTO</td>
-                                                            <td>$ 294.00</td>
-                                                            <td>$ 644.00</td>
-                                                            <td>Sold</td>
-                                                        </tr>
-                                                    </tbody>
-                                                    <tbody class="tbl-accordion-body">
-                                                        <tr>
-                                                            <td><strong>Category:</strong></td>
-                                                            <td>Furniture</td>
-                                                            <td><strong>Group:</strong></td>
-                                                            <td>Tables</td>
-                                                            <td><strong>Sub-group:</strong></td>
-                                                            <td>Dinning Table</td>
-                                                        </tr>
-                                                        <tr>
-                                                            <td><strong>Profit:</strong></td>
-                                                            <td>$ 350</td>
-                                                        </tr>
-                                                    </tbody>
+                                                        }
                                                     </tbody>
                                                 </table>
+
                                             </div>
                                             @*      <table class="table align-items-center mb-0">
                                             <thead>
@@ -234,10 +298,53 @@
 </div>
 
 @code {
-      bool IsAccordionOpen { get; set; } = false;
+    public bool IsChildLoad = false;
+    public List<DriverShortage> DriverShortages = new List<DriverShortage>();
 
-    void ToggleAccordion()
+
+    protected override async Task OnInitializedAsync()
     {
-        IsAccordionOpen = !IsAccordionOpen;
+
+        IsChildLoad = true;
+        try
+        {
+
+            // BusinessID = await UserClaimsService.GetBusinessIdsAsync();
+
+            await GetShortages();
+
+            // await GetAllBusiness();
+
+
+
+
+
+        }
+        catch (Exception ex)
+        {
+            IsChildLoad = false;
+        }
+        IsChildLoad = false;
+    }
+    public async Task GetShortages()
+    {
+
+        try
+        {
+
+            var AvailDrafts = await API.GetRequest($"Driver/GetDriverShortage");
+            if (AvailDrafts != "")
+            {
+
+                DriverShortages = JsonSerializer.Deserialize<List<DriverShortage>>(AvailDrafts);
+
+
+            }
+
+        }
+        catch (Exception ex)
+        {
+
+        }
     }
 }
