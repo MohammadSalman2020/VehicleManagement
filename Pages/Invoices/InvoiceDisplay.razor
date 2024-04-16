@@ -767,7 +767,7 @@
 
         }
 
-        <Loader isLoading="@IsLoading" />
+        <Loader isLoading="@IsLoading" IsMessage=true />
     </Authorized>
     <NotAuthorized>
         <_403 />
@@ -850,18 +850,26 @@
             {
                 toastService.ShowError($"Invoice Already Exists: {Invoices.Details.STONo}");
             }
+            else if (Result == "204")
+            {
+               // toastService.ShowWarning("Invoice is saved without driver attendance");
+                toastService.ShowSuccess("Invoice Added Success");
+
+                NavigationManager.NavigateTo("/addinvoice");
+            }
             else
             {
                 toastService.ShowError("Error while adding invoice");
             }
+            IsLoading = false;
         }
-        catch(Exception ex)
+        catch (Exception ex)
         {
             IsLoading = false;
             toastService.ShowError($"Error while adding invoice");
         }
 
-          IsLoading = false;
+        IsLoading = false;
     }
     private async Task EditButton()
     {
@@ -879,7 +887,7 @@
             // Navigate to the destination page with the encoded JSON string as a query parameter
             NavigationManager.NavigateTo($"/invoicepanel?Edit={encodedJson}");
         }
-        catch(Exception ex)
+        catch (Exception ex)
         {
             toastService.ShowError($"Error: {ex.Message}");
         }
