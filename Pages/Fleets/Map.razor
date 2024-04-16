@@ -1,10 +1,12 @@
 ﻿@page "/map"
 @using System.Text.Json
 @using VehicleManagement.ApiService
+@using VehicleManagement.Authentication
 @using VehicleManagement.Models.General
 @inject IWebHostEnvironment WebHostEnvironment
 @inject IJSRuntime JSRuntime
 @inject IApiService API
+@inject IUserClaimsService claims
 <div class="container-fluid py-4">
     <div class="row">
         <div class="col-md-12">
@@ -93,14 +95,30 @@
         public string LAT { get; set; }
         public double Long { get; set; }
     }
+    List<BusinessVehicles> vehicle1 = new List<BusinessVehicles>();
     List<string> vehicles = new List<string>();
     private async Task Getvhicles()
     {
+        List<int> ids = await claims.GetBusinessIdsAsync();
+
         var rec = await API.GetRequest($"Fleet/GetAllVehicles");
 
         if (rec != null)
         {
-            vehicles = JsonSerializer.Deserialize<List<string>>(rec);
+            var list = JsonSerializer.Deserialize<List<BusinessVehicles>>(rec);
+
+            vehicles = list.Where(a => ids.Contains(a.busid)).Select(a=>a.vehicleid).ToList();
+
+
+            // foreach( var x in ids)
+            // {
+            //     var list = vehicle1.Where(a => a.busid == x).ToList();
+            //     foreach(var y in list)
+            //     {
+            //         vehicles.Add(y.vehicleid);
+            //     }
+            // }
+           
         }
         else
         {
@@ -317,6 +335,10 @@
             Console.WriteLine($"Error: {ex.Message}");
         }
     }
-
+    public class BusinessVehicles
+    {
+        public string vehicleid { get; set; }
+        public int busid { get; set; }
+    }
 
 }
