@@ -2,6 +2,7 @@
 {
     public class DriverShortage
     {
+        public int invoiceID { get; set; }
         public string? driverID { get; set; }
         public string? driverName { get; set; }
         public string? invoiceNumber { get; set; }
@@ -17,6 +18,8 @@
     {
         public string? driverID { get; set; }
         public string? driverName { get; set; }
+        public string? driver2ID { get; set; }
+        public string? driver2Name { get; set; }
         public string? invoiceNumber { get; set; }
         public string? invoiceType { get; set; }
         public double ltr { get; set; }

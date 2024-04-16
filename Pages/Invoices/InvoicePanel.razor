@@ -1372,7 +1372,7 @@
 
                     float Total = ReceivingTempF - ShippingTempF;
                     float ReceivingTemp = (float)Math.Round(Total, 3);
-                    Invoices.CalculationDifference.TempDiff = Math.Abs(ReceivingTemp);
+                    Invoices.CalculationDifference.TempDiff = Math.Abs((float)Math.Round(ReceivingTemp));
 
 
                     float TotalChamberQuantityS = Invoices.ShippingDetail.Chamber1.ChamberQuantity + Invoices.ShippingDetail.Chamber2.ChamberQuantity +
@@ -1382,8 +1382,8 @@
                Invoices.ReceivingDetail.Chamber3.ChamberQuantity + Invoices.ReceivingDetail.Chamber4.ChamberQuantity +
                Invoices.ReceivingDetail.Chamber5.ChamberQuantity;
 
-                    float TotalShortageLTRdip = Math.Abs(TotalChamberQuantityR - TotalChamberQuantityS);
-                    Invoices.CalculationDifference.TotalShortageByDip = TotalShortageLTRdip;
+                    float TotalShortageLTRdip = TotalChamberQuantityR - TotalChamberQuantityS;
+                    Invoices.CalculationDifference.TotalShortageByDip = Math.Abs(TotalShortageLTRdip);
 
                     #region Required Formula Reconsideration
 
@@ -1394,15 +1394,19 @@
                     double TotalQuantity85R = await GetQtyAt85F(Invoices.ReceivingDetail.SG, Invoices.ReceivingDetail.TempF, TotalChamberQuantityR);
 
                     #endregion
-
+                    float ShortOnTempExempt = 0.0f;
                     float ShortContratorCharge = float.Parse((TotalQuantity85S - TotalQuantity85R).ToString());
                     if (ShortContratorCharge > 0)
                     {
                         Invoices.CalculationDifference.Status = "Short";
+                         ShortOnTempExempt = TotalShortageLTRdip -  ShortContratorCharge;
+
                     }
                     else if (ShortContratorCharge < 0)
                     {
                         Invoices.CalculationDifference.Status = "Extra";
+                        ShortOnTempExempt = TotalShortageLTRdip - Math.Abs(ShortContratorCharge);
+
                     }
                     else
                     {
@@ -1410,15 +1414,15 @@
                     }
                     Invoices.CalculationDifference.ShortageCharge = Math.Abs(ShortContratorCharge);
 
-                    float ShortOnTempExempt = Math.Abs(TotalShortageLTRdip - ShortContratorCharge);
+                   // float ShortOnTempExempt = TotalShortageLTRdip - ShortContratorCharge;
 
-                    Invoices.CalculationDifference.ShortOnTemp = ShortOnTempExempt;
+                    Invoices.CalculationDifference.ShortOnTemp = Math.Abs(ShortOnTempExempt);
 
                     float Shortage1F = ShortOnTempExempt / ReceivingTemp;
 
                     Invoices.CalculationDifference.Shortage1FTemp = Math.Abs((float)Math.Round(Shortage1F, 3));
 
-                    float QunatityShouldR = TotalChamberQuantityS - ShortOnTempExempt;
+                    float QunatityShouldR = TotalChamberQuantityS - Math.Abs(ShortOnTempExempt);
                     Invoices.CalculationDifference.QtyShouldRecieved = QunatityShouldR;
                 }
                 catch (Exception ex)
@@ -1457,9 +1461,11 @@
             Invoices.ShortageCalculation.Chamber1.ShortageMM = Math.Abs(Invoices.ReceivingDetail.Chamber1.LorryDip - Invoices.ShippingDetail.Chamber1.LorryDip);
             float ShortMM = Invoices.ShortageCalculation.Chamber1.ShortageMM;
             float TotalChamberLtr = Invoices.ShippingDetail.Chamber1.ChamberQuantity;
-            float Loading = Invoices.ShippingDetail.Chamber1.LorryDip;
-            float LoadingDivision = (TotalChamberLtr / Loading);
-            float Total = LoadingDivision * ShortMM;
+            // float Loading = Invoices.ShippingDetail.Chamber1.LorryDip;
+            // float LoadingDivision = (TotalChamberLtr / Loading);
+            // float Total = LoadingDivision * ShortMM;
+            float Loading = Invoices.ReceivingDetail.Chamber1.ChamberQuantity;
+            float Total = TotalChamberLtr - Loading;
 
             Invoices.ShortageCalculation.Chamber1.TotalShortageLtr = Math.Abs((int)Math.Round(Total));
 
@@ -1479,10 +1485,11 @@
             Invoices.ShortageCalculation.Chamber2.ShortageMM = Math.Abs(Invoices.ReceivingDetail.Chamber2.LorryDip - Invoices.ShippingDetail.Chamber2.LorryDip);
             float ShortMM = Invoices.ShortageCalculation.Chamber2.ShortageMM;
             float TotalChamberLtr = Invoices.ShippingDetail.Chamber2.ChamberQuantity;
-            float Loading = Invoices.ShippingDetail.Chamber2.LorryDip;
-            float LoadingDivision = (TotalChamberLtr / Loading);
-            float Total = LoadingDivision * ShortMM;
-
+            // float Loading = Invoices.ShippingDetail.Chamber2.LorryDip;
+            // float LoadingDivision = (TotalChamberLtr / Loading);
+            // float Total = LoadingDivision * ShortMM;
+            float Loading = Invoices.ReceivingDetail.Chamber2.ChamberQuantity;
+            float Total = TotalChamberLtr - Loading;
             Invoices.ShortageCalculation.Chamber2.TotalShortageLtr = Math.Abs((int)Math.Round(Total));
         }
 
@@ -1501,10 +1508,11 @@
             Invoices.ShortageCalculation.Chamber3.ShortageMM = Math.Abs(Invoices.ReceivingDetail.Chamber3.LorryDip - Invoices.ShippingDetail.Chamber3.LorryDip);
             float ShortMM = Invoices.ShortageCalculation.Chamber3.ShortageMM;
             float TotalChamberLtr = Invoices.ShippingDetail.Chamber3.ChamberQuantity;
-            float Loading = Invoices.ShippingDetail.Chamber3.LorryDip;
-            float LoadingDivision = (TotalChamberLtr / Loading);
-            float Total = LoadingDivision * ShortMM;
-
+            // float Loading = Invoices.ShippingDetail.Chamber3.LorryDip;
+            // float LoadingDivision = (TotalChamberLtr / Loading);
+            // float Total = LoadingDivision * ShortMM;
+            float Loading = Invoices.ReceivingDetail.Chamber3.ChamberQuantity;
+            float Total = TotalChamberLtr - Loading;
             Invoices.ShortageCalculation.Chamber3.TotalShortageLtr = Math.Abs((int)Math.Round(Total));
         }
         return true;
@@ -1522,10 +1530,11 @@
             Invoices.ShortageCalculation.Chamber4.ShortageMM = Math.Abs(Invoices.ReceivingDetail.Chamber4.LorryDip - Invoices.ShippingDetail.Chamber4.LorryDip);
             float ShortMM = Invoices.ShortageCalculation.Chamber4.ShortageMM;
             float TotalChamberLtr = Invoices.ShippingDetail.Chamber4.ChamberQuantity;
-            float Loading = Invoices.ShippingDetail.Chamber4.LorryDip;
-            float LoadingDivision = (TotalChamberLtr / Loading);
-            float Total = LoadingDivision * ShortMM;
-
+            // float Loading = Invoices.ShippingDetail.Chamber4.LorryDip;
+            // float LoadingDivision = (TotalChamberLtr / Loading);
+            // float Total = LoadingDivision * ShortMM;
+            float Loading = Invoices.ReceivingDetail.Chamber4.ChamberQuantity;
+            float Total = TotalChamberLtr - Loading;
             Invoices.ShortageCalculation.Chamber4.TotalShortageLtr = Math.Abs((int)Math.Round(Total));
         }
         return true;
@@ -1543,10 +1552,11 @@
             Invoices.ShortageCalculation.Chamber5.ShortageMM = Math.Abs(Invoices.ReceivingDetail.Chamber5.LorryDip - Invoices.ShippingDetail.Chamber5.LorryDip);
             float ShortMM = Invoices.ShortageCalculation.Chamber5.ShortageMM;
             float TotalChamberLtr = Invoices.ShippingDetail.Chamber5.ChamberQuantity;
-            float Loading = Invoices.ShippingDetail.Chamber5.LorryDip;
-            float LoadingDivision = (TotalChamberLtr / Loading);
-            float Total = LoadingDivision * ShortMM;
-
+            // float Loading = Invoices.ShippingDetail.Chamber5.LorryDip;
+            // float LoadingDivision = (TotalChamberLtr / Loading);
+            // float Total = LoadingDivision * ShortMM;
+            float Loading = Invoices.ReceivingDetail.Chamber5.ChamberQuantity;
+            float Total = TotalChamberLtr - Loading;
             Invoices.ShortageCalculation.Chamber5.TotalShortageLtr = Math.Abs((int)Math.Round(Total));
         }
         return true;

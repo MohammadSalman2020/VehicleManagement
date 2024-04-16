@@ -1,12 +1,16 @@
 ﻿@page "/shortageledger"
 @using System.Text.Json
+@using System.Web
+@using System.Text
 @using VehicleManagement.ApiService
 @using VehicleManagement.Authentication
+@using VehicleManagement.Models.General
 @using VehicleManagement.Models.General.Driver
 @inject IToastService toastService
 @inject IApiService API
 @inject IUserClaimsService UserClaimsService
-
+@inject IJSRuntime JSRuntime
+@inject NavigationManager NavigationManager
 <Nav PageName="Shortage Ledger" />
 
 <div class="container-fluid py-4">
@@ -25,14 +29,14 @@
 
                                     <div class="form-group">
                                         <label for="example-text-input" class="form-control-label">Search :</label>
-                                        <input id="searchInput" type="text" class="form-control" required />
+                                        <input id="searchInput" type="text" class="form-control" required @oninput="SearchTable" />
                                     </div>
 
 
 
-                                    <div class="form-group">
+                                  @*   <div class="form-group">
                                         <button class="btn btn-primary  btn-sm ms-auto">Search</button>
-                                    </div>
+                                    </div> *@
                                 </div>
 
 
@@ -61,11 +65,11 @@
                                                     <thead>
                                                         <tr>
                                                             <th class="text-center font-colors text-uppercase  text-xxs font-weight-bolder opacity-7">Invoice #</th>
-                                                            <th class="text-center font-colors text-uppercase  text-xxs font-weight-bolder opacity-7">Type</th>
-                                                            @*  <th>Driver Name</th> *@
-                                                            <th class="text-center font-colors text-uppercase  text-xxs font-weight-bolder opacity-7">Liters (ltr)</th>
                                                             <th class="text-center font-colors text-uppercase  text-xxs font-weight-bolder opacity-7">Date</th>
+                                                            <th class="text-center font-colors text-uppercase  text-xxs font-weight-bolder opacity-7">Type</th>
+                                                            <th class="text-center font-colors text-uppercase  text-xxs font-weight-bolder opacity-7">Liters (ltr)</th>
                                                             <th class="text-center font-colors text-uppercase  text-xxs font-weight-bolder opacity-7">Status</th>
+                                                            <th class="text-center font-colors text-uppercase  text-xxs font-weight-bolder opacity-7"></th>
                                                         </tr>
                                                     </thead>
                                                     <tbody>
@@ -85,23 +89,18 @@
                                                                             </div>
                                                                         </div>
                                                                     </td>
-                                                                  
+                                                                    <td class="align-middle text-center">
+                                                                        <span class="text-secondary text-xs font-weight-bold">@item.dated.ToString("MM-dd-yyyy")</span>
+                                                                    </td>
                                                                     <td class="align-middle text-center text-sm">
 
                                                                         <span class="badge badge-sm bg-gradient-success">@(item.invoiceType == "pk" ? "Primary" : "Secondary")</span>
 
 
                                                                     </td>
-
-
-                                                                    @*   <td>@item.driverName</td> *@
                                                                     <td class="align-middle text-center">
                                                                         <span class="text-secondary text-xs font-weight-bold">@item.ltr</span>
                                                                     </td>
-                                                                    <td class="align-middle text-center">
-                                                                        <span class="text-secondary text-xs font-weight-bold">@item.dated.ToString("MM-dd-yyyy")</span>
-                                                                    </td>
-
                                                                     <td class="align-middle text-center text-sm">
                                                                         @if (item.status == "Short")
                                                                         {
@@ -116,36 +115,44 @@
                                                                             <span>@item.status</span>
                                                                         }
                                                                     </td>
+                                                                    <td class="align-middle">
+                                                                        <a @onclick="@(()=>ShowMessage(item.invoiceID))" class="text-secondary font-weight-bold text-xs cursor-pointer">
+                                                                            View
+                                                                        </a>
+                                                                    </td>
                                                                 </tr>
-
-
                                                                 @if (item.shortages.Count > 0)
                                                                 {
                                                                     <tr class="tbl-accordion-body" data-div-id="@item.invoiceNumber">
-                                                                        @* <th>Invoice #</th> *@
                                                                         <th class="text-center font-colors text-uppercase  text-xxs font-weight-bolder opacity-7">Invoice Type</th>
-                                                                        <th class="text-center font-colors text-uppercase  text-xxs font-weight-bolder opacity-7">Driver Name</th>
-                                                                        <th class="text-center font-colors text-uppercase  text-xxs font-weight-bolder opacity-7"> Liters (ltr)</th>
                                                                         <th class="text-center font-colors text-uppercase  text-xxs font-weight-bolder opacity-7"> Date</th>
+                                                                        <th class="text-center font-colors text-uppercase  text-xxs font-weight-bolder opacity-7">1st Driver Name</th>
+                                                                        <th class="text-center font-colors text-uppercase  text-xxs font-weight-bolder opacity-7">2nd Driver Name</th>
+                                                                        <th class="text-center font-colors text-uppercase  text-xxs font-weight-bolder opacity-7"> Liters (ltr)</th>
                                                                         <th class="text-center font-colors text-uppercase  text-xxs font-weight-bolder opacity-7">Status</th>
                                                                     </tr>
                                                                     foreach (var shorts in item.shortages)
                                                                     {
                                                                         <tr class="tbl-accordion-body" data-div-id="@item.invoiceNumber">
 
-                                                                          @*   <td><strong>@shorts.invoiceNumber</strong></td> *@
                                                                             <td class="align-middle text-center text-sm">
                                                                                 <span class="badge badge-sm bg-gradient-warning">@(shorts.invoiceType == "pk" ? "Primary" : "Secondary")</span>
                                                                             </td>
                                                                             <td class="align-middle text-center">
-                                                                                <span class="text-secondary text-xs font-weight-bold">@shorts.driverName</span>
+                                                                                <span class="text-secondary text-xs font-weight-bold">@shorts.dated.ToString("MM-dd-yyyy")</span>
                                                                             </td>
+
+                                                                            <td class="align-middle text-center">
+                                                                                <span class="text-secondary text-xs font-weight-bold">@shorts.driverName (@shorts.driverID)</span>
+                                                                            </td>
+                                                                            <td class="align-middle text-center">
+                                                                                <span class="text-secondary text-xs font-weight-bold">@shorts.driver2Name (@shorts.driver2ID)</span>
+                                                                            </td>
+
                                                                             <td class="align-middle text-center">
                                                                                 <span class="text-secondary text-xs font-weight-bold">@shorts.ltr</span>
                                                                             </td>
-                                                                            <td class="align-middle text-center">
-                                                                                <span class="text-secondary text-xs font-weight-bold">@shorts.dated.ToString("MM-dd-yyyy")</span>
-                                                                            </td>
+
                                                                             <td class="align-middle text-center text-sm">
                                                                                 @if (shorts.status == "Short")
                                                                                 {
@@ -166,7 +173,7 @@
                                                                 }
                                                                 else
                                                                 {
-                                                                <td colspan="6">No Data Available</td>
+                                                                <td class="tbl-accordion-body" data-div-id="@item.invoiceNumber" colspan="6">No Secondary For This Invoice</td>
                                                                 }
 
 
@@ -300,7 +307,7 @@
 @code {
     public bool IsChildLoad = false;
     public List<DriverShortage> DriverShortages = new List<DriverShortage>();
-
+    public Invoicing Invoices { get; set; }
 
     protected override async Task OnInitializedAsync()
     {
@@ -325,6 +332,44 @@
             IsChildLoad = false;
         }
         IsChildLoad = false;
+    }
+
+    public async Task ShowMessage(int InvoiceID)
+    {
+        IsChildLoad = true;
+
+        try
+        {
+
+            var Invoice = await API.GetRequest($"Invoice/GetInvoiceByID/{InvoiceID}");
+            if (Invoice != "")
+            {
+
+                Invoices = Newtonsoft.Json.JsonConvert.DeserializeObject<Invoicing>(Invoice);
+                if (Invoices != null)
+                {
+                    string jsonString = JsonSerializer.Serialize(Invoices);
+                    string base64EncodedJson = Convert.ToBase64String(Encoding.UTF8.GetBytes(jsonString));
+                    string encodedJson = HttpUtility.UrlEncode(base64EncodedJson);
+                    IsChildLoad = false;
+                    NavigationManager.NavigateTo($"/invoicedisplay?InvoiceID={encodedJson}");
+                }
+
+            }
+        }
+        catch (Exception ex)
+        {
+            IsChildLoad = false;
+            toastService.ShowError($"Error: {ex.Message}");
+        }
+        IsChildLoad = false;
+    }
+    private async Task SearchTable(ChangeEventArgs e)
+    {
+        IsChildLoad = true;
+        string searchValue = e.Value.ToString();
+        await JSRuntime.InvokeVoidAsync("filterTable", searchValue);
+        IsChildLoad = true;
     }
     public async Task GetShortages()
     {
