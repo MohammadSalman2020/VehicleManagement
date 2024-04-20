@@ -127,7 +127,7 @@
                                                         <th class="text-center font-colors text-uppercase  text-xxs font-weight-bolder opacity-7"> Date</th>
                                                         <th class="text-center font-colors text-uppercase  text-xxs font-weight-bolder opacity-7">1st Driver Name</th>
                                                         <th class="text-center font-colors text-uppercase  text-xxs font-weight-bolder opacity-7">2nd Driver Name</th>
-                                                        <th class="text-center font-colors text-uppercase  text-xxs font-weight-bolder opacity-7">Invoice Type</th>
+                                                        <th class="text-center font-colors text-uppercase  text-xxs font-weight-bolder opacity-7">Type</th>
                                                         <th class="text-center font-colors text-uppercase  text-xxs font-weight-bolder opacity-7"> Liters (ltr)</th>
                                                         <th class="text-center font-colors text-uppercase  text-xxs font-weight-bolder opacity-7">Status</th>
                                                         <th class="text-center font-colors text-uppercase  text-xxs font-weight-bolder opacity-7"></th>
@@ -184,7 +184,7 @@
                                                 }
                                                 else
                                                 {
-                                                <td class="tbl-accordion-body" data-div-id="@item.invoiceNumber" colspan="6">No Secondary For This Invoice</td>
+                                                <td class="tbl-accordion-body" data-div-id="@item.invoiceNumber" colspan="8">No Secondary For This Invoice</td>
                                                 }
 
 
@@ -193,7 +193,7 @@
                                         else
                                         {
                                         <tr>
-                                            <td colspan="6">
+                                            <td colspan="8">
                                                 <DataLoaderComponent IsLoading="@IsChildLoad" LoadingText="Loading Invoices..." />
                                             </td>
                                         </tr>
