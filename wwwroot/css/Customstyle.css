@@ -1261,6 +1261,7 @@ td, th {
 
 .tbl-accordion-body {
     display: none;
+    background: #e0e2ec;
 }
 
     .tbl-accordion-body td {
