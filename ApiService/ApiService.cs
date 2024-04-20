@@ -29,10 +29,11 @@ namespace VehicleManagement.ApiService
                 string bearer = await _jsRuntime.InvokeAsync<string>("sessionStorage.getItem", "BearerToken");
 
                 using (var client = new HttpClient())
-                {
+                {                   
                     client.BaseAddress = new Uri(_apiBaseUrl);
                     client.DefaultRequestHeaders.Accept.Clear();
                     client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+                    client.Timeout = TimeSpan.FromMinutes(10);
                     if (bearer != null)
                     {
                         client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", bearer);

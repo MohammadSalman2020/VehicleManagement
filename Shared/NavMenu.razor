@@ -19,9 +19,10 @@
                         </button>
                         <div class="dropdown-content">
                             <a href="/fleet">Fleet</a>
+                            <a href="/fleetstatus">Fleet Status</a>
                             <a href="/avail">Availability</a>
                             <a href="/map">Satellite View</a>
-                            <a href="/shortageledger">Shortage</a>
+                            @* <a href="/shortageledger">Shortage</a> *@
                         </div>
                     </div>
                 </Authorized>
@@ -37,6 +38,7 @@
                         <div class="dropdown-content">
                             <a href="/map">Satellite View</a>
                             <a href="/fleet">Fleet</a>
+                            <a href="/fleetstatus">Fleet Status</a>
                             <a href="/availclient">Availability</a>
                         </div>
                     </div>
@@ -83,7 +85,7 @@
                     <i class="fa fa-caret-down"></i>
                 </button>
                 <div class="dropdown-content">
-                    <AuthorizeView Roles="admin,Client,FleetManager">
+                    <AuthorizeView Roles="Client,FleetManager">
                         <Authorized Context="clientaccess">
                             <a href="/inspections">View Inspections</a>
                         </Authorized>

@@ -8,11 +8,13 @@
 @using System.Text
 @using System.Text.RegularExpressions
 @using VehicleManagement.ApiService
+@using VehicleManagement.Authentication
 @using VehicleManagement.Models.General
 @inject NavigationManager NavigationManager
 @using VehicleManagement.Models.DB
 @using VehicleManagement.Models.General.Fleet
 @inject IApiService API
+@inject IUserClaimsService UserClaimsService
 <style>
     .contact-info {
         cursor: pointer; 
@@ -109,10 +111,10 @@
                                                 <p>@item.qty</p>
                                             </td>
                                             <td class="contact-info">
-                                                    <p  @onclick="() => HandleButtonClick(item.driver1)">@item.driver1</p>
+                                                    <p @onclick="() => HandleButtonClick(Trim(item.driver1))">@item.driver1</p>
                                                 </td>
                                             <td class="contact-info">
-                                                    <p @onclick="() => HandleButtonClick(item.driver2)">@item.driver2</p>
+                                                    <p @onclick="() => HandleButtonClick(Trim(item.driver2))">@item.driver2</p>
                                                 </td>
                                                 <td style="text-align:center">
                                                 <span>@item.reportingFillingdate</span>
@@ -133,7 +135,7 @@
                                                 <span>@item.current_location</span>
                                             </td>
                                             <td>
-                                                <span>@item.Remarks</span>
+                                                <span>@item.remarks</span>
                                             </td>
                                         </tr>
                                     }
@@ -150,7 +152,8 @@
                                     <div class="spinner-border" role="status">
                                         <span class="visually-hidden">Loading...</span>
                                     </div>
-                                    <p>Loading...</p>
+                                    <p>Loading Fleet Status..</p>
+                                    <p>Please wait.. It will take some minutes</p>
                                 </div>
                             }
                         </div>
@@ -176,7 +179,7 @@
 
     string modalDisplay = "none";
     string phoneNumber;
-
+    public List<int> BusinessID = new List<int>();
     int sr = 0;
 
     List<FleetStatusreport> fleet = new List<FleetStatusreport>();
@@ -192,6 +195,23 @@
             phoneNumber = "+92" + phoneNumber.Substring(1);
             modalDisplay = "block";
         }
+    }
+    private string Trim(string input)
+    {
+
+        int indexOfOpeningParenthesis = input.IndexOf('(');
+
+        if (indexOfOpeningParenthesis != -1) // Check if '(' exists in the string
+        {
+            string result = input.Substring(0, indexOfOpeningParenthesis);
+            return result; // Output: JQ-1858
+        }
+        else
+        {
+            // Handle the case when '(' is not found in the string
+            return input;
+        }
+
     }
     // Method to close the modal
     void CloseModal()
@@ -235,7 +255,7 @@
             int count = 1;
             foreach (var report in fleet)
             {
-                sb.AppendLine($"\"{count}\",\"{report.vehicleID}\",\"{report.qty}\",\"{report.driver1}\",\"{report.driver2}\",\"{report.reportingFillingdate}\",\"{report.product}\",\"{report.fillingPoint}\",\"{report.heading}\",\"{report.destination}\",\"{report.current_location}\",\"{report.Remarks}\"");
+                sb.AppendLine($"\"{count}\",\"{report.vehicleID}\",\"{report.qty}\",\"{report.driver1}\",\"{report.driver2}\",\"{report.reportingFillingdate}\",\"{report.product}\",\"{report.fillingPoint}\",\"{report.heading}\",\"{report.destination}\",\"{report.current_location}\",\"{report.remarks}\"");
                 count++;
             }
 
@@ -265,9 +285,8 @@
             var Main = await API.GetRequest($"Fleet/FleetStatusReport/{fleetdesc}");
             if (Main != "")
             {
-
-                fleet = JsonSerializer.Deserialize<List<FleetStatusreport>>(Main);
-
+                var rec = Newtonsoft.Json.JsonConvert.DeserializeObject<List<FleetStatusreport>>(Main);
+                fleet = rec.Where(p => BusinessID.Contains(p.busID)).ToList();
             }
         }
         catch (Exception ex)
@@ -282,7 +301,7 @@
     protected override async Task OnInitializedAsync()
     {
 
-
+        BusinessID = await UserClaimsService.GetBusinessIdsAsync();
         await LoadFleetStatusreport("htl");
 
 
