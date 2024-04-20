@@ -9,7 +9,7 @@
 <div class="inspectionprint">
     <br />
     <button @onclick="OnPrint" class="btn btn-primary btn-sm">Print</button>
-    <div style="background-color:white">
+    <div style="background-color:white;padding:30px;overflow-x:scroll">
         @* <div class="left-section"></div> <!-- Left section --> *@
         <div>
             <h3 style="text-align:center">Shakoor & Company Limited</h3>
@@ -193,7 +193,7 @@
                     <th>@(j + 1)</th>
                     <th>@Scopes[j]</th>
                     <th>Inspector Remarks</th>
-                    <th>Response</th>
+                    <th style="text-align:center;justify-content:center">Response</th>
                     </thead>
                     <tbody>
                         @for (int i = 0; i < @scopeObservations.Count; i++)
@@ -202,7 +202,7 @@
                                 <td>@(j + 1).@(i + 1)</td>
                                 <td>@scopeObservations[i].scopeDesc</td>
                                 <td>@scopeObservations[i].remarks</td>
-                                <td>
+                                <td style="text-align:center;justify-content:center">
                                     @if (@scopeObservations[i].yes)
                                     {
                                         <span>  <img src="css/check.png" alt="Checkmark" class="icon"> </span>
