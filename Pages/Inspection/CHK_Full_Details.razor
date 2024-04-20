@@ -60,7 +60,7 @@
                     <div class="container">
                         <div class="row">
                             <div class="col-md-12">
-                                @if (checklist.Count > 0 && currentindex > -1 && currentindex < checklist.Count)
+                                @if (checklist.Count > 0 && currentindex > -1 && currentindex < checklist.Count && @currentObject!=null)
                                 {
                                     try
                                     {
@@ -129,14 +129,14 @@
 </div>
 
 
-
+<Loader isLoading="@IsLoading" />
 
 
 @code {
     // Your code-behind logic goes here
 
     string vehicle = "";
-
+    private bool IsLoading = false;
     string tempid;
     int InspectionID;
     protected override async void OnInitialized()
@@ -149,9 +149,10 @@
         tempid = temp;
         var y = QueryHelpers.ParseQuery(uri.Query).TryGetValue("InspectionID", out var insid);
         InspectionID = int.Parse(insid);
+        IsLoading = true;
         await LoadChecklist();
         Validate();
-
+        IsLoading = false;
 
     }
 
@@ -161,17 +162,17 @@
         {
 
 
-            if (currentIndex == 0)
+            if (currentindex == 0)
             {
                 IsFirstObject = true;
                 IsLastObject = false;
             }
-            if (currentIndex == checklist.Count - 1)
+            if (currentindex == checklist.Count - 1)
             {
                 IsFirstObject = false;
                 IsLastObject = true;
             }
-            if (currentIndex > 0 && currentIndex < checklist.Count)
+            if (currentindex > 0 && currentindex < checklist.Count)
             {
                 IsFirstObject = false;
                 IsLastObject = false;
@@ -179,7 +180,7 @@
         }
     }
     List<tblTemplateDetails> checklist = new List<tblTemplateDetails>();
-    private int currentIndex = -1;
+//    private int currentIndex = -1;
     private tblTemplateDetails currentObject;
     public bool IsFirstObject;
     public bool IsLastObject;
@@ -190,26 +191,29 @@
         {
             var rec = await API.GetRequest($"Inspection/LoadChecklist/{tempid}");
 
-            if (rec != null)
+
+            if (rec!=null)
             {
-                checklist = JsonSerializer.Deserialize<List<tblTemplateDetails>>(rec);
+                
+                checklist = JsonSerializer.Deserialize<List<tblTemplateDetails>>(rec.ToString());
+                var vehicleinfo = await API.GetRequest($"Inspection/GetVehicleInfo/{vehicle}");
 
-
+                if (vehicleinfo != null)
+                {
+                    Vehicleinfo = JsonSerializer.Deserialize<vehicleinfo>(vehicleinfo);
+                }
+                else
+                {
+                    Console.WriteLine("API request returned null.");
+                }
+                StateHasChanged();
             }
             else
             {
                 Console.WriteLine("API request returned null.");
             }
-            var vehicleinfo = await API.GetRequest($"Inspection/GetVehicleInfo/{vehicle}");
 
-            if (vehicleinfo != null)
-            {
-                Vehicleinfo = JsonSerializer.Deserialize<vehicleinfo>(vehicleinfo);
-            }
-            else
-            {
-                Console.WriteLine("API request returned null.");
-            }
+
         }
         catch (Exception ex)
         {
@@ -262,7 +266,7 @@
             if (Result == "200")
             {
 
-              //  navmanager.NavigateTo($"/Chk_Details?Vehicle={txtvehicle}&tempid={tempid}&InspectionID={Result}");
+                //  navmanager.NavigateTo($"/Chk_Details?Vehicle={txtvehicle}&tempid={tempid}&InspectionID={Result}");
                 navmanager.NavigateTo($"/checklists");
 
                 toastService.ShowSuccess($"Inspection Completed");
@@ -278,7 +282,7 @@
     }
 
 
-    int currentindex = 0;
+    int currentindex = -1;
     string scopeDesc;
 
     // private async Task StartClick()
@@ -315,23 +319,23 @@
         SaveChanges(); // Save changes before moving to the previous object
         if (!IsFirstObject)
         {
-            if (currentIndex > -1)
+            if (currentindex > -1 && checklist.Count > 0)
             {
-                currentIndex--;
-                currentObject = checklist[currentIndex];
+                currentindex--;
+                currentObject = checklist[currentindex];
             }
 
         }
         else
         {
-            if (currentIndex > 0)
+            if (currentindex > 0)
             {
-                currentIndex--;
-                currentObject = checklist[currentIndex];
+                currentindex--;
+                currentObject = checklist[currentindex];
             }
 
         }
-        srno = currentIndex + 1;
+        srno = currentindex + 1;
     }
     bool start = false;
     void StartChecklist()
@@ -342,35 +346,38 @@
     void ShowNext()
     {
         Validate();
-        SaveChanges(); // Save changes before moving to the next object
+       
 
         if (!IsLastObject)
         {
 
-            if (currentIndex < checklist.Count - 1)
+            if (currentindex < checklist.Count - 1)
             {
-                currentIndex++;
+                currentindex++;
             }
 
 
 
             if (checklist.Count > 0)
             {
-                currentObject = checklist[currentIndex];
+                currentObject = checklist[currentindex];
             }
 
-
+        
 
 
         }
-        srno = currentIndex + 1;
+        SaveChanges(); // Save changes before moving to the next object
+        srno = currentindex + 1;
+        
     }
     private void SaveChanges()
     {
-        if (currentObject != null && checklist != null && currentIndex >= 0 && currentIndex < checklist.Count)
+        if (currentObject != null && checklist.Count > 0 && currentindex >= 0 && currentindex < checklist.Count)
         {
-            checklist[currentIndex] = currentObject; // Update object in the list
+            checklist[currentindex] = currentObject; // Update object in the list
         }
+
     }
 
 
