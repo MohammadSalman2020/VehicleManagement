@@ -12,6 +12,8 @@
         public string heading { get; set; }
         public string destination { get; set; }
         public string current_location { get; set; }
-        public string Remarks { get; set; }
+        public string remarks { get; set; }
+        public int busID { get; set; }
+
     }
 }
