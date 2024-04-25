@@ -26,67 +26,73 @@
                         <div class="card-body px-0 pt-0 pb-2">
                             <div class="table-responsive p-0">
                                 <table class="table align-items-center mb-0">
-                                    @if (DriverList.Count > 0)
+                                    @if (!IsChildLoading)
                                     {
-                                        <thead>
-                                            <tr>
-                                                <th class="text-uppercase font-colors  text-xxs font-weight-bolder opacity-7">Driver ID</th>
-                                                <th class="text-uppercase font-colors  text-xxs font-weight-bolder opacity-7 ps-2" style="text-align:center">Driver Full Name</th>
-                                                <th class="text-center font-colors text-uppercase  text-xxs font-weight-bolder opacity-7">Contact</th>
-                                                <th class="text-center font-colors text-uppercase  text-xxs font-weight-bolder opacity-7">Designation</th>
-                                                <th class="text-center font-colors text-uppercase  text-xxs font-weight-bolder opacity-7">Status</th>
-                                                <th class="text-center font-colors text-uppercase  text-xxs font-weight-bolder opacity-7"></th>
 
 
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-
-                                            @foreach (var item in DriverList)
-                                            {
+                                        @if (DriverList.Count > 0)
+                                        {
+                                            <thead>
                                                 <tr>
-                                                    <td class="align-middle text-center">
-                                                        <div class="d-flex px-2 py-1">
-                                                            <div>
-                                                                <img src="css/assets/Truck.jpg" class="avatar avatar-sm me-3" alt="user1">
-                                                            </div>
-                                                            <div class="d-flex flex-column justify-content-center">
-                                                                <h6 class="mb-0 text-sm">@item.driverID</h6>
+                                                    <th class="text-uppercase font-colors  text-xxs font-weight-bolder opacity-7">Driver ID</th>
+                                                    <th class="text-uppercase font-colors  text-xxs font-weight-bolder opacity-7 ps-2" style="text-align:center">Driver Full Name</th>
+                                                    <th class="text-center font-colors text-uppercase  text-xxs font-weight-bolder opacity-7">Contact</th>
+                                                    <th class="text-center font-colors text-uppercase  text-xxs font-weight-bolder opacity-7">Designation</th>
+                                                    <th class="text-center font-colors text-uppercase  text-xxs font-weight-bolder opacity-7">Status</th>
+                                                    <th class="text-center font-colors text-uppercase  text-xxs font-weight-bolder opacity-7"></th>
 
-                                                            </div>
-                                                        </div>
-                                                    </td>
-                                                    <td class="align-middle text-center">
-                                                        <p class="text-xs font-weight-bold mb-0">@item.driverName</p>
-
-                                                    </td>
-                                                    <td class="align-middle text-center">
-                                                        <span class="text-secondary text-xs font-weight-bold">@item.contact</span>
-                                                    </td>
-                                                    <td class="align-middle text-center">
-                                                        <span class="text-secondary text-xs font-weight-bold">@item.designation</span>
-                                                    </td>
-                                                    <td class="align-middle text-center text-sm">
-                                                        @if (@item.isActive)
-                                                        {
-                                                            <span class="badge badge-sm bg-gradient-success">@(item.isActive == true ? "Active" : "In-Active")</span>
-
-                                                        }
-                                                        else
-                                                        {
-                                                            <span class="badge badge-sm bg-gradient-danger">@(item.isActive == true ? "Active" : "In-Active")</span>
-
-                                                        }
-                                                    </td>
-                                                    <td class="align-middle text-center">
-                                                        <span class="text-secondary text-xs font-weight-bold" style="cursor:pointer" @onclick="@(() => EditDriver(item.driverdbID))">Edit</span>
-                                                    </td>
 
                                                 </tr>
-                                            }
-                                        </tbody>
+                                            </thead>
+                                            <tbody>
+
+                                                @foreach (var item in DriverList)
+                                                {
+                                                    <tr>
+                                                        <td class="align-middle text-center">
+                                                            <div class="d-flex px-2 py-1">
+                                                                <div>
+                                                                    <img src="css/assets/Truck.jpg" class="avatar avatar-sm me-3" alt="user1">
+                                                                </div>
+                                                                <div class="d-flex flex-column justify-content-center">
+                                                                    <h6 class="mb-0 text-sm">@item.driverID</h6>
+
+                                                                </div>
+                                                            </div>
+                                                        </td>
+                                                        <td class="align-middle text-center">
+                                                            <p class="text-xs font-weight-bold mb-0">@item.driverName</p>
+
+                                                        </td>
+                                                        <td class="align-middle text-center">
+                                                            <span class="text-secondary text-xs font-weight-bold">@item.contact</span>
+                                                        </td>
+                                                        <td class="align-middle text-center">
+                                                            <span class="text-secondary text-xs font-weight-bold">@item.designation</span>
+                                                        </td>
+                                                        <td class="align-middle text-center text-sm">
+                                                            @if (@item.isActive)
+                                                            {
+                                                                <span class="badge badge-sm bg-gradient-success">@(item.isActive == true ? "Active" : "In-Active")</span>
+
+                                                            }
+                                                            else
+                                                            {
+                                                                <span class="badge badge-sm bg-gradient-danger">@(item.isActive == true ? "Active" : "In-Active")</span>
+
+                                                            }
+                                                        </td>
+                                                        <td class="align-middle text-center">
+                                                            <span class="text-secondary text-xs font-weight-bold" style="cursor:pointer" @onclick="@(() => EditDriver(item.driverdbID))">Edit</span>
+                                                        </td>
+
+                                                    </tr>
+                                                }
+                                            </tbody>
+                                        }
+                                    
                                     }
-                                    else
+                                    else if (IsChildLoading)
                                     {
                                         <DataLoaderComponent IsLoading="@IsChildLoading" LoadingText="Loading Driver Data..." />
                                     }
@@ -133,7 +139,7 @@
                                 <div class="col-md-6">
                                     <div class="form-group">
                                         <label for="example-text-input" class="form-control-label">Designation</label>
-                                        <select class="form-control"  @onchange="DriverDesignation">
+                                        <select class="form-control" @onchange="DriverDesignation">
                                             <option value="0">Select One</option>
                                             <option selected="@(Driver.Designation=="1st"? "selected" : null)" value="1st">1st</option>
                                             <option selected="@(Driver.Designation=="2nd"? "selected" : null)" value="2nd">2nd</option>
