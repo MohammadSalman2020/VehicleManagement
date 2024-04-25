@@ -230,7 +230,7 @@
         try
         {
             IsChildLoad = true;
-            await GetAllInvoices();
+         
 
             await GetShortages();
         }
@@ -239,6 +239,8 @@
             IsChildLoad = false;
         }
         IsChildLoad = false;
+
+        await GetAllInvoices();
     }
 
     public async Task ShowMessage(string STONo)

@@ -51,51 +51,71 @@
                         <div class="fleet-cards">
 
                             <div class="container">
-                                @if (AvailDraftList.Count > 0)
+                                @if (!IsChildLoad)
                                 {
-                                    @foreach (var item in AvailDraftList)
+
+
+                                    @if (AvailDraftList.Count > 0)
+                                    {
+                                        @foreach (var item in AvailDraftList)
+                                        {
+                                            <div class="card">
+
+                                                <div class="card-body">
+
+                                                    <div class="card-header">
+                                                        <span class="edit-icon" @onclick="@(() => EditDriver(item.availID))"><i class="fa fa-edit"></i></span>
+                                                        <span style="color: red;" @onclick="@(() => Delete(item.availID))" class="delete-icon"><i class="fa fa-trash"></i></span>
+
+                                                    </div>
+
+                                                    <span class="tag tag-success">Available</span>
+                                                    &nbsp;
+                                                    @if (@item.isActive)
+                                                    {
+                                                        <span class="badge badge-sm bg-gradient-success">@(item.isActive == true ? "Active" : "In-Active")</span>
+
+                                                    }
+                                                    else
+                                                    {
+                                                        <span class="badge badge-sm bg-gradient-danger">@(item.isActive == true ? "Active" : "In-Active")</span>
+
+                                                    }
+                                                    <h4 style="padding-top: 30px;">
+                                                        @item.vehicleCap &nbsp;&nbsp;@item.chamberSEQ
+                                                    </h4>
+                                                    <p>
+                                                        <i class="fa fa-map-marker" aria-hidden="true"></i>
+                                                        &nbsp;@item.location
+                                                    </p>
+                                                    <p>
+                                                        <i class="fas fa-building" aria-hidden="true"></i>
+                                                        &nbsp;@item.businessName
+                                                    </p>
+                                                    <p>
+                                                        <i class="fa fa-user" aria-hidden="true"></i>
+                                                        &nbsp;@item.driver1
+                                                        <br /><br />
+                                                        <i class="fa fa-user" aria-hidden="true"></i>
+                                                        &nbsp;@item.driver2
+                                                    </p>
+
+
+
+                                                </div>
+
+                                            </div>
+                                        }
+                                    }
+                                    else
                                     {
                                         <div class="card">
 
                                             <div class="card-body">
 
-                                                <div class="card-header">
-                                                    <span class="edit-icon" @onclick="@(() => EditDriver(item.availID))"><i class="fa fa-edit"></i></span>
-                                                    <span style="color: red;" @onclick="@(() => Delete(item.availID))" class="delete-icon"><i class="fa fa-trash"></i></span>
 
-                                                </div>
-
-                                                <span class="tag tag-success">Available</span>
-                                                &nbsp;
-                                                @if (@item.isActive)
-                                                {
-                                                    <span class="badge badge-sm bg-gradient-success">@(item.isActive == true ? "Active" : "In-Active")</span>
-
-                                                }
-                                                else
-                                                {
-                                                    <span class="badge badge-sm bg-gradient-danger">@(item.isActive == true ? "Active" : "In-Active")</span>
-
-                                                }
-                                                <h4 style="padding-top: 30px;">
-                                                    @item.vehicleCap &nbsp;&nbsp;@item.chamberSEQ
-                                                </h4>
-                                                <p>
-                                                    <i class="fa fa-map-marker" aria-hidden="true"></i>
-                                                    &nbsp;@item.location
-                                                </p>
-                                                <p>
-                                                    <i class="fas fa-building" aria-hidden="true"></i>
-                                                    &nbsp;@item.businessName
-                                                </p>
-                                                <p>
-                                                    <i class="fa fa-user" aria-hidden="true"></i>
-                                                    &nbsp;@item.driver1
-                                                    <br /><br />
-                                                    <i class="fa fa-user" aria-hidden="true"></i>
-                                                    &nbsp;@item.driver2
-                                                </p>
-
+                                                <span class="tag tag-success">No Vehicle in Availibility</span>
+                                             
 
 
                                             </div>
@@ -103,7 +123,7 @@
                                         </div>
                                     }
                                 }
-                                else
+                                else if (IsChildLoad)
                                 {
                                     <DataLoaderComponent IsLoading="@IsChildLoad" LoadingText="Loading Available Fleets..." />
                                 }
@@ -208,7 +228,7 @@
                                             </div>
                                         </div>
                                     }
-                                
+
                                     @if (Driver2List.Count > 0)
                                     {
                                         <div class="col-md-6">
@@ -917,7 +937,7 @@
     }
     private void OpenModal()
     {
-        if(!IsEdit)
+        if (!IsEdit)
         {
             Avail = new AddAvailability();
         }

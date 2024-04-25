@@ -54,7 +54,7 @@
         <div class="col-12">
             <div class="card mb-4">
                 <div class="card-header d-flex justify-content-between">
-                    <span>Fleet Status Report (HTL)</span>
+                    <span>Fleet Status Report</span>
                     <button class="btn btn-primary" @onclick="ExportToCSV">Export To CSV</button>
                 </div>
                
@@ -72,81 +72,89 @@
                                     </div>
                                 </div>
                             </div>
-                            @if (fleet.Count > 0)
+                            @if(!IsLoading)
                             {
-                                sr = 0;
+                                @if (fleet.Count > 0)
+                                {
+                                    sr = 0;
 
-                                <!-- Your table code -->
-                                <table class="table-bordered">
-                                    <!-- Added 'table-bordered' class -->
-                                    <thead style="background-color:#5e72e4;color:white">
-                                        <tr style="text-align:center">
-                                            <th>Sr#</th>
-                                            <th style="padding:5px">Vehicle_#</th>
-                                            <th>Qty</th>
-                                            <th>Driver_1</th>
-                                            <th>Driver_2</th>
-                                            <th>Report/FillingData</th>
-                                            <th>Product</th>
-                                            <th>FillingPoint</th>
-                                            <th>Heading</th>
-                                            <th>Destination</th>
-                                            <th>CurrentLocation</th>
-                                            <th>Remarks</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-
-                                        
-                                        @foreach (var item in fleet)
-                                    {
-                                        <tr>
-                                            <td style="text-align:center">
-                                                <p>@(sr = (sr + 1))</p>
-                                            </td>
-                                                <td style="text-align:center">
-                                                <p>@item.vehicleID</p>
-                                            </td>
-                                                <td style="text-align:center">
-                                                <p>@item.qty</p>
-                                            </td>
-                                            <td class="contact-info">
-                                                    <p @onclick="() => HandleButtonClick(Trim(item.driver1))">@item.driver1</p>
-                                                </td>
-                                            <td class="contact-info">
-                                                    <p @onclick="() => HandleButtonClick(Trim(item.driver2))">@item.driver2</p>
-                                                </td>
-                                                <td style="text-align:center">
-                                                <span>@item.reportingFillingdate</span>
-                                            </td>
-                                                <td style="text-align:center">
-                                                <span>@item.product</span>
-                                            </td>
-                                                <td style="text-align:center">
-                                                <span>@item.fillingPoint</span>
-                                            </td>
-                                                <td style="text-align:center">
-                                                <span>@item.heading</span>
-                                            </td>
-                                                <td style="text-align:center">
-                                                <span>@item.destination</span>
-                                            </td>
-                                            <td>
-                                                <span>@item.current_location</span>
-                                            </td>
-                                            <td>
-                                                <span>@item.remarks</span>
-                                            </td>
-                                        </tr>
-                                    }
+                                    <!-- Your table code -->
+                                    <table class="table-bordered">
+                                        <!-- Added 'table-bordered' class -->
+                                        <thead style="background-color:#5e72e4;color:white">
+                                            <tr style="text-align:center">
+                                                <th>Sr#</th>
+                                                <th style="padding:5px">Vehicle_#</th>
+                                                <th>Qty</th>
+                                                <th>Driver_1</th>
+                                                <th>Driver_2</th>
+                                                <th>Report/FillingData</th>
+                                                <th>Product</th>
+                                                <th>FillingPoint</th>
+                                                <th>Heading</th>
+                                                <th>Destination</th>
+                                                <th>CurrentLocation</th>
+                                                <th>Remarks</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
 
 
+                                            @foreach (var item in fleet)
+                                            {
+                                                <tr>
+                                                    <td style="text-align:center">
+                                                        <p>@(sr = (sr + 1))</p>
+                                                    </td>
+                                                    <td style="text-align:center">
+                                                        <p>@item.vehicleID</p>
+                                                    </td>
+                                                    <td style="text-align:center">
+                                                        <p>@item.qty</p>
+                                                    </td>
+                                                    <td class="contact-info">
+                                                        <p @onclick="() => HandleButtonClick(Trim(item.driver1))">@item.driver1</p>
+                                                    </td>
+                                                    <td class="contact-info">
+                                                        <p @onclick="() => HandleButtonClick(Trim(item.driver2))">@item.driver2</p>
+                                                    </td>
+                                                    <td style="text-align:center">
+                                                        <span>@item.reportingFillingdate</span>
+                                                    </td>
+                                                    <td style="text-align:center">
+                                                        <span>@item.product</span>
+                                                    </td>
+                                                    <td style="text-align:center">
+                                                        <span>@item.fillingPoint</span>
+                                                    </td>
+                                                    <td style="text-align:center">
+                                                        <span>@item.heading</span>
+                                                    </td>
+                                                    <td style="text-align:center">
+                                                        <span>@item.destination</span>
+                                                    </td>
+                                                    <td>
+                                                        <span>@item.current_location</span>
+                                                    </td>
+                                                    <td>
+                                                        <span>@item.remarks</span>
+                                                    </td>
+                                                </tr>
+                                            }
 
-                                </tbody>
-                            </table>
+
+
+                                        </tbody>
+                                    </table>
+
+                                }
+                                else
+                                {
+                                    <p>No Data Found...</p>
+                                }
 
                             }
-                            else
+                            else if(IsLoading)
                             {
                                 <div class="text-center">
                                     <div class="spinner-border" role="status">
@@ -181,7 +189,7 @@
     string phoneNumber;
     public List<int> BusinessID = new List<int>();
     int sr = 0;
-
+    public bool IsLoading{ get; set; }
     List<FleetStatusreport> fleet = new List<FleetStatusreport>();
 
     void HandleButtonClick(string s)
@@ -278,15 +286,21 @@
 
     }
 
-    public async Task LoadFleetStatusreport(string fleetdesc)
+    public async Task LoadFleetStatusreport()
     {
         try
         {
-            var Main = await API.GetRequest($"Fleet/FleetStatusReport/{fleetdesc}");
+            JsonSerializerOptions options = new JsonSerializerOptions
+                {
+                    WriteIndented = true,
+                    ReferenceHandler = null
+                };
+            string jsonData = JsonSerializer.Serialize(BusinessID, options);
+            var Main = await API.PostRequest($"Fleet/FleetStatusReport",jsonData);
             if (Main != "")
             {
-                var rec = Newtonsoft.Json.JsonConvert.DeserializeObject<List<FleetStatusreport>>(Main);
-                fleet = rec.Where(p => BusinessID.Contains(p.busID)).ToList();
+                fleet = Newtonsoft.Json.JsonConvert.DeserializeObject<List<FleetStatusreport>>(Main);
+                //  fleet = rec.Where(p => BusinessID.Contains(p.busID)).ToList();
             }
         }
         catch (Exception ex)
@@ -300,10 +314,10 @@
 
     protected override async Task OnInitializedAsync()
     {
-
+        IsLoading = true;
         BusinessID = await UserClaimsService.GetBusinessIdsAsync();
-        await LoadFleetStatusreport("htl");
-
+        await LoadFleetStatusreport();
+        IsLoading = false;
 
     }
 

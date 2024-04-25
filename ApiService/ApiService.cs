@@ -67,6 +67,7 @@ namespace VehicleManagement.ApiService
                 {
                     client.BaseAddress = new Uri(_apiBaseUrl);
                     client.DefaultRequestHeaders.Accept.Clear();
+                    client.Timeout = TimeSpan.FromMinutes(10);
                     client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
                     if (bearer != null)
                     {
@@ -99,6 +100,7 @@ namespace VehicleManagement.ApiService
                 {
                     client.BaseAddress = new Uri(_apiBaseUrl);
                     client.DefaultRequestHeaders.Accept.Clear();
+                    client.Timeout = TimeSpan.FromMinutes(10);
                     client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
                     if (bearer != null)
                     {
