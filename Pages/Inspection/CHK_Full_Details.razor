@@ -17,24 +17,24 @@
     <div class="row">
         @if (start)
         {
-            <div class="col-3">
-                <button @onclick="ShowBack" class="btn btn-primary btn-sm">
-                    <i class="fas fa-chevron-left"></i>
+            <div class="col-md-12 d-flex justify-content-between">
+                <div>
+                    <button @onclick="ShowBack" class="btn btn-primary btn-sm">
+                        <i class="fas fa-chevron-left"></i>
+                    </button>
+                    <button @onclick="ShowNext" class="btn btn-primary btn-sm">
+                        <i class="fas fa-chevron-right"></i>
+                    </button>
+                </div>
+                <button @onclick="submit" class="btn btn-primary btn-sm">
+                    Submit
                 </button>
-                <button @onclick="ShowNext" class="btn btn-primary btn-sm text-end">
-                    <i class="fas fa-chevron-right"></i>
-                </button>
-
-            </div>
-            <div class="col-6 ">
             </div>
 
-            <div class="col-3">
 
-                <button @onclick="submit" class="btn btn-primary btn-sm text-end">Submit</button>
+           
 
-
-            </div>
+           
         }
         else
         {
@@ -54,9 +54,10 @@
                 <div class="card-header pb-0" id="contentToPrint">
 
                     <div class="form-group">
-                        <h4 style="text-align:center">Check List(@vehicle)</h4>
-                        <h6 style="text-align:left">if found correct mark(YES) if found Faulty mark (NO) if irrelevant Mark (N/A)</h6>
+                        <h6 style="text-align:center;color:#5e72e4">Check List(@vehicle)</h6>
+                        <p style="text-align:left;padding-left:4%;color:#5e72e4">If found correct mark(YES) if found Faulty mark (NO) if irrelevant Mark (N/A)</p>
                     </div>
+                    <hr />
                     <div class="container">
                         <div class="row">
                             <div class="col-md-12">
@@ -66,10 +67,10 @@
                                     {
 
                                         <div class="form-group">
-                                            <label for="textBoxId">@currentObject.obsDesc</label>
+                                            <label for="textBoxId">@currentObject.scopeDesc</label>
                                         </div>
                                         <div class="form-group">
-                                            <label for="textBoxId">@($"{currentObject.scopeDesc}" + " " + (srno)+"/"+(checklist.Count))</label>
+                                            <label for="textBoxId">@($"{currentObject.obsDesc}" + " " + (srno)+"/"+(checklist.Count))</label>
                                         </div>
                                         <div class="row">
                                             <div class="col-md-4">
@@ -98,11 +99,11 @@
                                             </div>
                                         </div>
 
-                                        <div class="form-group">
+                                       @*  <div class="form-group">
                                             <label for="textBoxId">Attach Evidance</label>
                                             <InputFile @ref="fileInput" class="form-control" OnChange="OnFileSelected" accept="image/jpeg,image/png" />
 
-                                        </div>
+                                        </div> *@
 
 
                                         <div class="form-group">
@@ -149,10 +150,10 @@
         tempid = temp;
         var y = QueryHelpers.ParseQuery(uri.Query).TryGetValue("InspectionID", out var insid);
         InspectionID = int.Parse(insid);
-        IsLoading = true;
+        //  IsLoading = true;
         await LoadChecklist();
         Validate();
-        IsLoading = false;
+        //  IsLoading = false;
 
     }
 
@@ -180,7 +181,7 @@
         }
     }
     List<tblTemplateDetails> checklist = new List<tblTemplateDetails>();
-//    private int currentIndex = -1;
+    //    private int currentIndex = -1;
     private tblTemplateDetails currentObject;
     public bool IsFirstObject;
     public bool IsLastObject;
@@ -194,7 +195,7 @@
 
             if (rec!=null)
             {
-                
+
                 checklist = JsonSerializer.Deserialize<List<tblTemplateDetails>>(rec.ToString());
                 var vehicleinfo = await API.GetRequest($"Inspection/GetVehicleInfo/{vehicle}");
 
@@ -206,7 +207,9 @@
                 {
                     Console.WriteLine("API request returned null.");
                 }
-                StateHasChanged();
+
+                StartChecklist();
+
             }
             else
             {
@@ -246,8 +249,8 @@
             obj.yes = x.yes;
             obj.no = x.no;
             obj.na = x.na;
-            obj.scopeDesc = x.scopeDesc;
-            obj.obsDesc = x.obsDesc;
+            obj.scopeDesc = x.obsDesc;
+            obj.obsDesc = x.scopeDesc;
             obj.vehicleID = Vehicleinfo.vehicleid;
             obj.business = Vehicleinfo.businessDesc; 
             obj.attachment = null;
@@ -340,8 +343,14 @@
     bool start = false;
     void StartChecklist()
     {
-        start = true;
-        ShowNext();
+        if (checklist.Count > 0)
+        {
+            start = true;
+            ShowNext();
+        }
+       
+
+        StateHasChanged();
     }
     void ShowNext()
     {

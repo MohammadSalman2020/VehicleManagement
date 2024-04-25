@@ -37,18 +37,18 @@ function convertToThreeDigit(number) {
 }
 window.addMarker = function (data) {
     var markersData = JSON.parse(data);
-    var currentOpenInfoWindow = null; // Initialize a reference to store the currently open info window
-    var markers = []; // Initialize an array to hold the markers for clustering
+    var currentOpenInfoWindow = null;
+    var markers = [];
+    var map = window.map; // Assuming the map variable is globally accessible
 
     markersData.forEach(function (markerData) {
         var position = { lat: markerData.lat, lng: markerData.lng };
 
-        // Define the custom marker image
         var icon = {
-            url: 'Truck/image_' + convertToThreeDigit(markerData.directionAngle) + '.png', // Ensure this path is correct
-            scaledSize: new google.maps.Size(30, 30), // Adjust size as needed
+            url: 'Truck/image_' + convertToThreeDigit(markerData.directionAngle) + '.png',
+            scaledSize: new google.maps.Size(30, 30),
             origin: new google.maps.Point(0, 0),
-            anchor: new google.maps.Point(15, 15), // Adjust anchor as needed
+            anchor: new google.maps.Point(15, 15),
         };
 
         var marker = new google.maps.Marker({
@@ -57,36 +57,37 @@ window.addMarker = function (data) {
             icon: icon,
         });
 
-        // Create an info window with the provided content and custom styling
         var infoWindowContent = '';
         if (markerData.status.includes("Driving")) {
-            infoWindowContent = '<div  style="background-color: #228B22;font-size:12px;font-weight:bold;width:auto; color: white; padding: 10px; margin:0px;">' + markerData.vehicle + ' speed: ' + markerData.speed + ' <br/><div style="color:orange;"> Driver:' + markerData.driver + '</div><div style="color:orange">Location:' + markerData.location + ' </div><div style="color:orange">Status:' + markerData.status + '</div> </div>'; // Custom styling for the content
+            infoWindowContent = '<div style="background-color: #228B22;font-size:12px;font-weight:bold;width:auto; color: white; padding: 10px; margin:0px;">' + markerData.vehicle + ' speed: ' + markerData.speed + ' <br/><div style="color:orange;"> Driver:' + markerData.driver + '</div><div style="color:orange">Location:' + markerData.location + ' </div><div style="color:orange">Status:' + markerData.status + '</div> </div>';
         } else {
-            infoWindowContent = '<div  style="background-color: red;font-size:12px;font-weight:bold;width:auto; color: white; padding: 10px; margin:0px;">' + markerData.vehicle + ' speed: ' + markerData.speed + ' <br/><div style="color:blue;"> Driver:' + markerData.driver + '</div><div style="color:blue">Location:' + markerData.location + ' </div><div style="color:blue">Status:' + markerData.status + '</div> </div>'; // Custom styling for the content
+            infoWindowContent = '<div style="background-color: red;font-size:12px;font-weight:bold;width:auto; color: white; padding: 10px; margin:0px;">' + markerData.vehicle + ' speed: ' + markerData.speed + ' <br/><div style="color:blue;"> Driver:' + markerData.driver + '</div><div style="color:blue">Location:' + markerData.location + ' </div><div style="color:blue">Status:' + markerData.status + '</div> </div>';
         }
 
         var infoWindow = new google.maps.InfoWindow({
             content: infoWindowContent
         });
+
         marker.addListener('click', function () {
-            // Close the currently open InfoWindow if it exists
             if (currentOpenInfoWindow) {
                 currentOpenInfoWindow.close();
             }
-            // Open the new InfoWindow
             infoWindow.open(map, marker);
-            // Update the reference to the currently open InfoWindow
             currentOpenInfoWindow = infoWindow;
         });
 
-        markers.push(marker); // Add the marker to the array for clustering
+        markers.push(marker);
     });
 
-    // Create and initialize the MarkerClusterer after all markers have been created
+    // Initialize MarkerClusterer with adjusted options
     var markerCluster = new MarkerClusterer(map, markers, {
-        imagePath: 'https://developers.google.com/maps/documentation/javascript/examples/markerclusterer/m'
+        imagePath: 'https://developers.google.com/maps/documentation/javascript/examples/markerclusterer/m',
+        gridSize: 50, // Adjust the size of the grid for clustering
+        minimumClusterSize: 5 // Minimum number of markers to form a cluster
     });
 };
+
+
 
 
 
