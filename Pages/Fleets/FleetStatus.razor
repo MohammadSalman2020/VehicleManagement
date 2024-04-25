@@ -15,10 +15,11 @@
 @using VehicleManagement.Models.General.Fleet
 @inject IApiService API
 @inject IUserClaimsService UserClaimsService
+@inject IToastService toastService
 <style>
     .contact-info {
-        cursor: pointer; 
-        text-align:center;
+        cursor: pointer;
+        text-align: center;
     }
 
     .modal {
@@ -55,9 +56,14 @@
             <div class="card mb-4">
                 <div class="card-header d-flex justify-content-between">
                     <span>Fleet Status Report</span>
+                    @if(IsEdit)
+                    {
+                        <button class="btn btn-primary" @onclick="AddPositions">Save</button>
+                    }
+                   
                     <button class="btn btn-primary" @onclick="ExportToCSV">Export To CSV</button>
                 </div>
-               
+
                 <div class="card-body">
                     <div class="table-responsive">
                         <div style="overflow-x: scroll; max-width: 100%;">
@@ -65,14 +71,14 @@
                                 <div class="modal-content">
                                     <span class="close" @onclick="CloseModal">&times;</span>
                                     <div>
-                                       
+
                                         <button class="btn btn-link" @onclick="MakeCall">Call</button>
                                         <button class="btn btn-link" @onclick="whatsapp">Whatsapp</button>
                                         <button class="btn btn-link" @onclick="SendSMS">Send SMS</button>
                                     </div>
                                 </div>
                             </div>
-                            @if(!IsLoading)
+                            @if (!IsLoading)
                             {
                                 @if (fleet.Count > 0)
                                 {
@@ -128,7 +134,10 @@
                                                         <span>@item.fillingPoint</span>
                                                     </td>
                                                     <td style="text-align:center">
-                                                        <span>@item.heading</span>
+                                                        <span>
+                                                            <input class="form-control" type="text" value="@item.heading" @onchange="@((e)=>SearchTable(e,item.vehicleID,1))" />
+
+                                                        </span>
                                                     </td>
                                                     <td style="text-align:center">
                                                         <span>@item.destination</span>
@@ -137,7 +146,10 @@
                                                         <span>@item.current_location</span>
                                                     </td>
                                                     <td>
-                                                        <span>@item.remarks</span>
+                                                        <span>
+                                                            <input class="form-control" type="text" value="@item.remarks" @onchange="@((e)=>SearchTable(e,item.vehicleID,2))" />
+
+                                                        </span>
                                                     </td>
                                                 </tr>
                                             }
@@ -154,14 +166,14 @@
                                 }
 
                             }
-                            else if(IsLoading)
+                            else if (IsLoading)
                             {
                                 <div class="text-center">
                                     <div class="spinner-border" role="status">
                                         <span class="visually-hidden">Loading...</span>
                                     </div>
-                                    <p>Loading Fleet Status..</p>
-                                    <p>Please wait.. It will take some minutes</p>
+                                    <p>@LoadingText</p>
+                                   
                                 </div>
                             }
                         </div>
@@ -187,10 +199,13 @@
 
     string modalDisplay = "none";
     string phoneNumber;
+    public string? LoadingText;
     public List<int> BusinessID = new List<int>();
     int sr = 0;
-    public bool IsLoading{ get; set; }
+    public bool IsLoading { get; set; }
+    public bool IsEdit { get; set; }
     List<FleetStatusreport> fleet = new List<FleetStatusreport>();
+    List<AddPositions> PosList = new List<AddPositions>();
 
     void HandleButtonClick(string s)
     {
@@ -204,6 +219,49 @@
             modalDisplay = "block";
         }
     }
+    private async Task SearchTable(ChangeEventArgs e, string VehicleID, int From)
+    {
+        if (e.Value != "")
+        {
+            var rec = PosList.Where(p => p.VehicleID == VehicleID).FirstOrDefault();
+            if (rec == null)
+            {
+                if (From == 1) // Position
+                {
+                    PosList.Add(new AddPositions
+                        {
+                            VehicleID = VehicleID,
+                            Position = e.Value.ToString()
+                        });
+                }
+                else if (From == 2) //Remarks
+                {
+                    PosList.Add(new AddPositions
+                        {
+                            VehicleID = VehicleID,
+                            Remarks = e.Value.ToString()
+                        });
+                }
+            }
+            else
+            {
+                if (From == 1) // Position
+                {
+                    rec.Position = e.Value.ToString();
+                }
+                else if (From == 2) //Remarks
+                {
+                    rec.Remarks = e.Value.ToString();
+                }
+            }
+            IsEdit = true;
+
+
+        }
+
+
+    }
+
     private string Trim(string input)
     {
 
@@ -296,7 +354,7 @@
                     ReferenceHandler = null
                 };
             string jsonData = JsonSerializer.Serialize(BusinessID, options);
-            var Main = await API.PostRequest($"Fleet/FleetStatusReport",jsonData);
+            var Main = await API.PostRequest($"Fleet/FleetStatusReport", jsonData);
             if (Main != "")
             {
                 fleet = Newtonsoft.Json.JsonConvert.DeserializeObject<List<FleetStatusreport>>(Main);
@@ -315,11 +373,58 @@
     protected override async Task OnInitializedAsync()
     {
         IsLoading = true;
+        LoadingText = "Loading Fleets....";
         BusinessID = await UserClaimsService.GetBusinessIdsAsync();
         await LoadFleetStatusreport();
         IsLoading = false;
 
     }
+    private async Task AddPositions()
+    {
+        try
+        {
 
+            if (PosList.Count > 0)
+            {
+                IsLoading = true;
+                LoadingText = "Saving Positions and Remarks...";
+                JsonSerializerOptions options = new JsonSerializerOptions
+                    {
+                        WriteIndented = true,
+                        ReferenceHandler = null
+                    };
+                string jsonData = JsonSerializer.Serialize(PosList, options);
+                var AddDriver = await API.PostRequest($"Fleet/AddPos", jsonData);
+                int Result = JsonSerializer.Deserialize<int>(AddDriver);
+                if (Result == 200)
+                {
+                    toastService.ShowSuccess($"Positions and Remarks Updated");
+                    IsEdit = false;
+                    LoadingText = "Loading Fleets...";
+                    StateHasChanged(); // Trigger re-render to reflect updated text
+
+                    await LoadFleetStatusreport();
+
+                }
+                else
+                {
+                   
+                    IsEdit = false;
+                    toastService.ShowError("Error");
+                }
+
+            }
+            else
+            {
+                toastService.ShowError("Nothing to Save");
+            }
+        }
+        catch (Exception ex)
+        {
+            toastService.ShowError($"Error {ex}");
+        }
+
+        IsLoading = false;
+    }
 
 }

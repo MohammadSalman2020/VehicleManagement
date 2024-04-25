@@ -25,49 +25,69 @@
                     <div class="card mb-4">
                         <div class="fleet-cards">
 
-                            <div class="container">
-                                @if (AvailDraftList.Count > 0)
+                            <div class="container" style="justify-content:center !important;">
+                                @if (!IsChildLoading)
                                 {
-                                    @foreach (var item in AvailDraftList)
+
+
+                                    @if (AvailDraftList.Count > 0)
                                     {
-                                        <div class="card">
+                                        @foreach (var item in AvailDraftList)
+                                        {
+                                            <div class="card">
+                                                <div class="card-body">
+                                                    <span class="tag tag-success">Available</span>
+
+                                                    <h4 style="padding-top: 30px;">
+                                                        @item.vehicleCap &nbsp;&nbsp;@item.chamberSEQ
+                                                    </h4>
+                                                    <p>
+                                                        <i class="fa fa-map-marker" aria-hidden="true"></i>
+                                                        &nbsp;@item.location
+                                                    </p>
+                                                    <p>
+                                                        <i class="fas fa-building" aria-hidden="true"></i>
+                                                        &nbsp;@item.businessName
+                                                    </p>
+                                                    <p class="contact-info">
+                                                        <CallModal @ref="Call" phoneNumber="@phoneNumber" />
+                                                        <a @onclick="@(()=>HandleButtonClick(item.phoneDriver1))">
+                                                            <i class="fa fa-user" aria-hidden="true"></i>
+                                                            &nbsp;@item.driver1
+                                                        </a>
+                                                        <br /><br />
+                                                        <a @onclick="@(()=>HandleButtonClick(item.phoneDriver2))">
+
+                                                            <i class="fa fa-user" aria-hidden="true"></i>
+                                                            &nbsp;@item.driver2
+                                                        </a>
+                                                    </p>
+                                                    @if (!IsFleetManager)
+                                                    {
+                                                        <span class="btn tag-btn btn-warning btn-sm ms-auto" @onclick="@(()=>OpenLoadModal(item.availID))">Assign Load</span>
+                                                    }
+
+                                                </div>
+                                            </div>
+                                        }
+                                    }
+                                    else
+                                    {
+                                        <div>
+
                                             <div class="card-body">
-                                                <span class="tag tag-success">Available</span>
 
-                                                <h4 style="padding-top: 30px;">
-                                                    @item.vehicleCap &nbsp;&nbsp;@item.chamberSEQ
-                                                </h4>
-                                                <p>
-                                                    <i class="fa fa-map-marker" aria-hidden="true"></i>
-                                                    &nbsp;@item.location
-                                                </p>
-                                                <p>
-                                                    <i class="fas fa-building" aria-hidden="true"></i>
-                                                    &nbsp;@item.businessName
-                                                </p>
-                                                <p class="contact-info">
-                                                    <CallModal @ref="Call" phoneNumber="@phoneNumber" />
-                                                    <a @onclick="@(()=>HandleButtonClick(item.phoneDriver1))">
-                                                        <i class="fa fa-user" aria-hidden="true"></i>
-                                                        &nbsp;@item.driver1
-                                                    </a>
-                                                    <br /><br />
-                                                    <a @onclick="@(()=>HandleButtonClick(item.phoneDriver2))">
 
-                                                        <i class="fa fa-user" aria-hidden="true"></i>
-                                                        &nbsp;@item.driver2
-                                                    </a>
-                                                </p>
-                                                @if (!IsFleetManager)
-                                                {
-                                                    <span class="btn tag-btn btn-warning btn-sm ms-auto" @onclick="@(()=>OpenLoadModal(item.availID))">Assign Load</span>
-                                                }
+                                                <span class="tag tag-success">No Vehicle in Available List..</span>
+
+
 
                                             </div>
+
                                         </div>
                                     }
                                 }
-                                else
+                                else if(IsChildLoading)
                                 {
                                     <DataLoaderComponent IsLoading="@IsChildLoading" LoadingText="Loading Available Fleets..." />
                                 }

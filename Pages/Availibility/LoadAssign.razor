@@ -17,60 +17,80 @@
                 <div class="col-12">
                     <div class="card mb-4">
                         <div class="fleet-cards">
-                            <div class="container">
-                                @if (LoadList.Count > 0)
+                            <div class="container" style="justify-content:center !important;">
+                                @if (!IsChildLoading)
                                 {
-                                    @foreach (var item in LoadList)
+
+
+                                    @if (LoadList.Count > 0)
                                     {
-                                        <div class="card">
-                                            <div class="card-header">
-                                                @if (!item.isActive)
-                                                {
-                                                    <span class="edit-icon" @onclick="@(() => OpenModal(item.availID))"><i class="fa fa-edit"></i></span>
+                                        @foreach (var item in LoadList)
+                                        {
+                                            <div class="card">
+                                                <div class="card-header">
+                                                    @if (!item.isActive)
+                                                    {
+                                                        <span class="edit-icon" @onclick="@(() => OpenModal(item.availID))"><i class="fa fa-edit"></i></span>
 
-                                                }
-                                                <AuthorizeView Roles="admin,FleetManager">
-                                                    <Authorized Context="adminaccess">
-                                                        <span class="edit-icon" @onclick="@(() => OpenMainModal(item.availID))"><i class="fa fa-wrench"></i></span>
+                                                    }
+                                                    <AuthorizeView Roles="admin,FleetManager">
+                                                        <Authorized Context="adminaccess">
+                                                            <span class="edit-icon" @onclick="@(() => OpenMainModal(item.availID))"><i class="fa fa-wrench"></i></span>
 
-                                                    </Authorized>
-                                                </AuthorizeView>
+                                                        </Authorized>
+                                                    </AuthorizeView>
 
+
+                                                </div>
+                                                <div class="card-body">
+                                                    <span class="tag tag-success">Load Assigned</span>
+
+                                                    &nbsp;
+                                                    @if (@item.isActive)
+                                                    {
+                                                        <span class="badge badge-sm bg-gradient-success">@(item.isActive == true ? "Active" : "In-Active")</span>
+
+                                                    }
+                                                    else
+                                                    {
+                                                        <span class="badge badge-sm bg-gradient-danger">@(item.isActive == true ? "Active" : "In-Active")</span>
+
+                                                    }
+                                                    <h4>@item.vehicle &nbsp;&nbsp;@item.chamberSeq</h4>
+                                                    <span class="fa fa-map-marker">@item.location</span>
+                                                    <p>
+                                                        <i class="fa fa-map-marker" aria-hidden="true"></i>
+                                                        &nbsp;Shipping:  @item.loading
+                                                        <br> <i class="fa fa-map-marker" aria-hidden="true"></i>
+                                                        &nbsp;Receiving: @item.decenting
+                                                    </p>
+                                                    <AuthorizeView Policy="LoadPolicy">
+                                                        <Authorized Context="NotClient">
+                                                            <span class="btn tag-btn" @onclick=@(()=>OpenTripModal(item.loadID))>Create Trip</span>
+                                                        </Authorized>
+                                                    </AuthorizeView>
+                                                </div>
 
                                             </div>
+                                        }
+                                    }
+                                    else
+                                    {
+                                        <div>
+
                                             <div class="card-body">
-                                                <span class="tag tag-success">Load Assigned</span>
-                                              
-                                                &nbsp;
-                                                @if (@item.isActive)
-                                                {
-                                                    <span class="badge badge-sm bg-gradient-success">@(item.isActive == true ? "Active" : "In-Active")</span>
 
-                                                }
-                                                else
-                                                {
-                                                    <span class="badge badge-sm bg-gradient-danger">@(item.isActive == true ? "Active" : "In-Active")</span>
 
-                                                }
-                                                <h4>@item.vehicle &nbsp;&nbsp;@item.chamberSeq</h4>
-                                                <span class="fa fa-map-marker">@item.location</span>
-                                                <p>
-                                                    <i class="fa fa-map-marker" aria-hidden="true"></i>
-                                                    &nbsp;Shipping:  @item.loading
-                                                    <br> <i class="fa fa-map-marker" aria-hidden="true"></i>
-                                                    &nbsp;Receiving: @item.decenting
-                                                </p>
-                                                <AuthorizeView Policy="LoadPolicy">
-                                                    <Authorized Context="NotClient">
-                                                        <span class="btn tag-btn" @onclick=@(()=>OpenTripModal(item.loadID))>Create Trip</span>
-                                                    </Authorized>
-                                                </AuthorizeView>
+                                                <span class="tag tag-success">No Vehicle on Load..</span>
+
+
+
                                             </div>
 
                                         </div>
                                     }
                                 }
-                                else
+                                else if (IsChildLoading)
                                 {
                                     <DataLoaderComponent IsLoading="@IsChildLoading" LoadingText="Loading..." />
                                 }
@@ -270,7 +290,7 @@
 
     </Authorized>
     <NotAuthorized>
-        <_403/>
+        <_403 />
     </NotAuthorized>
 </AuthorizeView>
 
@@ -288,7 +308,7 @@
     private Modal TripConfirmModal;
     private int AvailIDs;
     private int MainAvailIDs;
-    private int LoadIDs=0;
+    private int LoadIDs = 0;
     protected override async Task OnInitializedAsync()
     {
 
@@ -346,7 +366,7 @@
         LoadIDs = LoadID;
         await GetLoadData(LoadID);
         TripConfirmModal.Show();
-      
+
 
 
     }
@@ -384,7 +404,7 @@
                 int ID = JsonSerializer.Deserialize<int>(Driver);
                 if (ID == 200)
                 {
-                    toast.ShowSuccess("Trip Added Success");                    
+                    toast.ShowSuccess("Trip Added Success");
                     await GetAllLoad();
                 }
                 else
