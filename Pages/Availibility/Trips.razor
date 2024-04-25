@@ -17,55 +17,75 @@
                 <div class="col-12">
                     <div class="card mb-4">
                         <div class="fleet-cards">
-                            <div class="container">
-                                @if(TripList.Count>0)
+                            <div class="container" style="justify-content:center !important;">
+                                @if (!IsChildLoading)
                                 {
-                                    @foreach (var item in TripList)
-                                    {
-                                        <div class="card">
-                                            <div class="card-header">
-                                              
-                                                <span class="edit-icon" @onclick="@(() => OpenMainModal(item.loadID))"><i class="fa fa-wrench"></i></span>
 
+
+                                    @if (TripList.Count > 0)
+                                    {
+                                        @foreach (var item in TripList)
+                                        {
+                                            <div class="card">
+                                                <div class="card-header">
+
+                                                    <span class="edit-icon" @onclick="@(() => OpenMainModal(item.loadID))"><i class="fa fa-wrench"></i></span>
+
+
+                                                </div>
+                                                <div class="card-body">
+
+                                                    <span class="tag tag-yellow">On Trip</span>
+                                                    <h4>@item.vehicleID</h4>
+                                                    <p>
+                                                        <i class="fas fa-oil-can" aria-hidden="true"></i>
+                                                        &nbsp;Product: @item.product
+                                                    </p>
+                                                    <p>
+                                                        <i class="fa fa-map-marker" aria-hidden="true"></i>
+                                                        &nbsp;Location: @item.loadingPoint
+                                                    </p>
+                                                    <p>
+                                                        <i class="fa fa-building" aria-hidden="true"></i>
+                                                        &nbsp;To: @item.decentingPoint
+                                                    </p>
+                                                    <p>
+                                                        <i class="fa fa-calendar" aria-hidden="true"></i>
+                                                        &nbsp;Trip Started On: @item.tripStart
+                                                    </p>
+
+                                                    <p>
+                                                        <i class="fa fa-user" aria-hidden="true"></i>
+                                                        &nbsp;Driver 1: @item.driver1
+                                                        <br /><br />
+                                                        <i class="fa fa-user" aria-hidden="true"></i>
+                                                        &nbsp;Driver 2: @item.driver2
+                                                    </p>
+
+                                                </div>
 
                                             </div>
+                                        }
+                                    }
+                                    else
+                                    {
+                                        <div>
+
                                             <div class="card-body">
 
-                                                <span class="tag tag-yellow">On Trip</span>
-                                                <h4>@item.vehicleID</h4>
-                                                <p>
-                                                    <i class="fas fa-oil-can" aria-hidden="true"></i>
-                                                    &nbsp;Product: @item.product
-                                                </p>
-                                                <p>
-                                                    <i class="fa fa-map-marker" aria-hidden="true"></i>
-                                                    &nbsp;Location: @item.loadingPoint
-                                                </p>
-                                                <p>
-                                                    <i class="fa fa-building" aria-hidden="true"></i>
-                                                    &nbsp;To: @item.decentingPoint
-                                                </p>
-    <p>
-                                                    <i class="fa fa-calendar" aria-hidden="true"></i>
-                                                    &nbsp;Trip Started On: @item.tripStart
-                                                </p>
 
-                                                <p>
-                                                    <i class="fa fa-user" aria-hidden="true"></i>
-                                                    &nbsp;Driver 1: @item.driver1
-                                                    <br /><br />
-                                                    <i class="fa fa-user" aria-hidden="true"></i>
-                                                    &nbsp;Driver 2: @item.driver2
-                                                </p>
+                                                <span class="tag tag-success">No Vehicle on Trip..</span>
+
+
 
                                             </div>
 
                                         </div>
                                     }
                                 }
-                                else
+                                else if (IsChildLoading)
                                 {
-                                    <DataLoaderComponent IsLoading="IsChildLoading" LoadingText="Loading Trips..."/>
+                                    <DataLoaderComponent IsLoading="IsChildLoading" LoadingText="Loading Trips..." />
                                 }
 
                             </div>
@@ -121,8 +141,8 @@
 
     </Authorized>
     <NotAuthorized>
-        <_403/>
-</NotAuthorized>
+        <_403 />
+    </NotAuthorized>
 </AuthorizeView>
 @code {
     public List<TripConfirm> TripList = new List<TripConfirm>();
@@ -171,7 +191,7 @@
             {
 
                 var rec = JsonSerializer.Deserialize<List<TripConfirm>>(AvailDrafts);
-                if(rec.Count>0)
+                if (rec.Count > 0)
                 {
                     TripList = rec.Where(b => BusinessID.Contains(b.businessID)).OrderByDescending(p => p.loadID).ToList();
 
