@@ -56,11 +56,11 @@
             <div class="card mb-4">
                 <div class="card-header d-flex justify-content-between">
                     <span>Fleet Status Report</span>
-                    @if(IsEdit)
+                    @if (IsEdit)
                     {
                         <button class="btn btn-primary" @onclick="AddPositions">Save</button>
                     }
-                   
+
                     <button class="btn btn-primary" @onclick="ExportToCSV">Export To CSV</button>
                 </div>
 
@@ -173,7 +173,7 @@
                                         <span class="visually-hidden">Loading...</span>
                                     </div>
                                     <p>@LoadingText</p>
-                                   
+
                                 </div>
                             }
                         </div>
@@ -357,8 +357,8 @@
             var Main = await API.PostRequest($"Fleet/FleetStatusReport", jsonData);
             if (Main != "")
             {
-                fleet = Newtonsoft.Json.JsonConvert.DeserializeObject<List<FleetStatusreport>>(Main);
-                //  fleet = rec.Where(p => BusinessID.Contains(p.busID)).ToList();
+                var rec = Newtonsoft.Json.JsonConvert.DeserializeObject<List<FleetStatusreport>>(Main);
+                fleet = rec.Where(p => BusinessID.Contains(p.busID)).ToList();
             }
         }
         catch (Exception ex)
@@ -408,7 +408,7 @@
                 }
                 else
                 {
-                   
+
                     IsEdit = false;
                     toastService.ShowError("Error");
                 }
