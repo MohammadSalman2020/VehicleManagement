@@ -56,14 +56,20 @@
             <div class="card mb-4">
                 <div class="card-header d-flex justify-content-between">
                     <span>Fleet Status Report</span>
-                    @if (IsEdit)
-                    {
-                        <button class="btn btn-primary" @onclick="AddPositions">Save</button>
-                    }
-                    else
-                    {
-                        <button class="btn btn-primary" @onclick="ActiveEdit">Edit</button>
-                    }
+
+                    <AuthorizeView Policy="SuperVisorAdmin">
+                        <Authorized Context="AdminAccess">
+                            @if (IsEdit)
+                            {
+                                <button class="btn btn-primary" @onclick="AddPositions">Save</button>
+                            }
+                            else
+                            {
+                                <button class="btn btn-primary" @onclick="ActiveEdit">Edit</button>
+                            }
+                        </Authorized>
+                    </AuthorizeView>
+                   
 
                     <button class="btn btn-primary" @onclick="ExportToCSV">Export To CSV</button>
                 </div>
