@@ -5,5 +5,6 @@
         public string VehicleID { get; set; }
         public string Position { get; set; }
         public string Remarks { get; set; }
+        public int IsFrom { get; set; }
     }
 }
