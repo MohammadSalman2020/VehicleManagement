@@ -16,6 +16,7 @@
 @inject IApiService API
 @inject IUserClaimsService UserClaimsService
 @inject IToastService toastService
+@inject IWebHostEnvironment Environment
 <style>
     .contact-info {
         cursor: pointer;
@@ -71,7 +72,7 @@
                     </AuthorizeView>
                    
 
-                    <button class="btn btn-primary" @onclick="ExportToCSV">Export To CSV</button>
+                    <a class="btn btn-primary" href="Reports/fleet_status_report.csv" download="FleetStatus.csv" @onclick="ExportToCSV">Export To CSV</a>
                 </div>
 
                 <div class="card-body">
@@ -146,16 +147,15 @@
                                                     <td style="text-align:center">
                                                         <span>
 
-                                                            <input class="form-control" type="text" value="@item.Position" @onchange="@((e)=>SearchTable(e,item.VehicleID,1))" />
 
                                                             @if (IsEdit)
                                                             {
-                                                                <input class="form-control" type="text" value="@item.heading" @onchange="@((e)=>SearchTable(e,item.vehicleID,1))" />
+                                                                <input class="form-control" type="text" value="@item.Position" @onchange="@((e)=>SearchTable(e,item.VehicleID,1))" />
 
                                                             }
                                                             else
                                                             {
-                                                                <span>@item.heading</span>
+                                                                <span>@item.Position</span>
                                                             }
 
 
@@ -170,16 +170,15 @@
                                                     <td>
                                                         <span>
 
-                                                            <input class="form-control" type="text" value="@item.Remarks" @onchange="@((e)=>SearchTable(e,item.VehicleID,2))" />
 
 
                                                             @if (IsEdit)
                                                             {
-                                                                <input class="form-control" type="text" value="@item.remarks" @onchange="@((e)=>SearchTable(e,item.vehicleID,2))" />
+                                                                <input class="form-control" type="text" value="@item.Remarks" @onchange="@((e)=>SearchTable(e,item.VehicleID,2))" />
                                                             }
                                                             else
                                                             {
-                                                                <span>@item.remarks</span>
+                                                                <span>@item.Remarks</span>
                                                             }
 
                                                         </span>
@@ -362,19 +361,19 @@
             }
 
             // Get the wwwroot path
-            var wwwRootPath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot");
+            // var wwwRootPath = Path.Combine(Environment.ContentRootPath, "wwwroot");
 
-            // Define the file path
-            var filePath = Path.Combine(wwwRootPath, "Reports", "fleet_status_report.csv");
+            // // Define the file path
+            // var filePath = Path.Combine(wwwRootPath, "Reports", "fleet_status_report.csv");
 
-            // Save CSV file
-            await File.WriteAllTextAsync(filePath, sb.ToString());
+            // // Save CSV file
+            // await File.WriteAllTextAsync(filePath, sb.ToString());
 
-            // Get the relative URL
-            var relativeUrl = Path.Combine("Reports", "fleet_status_report.csv");
+            // // Get the relative URL
+            // var relativeUrl = Path.Combine("Reports", "fleet_status_report.csv");
 
-            // Navigate to the CSV file
-            await JSRuntime.InvokeVoidAsync("downloadFile", relativeUrl);
+            // // Navigate to the CSV file
+            // await JSRuntime.InvokeVoidAsync("downloadFile", relativeUrl);
             //  File.Delete(filePath);
         }
 
