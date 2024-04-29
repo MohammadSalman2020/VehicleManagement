@@ -27,7 +27,6 @@ builder.Services.AddScoped<ProtectedSessionStorage>();
 builder.Services.AddSingleton<IConfiguration>(builder.Configuration);
 builder.Services.AddHttpContextAccessor();
 
-
 builder.Services.AddScoped<CustomPolicyProvider>();
 builder.Services.AddAuthorization(async options =>
 {

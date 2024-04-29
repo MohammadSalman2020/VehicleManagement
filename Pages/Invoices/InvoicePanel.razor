@@ -1399,7 +1399,7 @@
                     if (ShortContratorCharge > 0)
                     {
                         Invoices.CalculationDifference.Status = "Short";
-                         ShortOnTempExempt = TotalShortageLTRdip -  ShortContratorCharge;
+                         ShortOnTempExempt = Math.Abs(TotalShortageLTRdip) -  ShortContratorCharge;
 
                     }
                     else if (ShortContratorCharge < 0)

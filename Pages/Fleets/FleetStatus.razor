@@ -56,10 +56,20 @@
             <div class="card mb-4">
                 <div class="card-header d-flex justify-content-between">
                     <span>Fleet Status Report</span>
-                    @if (IsEdit)
-                    {
-                        <button class="btn btn-primary" @onclick="AddPositions">Save</button>
-                    }
+
+                    <AuthorizeView Policy="SuperVisorAdmin">
+                        <Authorized Context="AdminAccess">
+                            @if (IsEdit)
+                            {
+                                <button class="btn btn-primary" @onclick="AddPositions">Save</button>
+                            }
+                            else
+                            {
+                                <button class="btn btn-primary" @onclick="ActiveEdit">Edit</button>
+                            }
+                        </Authorized>
+                    </AuthorizeView>
+                   
 
                     <button class="btn btn-primary" @onclick="ExportToCSV">Export To CSV</button>
                 </div>
@@ -135,7 +145,19 @@
                                                     </td>
                                                     <td style="text-align:center">
                                                         <span>
+
                                                             <input class="form-control" type="text" value="@item.Position" @onchange="@((e)=>SearchTable(e,item.VehicleID,1))" />
+
+                                                            @if (IsEdit)
+                                                            {
+                                                                <input class="form-control" type="text" value="@item.heading" @onchange="@((e)=>SearchTable(e,item.vehicleID,1))" />
+
+                                                            }
+                                                            else
+                                                            {
+                                                                <span>@item.heading</span>
+                                                            }
+
 
                                                         </span>
                                                     </td>
@@ -147,7 +169,18 @@
                                                     </td>
                                                     <td>
                                                         <span>
+
                                                             <input class="form-control" type="text" value="@item.Remarks" @onchange="@((e)=>SearchTable(e,item.VehicleID,2))" />
+
+
+                                                            @if (IsEdit)
+                                                            {
+                                                                <input class="form-control" type="text" value="@item.remarks" @onchange="@((e)=>SearchTable(e,item.vehicleID,2))" />
+                                                            }
+                                                            else
+                                                            {
+                                                                <span>@item.remarks</span>
+                                                            }
 
                                                         </span>
                                                     </td>
@@ -206,7 +239,10 @@
     public bool IsEdit { get; set; }
     List<fleetstatusData> fleet = new List<fleetstatusData>();
     List<AddPositions> PosList = new List<AddPositions>();
-
+    private async Task ActiveEdit()
+    {
+        IsEdit = true;
+    }
     void HandleButtonClick(string s)
     {
         var match = Regex.Match(s, @"\(([^)]*)\)");
@@ -254,7 +290,7 @@
                     rec.Remarks = e.Value.ToString();
                 }
             }
-            IsEdit = true;
+
 
 
         }
@@ -417,6 +453,7 @@
             else
             {
                 toastService.ShowError("Nothing to Save");
+                IsEdit = false;
             }
         }
         catch (Exception ex)
