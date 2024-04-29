@@ -1045,8 +1045,8 @@
             try
             {
 
-
-                var trustedFileNameForFileStorage = file.Name;
+                var fileExtension = Path.GetExtension(file.Name);
+                var trustedFileNameForFileStorage = Invoices.Details.STONo.ToString() + fileExtension;
                 var folderPath = Path.Combine(Environment.ContentRootPath, "wwwroot\\css\\Development", "HTL_Reports");
 
                 // Create the directory if it doesn't exist
@@ -1255,9 +1255,9 @@
 
 
             }
-            else if (Invoices.Details.TankLorryNO == null)
+            else if (Invoices.Details.TankLorryNO == null && Invoices.Details.STONo == null)
             {
-                toastService.ShowWarning("Tank Lorry Number is Manadatory");
+                toastService.ShowWarning("Tank Lorry Number or STO No is Manadatory");
                 IsLoading = false;
 
                 return;
@@ -1399,7 +1399,7 @@
                     if (ShortContratorCharge > 0)
                     {
                         Invoices.CalculationDifference.Status = "Short";
-                         ShortOnTempExempt = Math.Abs(TotalShortageLTRdip) -  ShortContratorCharge;
+                        ShortOnTempExempt = Math.Abs(TotalShortageLTRdip) - ShortContratorCharge;
 
                     }
                     else if (ShortContratorCharge < 0)
@@ -1414,13 +1414,16 @@
                     }
                     Invoices.CalculationDifference.ShortageCharge = Math.Abs(ShortContratorCharge);
 
-                   // float ShortOnTempExempt = TotalShortageLTRdip - ShortContratorCharge;
+                    // float ShortOnTempExempt = TotalShortageLTRdip - ShortContratorCharge;
 
                     Invoices.CalculationDifference.ShortOnTemp = Math.Abs(ShortOnTempExempt);
+                    if (ReceivingTemp > 0)
+                    {
+                        float Shortage1F = ShortOnTempExempt / ReceivingTemp;
 
-                    float Shortage1F = ShortOnTempExempt / ReceivingTemp;
+                        Invoices.CalculationDifference.Shortage1FTemp = Math.Abs((float)Math.Round(Shortage1F, 3));
+                    }
 
-                    Invoices.CalculationDifference.Shortage1FTemp = Math.Abs((float)Math.Round(Shortage1F, 3));
 
                     float QunatityShouldR = TotalChamberQuantityS - Math.Abs(ShortOnTempExempt);
                     Invoices.CalculationDifference.QtyShouldRecieved = QunatityShouldR;
