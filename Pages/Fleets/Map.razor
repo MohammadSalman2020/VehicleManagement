@@ -107,7 +107,7 @@
         {
             var list = JsonSerializer.Deserialize<List<BusinessVehicles>>(rec);
 
-            vehicles = list.Where(a => ids.Contains(a.busid)).Select(a=>a.vehicleid).ToList();
+            vehicles = list.Where(a => ids.Contains(a.busid)).Select(a=>a.vehicleid).Distinct().ToList();
 
 
             // foreach( var x in ids)
@@ -292,7 +292,7 @@
 
             }
             var markerDataList = new List<object>(); // Create a list to hold marker data
-            foreach (var tpl in data)
+            foreach (var tpl in data.Where(a=>a.lat!="0.0").ToList())
             {
                 try
                 {

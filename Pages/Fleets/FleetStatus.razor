@@ -123,28 +123,31 @@
                                                         <p>@(sr = (sr + 1))</p>
                                                     </td>
                                                     <td style="text-align:center">
-                                                        <p>@item.vehicleID</p>
+                                                        <p>@item.VehicleID</p>
                                                     </td>
                                                     <td style="text-align:center">
-                                                        <p>@item.qty</p>
+                                                        <p>@item.Qty</p>
                                                     </td>
                                                     <td class="contact-info">
-                                                        <p @onclick="() => HandleButtonClick(Trim(item.driver1))">@item.driver1</p>
+                                                        <p @onclick="() => HandleButtonClick(Trim(item.Driver1))">@item.Driver1</p>
                                                     </td>
                                                     <td class="contact-info">
-                                                        <p @onclick="() => HandleButtonClick(Trim(item.driver2))">@item.driver2</p>
+                                                        <p @onclick="() => HandleButtonClick(Trim(item.Driver2))">@item.Driver2</p>
                                                     </td>
                                                     <td style="text-align:center">
-                                                        <span>@item.reportingFillingdate</span>
+                                                        <span>@item.LoadingDate</span>
                                                     </td>
                                                     <td style="text-align:center">
-                                                        <span>@item.product</span>
+                                                        <span>@item.Product</span>
                                                     </td>
                                                     <td style="text-align:center">
-                                                        <span>@item.fillingPoint</span>
+                                                        <span>@item.FillingPoint</span>
                                                     </td>
                                                     <td style="text-align:center">
                                                         <span>
+
+                                                            <input class="form-control" type="text" value="@item.Position" @onchange="@((e)=>SearchTable(e,item.VehicleID,1))" />
+
                                                             @if (IsEdit)
                                                             {
                                                                 <input class="form-control" type="text" value="@item.heading" @onchange="@((e)=>SearchTable(e,item.vehicleID,1))" />
@@ -155,16 +158,21 @@
                                                                 <span>@item.heading</span>
                                                             }
 
+
                                                         </span>
                                                     </td>
                                                     <td style="text-align:center">
-                                                        <span>@item.destination</span>
+                                                        <span>@item.Destination</span>
                                                     </td>
                                                     <td>
-                                                        <span>@item.current_location</span>
+                                                        <span>@item.Location</span>
                                                     </td>
                                                     <td>
                                                         <span>
+
+                                                            <input class="form-control" type="text" value="@item.Remarks" @onchange="@((e)=>SearchTable(e,item.VehicleID,2))" />
+
+
                                                             @if (IsEdit)
                                                             {
                                                                 <input class="form-control" type="text" value="@item.remarks" @onchange="@((e)=>SearchTable(e,item.vehicleID,2))" />
@@ -173,6 +181,7 @@
                                                             {
                                                                 <span>@item.remarks</span>
                                                             }
+
                                                         </span>
                                                     </td>
                                                 </tr>
@@ -228,7 +237,7 @@
     int sr = 0;
     public bool IsLoading { get; set; }
     public bool IsEdit { get; set; }
-    List<FleetStatusreport> fleet = new List<FleetStatusreport>();
+    List<fleetstatusData> fleet = new List<fleetstatusData>();
     List<AddPositions> PosList = new List<AddPositions>();
     private async Task ActiveEdit()
     {
@@ -348,7 +357,7 @@
             int count = 1;
             foreach (var report in fleet)
             {
-                sb.AppendLine($"\"{count}\",\"{report.vehicleID}\",\"{report.qty}\",\"{report.driver1}\",\"{report.driver2}\",\"{report.reportingFillingdate}\",\"{report.product}\",\"{report.fillingPoint}\",\"{report.heading}\",\"{report.destination}\",\"{report.current_location}\",\"{report.remarks}\"");
+                sb.AppendLine($"\"{count}\",\"{report.VehicleID}\",\"{report.Qty}\",\"{report.Driver1}\",\"{report.Driver2}\",\"{report.LoadingDate}\",\"{report.Product}\",\"{report.FillingPoint}\",\"{report.Position}\",\"{report.Destination}\",\"{report.Location}\",\"{report.Remarks}\"");
                 count++;
             }
 
@@ -384,8 +393,8 @@
             var Main = await API.PostRequest($"Fleet/FleetStatusReport", jsonData);
             if (Main != "")
             {
-                var rec = Newtonsoft.Json.JsonConvert.DeserializeObject<List<FleetStatusreport>>(Main);
-                fleet = rec.Where(p => BusinessID.Contains(p.busID)).ToList();
+                fleet = Newtonsoft.Json.JsonConvert.DeserializeObject<List<fleetstatusData>>(Main);
+                // fleet = rec.Where(p => BusinessID.Contains(p.busID)).ToList();
             }
         }
         catch (Exception ex)
@@ -453,6 +462,23 @@
         }
 
         IsLoading = false;
+    }
+
+
+    public class fleetstatusData
+    {
+
+        public string? VehicleID { get; set; }
+        public string? Qty { get; set; }
+        public string? Driver1 { get; set; }
+        public string? Driver2 { get; set; }
+        public string? Position { get; set; }
+        public string? Remarks { get; set; }
+        public DateTime? LoadingDate { get; set; }
+        public string? Product { get; set; }
+        public string? FillingPoint { get; set; }
+        public string? Destination { get; set; }
+        public string? Location { get; set; }
     }
 
 }
