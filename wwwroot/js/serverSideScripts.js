@@ -83,7 +83,7 @@ window.addMarker = function (data) {
     var markerCluster = new MarkerClusterer(map, markers, {
         imagePath: 'https://developers.google.com/maps/documentation/javascript/examples/markerclusterer/m',
         gridSize: 50, // Adjust the size of the grid for clustering
-        minimumClusterSize: 5 // Minimum number of markers to form a cluster
+        minimumClusterSize: 2 // Minimum number of markers to form a cluster
     });
 };
 
