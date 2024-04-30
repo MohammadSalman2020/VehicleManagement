@@ -2,9 +2,8 @@
 {
     public class AddAvailability
     {
-        public string Driver1ID { get; set; }
-        public string Driver2ID { get; set; }
-        public string? VehicleID { get; set; }
+
+        public List<string> VehicleID = new List<string>();
         public string? VehicleLocation { get; set; }
         public int Business { get; set; }
         public DateTime AvailDate { get; set; }

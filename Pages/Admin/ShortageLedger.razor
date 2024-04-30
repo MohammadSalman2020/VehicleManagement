@@ -56,6 +56,7 @@
                                     <thead>
                                         <tr>
                                             <th class="text-center font-colors text-uppercase  text-xxs font-weight-bolder opacity-7">Invoice #</th>
+                                            <th class="text-center font-colors text-uppercase  text-xxs font-weight-bolder opacity-7">Vehicle</th>
                                             <th class="text-center font-colors text-uppercase  text-xxs font-weight-bolder opacity-7">Date</th>
                                             <th class="text-center font-colors text-uppercase  text-xxs font-weight-bolder opacity-7">1st Driver Name</th>
                                             <th class="text-center font-colors text-uppercase  text-xxs font-weight-bolder opacity-7">2nd Driver Name</th>
@@ -83,6 +84,9 @@
                                                         </div>
                                                     </td>
                                                     <td class="align-middle text-center">
+                                                        <span class="text-secondary text-xs font-weight-bold">@item.vehicleID</span>
+                                                    </td>
+                                                     <td class="align-middle text-center">
                                                         <span class="text-secondary text-xs font-weight-bold">@item.dated.ToString("MM-dd-yyyy")</span>
                                                     </td>
                                                     <td class="align-middle text-center">
@@ -124,6 +128,7 @@
                                                 {
                                                     <tr class="tbl-accordion-body" data-div-id="@item.invoiceNumber">
                                                         <th class="text-center font-colors text-uppercase  text-xxs font-weight-bolder opacity-7">Invoice #</th>
+                                                        <th class="text-center font-colors text-uppercase  text-xxs font-weight-bolder opacity-7">Vehicle</th>
                                                         <th class="text-center font-colors text-uppercase  text-xxs font-weight-bolder opacity-7"> Date</th>
                                                         <th class="text-center font-colors text-uppercase  text-xxs font-weight-bolder opacity-7">1st Driver Name</th>
                                                         <th class="text-center font-colors text-uppercase  text-xxs font-weight-bolder opacity-7">2nd Driver Name</th>
@@ -138,6 +143,9 @@
 
                                                             <td class="align-middle text-center text-sm">
                                                                 <span class="text-secondary text-xs font-weight-bold">@shorts.invoiceNumber</span>
+                                                            </td>
+                                                              <td class="align-middle text-center text-sm">
+                                                                <span class="text-secondary text-xs font-weight-bold">@shorts.vehicleID</span>
                                                             </td>
                                                             <td class="align-middle text-center">
                                                                 <span class="text-secondary text-xs font-weight-bold">@shorts.dated.ToString("MM-dd-yyyy")</span>
@@ -285,7 +293,7 @@
             var AvailDrafts = await API.GetRequest($"Invoice/GetInvoicesList");
             if (AvailDrafts != "")
             {
-                Invoicing = Newtonsoft.Json.JsonConvert.DeserializeObject<List<Invoicing>>(AvailDrafts);
+                Invoicing = Newtonsoft.Json.JsonConvert.DeserializeObject<List<Invoicing>>(AvailDrafts).OrderByDescending(p=>p.Details.Date).ToList();
             }
 
         }
