@@ -279,12 +279,17 @@
 
         try
         {
-
-            var AvailDrafts = await API.GetRequest($"Available/GetAllAvailClient");
+            JsonSerializerOptions options = new JsonSerializerOptions
+                {
+                    WriteIndented = true,
+                    ReferenceHandler = null
+                };
+            string jsonData = JsonSerializer.Serialize(BusinessID, options);
+            var AvailDrafts = await API.PostRequest($"Available/GetAllAvailClient",jsonData);
             if (AvailDrafts != "")
             {
-                var rec = JsonSerializer.Deserialize<List<AvailDraft>>(AvailDrafts);
-                AvailDraftList = rec.Where(b => BusinessID.Contains(b.business)).OrderByDescending(p => p.availID).ToList();
+                AvailDraftList = JsonSerializer.Deserialize<List<AvailDraft>>(AvailDrafts);
+               // AvailDraftList = rec.Where(b => BusinessID.Contains(b.business)).OrderByDescending(p => p.availID).ToList();
 
             }
         }

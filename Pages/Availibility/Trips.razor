@@ -8,7 +8,7 @@
 @inject IToastService toast
 @inject IApiService API
 @inject IUserClaimsService UserClaimsService
-<AuthorizeView Policy="MainCom">
+<AuthorizeView Policy="AllAccess">
     <Authorized>
         <Nav PageName="Trips" />
 
@@ -28,8 +28,12 @@
                                         {
                                             <div class="card">
                                                 <div class="card-header">
+                                                    <AuthorizeView Policy="MainCom">
+                                                        <Authorized Context="FleetAdmin">
+                                                            <span class="edit-icon" @onclick="@(() => OpenMainModal(item.loadID))"><i class="fa fa-wrench"></i></span>
 
-                                                    <span class="edit-icon" @onclick="@(() => OpenMainModal(item.loadID))"><i class="fa fa-wrench"></i></span>
+                                                        </Authorized>
+                                                    </AuthorizeView>
 
 
                                                 </div>

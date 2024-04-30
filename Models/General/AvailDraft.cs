@@ -7,10 +7,10 @@
         public string chamberSEQ { get; set; }
         public string vehicleCap { get; set; }
         public string location { get; set; }
-        public string driver1 { get; set; }
+        public string? driver1 { get; set; }
         public string? phoneDriver1 { get; set; }
 
-        public string driver2 { get; set; }
+        public string? driver2 { get; set; }
         public string? phoneDriver2 { get; set; }
 
         public int business { get; set; }

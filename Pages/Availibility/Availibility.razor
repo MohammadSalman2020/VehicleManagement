@@ -64,8 +64,8 @@
                                                 <div class="card-body">
 
                                                     <div class="card-header">
-                                                        <span class="edit-icon" @onclick="@(() => EditDriver(item.availID))"><i class="fa fa-edit"></i></span>
-                                                        <span style="color: red;" @onclick="@(() => Delete(item.availID))" class="delete-icon"><i class="fa fa-trash"></i></span>
+                                                        @*                                                         <span class="edit-icon" @onclick="@(() => EditDriver(item.availID))"><i class="fa fa-edit"></i></span>
+                                            *@                                                        <span style="color: red;" @onclick="@(() => Delete(item.availID))" class="delete-icon"><i class="fa fa-trash"></i></span>
 
                                                     </div>
 
@@ -115,7 +115,7 @@
 
 
                                                 <span class="tag tag-success">No Vehicle in Availibility</span>
-                                             
+
 
 
                                             </div>
@@ -138,7 +138,7 @@
                 </div>
             </div>
         </div>
-        <Loader isLoading="@IsLoading" />
+        @*  <Loader isLoading="@IsLoading" /> *@
         <Modal @ref="modal" Title="Add Availability">
             <Body>
                 <div class="col-md-12">
@@ -163,111 +163,154 @@
                                             }
                                             else
                                             {
-                                                <option value="0"></option>
+                                                <option value="0">Loading...</option>
                                             }
 
 
                                         </select>
                                     </div>
                                 </div>
-
-
                                 @if (VehicleList.Count > 0)
                                 {
                                     <div class="col-md-6">
-                                        <div class="form-group">
-                                            <label for="example-text-input" class="form-control-label">Vehicle</label>
-                                            <select class="form-control" @onchange="VeicleChange">
-                                                <option value="0" selected="@(Avail.VehicleID==null?"selected":null)">Select One</option>
-
-                                                @if (VehicleList.Count > 0)
-                                                {
-
-                                                    foreach (var item in VehicleList)
-                                                    {
-                                                        <option value="@item" selected="@(Avail.VehicleID==item?"selected":null)">@item</option>
-
-                                                    }
-                                                }
-                                                else
-                                                {
-                                                    <option value="0">Loading...</option>
-
-                                                }
-
-
-                                            </select>
+                                        <div class="form-group" style="overflow:scroll;height:320px;">
+                                            <label for="example-text-input" class="form-control-label">Vehicle List</label>
+                                            @foreach (var item in VehicleList)
+                                            {
+                                                <div>
+                                                    <input type="checkbox"
+                                                           id="vehicle-@(item)"
+                                                           checked="@IsVehicleSelected(item)"
+                                                           @onchange="(e) => ToggleVehicleSelection(item, (bool)e?.Value)" />
+                                                    <label for="vehicle-@(item)">@item</label>
+                                                </div>
+                                            }
 
                                         </div>
                                     </div>
 
-                                    @if (Driver1List.Count > 0)
+                                    @if (IsLoading)
                                     {
-                                        <div class="col-md-6">
-                                            <div class="form-group">
-                                                <label for="example-text-input" class="form-control-label">1st Driver</label>
-                                                <select class="form-control" @onchange="Driver1">
-                                                    @if (Driver1List.Count > 0)
-                                                    {
-                                                        <option value="0" selected="@(Avail.Driver1ID==null?"selected":null)">Select One</option>
-                                                        @foreach (var item in Driver1List)
-                                                        {
-                                                            <option value="@item.driverID" selected="@(item.driverID == Avail.Driver1ID?"selected":null)">@item.fullname (@item.driverID)</option>
+                                        <DataLoaderComponent IsLoading="@IsLoading" LoadingText="Saving Records..." />
 
-                                                        }
-                                                    }
-                                                    else
-                                                    {
-                                                        <option value="0">Loading....</option>
+                                        @*  <div class="col-md-12">
+                                <div class="form-group" style="text-align:center;">
+                                <button class="btn btn-warning btn-sm ms-auto" @onclick="UpdateAvail">Update</button>
 
-                                                    }
-
-
-                                                </select>
+                                </div>
+                                </div> *@
+                                    }
+                                    else
+                                    {
+                                        <div class="col-md-12">
+                                            <div class="form-group" style="text-align:center;">
+                                                <button class="btn btn-primary btn-sm ms-auto" @onclick="AddAvail">Submit</button>
 
                                             </div>
                                         </div>
                                     }
+                                }
+                                else
+                                {
+                                    <DataLoaderComponent IsLoading="@IsChildLoading" LoadingText="Loading Vehicles..." />
 
-                                    @if (Driver2List.Count > 0)
-                                    {
-                                        <div class="col-md-6">
-                                            <div class="form-group">
-                                                <label for="example-text-input" class="form-control-label">Second Driver</label>
-                                                <select class="form-control" @onchange="Driver2">
+                                }
+                                @*         @if (VehicleList.Count > 0)
+                                {
+                                <div class="col-md-6">
+                                <div class="form-group">
+                                <label for="example-text-input" class="form-control-label">Vehicle</label>
+                                <select class="form-control" @onchange="VeicleChange">
+                                <option value="0" selected="@(Avail.VehicleID==null?"selected":null)">Select One</option>
 
-                                                    @if (Driver2List.Count > 0)
-                                                    {
-                                                        <option value="0" selected="@(Avail.Driver2ID==null?"selected":null)">Select One</option>
-                                                        @foreach (var item in Driver2List)
-                                                        {
-                                                            <option value="@item.driverID" selected="@(item.driverID == Avail.Driver2ID?"selected":null)">@item.fullname (@item.driverID)</option>
+                                @if (VehicleList.Count > 0)
+                                {
 
-                                                        }
-                                                    }
-                                                    else
-                                                    {
-                                                        <option value="0">Loading....</option>
+                                foreach (var item in VehicleList)
+                                {
+                                <option value="@item" selected="@(Avail.VehicleID==item?"selected":null)">@item</option>
 
-                                                    }
+                                }
+                                }
+                                else
+                                {
+                                <option value="0">Loading...</option>
 
-
-
-                                                </select>
-
-                                            </div>
-                                        </div>
-
+                                }
 
 
-                                        @*       <div class="col-md-6">
+                                </select>
+
+                                </div>
+                                </div>
+
+                                @if (Driver1List.Count > 0)
+                                {
+                                <div class="col-md-6">
+                                <div class="form-group">
+                                <label for="example-text-input" class="form-control-label">1st Driver</label>
+                                <select class="form-control" @onchange="Driver1">
+                                @if (Driver1List.Count > 0)
+                                {
+                                <option value="0" selected="@(Avail.Driver1ID==null?"selected":null)">Select One</option>
+                                @foreach (var item in Driver1List)
+                                {
+                                <option value="@item.driverID" selected="@(item.driverID == Avail.Driver1ID?"selected":null)">@item.fullname (@item.driverID)</option>
+
+                                }
+                                }
+                                else
+                                {
+                                <option value="0">Loading....</option>
+
+                                }
+
+
+                                </select>
+
+                                </div>
+                                </div>
+                                }
+
+                                @if (Driver2List.Count > 0)
+                                {
+                                <div class="col-md-6">
+                                <div class="form-group">
+                                <label for="example-text-input" class="form-control-label">Second Driver</label>
+                                <select class="form-control" @onchange="Driver2">
+
+                                @if (Driver2List.Count > 0)
+                                {
+                                <option value="0" selected="@(Avail.Driver2ID==null?"selected":null)">Select One</option>
+                                @foreach (var item in Driver2List)
+                                {
+                                <option value="@item.driverID" selected="@(item.driverID == Avail.Driver2ID?"selected":null)">@item.fullname (@item.driverID)</option>
+
+                                }
+                                }
+                                else
+                                {
+                                <option value="0">Loading....</option>
+
+                                }
+
+
+
+                                </select>
+
+                                </div>
+                                </div>
+
+
+
+                                @*       <div class="col-md-6">
                                 <div class="form-group">
                                 <label for="example-text-input" class="form-control-label">Location</label>
                                 <input type="text" @bind="Avail.VehicleLocation" placeholder="Location" class="form-control">
 
                                 </div>
-                                </div> *@
-                                        @*      <div class="col-md-6">
+                                </div>
+                                <div class="col-md-6">
                                 <div class="form-group">
                                 <div class="form-control">
                                 <label for="example-text-input" class="form-control-label">Status</label>
@@ -276,42 +319,42 @@
                                 </div>
 
                                 </div>
-                                </div> *@
-                                        @if (IsEdit)
-                                        {
-                                            <div class="col-md-12">
-                                                <div class="form-group" style="text-align:center;">
-                                                    <button class="btn btn-warning btn-sm ms-auto" @onclick="UpdateAvail">Update</button>
+                                </div>
+                                @if (IsEdit)
+                                {
+                                <div class="col-md-12">
+                                <div class="form-group" style="text-align:center;">
+                                <button class="btn btn-warning btn-sm ms-auto" @onclick="UpdateAvail">Update</button>
 
-                                                </div>
-                                            </div>
-                                        }
-                                        else
-                                        {
-                                            <div class="col-md-12">
-                                                <div class="form-group" style="text-align:center;">
-                                                    <button class="btn btn-primary btn-sm ms-auto" @onclick="AddAvail">Submit</button>
+                                </div>
+                                </div>
+                                }
+                                else
+                                {
+                                <div class="col-md-12">
+                                <div class="form-group" style="text-align:center;">
+                                <button class="btn btn-primary btn-sm ms-auto" @onclick="AddAvail">Submit</button>
 
-                                                </div>
-                                            </div>
-                                        }
-
-                                    }
-                                    else
-
-                                    {
-                                        <DataLoaderComponent IsLoading="@IsChildLoading" LoadingText="Loading Drivers..." />
-
-                                    }
+                                </div>
+                                </div>
+                                }
 
                                 }
                                 else
 
                                 {
-                                    <DataLoaderComponent IsLoading="@IsChildLoading" LoadingText="Loading Vehicles..." />
+                                <DataLoaderComponent IsLoading="@IsChildLoading" LoadingText="Loading Drivers..." />
 
                                 }
 
+                                }
+                                else
+
+                                {
+                                <DataLoaderComponent IsLoading="@IsChildLoading" LoadingText="Loading Vehicles..." />
+
+                                }
+                                *@
                             </div>
 
                         </div>
@@ -399,19 +442,40 @@
     private Modal PushModal;
     public List<GetBusiness> BusinessList = new List<GetBusiness>();
     public List<string> VehicleList = new List<string>();
-    public List<DriverName> Driver1List = new List<DriverName>();
-    public List<DriverName> Driver2List = new List<DriverName>();
+
     public List<int> BusinessID = new List<int>();
     public List<AvailDraft> AvailDraftList = new List<AvailDraft>();
     public AddAvailability Avail = new AddAvailability();
-
+    private List<string> SelectedVehicleIds = new List<string>();
     public bool IsEdit = false;
     public bool IsLoading = false;
     public bool IsChildLoading = false;
     public bool IsChildLoad = false;
     public string GetRole { get; set; }
     public int EditAvailID { get; set; }
+    private bool IsVehicleSelected(string vehicleId)
+    {
+        return SelectedVehicleIds.Contains(vehicleId);
+    }
 
+    // Toggle vehicle selection
+    private void ToggleVehicleSelection(string vehicleId, bool isChecked)
+    {
+        if (isChecked)
+        {
+            if (!SelectedVehicleIds.Contains(vehicleId))
+            {
+                SelectedVehicleIds.Add(vehicleId);
+            }
+        }
+        else
+        {
+            if (SelectedVehicleIds.Contains(vehicleId))
+            {
+                SelectedVehicleIds.Remove(vehicleId);
+            }
+        }
+    }
     private void AvailStatus(ChangeEventArgs e)
     {
         Avail.IsActive = (bool)e.Value;
@@ -438,48 +502,6 @@
             return null;
         }
     }
-    public async Task<string> Get1DriverID(int AvailID)
-    {
-
-        try
-        {
-
-            var AvailDrafts = await API.GetRequest($"Available/GetDriver1ID/{AvailID}");
-            if (AvailDrafts != "")
-            {
-
-                return JsonSerializer.Deserialize<string>(AvailDrafts);
-
-
-            }
-            return null;
-        }
-        catch (Exception ex)
-        {
-            return null;
-        }
-    }
-    public async Task<string> Get2DriverID(int AvailID)
-    {
-
-        try
-        {
-
-            var AvailDrafts = await API.GetRequest($"Available/GetDriver2ID/{AvailID}");
-            if (AvailDrafts != "")
-            {
-
-                return JsonSerializer.Deserialize<string>(AvailDrafts);
-
-
-            }
-            return null;
-        }
-        catch (Exception ex)
-        {
-            return null;
-        }
-    }
     private async Task EditDriver(int AvailID)
     {
         try
@@ -492,14 +514,14 @@
                 IsEdit = true;
                 EditAvailID = AvailID;
                 Avail.VehicleLocation = rec.location;
-                Avail.VehicleID = rec.vehicleID;
+                // Avail.VehicleID = rec.vehicleID;
                 Avail.Business = rec.business;
-                Avail.Driver1ID = await Get1DriverID(rec.availID);
-                Avail.Driver2ID = await Get2DriverID(rec.availID);
+                // Avail.Driver1ID = await Get1DriverID(rec.availID);
+                // Avail.Driver2ID = await Get2DriverID(rec.availID);
                 Avail.IsActive = rec.isActive;
                 await GetAllVehicle(Avail.Business);
-                await GetAll1Driver(Avail.VehicleID, Avail.Business);
-                await GetAll2Driver(Avail.VehicleID, Avail.Business);
+                // await GetAll1Driver(Avail.VehicleID, Avail.Business);
+                // await GetAll2Driver(Avail.VehicleID, Avail.Business);
 
                 modal.Show();
 
@@ -515,7 +537,11 @@
     {
         try
         {
-            IsLoading = true;
+
+            IsChildLoad = true;
+            var rec2 = AvailDraftList.Where(p => p.availID == AvailID).FirstOrDefault();
+            AvailDraftList.Remove(rec2);
+            IsChildLoad = false;
             var AvailDrafts = await API.GetRequest($"Available/RemoveAvail/{AvailID}");
             if (AvailDrafts != "")
             {
@@ -523,24 +549,25 @@
                 var rec = JsonSerializer.Deserialize<int>(AvailDrafts);
                 if (rec == 200)
                 {
-                    await GetAllAvail();
                     toastService.ShowSuccess("Availibility Record Removed");
+                    await GetAllAvail();
+                    
                 }
                 else
                 {
 
-                    toastService.ShowError("Error...");
+                    toastService.ShowError("Error in Database");
 
                 }
 
             }
 
-            IsLoading = false;
+            IsChildLoad = false;
         }
         catch (Exception ex)
         {
 
-            IsLoading = false;
+            IsChildLoad = false;
             toastService.ShowError("Removal not available");
         }
     }
@@ -551,8 +578,6 @@
         {
             Avail.Business = int.Parse(e.Value.ToString());
             VehicleList = new List<string>();
-            Driver1List = new List<DriverName>();
-            Driver2List = new List<DriverName>();
             await GetAllVehicle(Avail.Business);
 
         }
@@ -560,83 +585,80 @@
         {
             BusinessList = new List<GetBusiness>();
             VehicleList = new List<string>();
-            Driver1List = new List<DriverName>();
-            Driver2List = new List<DriverName>();
         }
         IsChildLoading = false;
     }
 
-    private void Driver2(ChangeEventArgs e)
-    {
-        IsChildLoading = true;
-        if (e.Value != "0")
-        {
-            try
-            {
-                Avail.Driver2ID = e.Value.ToString();
+    // private void Driver2(ChangeEventArgs e)
+    // {
+    //     IsChildLoading = true;
+    //     if (e.Value != "0")
+    //     {
+    //         try
+    //         {
+    //             Avail.Driver2ID = e.Value.ToString();
 
-            }
-            catch (Exception ex)
-            {
+    //         }
+    //         catch (Exception ex)
+    //         {
 
-            }
-        }
-        else
-        {
-            Driver2List = new List<DriverName>();
+    //         }
+    //     }
+    //     else
+    //     {
+    //         Driver2List = new List<DriverName>();
 
-        }
-        IsChildLoading = false;
-    }
-    private void Driver1(ChangeEventArgs e)
-    {
-        IsChildLoading = true;
+    //     }
+    //     IsChildLoading = false;
+    // }
+    // private void Driver1(ChangeEventArgs e)
+    // {
+    //     IsChildLoading = true;
 
-        if (e.Value != "0")
-        {
-            try
-            {
-                Avail.Driver1ID = e.Value.ToString();
+    //     if (e.Value != "0")
+    //     {
+    //         try
+    //         {
+    //             Avail.Driver1ID = e.Value.ToString();
 
-            }
-            catch (Exception ex)
-            {
+    //         }
+    //         catch (Exception ex)
+    //         {
 
-            }
-        }
-        else
-        {
-            Driver1List = new List<DriverName>();
-        }
-        IsChildLoading = false;
+    //         }
+    //     }
+    //     else
+    //     {
+    //         Driver1List = new List<DriverName>();
+    //     }
+    //     IsChildLoading = false;
 
-    }
-    private async Task VeicleChange(ChangeEventArgs e)
-    {
-        IsChildLoading = true;
+    // }
+    // private async Task VeicleChange(ChangeEventArgs e)
+    // {
+    //     IsChildLoading = true;
 
-        if (e.Value != "0")
-        {
-            Avail.VehicleID = e.Value.ToString();
-            Driver1List = new List<DriverName>();
-            Driver2List = new List<DriverName>();
-            await GetAll1Driver(Avail.VehicleID, Avail.Business);
-            await GetAll2Driver(Avail.VehicleID, Avail.Business);
+    //     if (e.Value != "0")
+    //     {
+    //         Avail.VehicleID = e.Value.ToString();
+    //         Driver1List = new List<DriverName>();
+    //         Driver2List = new List<DriverName>();
+    //         await GetAll1Driver(Avail.VehicleID, Avail.Business);
+    //         await GetAll2Driver(Avail.VehicleID, Avail.Business);
 
-        }
-        else
-        {
-            VehicleList = new List<string>();
-            Driver1List = new List<DriverName>();
-            Driver2List = new List<DriverName>();
-        }
-        IsChildLoading = false;
-    }
+    //     }
+    //     else
+    //     {
+    //         VehicleList = new List<string>();
+    //         Driver1List = new List<DriverName>();
+    //         Driver2List = new List<DriverName>();
+    //     }
+    //     IsChildLoading = false;
+    // }
 
     public bool isEmpty()
     {
-        if (Avail.Business != 0 && Avail.VehicleID != "0" && Avail.Driver1ID != "0"
-        && Avail.Driver2ID != "0")
+        if (Avail.Business != 0 && SelectedVehicleIds.Count > 0)
         {
             return false;
         }
@@ -731,8 +753,6 @@
                     await GetAllAvail();
                     modal.CloseModal();
                     VehicleList = new List<string>();
-                    Driver1List = new List<DriverName>();
-                    Driver2List = new List<DriverName>();
                     IsEdit = false;
                 }
                 else
@@ -761,24 +781,27 @@
         try
         {
 
-            if (Avail != null && !isEmpty())
+            if (!isEmpty())
             {
                 IsLoading = true;
+                IsChildLoad = true;
                 Avail.AvailDate = DateTime.Now;
                 Avail.IsActive = true;
                 Avail.VehicleLocation = "";
-                string jsonData = JsonSerializer.Serialize(Avail);
+                Avail.VehicleID = SelectedVehicleIds;
+                string jsonData = Newtonsoft.Json.JsonConvert.SerializeObject(Avail);
                 var AddUser = await API.PostRequest($"Available/AddAvailability", jsonData);
                 int Result = JsonSerializer.Deserialize<int>(AddUser);
                 if (Result == 200)
                 {
+                    IsLoading = false;
+                    modal.CloseModal();
                     toastService.ShowSuccess($"Availability Added Success");
                     Avail = new AddAvailability();
                     await GetAllAvail();
-                    modal.CloseModal();
                     VehicleList = new List<string>();
-                    Driver1List = new List<DriverName>();
-                    Driver2List = new List<DriverName>();
+                    SelectedVehicleIds = new List<string>();
+
 
                 }
                 else
@@ -800,7 +823,7 @@
             toastService.ShowError($"Error {ex}");
         }
 
-        IsLoading = false;
+        IsChildLoad = false;
     }
     protected override async Task OnInitializedAsync()
     {
@@ -810,10 +833,10 @@
         {
 
             BusinessID = await UserClaimsService.GetBusinessIdsAsync();
-
+            await GetAllBusiness();
             await GetAllAvail();
 
-            await GetAllBusiness();
+        
 
 
 
@@ -831,13 +854,18 @@
 
         try
         {
-
-            var AvailDrafts = await API.GetRequest($"Available/GetAllAvailDraft");
+            JsonSerializerOptions options = new JsonSerializerOptions
+                {
+                    WriteIndented = true,
+                    ReferenceHandler = null
+                };
+            string jsonData = JsonSerializer.Serialize(BusinessID, options);
+            var AvailDrafts = await API.PostRequest($"Available/GetAllAvailDraft", jsonData);
             if (AvailDrafts != "")
             {
 
-                var rec = JsonSerializer.Deserialize<List<AvailDraft>>(AvailDrafts);
-                AvailDraftList = rec.Where(b => BusinessID.Contains(b.business)).OrderByDescending(p => p.availID).ToList();
+                AvailDraftList = JsonSerializer.Deserialize<List<AvailDraft>>(AvailDrafts);
+                // AvailDraftList = rec.Where(b => BusinessID.Contains(b.business)).OrderByDescending(p => p.availID).ToList();
 
             }
         }
@@ -846,44 +874,7 @@
             Console.WriteLine(ex.Message);
         }
     }
-    public async Task GetAll1Driver(string VehicleID, int BusID)
-    {
 
-        try
-        {
-
-            var Driver = await API.GetRequest($"Available/GetDrivers/{VehicleID}/{BusID}");
-            if (Driver != "")
-            {
-
-                Driver1List = JsonSerializer.Deserialize<List<DriverName>>(Driver);
-
-            }
-        }
-        catch (Exception ex)
-        {
-            Console.WriteLine(ex.Message);
-        }
-    }
-    public async Task GetAll2Driver(string VehicleID, int BusID)
-    {
-
-        try
-        {
-
-            var Driver = await API.GetRequest($"Available/GetDrivers/{VehicleID}/{BusID}");
-            if (Driver != "")
-            {
-
-                Driver2List = JsonSerializer.Deserialize<List<DriverName>>(Driver);
-
-            }
-        }
-        catch (Exception ex)
-        {
-            Console.WriteLine(ex.Message);
-        }
-    }
     public async Task GetAllVehicle(int BusID)
     {
 
