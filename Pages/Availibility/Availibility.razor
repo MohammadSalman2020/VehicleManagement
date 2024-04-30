@@ -189,9 +189,9 @@
                                         </div>
                                     </div>
 
-                                    @if (IsLoading)
+                                    @if (IsChildLoading)
                                     {
-                                        <DataLoaderComponent IsLoading="@IsLoading" LoadingText="Saving Records..." />
+                                        <DataLoaderComponent IsLoading="@IsChildLoading" LoadingText="Saving Records..." />
 
                                         @*  <div class="col-md-12">
                                 <div class="form-group" style="text-align:center;">
@@ -362,7 +362,7 @@
                 </div>
             </Body>
         </Modal>
-
+        <Loader isLoading="@IsPushClearLoad" />
         <Modal @ref="ClearModal" Title="Clear Availability">
             <Body>
                 <div class="col-md-12">
@@ -448,7 +448,7 @@
     public AddAvailability Avail = new AddAvailability();
     private List<string> SelectedVehicleIds = new List<string>();
     public bool IsEdit = false;
-    public bool IsLoading = false;
+    public bool IsPushClearLoad = false;
     public bool IsChildLoading = false;
     public bool IsChildLoad = false;
     public string GetRole { get; set; }
@@ -506,7 +506,7 @@
     {
         try
         {
-            IsLoading = true;
+
             Avail = new AddAvailability();
             var rec = AvailDraftList.Where(p => p.availID == AvailID).FirstOrDefault();
             if (rec != null)
@@ -526,11 +526,11 @@
                 modal.Show();
 
             }
-            IsLoading = false;
+
         }
         catch (Exception ex)
         {
-            IsLoading = false;
+
         }
     }
     private async Task Delete(int AvailID)
@@ -551,7 +551,7 @@
                 {
                     toastService.ShowSuccess("Availibility Record Removed");
                     await GetAllAvail();
-                    
+
                 }
                 else
                 {
@@ -672,7 +672,7 @@
     {
         try
         {
-            IsLoading = true;
+            IsPushClearLoad = true;
             JsonSerializerOptions options = new JsonSerializerOptions
                 {
                     WriteIndented = true,
@@ -700,13 +700,13 @@
             toastService.ShowError($"Error {ex}");
         }
 
-        IsLoading = false;
+        IsPushClearLoad = false;
     }
     private async Task PushToClient()
     {
         try
         {
-            IsLoading = true;
+            IsPushClearLoad = true;
 
             JsonSerializerOptions options = new JsonSerializerOptions
                 {
@@ -718,9 +718,10 @@
             int Result = JsonSerializer.Deserialize<int>(AddUser);
             if (Result == 200)
             {
-                await GetAllAvail();
                 PushModal.CloseModal();
                 toastService.ShowSuccess($"Availability Pushed Success");
+                await GetAllAvail();
+
             }
             else
             {
@@ -733,7 +734,7 @@
             toastService.ShowError($"Error {ex}");
         }
 
-        IsLoading = false;
+        IsPushClearLoad = false;
     }
     private async Task UpdateAvail()
     {
@@ -742,7 +743,7 @@
 
             if (Avail != null && !isEmpty())
             {
-                IsLoading = true;
+
                 string jsonData = JsonSerializer.Serialize(Avail);
                 var AddUser = await API.PostRequest($"Available/UpdateAvailability/{EditAvailID}", jsonData);
                 int Result = JsonSerializer.Deserialize<int>(AddUser);
@@ -774,7 +775,7 @@
             toastService.ShowError($"Error {ex}");
         }
 
-        IsLoading = false;
+
     }
     private async Task AddAvail()
     {
@@ -783,7 +784,8 @@
 
             if (!isEmpty())
             {
-                IsLoading = true;
+
+                IsChildLoading = true;
                 IsChildLoad = true;
                 Avail.AvailDate = DateTime.Now;
                 Avail.IsActive = true;
@@ -794,9 +796,10 @@
                 int Result = JsonSerializer.Deserialize<int>(AddUser);
                 if (Result == 200)
                 {
-                    IsLoading = false;
+                   
                     modal.CloseModal();
                     toastService.ShowSuccess($"Availability Added Success");
+                    IsChildLoading = false;
                     Avail = new AddAvailability();
                     await GetAllAvail();
                     VehicleList = new List<string>();
