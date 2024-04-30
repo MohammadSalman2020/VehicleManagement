@@ -184,12 +184,9 @@
             </div>
             <table class="gen">
                 @for (int j = 0; j <= Scopes.Count - 1; j++)
-
                 {
                     var scopeObservations = getScopeObservations(Scopes[j]);
-
-
-                    <thead>
+                    <thead style="margin-top:10px;">
                     <th>@(j + 1)</th>
                     <th>@Scopes[j]</th>
                     <th>Inspector Remarks</th>
@@ -206,29 +203,22 @@
                                     @if (@scopeObservations[i].yes)
                                     {
                                         <span>  <img src="css/check.png" alt="Checkmark" class="icon"> </span>
-
                                     }
                                     else if (@scopeObservations[i].no)
                                     {
                                         <span>  <img src="css/cross.png" alt="Checkmark" class="icon"> </span>
-
                                     }
                                     else if (@scopeObservations[i].na)
                                     {
                                         <span>  <img src="css/na.png" alt="Checkmark" class="icon"> </span>
-
                                     }
                                     else
                                     {
-
                                     }
-
                                 </td>
                             </tr>
                         }
-
                     </tbody>
-
                 }
             </table>
             <div class="signature-container">
