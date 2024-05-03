@@ -210,6 +210,7 @@
     private async Task HandleSuccessfulLogin(AuthenticationBearer userAccount)
     {
         await JSRuntime.InvokeVoidAsync("sessionStorage.setItem", "BearerToken", userAccount.bearer);
+    
 
         var customAuth = (CustomAuthenticationStateProvider)AuthStateProvider;
         await customAuth.UpdateAuthenticationState(new UserSession

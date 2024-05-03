@@ -313,7 +313,7 @@
                                         <select class="form-control" placeholder="Role" id="Role" @onchange="UserRole" name="Roles">
                                             @if (AllRoles.Count > 0)
                                             {
-                                                <option value="0">Select One</option>
+                                                <option value="0" selected="@(User.RoleID==0 ? "selected" : null)">Select One</option>
                                                 foreach (var item in AllRoles)
                                                 {
                                                     <option value="@item.roleID" selected="@(item.roleID==User.RoleID ? "selected" : null)">@item.role</option>
@@ -355,15 +355,18 @@
 
                                 <div class="col-md-12">
                                     <div class="form-group" style="text-align:center;">
-                                        @if (!IsUserEdit)
-                                        {
-                                            <button class="btn btn-primary btn-sm ms-auto" @onclick="AddUser">Add User</button>
+                                       
+                                            @if (!IsUserEdit)
+                                            {
+                                                <button class="btn btn-primary btn-sm ms-auto" @onclick="AddUser">Add User</button>
 
-                                        }
-                                        else if (IsUserEdit)
-                                        {
-                                            <button class="btn btn-primary btn-sm ms-auto" @onclick="UpdateUser">Update User</button>
-                                        }
+                                            }
+                                            else if (IsUserEdit)
+                                            {
+                                                <button class="btn btn-primary btn-sm ms-auto" @onclick="UpdateUser">Update User</button>
+                                            }
+                                       
+                                  
 
 
                                     </div>
@@ -393,7 +396,7 @@
                                         <label for="example-text-input" class="form-control-label">User</label>
 
                                         <select class="form-control" @onchange="SecretUser" placeholder="User" id="User" name="Users">
-                                            <option value="0">Select One</option>
+                                            <option value="0" selected="@(Secret.UserID==0? "selected" : null)">Select One</option>
                                             @if (AllUsers.Count > 0)
                                             {
                                                 @foreach (var item in AllUsers)
@@ -588,12 +591,12 @@
                                         <label for="example-text-input" class="form-control-label">Business</label>
 
                                         <select class="form-control" @onchange="AllBusinesses" placeholder="User" id="User" name="Users">
-                                            <option value="0">Select One</option>
+                                            <option value="0" selected="@(addUserBusiness.BusID==0? "selected" : null)">Select One</option>
                                             @if (AllBusinessDrop.Count > 0)
                                             {
                                                 @foreach (var item in AllBusinessDrop)
                                                 {
-                                                    <option value="@item.busID" selected="@(item.busID==addUserBusiness.BusID? "selected" : null)">@item.busDesc</option>
+                                                    <option value="@item.busID" >@item.busDesc</option>
                                                 }
                                             }
                                             else
@@ -814,8 +817,9 @@
                 {
                     toastService.ShowSuccess($"User: {User.Username} Added Success");
                     User = new Users();
+                     UserModal.CloseModal();
                     await GetAllUsers();
-                    UserModal.CloseModal();
+                   
 
 
                 }
@@ -1304,24 +1308,27 @@
                 {
 
                     await GetUserBusiness(addUserBusiness.UserID);
+                    addUserBusiness = new AddUserBusiness();
                     await GetAllUsers();
+                     BusinessModal.CloseModal();
                     toastService.ShowSuccess("User Business Added Success");
-                    BusinessModal.CloseModal();
+                   
 
 
                 }
                 else if(Result == 504)
                 {
-                    toastService.ShowWarning("User with this business already exists");
                     BusinessModal.CloseModal();
+                    toastService.ShowWarning("User with this business already exists");
+                  
 
                 }
 
                 else
                 {
-                   
-                    toastService.ShowError("Error While Adding User Business...");
                     BusinessModal.CloseModal();
+                    toastService.ShowError("Error While Adding User Business...");
+                   
 
                 }
 
