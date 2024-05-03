@@ -188,9 +188,20 @@
                     var scopeObservations = getScopeObservations(Scopes[j]);
                     <thead style="margin-top:10px;">
                     <th>@(j + 1)</th>
-                    <th>@Scopes[j]</th>
-                    <th>Inspector Remarks</th>
-                    <th style="text-align:center;justify-content:center">Response</th>
+                        @if (j == 0)
+                        {
+                        <th>@Scopes[j]</th>
+                        <th>Inspector Remarks</th>
+                        <th style="text-align:center;justify-content:center">Response</th>
+                        }
+                        else
+                        {
+                        <th colspan="3">@Scopes[j]</th>
+                       
+                        }
+                   @*  <th>@Scopes[j]</th>
+                    <th>Inspector Remarks</th> *@
+                    @* <th style="text-align:center;justify-content:center">Response</th> *@
                     </thead>
                     <tbody>
                         @for (int i = 0; i < @scopeObservations.Count; i++)
@@ -200,20 +211,21 @@
                                 <td>@scopeObservations[i].scopeDesc</td>
                                 <td>@scopeObservations[i].remarks</td>
                                 <td style="text-align:center;justify-content:center">
-                                    @if (@scopeObservations[i].yes)
+                                    @if (scopeObservations[i].yes)
                                     {
-                                        <span>  <img src="css/check.png" alt="Checkmark" class="icon"> </span>
+                                        <span style="color: forestgreen; font-weight: bold;">&#x2713;</span>
                                     }
-                                    else if (@scopeObservations[i].no)
+                                    else if (scopeObservations[i].no)
                                     {
-                                        <span>  <img src="css/cross.png" alt="Checkmark" class="icon"> </span>
+                                        <span style="color: red; font-weight: bold;">&#x2717;</span>
                                     }
-                                    else if (@scopeObservations[i].na)
+                                    else if (scopeObservations[i].na)
                                     {
-                                        <span>  <img src="css/na.png" alt="Checkmark" class="icon"> </span>
+                                        <span>N/A</span>
                                     }
                                     else
                                     {
+                                        @* Handle other cases if needed *@
                                     }
                                 </td>
                             </tr>
@@ -221,6 +233,8 @@
                     </tbody>
                 }
             </table>
+
+
             <div class="signature-container">
                 <div class="signature">Safety Supervisor</div>
                 <div class="signature">Driver Sign</div>
