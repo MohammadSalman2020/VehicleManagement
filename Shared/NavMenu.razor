@@ -2,7 +2,8 @@
 @inject AuthenticationStateProvider AuthStateProvider
 @inject NavigationManager Nav
 @inject IJSRuntime JSRuntime
-@inject Microsoft.AspNetCore.Http.IHttpContextAccessor HttpContextAccessor
+@using Microsoft.AspNetCore.Http
+@inject IHttpContextAccessor httpContextAccessor
 @inject AuthenticationStateProvider _authenticationStateProvider
 <AuthorizeView>
     <Authorized>
@@ -88,6 +89,7 @@
                     <AuthorizeView Roles="Client,FleetManager">
                         <Authorized Context="clientaccess">
                             <a href="/inspections">View Inspections</a>
+                            <a href="/checklists">New Inspections</a>
                         </Authorized>
                     </AuthorizeView>
                     <AuthorizeView Roles="SafetySupervisor,admin">
@@ -187,11 +189,12 @@
     // private string ShowNav { get; set; } = "";
     protected async Task Logout()
     {
+       
         var CustomAuth = (CustomAuthenticationStateProvider)AuthStateProvider;
         await CustomAuth.UpdateAuthenticationState(null);
         await JSRuntime.InvokeVoidAsync("sessionStorage.removeItem", "BearerToken");
-
-        Nav.NavigateTo("/", true);
+        
+      //  Nav.NavigateTo("/", true);
 
     }
     // protected override async Task OnAfterRenderAsync(bool firstRender)
