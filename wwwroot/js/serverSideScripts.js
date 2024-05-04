@@ -194,3 +194,51 @@ function loadGoogleMaps() {
     // Load the map once Google Maps API is loaded
     loadmap();
 }
+
+
+// pushNotifications.js
+
+// Request permission for push notifications
+function requestPushNotificationPermission() {
+    return new Promise((resolve, reject) => {
+        Notification.requestPermission().then(permission => {
+            if (permission === 'granted') {
+                resolve(true);
+                console.log(permission)
+            } else {
+                reject(new Error('Permission for push notifications denied'));
+                console.log("Error")
+            }
+        });
+    });
+}
+
+
+function getDeviceToken() {
+    console.log("Getting device token...");
+    return new Promise((resolve, reject) => {
+        navigator.serviceWorker.ready.then(registration => {
+            console.log("Service worker ready.");
+            registration.pushManager.getSubscription().then(subscription => {
+                if (subscription) {
+                    const deviceKey = subscription.endpoint;
+                    console.log("Device token:", deviceKey);
+                    resolve(deviceKey);
+                } else {
+                    console.log("No subscription found.");
+                    reject(new Error('No subscription found'));
+                }
+            }).catch(error => {
+                console.error("Error obtaining subscription:", error);
+                reject(error);
+            });
+        }).catch(error => {
+            console.error("Error obtaining service worker registration:", error);
+            reject(error);
+        });
+    });
+}
+
+
+
+

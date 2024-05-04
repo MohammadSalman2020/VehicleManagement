@@ -10,12 +10,16 @@
 @inject IUserClaimsService UserClaimsService
 <AuthorizeView Policy="AllAccess">
     <Authorized>
-        <Nav PageName="Trips" />
+
 
         <div class="container-fluid">
+
             <div class="row">
-                <div class="col-12">
+                <div class="col-md-6">
+                    @* <Nav PageName="Trips" /> *@
+                    Primary Trips
                     <div class="card mb-4">
+
                         <div class="fleet-cards">
                             <div class="container" style="justify-content:center !important;">
                                 @if (!IsChildLoading)
@@ -71,6 +75,104 @@
                                             </div>
                                         }
                                     }
+                                    else
+                                    {
+                                        <div>
+
+                                            <div class="card-body">
+
+
+                                                <span class="tag tag-success">No Vehicle on Trip..</span>
+
+
+
+                                            </div>
+
+                                        </div>
+                                    }
+                                }
+                                else if (IsChildLoading)
+                                {
+                                    <DataLoaderComponent IsLoading="IsChildLoading" LoadingText="Loading Trips..." />
+                                }
+
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    Secondary Active Trips
+                    <div class="card">
+                        <div class="fleet-cards">
+                            <div class="container" style="justify-content:center !important;padding-left: 0px;padding-right: 0px;">
+                                @if (!IsChildLoading)
+                                {
+
+
+                                    @if (SCTripList.Count > 0)
+                                    {
+                                        <div style="overflow-x: auto;width:100%">
+                                            <table style="width: 100%; border-collapse: collapse; border-spacing: 0;">
+                                                <thead>
+                                                    
+                                                    <tr style="background-color: #ddd;font-size:12px;">
+                                                        <th style="padding: 8px; text-align: left;">Primary Reference</th>
+                                                        <th style="padding: 8px; text-align: left;">Trip ID</th>
+                                                        <th style="padding: 8px; text-align: left;">Vehicle ID</th>
+                                                        <th style="padding: 8px; text-align: left;">Trip Date</th>
+                                                        <th style="padding: 8px; text-align: left;">Shipping Point</th>
+                                                        <th style="padding: 8px; text-align: left;">Receiving Point</th>
+                                                        <th style="padding: 8px; text-align: left;">Qty</th>
+                                                        <th style="padding: 8px; text-align: left;">Status</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                  
+                                                    @foreach (var item in SCTripList.OrderBy(a => a.primaryReference))
+                                                    {
+                                                        
+                                                        
+                                                        if (tempref == @item.primaryReference || count == 0)
+                                                        {
+
+                                                            <tr style="background-color: @(item.isActive ? "#4caf50" : "#f5f5f5"); color: @(item.isActive ? "#fff" : "#000");font-size:12px;">
+                                                                <td style="padding: 8px; text-align: left;">@item.primaryReference</td>
+                                                                <td style="padding: 8px; text-align: left;">@item.tripID</td>
+                                                                <td style="padding: 8px; text-align: left;">@item.vehicleID</td>
+                                                                <td style="padding: 8px; text-align: left;">@item.tripDate.ToShortDateString()</td>
+                                                                <td style="padding: 8px; text-align: left;">@item.shippingPoint</td>
+                                                                <td style="padding: 8px; text-align: left;">@item.receivingPoint</td>
+                                                                <td style="padding: 8px; text-align: left;">@item.qty</td>
+                                                                <td style="padding: 8px; text-align: left;">@(item.isActive ? "In Transit" : "Delivered")</td>
+                                                            </tr>
+                                                        }
+                                                        else
+                                                        {
+                                                            <tr>
+                                                                <td style="padding: 3px; text-align: left;">
+
+                                                                </td>
+                                                            </tr>
+                                                            <tr style="background-color: @(item.isActive ? "#4caf50" : "#f5f5f5"); color: @(item.isActive ? "#fff" : "#000");font-size:12px;">
+                                                                <td style="padding: 8px; text-align: left;">@item.primaryReference</td>
+                                                                <td style="padding: 8px; text-align: left;">@item.tripID</td>
+                                                                <td style="padding: 8px; text-align: left;">@item.vehicleID</td>
+                                                                <td style="padding: 8px; text-align: left;">@item.tripDate.ToShortDateString()</td>
+                                                                <td style="padding: 8px; text-align: left;">@item.shippingPoint</td>
+                                                                <td style="padding: 8px; text-align: left;">@item.receivingPoint</td>
+                                                                <td style="padding: 8px; text-align: left;">@item.qty</td>
+                                                                <td style="padding: 8px; text-align: left;">@(item.isActive ? "In Transit" : "Delivered")</td>
+                                                            </tr>
+                                                        }
+
+                                                        count++;
+                                                         tempref = @item.primaryReference;
+                                                    }
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    }
+
                                     else
                                     {
                                         <div>
@@ -174,6 +276,9 @@
         }
     }
     public List<TripConfirm> TripList = new List<TripConfirm>();
+    int count = 0;
+    string tempref = "";
+    public List<tblSecondaryTrips> SCTripList = new List<tblSecondaryTrips>();
     public bool IsChildLoading = false;
     public List<int> BusinessID = new List<int>();
     public MaintainanceVehicle Main = new MaintainanceVehicle();
@@ -186,7 +291,10 @@
         MaintainanceModal.Show();
 
     }
-
+    public int getpkcount( string primary)
+    {
+        return SCTripList.Where(a => a.primaryReference == primary).ToList().Count();
+    }
     protected override async Task OnInitializedAsync()
     {
 
@@ -197,6 +305,7 @@
             BusinessID = await UserClaimsService.GetBusinessIdsAsync();
 
             await GetAllTrips();
+            await GetSecondaryTrip();
 
 
 
@@ -208,6 +317,28 @@
             IsChildLoading = false;
         }
         IsChildLoading = false;
+    }
+    public async Task GetSecondaryTrip()
+    {
+        try
+        {
+            JsonSerializerOptions options = new JsonSerializerOptions
+                {
+                    WriteIndented = true,
+                    ReferenceHandler = null
+                };
+            string jsonData = JsonSerializer.Serialize(BusinessID, options);
+            var sctrips = await API.PostRequest("Invoice/GetSctrips", jsonData);
+            SCTripList = JsonSerializer.Deserialize<List<tblSecondaryTrips>>(sctrips);
+            if (SCTripList.Count > 0)
+            {
+                StateHasChanged();
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex.Message);
+        }
     }
     public async Task GetAllTrips()
     {
@@ -268,5 +399,17 @@
             Console.WriteLine(ex.Message);
         }
         IsLoading2 = false;
+    }
+    public class tblSecondaryTrips
+    {
+
+        public int tripID { get; set; }               // JSON: "tripID":1
+        public string? vehicleID { get; set; }         // JSON: "vehicleID":"TMH-830"
+        public DateTime tripDate { get; set; }        // JSON: "tripDate":"2024-05-04T00:00:00"
+        public string? shippingPoint { get; set; }     // JSON: "shippingPoint":"MCH APL"
+        public string? receivingPoint { get; set; }    // JSON: "receivingPoint":"Shahid & Company"
+        public string? primaryReference { get; set; }  // JSON: "primaryReference":"1040829"
+        public bool isActive { get; set; }            // JSON: "isActive":true
+        public int qty { get; set; }
     }
 }

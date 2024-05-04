@@ -61,7 +61,9 @@ namespace VehicleManagement.Authentication
         {
             try
             {
+
                 var userSessionStorageResult = await _sessionStorage.GetAsync<UserSession>("UserSession");
+
 
                 var userSession = userSessionStorageResult.Success ? userSessionStorageResult.Value : null;
                 if (userSession == null)

@@ -3,6 +3,7 @@
 @using VehicleManagement.ApiService
 @using VehicleManagement.Authentication
 @using VehicleManagement.Models.General
+@inject FirebaseNotificationService NotificationService
 @inject IWebHostEnvironment WebHostEnvironment
 @inject IJSRuntime JSRuntime
 @inject IApiService API
@@ -73,14 +74,20 @@
     int Lat = 0;
     int Long = 0;
     string vhiclenumber = "";
+    string[] deviceTokens = new string[1];
+    private string token;
+
     //this is source
     List<string> vehiclelist = new List<string>();
     protected override async Task OnAfterRenderAsync(bool firstrender)
     {
         if (firstrender)
         {
+
             await JSRuntime.InvokeVoidAsync("loadGoogleMaps");
             await JSRuntime.InvokeVoidAsync("initializeAutoComplete", "vehicleid", vehicles);
+            token = await JSRuntime.InvokeAsync<string>("getDeviceToken");
+
         }
         else
         {
@@ -118,7 +125,7 @@
             //         vehicles.Add(y.vehicleid);
             //     }
             // }
-           
+
         }
         else
         {
@@ -131,7 +138,6 @@
     {
         ///   poligons = new List<LatLng>();
         // poligons.Add(new LatLng (4.817815,67.313360 ));
-
         await LoadData();
         //  await Addmarkers();
         await AddPointsAsync();
@@ -259,16 +265,22 @@
             SearchData();
         }
     }
+    
     private async Task SearchData()
     {
         if (vhiclenumber.Trim() != "")
         {
-            var rec = data.Where(a => a.vehicleId.Contains(vhiclenumber)).FirstOrDefault();
-            if (rec != null)
-            {
-                // await Task.Delay(delayMilliseconds);
-                await JSRuntime.InvokeVoidAsync("searchMarkerWithLatLong", rec.lat, rec.@long);
-            }
+            // var rec = data.Where(a => a.vehicleId.Contains(vhiclenumber)).FirstOrDefault();
+            // if (rec != null)
+            // {
+            //     // await Task.Delay(delayMilliseconds);
+            //     await JSRuntime.InvokeVoidAsync("searchMarkerWithLatLong", rec.lat, rec.@long);
+            // }
+
+            
+          
+
+            await NotificationService.SendNotificationAsync("Title", "Body", deviceTokens);
         }
 
     }
