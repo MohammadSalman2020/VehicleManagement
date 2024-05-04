@@ -120,8 +120,10 @@
 
                             </thead>
                             <tbody>
+
                                 @if (IsAvailable)
                                 {
+
                                     @if (AvailableList.Count > 0)
                                     {
                                         foreach (var item in AvailableList)
@@ -170,13 +172,18 @@
                                     }
                                     else
                                     {
-                                        <DataLoaderComponent IsLoading="@IsChildLoading" LoadingText="Loading Availability...." />
+                                        <tr>
+                                            <td colspan="12">
+                                                <DataLoaderComponent IsLoading="@IsChildLoading" LoadingText="Loading Availability...." />
+                                            </td>
+                                        </tr>
                                     }
 
 
                                 }
                                 @if (IsMaintainance)
                                 {
+
                                     @if (MaintainanceList.Count > 0)
                                     {
                                         foreach (var item in MaintainanceList)
@@ -224,12 +231,18 @@
                                     }
                                     else
                                     {
-                                        <DataLoaderComponent IsLoading="@IsChildLoading" LoadingText="Loading On Maintainance...." />
+                                        <tr>
+                                            <td colspan="12">
+                                                <DataLoaderComponent IsLoading="@IsChildLoading" LoadingText="Loading On Maintainance...." />
+                                            </td>
+                                        </tr>
                                     }
+
                                 }
 
                                 @if (IsOnTrip)
                                 {
+
                                     @if (OntripList.Count > 0)
                                     {
                                         foreach (var item in OntripList)
@@ -278,12 +291,18 @@
                                     }
                                     else
                                     {
-                                        <DataLoaderComponent IsLoading="@IsChildLoading" LoadingText="Loading Trips...." />
+                                        <tr>
+                                            <td colspan="12">
+                                                <DataLoaderComponent IsLoading="@IsChildLoading" LoadingText="Loading Trips...." />
+                                            </td>
+                                        </tr>
                                     }
+
                                 }
 
                                 @if (IsTotal)
                                 {
+
                                     @if (AllVehicles.Count > 0)
                                     {
                                         foreach (var item in AllVehicles)
@@ -303,11 +322,6 @@
                                                 </td>
 
 
-                                                @*    <td class="align-middle text-center text-sm">
-                                    <span class="badge badge-sm @(GetBadgeColor(item.status))">@item.status</span>
-                                    </td> *@
-
-
                                                 <td class="align-middle text-center">
                                                     <span class="text-secondary text-xs font-weight-bold">@item.driver1</span>
                                                 </td>
@@ -319,24 +333,26 @@
                                                 </td>
 
 
-                                                @*     <td class="align-middle">
-                                    <a @onclick="@(()=> NavigateToLiveTracing(item.location,"Lahore"))" class="text-secondary font-weight-bold text-xs cursor-pointer" data-toggle="tooltip" data-original-title="Edit user">
-                                    Live Tracing
-                                    </a>
-                                    </td> *@
-                                            </tr>
 
+
+                                            </tr>
 
                                         }
                                     }
                                     else
                                     {
-                                        <DataLoaderComponent IsLoading="@IsChildLoading" LoadingText="Loading All Vehicles...." />
+                                        <tr>
+                                            <td colspan="12">
+                                                <DataLoaderComponent IsLoading="@IsChildLoading" LoadingText="Loading All Vehicles...." />
+                                            </td>
+                                        </tr>
                                     }
+
                                 }
 
                                 @if (IsFromOnLoad)
                                 {
+
                                     @if (OnLoadList.Count > 0)
                                     {
                                         foreach (var item in OnLoadList)
@@ -380,15 +396,20 @@
                                                         Live Tracing
                                                     </a>
                                                 </td>
-                                            </tr>
 
+                                            </tr>
 
                                         }
                                     }
                                     else
                                     {
-                                        <DataLoaderComponent IsLoading="@IsChildLoading" LoadingText="Loading On-Load Vehicles...." />
+                                        <tr>
+                                            <td colspan="12">
+                                                <DataLoaderComponent IsLoading="@IsChildLoading" LoadingText="Loading On-Load Vehicles...." />
+                                            </td>
+                                        </tr>
                                     }
+
                                 }
 
 

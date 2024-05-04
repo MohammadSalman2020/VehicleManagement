@@ -1,5 +1,6 @@
 ﻿@page "/addinvoice"
 @using VehicleManagement.Pages.Redirects
+@inject IJSRuntime Js
 <AuthorizeView>
     <Authorized>
       @*   <Nav PageName="Invoice List"/>
@@ -9,11 +10,34 @@
 
     </Authorized>
     <NotAuthorized>
-       <_403/>
+        @if (_isJsReady)
+        {
+            <_403 />
+        }
     </NotAuthorized>
 </AuthorizeView>
 
 
 @code {
 
+    private bool _isJsReady = false;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            try
+            {
+                // Attempt a simple JavaScript call to check if JS is ready
+                await Js.InvokeVoidAsync("console.log", "");
+                _isJsReady = true; // JS is ready, so set a flag or take action
+                StateHasChanged();
+            }
+            catch
+            {
+                // If JS isn't ready, handle it gracefully
+                _isJsReady = false; // JavaScript is not yet ready
+            }
+        }
+    }
 }

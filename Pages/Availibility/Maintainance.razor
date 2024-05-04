@@ -11,6 +11,7 @@
 @inject IToastService toastService
 @inject IApiService API
 @inject IUserClaimsService UserClaimsService
+@inject IJSRuntime js
 <AuthorizeView Policy="MainCom">
     <Authorized>
         <Nav PageName="Maintainance" />
@@ -106,13 +107,37 @@
 
     </Authorized>
     <NotAuthorized>
-        <_403 />
+        @if (_isJsReady)
+        {
+            <_403 />
+
+        }
     </NotAuthorized>
 </AuthorizeView>
 
 
 
 @code {
+    private bool _isJsReady = false;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            try
+            {
+                // Attempt a simple JavaScript call to check if JS is ready
+                await js.InvokeVoidAsync("console.log", "");
+                _isJsReady = true; // JS is ready, so set a flag or take action
+                StateHasChanged();
+            }
+            catch
+            {
+                // If JS isn't ready, handle it gracefully
+                _isJsReady = false; // JavaScript is not yet ready
+            }
+        }
+    }
     private Modal modal;
     public List<GetMain> MaintainanceList = new List<GetMain>();
     public List<int> BusinessID = new List<int>();

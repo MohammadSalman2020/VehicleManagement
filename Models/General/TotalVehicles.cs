@@ -7,6 +7,5 @@
         public string? driver2 { get; set; }
         public string? businessName { get; set; }
         public int businessID { get; set; }
-        public string? status { get; set; }
     }
 }

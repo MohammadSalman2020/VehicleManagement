@@ -51,21 +51,35 @@
         <h1>You are Authorizing</h1>
     </Authorizing>
     <NotAuthorized>
-        <NotLogin />
+        @if (_isJsReady)
+        {
+            <NotLogin />
+        }
     </NotAuthorized>
 </AuthorizeView>
 
 @code {
 
-    private async Task RequestPushNotificationPermission()
-    {
-        await JSRuntime.InvokeVoidAsync("requestPushNotificationPermission");
-    }
+    private bool _isJsReady = false;
 
-    // Method to obtain device token for push notifications
-    private async Task<string> GetDeviceToken()
+    protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-        return await JSRuntime.InvokeAsync<string>("getDeviceToken");
+        if (firstRender)
+        {
+            try
+            {
+                // Attempt a simple JavaScript call to check if JS is ready
+                await js.InvokeVoidAsync("console.log", "JavaScript is ready!");
+                _isJsReady = true; // JS is ready, so set a flag or take action
+                StateHasChanged();
+            }
+            catch
+            {
+                // If JS isn't ready, handle it gracefully
+                _isJsReady = false; // JavaScript is not yet ready
+            }
+        }
+
     }
 
 
