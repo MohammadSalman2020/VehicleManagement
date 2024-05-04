@@ -1273,3 +1273,31 @@ td, th {
     }
 
 }
+
+
+.loading-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh; /* Uncommented to ensure the container is full-height */
+}
+
+.dataloading {
+    display: inline-block;
+    width: 100%;
+    height: 100%;
+    border-radius: 2%; /* Uncommented to maintain the circle shape */
+    background: #5e72e4;
+    opacity: 0.2;
+    animation: fadeInOut 2s ease-in-out infinite; /* The infinite animation duration for continuous loop */
+}
+
+@keyframes fadeInOut {
+    0%, 100% {
+        opacity: 0.2; /* Starts and ends with lower opacity */
+    }
+
+    50% {
+        opacity: 1; /* Higher opacity in the middle for fading effect */
+    }
+}

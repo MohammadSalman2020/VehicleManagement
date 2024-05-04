@@ -10,6 +10,7 @@
 @inject IToastService toastService
 @inject IApiService API
 @inject IUserClaimsService UserClaimsService
+@inject IJSRuntime Js
 @inject AuthenticationStateProvider _authenticationStateProvider
 <AuthorizeView Policy="AvailMan">
     <Authorized>
@@ -19,28 +20,45 @@
             <div class="row">
                 <div class="col-12">
                     <div class="card mb-4">
-                        <div class="card-header pb-0">
-                            <h6>Actions</h6>
-                        </div>
+
                         <div class="card-header pb-0">
                             <div class="row col-md-12" style="text-align:center;">
 
-                                <div class="col-md-4">
+                                <div class="col-md-3">
                                     <div class="form-group">
                                         <button class="btn btn-danger btn-sm ms-auto" @onclick="OpenPushModal">Push To Client</button>
                                     </div>
                                 </div>
 
-                                <div class="col-md-4">
+                                <div class="col-md-3">
                                     <div class="form-group">
                                         <button class="btn btn-primary btn-sm ms-auto" @onclick="OpenModal">Add New</button>
 
                                     </div>
                                 </div>
-                                <div class="col-md-4">
+                                <div class="col-md-3">
                                     <div class="form-group">
                                         <button class="btn btn-warning btn-sm ms-auto" @onclick="OpenClearModal">Clear</button>
 
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="form-group">
+                                        <select class="form-control" @onchange="BusChange">
+                                            @if (BusinessList.Count > 0)
+                                            {
+                                                <option value="0" selected="@(Bus==0?"selected":null)">Select All</option>
+                                                foreach (var item in BusinessList)
+                                                {
+                                                    <option value="@item.busID" selected="@(item.busID==Bus ? "selected" : null)">@item.busDesc</option>
+                                                }
+                                            }
+                                            else
+                                            {
+                                                <option value="0">Loading...</option>
+                                            }
+
+                                        </select>
                                     </div>
                                 </div>
                             </div>
@@ -55,9 +73,9 @@
                                 {
 
 
-                                    @if (AvailDraftList.Count > 0)
+                                    @if (DraftList.Count > 0)
                                     {
-                                        @foreach (var item in AvailDraftList)
+                                        @foreach (var item in DraftList)
                                         {
                                             <div class="card">
 
@@ -71,7 +89,7 @@
 
                                                     <span class="tag tag-success">Available</span>
                                                     &nbsp;
-                                                    @if (@item.isActive)
+                           @*                          @if (@item.isActive)
                                                     {
                                                         <span class="badge badge-sm bg-gradient-success">@(item.isActive == true ? "Active" : "In-Active")</span>
 
@@ -80,7 +98,7 @@
                                                     {
                                                         <span class="badge badge-sm bg-gradient-danger">@(item.isActive == true ? "Active" : "In-Active")</span>
 
-                                                    }
+                                                    } *@
                                                     <h4 style="padding-top: 30px;">
                                                         @item.vehicleCap &nbsp;&nbsp;@item.chamberSEQ
                                                     </h4>
@@ -429,7 +447,11 @@
 
     </Authorized>
     <NotAuthorized>
-        <_403 />
+        @if (_isJsReady)
+        {
+            <_403 />
+
+        }
     </NotAuthorized>
 </AuthorizeView>
 
@@ -437,6 +459,27 @@
 
 
 @code {
+    private bool _isJsReady = false;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            try
+            {
+                // Attempt a simple JavaScript call to check if JS is ready
+                await Js.InvokeVoidAsync("console.log", "JavaScript is ready!");
+                _isJsReady = true; // JS is ready, so set a flag or take action
+                StateHasChanged();
+            }
+            catch
+            {
+                // If JS isn't ready, handle it gracefully
+                _isJsReady = false; // JavaScript is not yet ready
+            }
+        }
+    }
+
     private Modal modal;
     private Modal ClearModal;
     private Modal PushModal;
@@ -444,6 +487,7 @@
     public List<string> VehicleList = new List<string>();
 
     public List<int> BusinessID = new List<int>();
+    public List<AvailDraft> DraftList = new List<AvailDraft>();
     public List<AvailDraft> AvailDraftList = new List<AvailDraft>();
     public AddAvailability Avail = new AddAvailability();
     private List<string> SelectedVehicleIds = new List<string>();
@@ -453,6 +497,7 @@
     public bool IsChildLoad = false;
     public string GetRole { get; set; }
     public int EditAvailID { get; set; }
+    public int Bus { get; set; }
     private bool IsVehicleSelected(string vehicleId)
     {
         return SelectedVehicleIds.Contains(vehicleId);
@@ -589,6 +634,25 @@
         IsChildLoading = false;
     }
 
+    private async Task BusChange(ChangeEventArgs e)
+    {
+        IsChildLoad = true;
+        int Val = int.Parse(e.Value.ToString());
+        if (Val != 0)
+        {
+            Bus = Val;
+            DraftList = AvailDraftList.Where(p => p.business == Bus).OrderByDescending(p => p.business).ToList();
+
+        }
+        else
+        {
+            Bus = 0;
+            DraftList = AvailDraftList;
+        }
+
+        IsChildLoad = false;
+    }
+
     // private void Driver2(ChangeEventArgs e)
     // {
     //     IsChildLoading = true;
@@ -678,14 +742,26 @@
                     WriteIndented = true,
                     ReferenceHandler = null
                 };
-            string jsonData = JsonSerializer.Serialize(BusinessID, options);
+            string jsonData = "";
+            if (Bus != 0)
+            {
+                List<int> Busids = new List<int>();
+                Busids.Add(Bus);
+                jsonData = JsonSerializer.Serialize(Busids, options);
+            }
+            else
+            {
+                jsonData = JsonSerializer.Serialize(BusinessID, options);
+            }
             var AddUser = await API.PostRequest($"Available/Clear", jsonData);
             int Result = JsonSerializer.Deserialize<int>(AddUser);
             if (Result == 200)
             {
+                Bus = 0;
+                ClearModal.CloseModal();
                 await GetAllAvail();
                 toastService.ShowSuccess($"Availability Cleared Success");
-                ClearModal.CloseModal();
+               
             }
             else
             {
@@ -713,13 +789,25 @@
                     WriteIndented = true,
                     ReferenceHandler = null
                 };
-            string jsonData = JsonSerializer.Serialize(BusinessID, options);
+            string jsonData = "";
+            if (Bus != 0)
+            {
+                List<int> Busids = new List<int>();
+                Busids.Add(Bus);
+                jsonData = JsonSerializer.Serialize(Busids, options);
+            }
+            else
+            {
+                jsonData = JsonSerializer.Serialize(BusinessID, options);
+            }
+
             var AddUser = await API.PostRequest($"Available/PushToClient", jsonData);
             int Result = JsonSerializer.Deserialize<int>(AddUser);
             if (Result == 200)
             {
                 PushModal.CloseModal();
                 toastService.ShowSuccess($"Availability Pushed Success");
+                Bus = 0;
                 await GetAllAvail();
 
             }
@@ -796,7 +884,7 @@
                 int Result = JsonSerializer.Deserialize<int>(AddUser);
                 if (Result == 200)
                 {
-                   
+
                     modal.CloseModal();
                     toastService.ShowSuccess($"Availability Added Success");
                     IsChildLoading = false;
@@ -804,7 +892,7 @@
                     await GetAllAvail();
                     VehicleList = new List<string>();
                     SelectedVehicleIds = new List<string>();
-
+                    Bus = 0;
 
                 }
                 else
@@ -839,7 +927,7 @@
             await GetAllBusiness();
             await GetAllAvail();
 
-        
+
 
 
 
@@ -867,7 +955,9 @@
             if (AvailDrafts != "")
             {
 
-                AvailDraftList = JsonSerializer.Deserialize<List<AvailDraft>>(AvailDrafts);
+                AvailDraftList = JsonSerializer.Deserialize<List<AvailDraft>>(AvailDrafts).OrderByDescending(p => p.business).ToList();
+                DraftList = new List<AvailDraft>();
+                DraftList = AvailDraftList;
                 // AvailDraftList = rec.Where(b => BusinessID.Contains(b.business)).OrderByDescending(p => p.availID).ToList();
 
             }

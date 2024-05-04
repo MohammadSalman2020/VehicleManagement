@@ -869,7 +869,11 @@
         <Loader isLoading="@IsLoading" />
     </Authorized>
     <NotAuthorized>
-        <_403 />
+        @if (_isJsReady)
+        {
+            <_403 />
+        }
+
     </NotAuthorized>
 </AuthorizeView>
 <script>
@@ -887,6 +891,10 @@
 
 
 @code {
+
+    private bool _isJsReady = false;
+
+
     private Invoicing Invoices { get; set; } = new Invoicing();
     private GetChamberDetails Shipping { get; set; } = new GetChamberDetails();
     public List<VehicleDTO> VehicleList = new List<VehicleDTO>();
@@ -1080,6 +1088,9 @@
         {
             try
             {
+                await JS.InvokeVoidAsync("console.log", "");
+                _isJsReady = true; // JS is ready, so set a flag or take action
+                StateHasChanged();
                 if (_tabs != null)
                 {
                     await _tabs.InnerElementReference.FocusAsync();
@@ -1092,6 +1103,7 @@
             }
             catch (Exception ex)
             {
+                _isJsReady = false; // JavaScript is not yet ready
                 string e = ex.Message;
             }
 
@@ -1396,7 +1408,11 @@
                     #endregion
                     float ShortOnTempExempt = 0.0f;
                     float ShortContratorCharge = float.Parse((TotalQuantity85S - TotalQuantity85R).ToString());
-                    if (ShortContratorCharge > 0)
+                    if (ShortContratorCharge == 0)
+                    {
+                        Invoices.CalculationDifference.Status = "-";
+                    }
+                    else if (ShortContratorCharge > 0)
                     {
                         Invoices.CalculationDifference.Status = "Short";
                         ShortOnTempExempt = Math.Abs(TotalShortageLTRdip) - ShortContratorCharge;
@@ -1408,10 +1424,7 @@
                         ShortOnTempExempt = TotalShortageLTRdip - Math.Abs(ShortContratorCharge);
 
                     }
-                    else
-                    {
-                        Invoices.CalculationDifference.Status = "No Short";
-                    }
+
                     Invoices.CalculationDifference.ShortageCharge = Math.Abs(ShortContratorCharge);
 
                     // float ShortOnTempExempt = TotalShortageLTRdip - ShortContratorCharge;

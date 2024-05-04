@@ -9,7 +9,7 @@
 
 @inject IToastService toastService
 @inject IApiService API
-
+@inject IJSRuntime Js
 <AuthorizeView Roles="admin">
     <Authorized>
         <Nav PageName="User Management" />
@@ -95,7 +95,7 @@
                                                         <span class="text-secondary text-xs font-weight-bold">@item.role</span>
                                                     </td>
 
-                                                      <td class="align-middle text-center">
+                                                    <td class="align-middle text-center">
                                                         <span class="text-secondary text-xs font-weight-bold">@item.business</span>
                                                     </td>
 
@@ -355,18 +355,18 @@
 
                                 <div class="col-md-12">
                                     <div class="form-group" style="text-align:center;">
-                                       
-                                            @if (!IsUserEdit)
-                                            {
-                                                <button class="btn btn-primary btn-sm ms-auto" @onclick="AddUser">Add User</button>
 
-                                            }
-                                            else if (IsUserEdit)
-                                            {
-                                                <button class="btn btn-primary btn-sm ms-auto" @onclick="UpdateUser">Update User</button>
-                                            }
-                                       
-                                  
+                                        @if (!IsUserEdit)
+                                        {
+                                            <button class="btn btn-primary btn-sm ms-auto" @onclick="AddUser">Add User</button>
+
+                                        }
+                                        else if (IsUserEdit)
+                                        {
+                                            <button class="btn btn-primary btn-sm ms-auto" @onclick="UpdateUser">Update User</button>
+                                        }
+
+
 
 
                                     </div>
@@ -596,7 +596,7 @@
                                             {
                                                 @foreach (var item in AllBusinessDrop)
                                                 {
-                                                    <option value="@item.busID" >@item.busDesc</option>
+                                                    <option value="@item.busID">@item.busDesc</option>
                                                 }
                                             }
                                             else
@@ -703,13 +703,36 @@
     </Authorized>
 
     <NotAuthorized>
-        <_403 />
+        @if (_isJsReady)
+        {
+            <_403 />
+        }
     </NotAuthorized>
 </AuthorizeView>
 
 
 @code {
 
+    private bool _isJsReady = false;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            try
+            {
+                // Attempt a simple JavaScript call to check if JS is ready
+                await Js.InvokeVoidAsync("console.log", "");
+                _isJsReady = true; // JS is ready, so set a flag or take action
+                StateHasChanged();
+            }
+            catch
+            {
+                // If JS isn't ready, handle it gracefully
+                _isJsReady = false; // JavaScript is not yet ready
+            }
+        }
+    }
 
 
     private Modal PolicyModal;
@@ -817,9 +840,9 @@
                 {
                     toastService.ShowSuccess($"User: {User.Username} Added Success");
                     User = new Users();
-                     UserModal.CloseModal();
+                    UserModal.CloseModal();
                     await GetAllUsers();
-                   
+
 
 
                 }
@@ -1310,17 +1333,17 @@
                     await GetUserBusiness(addUserBusiness.UserID);
                     addUserBusiness = new AddUserBusiness();
                     await GetAllUsers();
-                     BusinessModal.CloseModal();
+                    BusinessModal.CloseModal();
                     toastService.ShowSuccess("User Business Added Success");
-                   
+
 
 
                 }
-                else if(Result == 504)
+                else if (Result == 504)
                 {
                     BusinessModal.CloseModal();
                     toastService.ShowWarning("User with this business already exists");
-                  
+
 
                 }
 
@@ -1328,14 +1351,14 @@
                 {
                     BusinessModal.CloseModal();
                     toastService.ShowError("Error While Adding User Business...");
-                   
+
 
                 }
 
             }
             else
             {
-              
+
                 toastService.ShowError("Empty Fields are not Allowed");
             }
         }

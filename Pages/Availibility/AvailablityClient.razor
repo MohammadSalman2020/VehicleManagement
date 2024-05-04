@@ -12,6 +12,7 @@
 @using VehicleManagement.Pages.Redirects
 @inject IToastService toastService
 @inject IApiService API
+@inject IJSRuntime js
 @inject IUserClaimsService UserClaimsService
 @inject AuthenticationStateProvider _authenticationStateProvider
 
@@ -23,6 +24,40 @@
             <div class="row">
                 <div class="col-12">
                     <div class="card mb-4">
+
+
+                        <AuthorizeView Roles="admin,FleetManager">
+                            <Authorized Context="AdminAccess">
+
+
+                                <div class="card-header pb-0">
+                                    <div class="row col-md-12" style="text-align:right;">
+                                        <div class="col-md-3">
+                                            <div class="form-group">
+                                                <select class="form-control" @onchange="BusChange">
+                                                    @if (BusinessList.Count > 0)
+                                                    {
+                                                        <option value="0" selected="@(Bus==0?"selected":null)">Select All</option>
+                                                        foreach (var item in BusinessList)
+                                                        {
+                                                            <option value="@item.busID" selected="@(item.busID==Bus ? "selected" : null)">@item.busDesc</option>
+                                                        }
+                                                    }
+                                                    else
+                                                    {
+                                                        <option value="0">Loading...</option>
+                                                    }
+
+                                                </select>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                            </Authorized>
+                        </AuthorizeView>
+
+
                         <div class="fleet-cards">
 
                             <div class="container" style="justify-content:center !important;">
@@ -30,9 +65,9 @@
                                 {
 
 
-                                    @if (AvailDraftList.Count > 0)
+                                    @if (DraftList.Count > 0)
                                     {
-                                        @foreach (var item in AvailDraftList)
+                                        @foreach (var item in DraftList)
                                         {
                                             <div class="card">
                                                 <div class="card-body">
@@ -87,7 +122,7 @@
                                         </div>
                                     }
                                 }
-                                else if(IsChildLoading)
+                                else if (IsChildLoading)
                                 {
                                     <DataLoaderComponent IsLoading="@IsChildLoading" LoadingText="Loading Available Fleets..." />
                                 }
@@ -150,25 +185,93 @@
 
     </Authorized>
     <NotAuthorized>
-        <_403 />
+        @if (_isJsReady)
+        {
+            <_403 />
+
+        }
     </NotAuthorized>
 </AuthorizeView>
 
 
 @code {
+    private bool _isJsReady = false;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            try
+            {
+                // Attempt a simple JavaScript call to check if JS is ready
+                await js.InvokeVoidAsync("console.log", "");
+                _isJsReady = true; // JS is ready, so set a flag or take action
+                StateHasChanged();
+            }
+            catch
+            {
+                // If JS isn't ready, handle it gracefully
+                _isJsReady = false; // JavaScript is not yet ready
+            }
+        }
+    }
     private Modal modal;
     private CallModal Call;
     public List<AvailDraft> AvailDraftList = new List<AvailDraft>();
     public AddLoad Load = new AddLoad();
     public List<int> BusinessID = new List<int>();
+    public List<GetBusiness> BusinessList = new List<GetBusiness>();
 
     public bool IsLoading = false;
     public bool IsFleetManager = false;
     public bool IsChildLoading = false;
     public string modalDisplay { get; set; } = "none";
+    public int Bus { get; set; }
+    public List<AvailDraft> DraftList = new List<AvailDraft>();
 
     public string? phoneNumber { get; set; }
+    private async Task BusChange(ChangeEventArgs e)
+    {
+        IsChildLoading = true;
+        int Val = int.Parse(e.Value.ToString());
+        if (Val != 0)
+        {
+            Bus = Val;
+            DraftList = AvailDraftList.Where(p => p.business == Bus).OrderByDescending(p => p.business).ToList();
 
+        }
+        else
+        {
+            DraftList = AvailDraftList;
+        }
+
+        IsChildLoading = false;
+    }
+
+    public async Task GetAllBusiness()
+    {
+
+        try
+        {
+            JsonSerializerOptions options = new JsonSerializerOptions
+                {
+                    WriteIndented = true,
+                    ReferenceHandler = null
+                };
+            string jsonData = JsonSerializer.Serialize(BusinessID, options);
+            var Vehicles = await API.PostRequest($"Available/GetBusinessAll", jsonData);
+            if (Vehicles != "")
+            {
+
+                BusinessList = JsonSerializer.Deserialize<List<GetBusiness>>(Vehicles);
+
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex.Message);
+        }
+    }
     void HandleButtonClick(string s)
     {
         if (s == null)
@@ -208,6 +311,7 @@
                 IsFleetManager = true;
             }
             BusinessID = await UserClaimsService.GetBusinessIdsAsync();
+            await GetAllBusiness();
             await GetAllAvail();
 
 
@@ -285,11 +389,13 @@
                     ReferenceHandler = null
                 };
             string jsonData = JsonSerializer.Serialize(BusinessID, options);
-            var AvailDrafts = await API.PostRequest($"Available/GetAllAvailClient",jsonData);
+            var AvailDrafts = await API.PostRequest($"Available/GetAllAvailClient", jsonData);
             if (AvailDrafts != "")
             {
-                AvailDraftList = JsonSerializer.Deserialize<List<AvailDraft>>(AvailDrafts);
-               // AvailDraftList = rec.Where(b => BusinessID.Contains(b.business)).OrderByDescending(p => p.availID).ToList();
+                AvailDraftList = JsonSerializer.Deserialize<List<AvailDraft>>(AvailDrafts).OrderByDescending(p => p.business).ToList();
+                DraftList = new List<AvailDraft>();
+                DraftList = AvailDraftList;
+                // AvailDraftList = rec.Where(b => BusinessID.Contains(b.business)).OrderByDescending(p => p.availID).ToList();
 
             }
         }

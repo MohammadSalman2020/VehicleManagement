@@ -62,7 +62,7 @@
 
         </AuthorizeView>
 
-        <AuthorizeView>
+   @*      <AuthorizeView>
             <Authorized>
 
 
@@ -141,13 +141,42 @@
 
             </Authorized>
             <NotAuthorized>
-                <_403 />
+                @if (_isJsReady)
+                {
+                    <_403 />
+
+                }
             </NotAuthorized>
-        </AuthorizeView>
+        </AuthorizeView> *@
     </div>
 </div>
 @code {
+    private bool _isJsReady = false;
 
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            try
+            {
+                await JS.InvokeVoidAsync("initializeAutoComplete", "VehicleID", Vehicles);
+                // Attempt a simple JavaScript call to check if JS is ready
+                await JS.InvokeVoidAsync("console.log", "");
+                _isJsReady = true; // JS is ready, so set a flag or take action
+                StateHasChanged();
+            }
+            catch
+            {
+                // If JS isn't ready, handle it gracefully
+                _isJsReady = false; // JavaScript is not yet ready
+            }
+        }
+        else
+        {
+            await JS.InvokeVoidAsync("initializeAutoComplete", "VehicleID", Vehicles);
+
+        }
+    }
 
     private string? VehicleID;
     private int selectedchecklist;
@@ -162,18 +191,7 @@
         await LoadTemplates();
         await LoadInspections();
     }
-    protected override async Task OnAfterRenderAsync(bool firstRender)
-    {
-        if (firstRender)
-        {
-            await JS.InvokeVoidAsync("initializeAutoComplete", "VehicleID", Vehicles);
-        }
-        else
-        {
-            await JS.InvokeVoidAsync("initializeAutoComplete", "VehicleID", Vehicles);
 
-        }
-    }
     private void CreateChecklist(string vehile)
     {
         NavigationManager.NavigateTo($"/checklist?vehicle={vehile}&tempid={selectedchecklist}");
