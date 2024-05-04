@@ -27,7 +27,7 @@ namespace VehicleManagement.Authentication
             try
             {
                 var token = _session.GetString("user");
-                if (!string.IsNullOrWhiteSpace(token))
+                if (Session!=null)
                 {
                     var ClaimsPrinciple = new ClaimsPrincipal(new ClaimsIdentity(new List<Claim>
                     {

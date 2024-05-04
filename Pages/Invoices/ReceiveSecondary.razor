@@ -55,7 +55,15 @@
                     <br />
                     <div class="form-group">
                         <InputFile OnChange="@LoadFiles" MaxSize="10485760" />
-                        <button class="btn btn-success" @onclick="SaveInvoice">Save Invoice</button>
+                        @if(enable){
+                            <button class="btn btn-success" @onclick="SaveInvoice">Save Invoice</button>
+
+                        }
+                        else
+                        {
+                            <button class="btn btn-success" disabled  @onclick="SaveInvoice">Save Invoice</button>
+
+                        }
                     </div>
                 </div>
             </div>
@@ -77,6 +85,7 @@
 <Loader isLoading="@IsLoading" />
 
 @code {
+    bool enable = false;
     private bool IsLoading = false;
     List<RecInv> chambers = new List<RecInv>();
     public int invoiceno;
@@ -98,13 +107,10 @@
             List<string> selectedchambers = new List<string>();
             foreach(var x in chambers)
             {
-               
+
                 x.InvoicePath = invoicepath;
                 x.invoiceno = invoiceno;
             }
-
-
-           
 
             JsonSerializerOptions options = new JsonSerializerOptions
                 {
@@ -117,7 +123,7 @@
             string Result = JsonSerializer.Deserialize<string>(scinvoice);
             if (Result == "200")
             {
-                navmanager.NavigateTo($"/addinvoice");
+                navmanager.NavigateTo($"/inv_selection");
                 toastService.ShowSuccess($"Secondary Invoice Added");
             }
             IsLoading = false;
@@ -159,11 +165,13 @@
                 await using FileStream fs = new(filePath, FileMode.Create);
                 await file.OpenReadStream().CopyToAsync(fs);
                 string correctedFilePath = Path.Combine("css/Development", "HTL_Reports", trustedFileNameForFileStorage);
-               
+
                 invoicepath = correctedFilePath.Replace("\\", "/");
                 toastService.ShowSuccess($"File {trustedFileNameForFileStorage} Upload Success");
+                enable = true;
                 StateHasChanged();
                 IsLoading = false;
+               
             }
             catch (Exception ex)
             {

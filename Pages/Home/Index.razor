@@ -4,6 +4,7 @@
 @using VehicleManagement.Authentication
 @using VehicleManagement.Shared
 @using VehicleManagement.Service
+@inject IJSRuntime JSRuntime
 @inject UserAccountService useraccountservice
 @inject IJSRuntime js
 @inject AuthenticationStateProvider AuthStateProvider
@@ -56,12 +57,34 @@
 
 @code {
 
+    private async Task RequestPushNotificationPermission()
+    {
+        await JSRuntime.InvokeVoidAsync("requestPushNotificationPermission");
+    }
 
+    // Method to obtain device token for push notifications
+    private async Task<string> GetDeviceToken()
+    {
+        return await JSRuntime.InvokeAsync<string>("getDeviceToken");
+    }
+
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            await RequestPushNotificationPermission();
+            await GetDeviceToken();
+
+            StateHasChanged();
+        }
+    }
 
     protected override async Task OnInitializedAsync()
     {
-
+       
     }
+
 
 
 }

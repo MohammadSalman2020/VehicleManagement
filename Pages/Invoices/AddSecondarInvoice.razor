@@ -14,38 +14,39 @@
                         <div class="row">
                             <div class="col-md-6">
                                 <div class="form-group">
-                                    <label for="textBoxId">Invoice Number</label>
-                                    <input required class="form-control" id="invoice" @bind="txtinvoice" />
+                                    <label for="invoice">Invoice Number</label>
+                                    <input required placeholder="Secondary Invoice Number" class="form-control" id="invoice" @bind="txtinvoice" />
                                 </div>
 
                                 <div class="form-group">
-                                    <label for="textBoxId">Vehicle ID</label>
-                                    <input type="text" required class="form-control mb-2" id="textBoxId" @bind="txtvehicle" />
+                                    <label for="vehicle">Vehicle ID</label>
+                                    <input type="text" required placeholder="Vehicle number" class="form-control mb-2" id="vehicle" @bind="txtvehicle" />
                                 </div>
                                 <div class="form-group">
-                                    <label for="textBoxId">Invoice Date</label>
-                                    <input type="datetime-local" required class="form-control mb-2" id="textBoxId" @bind="txtdate" />
+                                    <label for="date">Invoice Date</label>
+                                    <input type="datetime-local" required class="form-control mb-2" id="date" @bind="txtdate" />
                                 </div>
 
 
                                 <div class="form-group">
-                                    <label for="textBoxId">Shipping Point</label>
-                                    <input type="text" required class="form-control mb-2" id="textBoxId" @bind="txtshipping" />
+                                    <label for="shippingPoint">Shipping Point</label>
+                                    <input type="text" required class="form-control mb-2" id="shippingPoint" @bind="txtshipping" />
                                 </div>
 
                                 <div class="form-group">
-                                    <label for="textBoxId">Receiving Point</label>
-                                    <input type="text" required class="form-control mb-2" id="textBoxId" @bind="txtreveiving" />
+                                    <label for="receivingPoint">Receiving Point</label>
+                                    <input type="text" required class="form-control mb-2" id="receivingPoint" @bind="txtreveiving" />
                                 </div>
 
-                                <div class="form-group">
-                                    <label for="textBoxId">Contracter</label>
-                                    <input type="text" required class="form-control mb-2" id="textBoxId" @bind="txtcontracter" />
-                                </div>
+
 
 
                             </div>
                             <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="textBoxId">Contracter</label>
+                                    <input type="text" required class="form-control mb-2" id="textBoxId" @bind="txtcontracter" />
+                                </div>
                                 <div class="form-group">
                                     <label for="textBoxId">Select Loaded Chambers</label>
                                 </div>
@@ -126,7 +127,7 @@
                                 </div>
 
                                 <div class="form-group">
-                                    <button class="btn btn-success " @onclick="Saveonly">Generate Invoice</button>
+                                    <button class="btn btn-success " @onclick="Saveonly">Generate Secondary Trip</button>
                                 </div>
                             </div>
 
@@ -166,9 +167,18 @@
     }
     private async Task Saveonly()
     {
-        IsLoading = true;
-        await SaveScInvoice();
-        IsLoading = false;
+        if (pkinvoice!= null)
+        {
+            IsLoading = true;
+            await SaveScInvoice();
+            IsLoading = false;
+        }
+        else
+        {
+            toastService.ShowError("Primary Reference Not Available");
+            navmanager.NavigateTo($"/inv_selection");
+
+        }
     }
 
     PKInvoice pkdetails = new PKInvoice();
