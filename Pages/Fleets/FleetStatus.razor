@@ -57,22 +57,24 @@
             <div class="card mb-4">
                 <div class="card-header d-flex justify-content-between">
                     <span>Fleet Status Report</span>
+                    @if (fleet.Count > 0)
+                    {
+                        <AuthorizeView Policy="MainCom">
+                            <Authorized Context="AdminAccess">
+                                @if (IsEdit)
+                                {
+                                    <button class="btn btn-primary" @onclick="AddPositions">Save</button>
+                                }
+                                else
+                                {
+                                    <button class="btn btn-primary" @onclick="ActiveEdit">Edit</button>
+                                }
+                            </Authorized>
+                        </AuthorizeView>
 
-                    <AuthorizeView Policy="MainCom">
-                        <Authorized Context="AdminAccess">
-                            @if (IsEdit)
-                            {
-                                <button class="btn btn-primary" @onclick="AddPositions">Save</button>
-                            }
-                            else
-                            {
-                                <button class="btn btn-primary" @onclick="ActiveEdit">Edit</button>
-                            }
-                        </Authorized>
-                    </AuthorizeView>
-                   
 
-                    <a class="btn btn-primary" href="Reports/fleet_status_report.csv" download="FleetStatus.csv" @onclick="ExportToCSV">Export To CSV</a>
+                        <a class="btn btn-primary" href="Reports/fleet_status_report.csv" download="FleetStatus.csv" @onclick="ExportToCSV">Export To CSV</a>
+                    }
                 </div>
 
                 <div class="card-body">
@@ -360,21 +362,21 @@
                 count++;
             }
 
-            // Get the wwwroot path
-            // var wwwRootPath = Path.Combine(Environment.ContentRootPath, "wwwroot");
+         ////   Get the wwwroot path
+            var wwwRootPath = Path.Combine(Environment.ContentRootPath, "wwwroot");
 
-            // // Define the file path
-            // var filePath = Path.Combine(wwwRootPath, "Reports", "fleet_status_report.csv");
+            // Define the file path
+            var filePath = Path.Combine(wwwRootPath, "Reports", "fleet_status_report.csv");
 
-            // // Save CSV file
-            // await File.WriteAllTextAsync(filePath, sb.ToString());
+            // Save CSV file
+            await File.WriteAllTextAsync(filePath, sb.ToString());
 
-            // // Get the relative URL
-            // var relativeUrl = Path.Combine("Reports", "fleet_status_report.csv");
+            // Get the relative URL
+            var relativeUrl = Path.Combine("Reports", "fleet_status_report.csv");
 
-            // // Navigate to the CSV file
-            // await JSRuntime.InvokeVoidAsync("downloadFile", relativeUrl);
-            //  File.Delete(filePath);
+            // Navigate to the CSV file
+            await JSRuntime.InvokeVoidAsync("downloadFile", relativeUrl);
+            // File.Delete(filePath);
         }
 
     }
