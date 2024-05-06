@@ -847,7 +847,7 @@
                                                                         }
                                                                     </div>
                                                                     <div class="form-group">
-                                                                        <InputFile OnChange="@LoadFiles" />
+                                                                        <InputFile OnChange="@LoadFiles" MaxSize="10485760" />
                                                                     </div>
                                                                 </div>
                                                             </div>
@@ -1073,7 +1073,7 @@
             }
             catch (Exception ex)
             {
-                toastService.ShowError($"Error while uploading image please try again");
+                toastService.ShowError($"Error {ex.Message}");
 
                 IsLoading = false;
             }
@@ -1118,27 +1118,21 @@
     {
         try
         {
-            if (Invoices.InvoiceFilePath == null)
-            {
-                toastService.ShowWarning("Please Attach file");
-                return;
-            }
-            else
-            {
-                IsLoading = true;
-                IsLoading = false;
-                Invoices.IsView = "View";
-                string jsonString = JsonSerializer.Serialize(Invoices);
 
-                // Encode the JSON string as Base64 to make it URL-safe
-                string base64EncodedJson = Convert.ToBase64String(Encoding.UTF8.GetBytes(jsonString));
+            Invoices.InvoiceFilePath = Invoices.InvoiceFilePath == null ? "" : Invoices.InvoiceFilePath;
 
-                // Encode the Base64 string to make it URL-safe
-                string encodedJson = HttpUtility.UrlEncode(base64EncodedJson);
 
-                // Navigate to the destination page with the encoded JSON string as a query parameter
-                NavigationManager.NavigateTo($"/invoicedisplay?json={encodedJson}");
-            }
+            Invoices.IsView = Invoices.IsView == "Update" ? Invoices.IsView : "View";
+            string jsonString = JsonSerializer.Serialize(Invoices);
+
+            // Encode the JSON string as Base64 to make it URL-safe
+            string base64EncodedJson = Convert.ToBase64String(Encoding.UTF8.GetBytes(jsonString));
+
+            // Encode the Base64 string to make it URL-safe
+            string encodedJson = HttpUtility.UrlEncode(base64EncodedJson);
+
+            // Navigate to the destination page with the encoded JSON string as a query parameter
+            NavigationManager.NavigateTo($"/invoicedisplay?json={encodedJson}");
         }
         catch (Exception ex)
         {

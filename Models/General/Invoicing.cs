@@ -33,6 +33,9 @@ namespace VehicleManagement.Models.General
         [JsonProperty("isFromDisplay")]
 
         public bool IsFromDisplay { get; set; } = false;
+        [JsonProperty("user")]
+
+        public string? User { get; set; }
     }
 
     public class ReceivingDetail
