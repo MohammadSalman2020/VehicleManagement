@@ -3,7 +3,7 @@
 @using VehicleManagement.ApiService
 @using VehicleManagement.Authentication
 @using VehicleManagement.Models.General
-@inject FirebaseNotificationService NotificationService
+@* @inject FirebaseNotificationService NotificationService *@
 @inject IWebHostEnvironment WebHostEnvironment
 @inject IJSRuntime JSRuntime
 @inject IApiService API
@@ -280,7 +280,7 @@
             
           
 
-            await NotificationService.SendNotificationAsync("Title", "Body", deviceTokens);
+            // await NotificationService.SendNotificationAsync("Title", "Body", deviceTokens);
         }
 
     }

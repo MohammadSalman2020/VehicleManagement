@@ -32,7 +32,7 @@ builder.Services.AddScoped<IUserClaimsService, UserClaimsService>();
 builder.Services.AddScoped<IApiService, ApiService>();
 builder.Services.AddScoped<ProtectedSessionStorage>();
 builder.Services.AddSingleton<IConfiguration>(builder.Configuration);
-builder.Services.AddScoped<FirebaseNotificationService>();
+//builder.Services.AddScoped<FirebaseNotificationService>();
 
 builder.Services.AddScoped<CustomPolicyProvider>();
 builder.Services.AddAuthorization(async options =>

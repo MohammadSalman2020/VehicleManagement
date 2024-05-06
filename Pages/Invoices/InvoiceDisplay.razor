@@ -9,6 +9,7 @@
 @using VehicleManagement.Pages.Redirects
 @inject IToastService toastService
 @inject IApiService API
+@inject AuthenticationStateProvider _authenticationStateProvider
 <AuthorizeView>
     <Authorized>
         <Nav PageName="Invoice Display" />
@@ -747,6 +748,24 @@
                                             </div>
                                         </div>
                                     }
+                                    else if (IsView == "Update")
+                                    {
+                                        <div class="col-md-12" style="margin-top: 7px;">
+                                            <div class="row">
+
+
+                                                <div class="col-md-12">
+                                                    <div class="form-group" style="text-align:center;">
+                                                        <button class="btn btn-warning btn-sm ms-auto" @onclick="EditButton">Edit</button>
+                                                        <button class="btn btn-primary btn-sm ms-auto" @onclick="Update">Update</button>
+                                                    </div>
+
+
+                                                </div>
+
+                                            </div>
+                                        </div>
+                                    }
 
 
 
@@ -777,12 +796,14 @@
 
 @code {
     private string? IsView { get; set; } = string.Empty;
+    private string? User { get; set; } = string.Empty;
     public bool IsLoading { get; set; } = false;
     private Invoicing? Invoices { get; set; }
-    protected override void OnInitialized()
+    protected override async void OnInitialized()
     {
         try
         {
+
             // Retrieve the encoded JSON string from the query parameters if it exists
             string encodedJson = NavigationManager.ToAbsoluteUri(NavigationManager.Uri).Query;
 
@@ -804,6 +825,8 @@
                 // Deserialize the JSON string back into the Invoices object
                 Invoices = JsonSerializer.Deserialize<Invoicing>(jsonString);
                 IsView = Invoices.IsView;
+                
+               
             }
             else if (encodedJson.Contains("InvoiceID="))
             {
@@ -822,6 +845,8 @@
                 // Deserialize the JSON string back into the Invoices object
                 Invoices = JsonSerializer.Deserialize<Invoicing>(jsonString);
             }
+            var authState = await _authenticationStateProvider.GetAuthenticationStateAsync();
+            User = authState.User.Identity.Name;
         }
         catch (Exception ex)
         {
@@ -833,6 +858,7 @@
         IsLoading = true;
         try
         {
+            Invoices.User = User;
             string jsonData = JsonSerializer.Serialize(Invoices);
             var AddUser = await API.PostRequest($"Invoice/AddInvoice", jsonData);
             string Result = JsonSerializer.Deserialize<string>(AddUser);
@@ -854,6 +880,50 @@
             {
                // toastService.ShowWarning("Invoice is saved without driver attendance");
                 toastService.ShowSuccess("Invoice Added Success");
+
+                NavigationManager.NavigateTo("/addinvoice");
+            }
+            else
+            {
+                toastService.ShowError("Error while adding invoice");
+            }
+            IsLoading = false;
+        }
+        catch (Exception ex)
+        {
+            IsLoading = false;
+            toastService.ShowError($"Error while adding invoice");
+        }
+
+        IsLoading = false;
+    }
+    private async Task Update()
+    {
+        IsLoading = true;
+        try
+        {
+            Invoices.User = User;
+            string jsonData = JsonSerializer.Serialize(Invoices);
+            var AddUser = await API.PostRequest($"Invoice/EditInvoice", jsonData);
+            string Result = JsonSerializer.Deserialize<string>(AddUser);
+            if (Result == "200")
+            {
+                toastService.ShowSuccess("Invoice Update Success");
+                IsLoading = false;
+                NavigationManager.NavigateTo("/addinvoice");
+            }
+            else if (Result == "404")
+            {
+                toastService.ShowError("STO No is null or it cannot be edit");
+            }
+            else if (Result == "504")
+            {
+                toastService.ShowError($"Invoice Already Exists: {Invoices.Details.STONo}");
+            }
+            else if (Result == "204")
+            {
+               // toastService.ShowWarning("Invoice is saved without driver attendance");
+                toastService.ShowSuccess("Invoice Updated Success");
 
                 NavigationManager.NavigateTo("/addinvoice");
             }
