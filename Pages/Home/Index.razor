@@ -83,16 +83,16 @@
     }
 
 
-    protected override async Task OnAfterRenderAsync(bool firstRender)
-    {
-        if (firstRender)
-        {
-            await RequestPushNotificationPermission();
-            await GetDeviceToken();
+    // protected override async Task OnAfterRenderAsync(bool firstRender)
+    // {
+    //     if (firstRender)
+    //     {
+    //         // await RequestPushNotificationPermission();
+    //         // await GetDeviceToken();
 
-            StateHasChanged();
-        }
-    }
+    //         StateHasChanged();
+    //     }
+    // }
 
     protected override async Task OnInitializedAsync()
     {
