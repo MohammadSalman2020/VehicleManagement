@@ -69,8 +69,10 @@
             try
             {
                 // Attempt a simple JavaScript call to check if JS is ready
-                await js.InvokeVoidAsync("console.log", "JavaScript is ready!");
+                await js.InvokeVoidAsync("console.log", "");
                 _isJsReady = true; // JS is ready, so set a flag or take action
+                // await RequestPushNotificationPermission();
+                // await GetDeviceToken();
                 StateHasChanged();
             }
             catch
@@ -82,17 +84,6 @@
 
     }
 
-
-    // protected override async Task OnAfterRenderAsync(bool firstRender)
-    // {
-    //     if (firstRender)
-    //     {
-    //         // await RequestPushNotificationPermission();
-    //         // await GetDeviceToken();
-
-    //         StateHasChanged();
-    //     }
-    // }
 
     protected override async Task OnInitializedAsync()
     {

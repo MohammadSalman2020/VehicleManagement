@@ -50,7 +50,7 @@
                                                 <option value="0" selected="@(Bus==0?"selected":null)">Select All</option>
                                                 foreach (var item in BusinessList)
                                                 {
-                                                    <option value="@item.busID" selected="@(item.busID==Bus ? "selected" : null)">@item.busDesc</option>
+                                                    <option value="@item.busID">@item.busDesc</option>
                                                 }
                                             }
                                             else

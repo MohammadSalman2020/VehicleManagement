@@ -376,14 +376,14 @@
                                                                         </div>
                                                                         <div class="form-group">
                                                                             <label for="example-text-input" class="form-control-label">Chamber Quantity</label>
-                                                                            <input type="number" placeholder="Chamber Quantity" id="RChamber1Q" onfocus="selectAllInputValue('RChamber1Q')" @bind="Invoices.ReceivingDetail.Chamber1.ChamberQuantity" @oninput="@(e => TextChangedReceiving(1, e))" class="form-control">
+                                                                            <input type="number" placeholder="Chamber Quantity" id="RChamber1Q" disabled onfocus="selectAllInputValue('RChamber1Q')" @bind="@Invoices.ReceivingDetail.Chamber1.ChamberQuantity" class="form-control">
 
                                                                         </div>
                                                                         <div class="form-group">
                                                                             <label for="example-text-input" class="form-control-label">
                                                                                 Tank Lorry Product Dips(MM)
                                                                             </label>
-                                                                            <input type="number" placeholder=" Tank Lorry Product Dips(MM)" id="RChamber1D" onfocus="selectAllInputValue('RChamber1D')" @bind="Invoices.ReceivingDetail.Chamber1.LorryDip" class="form-control">
+                                                                            <input type="number" placeholder=" Tank Lorry Product Dips(MM)" id="RChamber1D" onfocus="selectAllInputValue('RChamber1D')" @bind="Invoices.ReceivingDetail.Chamber1.LorryDip" @oninput="@(e => QuantityChangeReceiving(1, e))" class="form-control">
 
                                                                         </div>
                                                                         <div class="form-group">
@@ -414,14 +414,14 @@
                                                                         </div>
                                                                         <div class="form-group">
                                                                             <label for="example-text-input" class="form-control-label">Chamber Quantity</label>
-                                                                            <input type="number" placeholder="Chamber Quantity" id="RChamber2Q" onfocus="selectAllInputValue('RChamber2Q')" @bind="Invoices.ReceivingDetail.Chamber2.ChamberQuantity" @oninput="@(e => TextChangedReceiving(2, e))" class="form-control">
+                                                                            <input type="number" placeholder="Chamber Quantity" id="RChamber2Q" disabled onfocus="selectAllInputValue('RChamber2Q')" @bind="@Invoices.ReceivingDetail.Chamber2.ChamberQuantity" class="form-control">
 
                                                                         </div>
                                                                         <div class="form-group">
                                                                             <label for="example-text-input" class="form-control-label">
                                                                                 Tank Lorry Product Dips(MM)
                                                                             </label>
-                                                                            <input type="number" placeholder=" Tank Lorry Product Dips(MM)" id="RChamber2D" onfocus="selectAllInputValue('RChamber2D')" @bind="Invoices.ReceivingDetail.Chamber2.LorryDip" class="form-control">
+                                                                            <input type="number" placeholder=" Tank Lorry Product Dips(MM)" id="RChamber2D" onfocus="selectAllInputValue('RChamber2D')" @bind="Invoices.ReceivingDetail.Chamber2.LorryDip" @oninput="@(e => QuantityChangeReceiving(2, e))" class="form-control">
 
                                                                         </div>
                                                                         <div class="form-group">
@@ -453,14 +453,14 @@
                                                                         </div>
                                                                         <div class="form-group">
                                                                             <label for="example-text-input" class="form-control-label">Chamber Quantity</label>
-                                                                            <input type="number" placeholder="Chamber Quantity" id="RChamber3Q" onfocus="selectAllInputValue('RChamber3Q')" @bind="Invoices.ReceivingDetail.Chamber3.ChamberQuantity" @oninput="@(e => TextChangedReceiving(3, e))" class="form-control">
+                                                                            <input type="number" placeholder="Chamber Quantity" id="RChamber3Q" disabled onfocus="selectAllInputValue('RChamber3Q')" @bind="@Invoices.ReceivingDetail.Chamber3.ChamberQuantity" class="form-control">
 
                                                                         </div>
                                                                         <div class="form-group">
                                                                             <label for="example-text-input" class="form-control-label">
                                                                                 Tank Lorry Product Dips(MM)
                                                                             </label>
-                                                                            <input type="number" placeholder=" Tank Lorry Product Dips(MM)" id="RChamber3D" onfocus="selectAllInputValue('RChamber3D')" @bind="Invoices.ReceivingDetail.Chamber3.LorryDip" class="form-control">
+                                                                            <input type="number" placeholder=" Tank Lorry Product Dips(MM)" id="RChamber3D" onfocus="selectAllInputValue('RChamber3D')" @bind="Invoices.ReceivingDetail.Chamber3.LorryDip" @oninput="@(e => QuantityChangeReceiving(3, e))" class="form-control">
 
                                                                         </div>
                                                                         <div class="form-group">
@@ -492,14 +492,14 @@
                                                                         </div>
                                                                         <div class="form-group">
                                                                             <label for="example-text-input" class="form-control-label">Chamber Quantity</label>
-                                                                            <input type="number" placeholder="Chamber Quantity" id="RChamber4Q" onfocus="selectAllInputValue('RChamber4Q')" @bind="Invoices.ReceivingDetail.Chamber4.ChamberQuantity" @oninput="@(e => TextChangedReceiving(4, e))" class="form-control">
+                                                                            <input type="number" placeholder="Chamber Quantity" id="RChamber4Q" disabled onfocus="selectAllInputValue('RChamber4Q')" @bind="@Invoices.ReceivingDetail.Chamber4.ChamberQuantity" class="form-control">
 
                                                                         </div>
                                                                         <div class="form-group">
                                                                             <label for="example-text-input" class="form-control-label">
                                                                                 Tank Lorry Product Dips(MM)
                                                                             </label>
-                                                                            <input type="number" placeholder=" Tank Lorry Product Dips(MM)" id="RChamber4D" onfocus="selectAllInputValue('RChamber4D')" @bind="Invoices.ReceivingDetail.Chamber4.LorryDip" class="form-control">
+                                                                            <input type="number" placeholder=" Tank Lorry Product Dips(MM)" id="RChamber4D" onfocus="selectAllInputValue('RChamber4D')" @bind="Invoices.ReceivingDetail.Chamber4.LorryDip" @oninput="@(e => QuantityChangeReceiving(4, e))" class="form-control">
 
                                                                         </div>
                                                                         <div class="form-group">
@@ -531,14 +531,14 @@
                                                                         </div>
                                                                         <div class="form-group">
                                                                             <label for="example-text-input" class="form-control-label">Chamber Quantity</label>
-                                                                            <input type="number" placeholder="Chamber Quantity" id="RChamber5Q" onfocus="selectAllInputValue('RChamber5Q')" @bind="Invoices.ReceivingDetail.Chamber5.ChamberQuantity" @oninput="@(e => TextChangedReceiving(5, e))" class="form-control">
+                                                                            <input type="number" placeholder="Chamber Quantity" id="RChamber5Q" disabled onfocus="selectAllInputValue('RChamber5Q')" @bind="@Invoices.ReceivingDetail.Chamber5.ChamberQuantity" class="form-control">
 
                                                                         </div>
                                                                         <div class="form-group">
                                                                             <label for="example-text-input" class="form-control-label">
                                                                                 Tank Lorry Product Dips(MM)
                                                                             </label>
-                                                                            <input type="number" placeholder=" Tank Lorry Product Dips(MM)" id="RChamber5D" onfocus="selectAllInputValue('RChamber5D')" @bind="Invoices.ReceivingDetail.Chamber5.LorryDip" class="form-control">
+                                                                            <input type="number" placeholder=" Tank Lorry Product Dips(MM)" id="RChamber5D" onfocus="selectAllInputValue('RChamber5D')" @bind="Invoices.ReceivingDetail.Chamber5.LorryDip" @oninput="@(e => QuantityChangeReceiving(5, e))" class="form-control">
 
                                                                         </div>
                                                                         <div class="form-group">
@@ -847,7 +847,7 @@
                                                                         }
                                                                     </div>
                                                                     <div class="form-group">
-                                                                        <InputFile OnChange="@LoadFiles" />
+                                                                        <InputFile OnChange="@LoadFiles" MaxSize="10485760" />
                                                                     </div>
                                                                 </div>
                                                             </div>
@@ -1073,7 +1073,7 @@
             }
             catch (Exception ex)
             {
-                toastService.ShowError($"Error while uploading image please try again");
+                toastService.ShowError($"Error {ex.Message}");
 
                 IsLoading = false;
             }
@@ -1118,27 +1118,21 @@
     {
         try
         {
-            if (Invoices.InvoiceFilePath == null)
-            {
-                toastService.ShowWarning("Please Attach file");
-                return;
-            }
-            else
-            {
-                IsLoading = true;
-                IsLoading = false;
-                Invoices.IsView = "View";
-                string jsonString = JsonSerializer.Serialize(Invoices);
 
-                // Encode the JSON string as Base64 to make it URL-safe
-                string base64EncodedJson = Convert.ToBase64String(Encoding.UTF8.GetBytes(jsonString));
+            Invoices.InvoiceFilePath = Invoices.InvoiceFilePath == null ? "" : Invoices.InvoiceFilePath;
 
-                // Encode the Base64 string to make it URL-safe
-                string encodedJson = HttpUtility.UrlEncode(base64EncodedJson);
 
-                // Navigate to the destination page with the encoded JSON string as a query parameter
-                NavigationManager.NavigateTo($"/invoicedisplay?json={encodedJson}");
-            }
+            Invoices.IsView = Invoices.IsView == "Update" ? Invoices.IsView : "View";
+            string jsonString = JsonSerializer.Serialize(Invoices);
+
+            // Encode the JSON string as Base64 to make it URL-safe
+            string base64EncodedJson = Convert.ToBase64String(Encoding.UTF8.GetBytes(jsonString));
+
+            // Encode the Base64 string to make it URL-safe
+            string encodedJson = HttpUtility.UrlEncode(base64EncodedJson);
+
+            // Navigate to the destination page with the encoded JSON string as a query parameter
+            NavigationManager.NavigateTo($"/invoicedisplay?json={encodedJson}");
         }
         catch (Exception ex)
         {
@@ -1734,14 +1728,107 @@
 
         }
     }
-    private async Task TextChangedReceiving(int chamberNumber, ChangeEventArgs e)
+    private async Task<int> GetChamberQunatity(int ChamberQuantity, int LorryDip, int RLorryDip)
+    {
+        try
+        {
+            float RecievingLorryDip = RLorryDip;
+            float ChamberQunatity = ChamberQuantity;
+            float ChamberLorry = LorryDip;
+            float Avg = ChamberQunatity / ChamberLorry;
+            float Total = Avg * RecievingLorryDip;
+            return int.Parse(Math.Round(Total).ToString());
+        }
+        catch (Exception ex)
+        {
+            return 0;
+        }
+
+    }
+
+    private async Task QuantityChangeReceiving(int chamberNumber, ChangeEventArgs e)
+    {
+        try
+        {
+
+            if (e.Value != "0")
+            {
+                switch (chamberNumber)
+                {
+                    case 1:
+                        if (e.Value == "")
+                        {
+                            Invoices.ReceivingDetail.Chamber1 = new Recieve_Chamber();
+                            return;
+                        }
+                        Invoices.ReceivingDetail.Chamber1.ChamberQuantity = await GetChamberQunatity(Invoices.ShippingDetail.Chamber1.ChamberQuantity, Invoices.ShippingDetail.Chamber1.LorryDip, int.Parse(e.Value.ToString()));
+                        await TextChangedReceiving(1, Invoices.ReceivingDetail.Chamber1.ChamberQuantity);
+
+                        break;
+                    case 2:
+                        if (e.Value == "")
+                        {
+                            Invoices.ReceivingDetail.Chamber2 = new Recieve_Chamber();
+                            return;
+                        }
+                        Invoices.ReceivingDetail.Chamber2.ChamberQuantity = await GetChamberQunatity(Invoices.ShippingDetail.Chamber2.ChamberQuantity, Invoices.ShippingDetail.Chamber2.LorryDip, int.Parse(e.Value.ToString()));
+                        await TextChangedReceiving(2, Invoices.ReceivingDetail.Chamber2.ChamberQuantity);
+                        break;
+                    case 3:
+                        if (e.Value == "")
+                        {
+                            Invoices.ReceivingDetail.Chamber3 = new Recieve_Chamber();
+                            return;
+                        }
+                        Invoices.ReceivingDetail.Chamber3.ChamberQuantity = await GetChamberQunatity(Invoices.ShippingDetail.Chamber3.ChamberQuantity, Invoices.ShippingDetail.Chamber3.LorryDip, int.Parse(e.Value.ToString()));
+                        await TextChangedReceiving(3, Invoices.ReceivingDetail.Chamber3.ChamberQuantity);
+                        break;
+                    case 4:
+                        if (e.Value == "")
+                        {
+                            Invoices.ReceivingDetail.Chamber4 = new Recieve_Chamber();
+                            return;
+                        }
+                        Invoices.ReceivingDetail.Chamber4.ChamberQuantity = await GetChamberQunatity(Invoices.ShippingDetail.Chamber4.ChamberQuantity, Invoices.ShippingDetail.Chamber4.LorryDip, int.Parse(e.Value.ToString()));
+                        await TextChangedReceiving(4, Invoices.ReceivingDetail.Chamber4.ChamberQuantity);
+                        break;
+                    case 5:
+                        if (e.Value == "")
+                        {
+                            Invoices.ReceivingDetail.Chamber5 = new Recieve_Chamber();
+                            return;
+                        }
+                        Invoices.ReceivingDetail.Chamber5.ChamberQuantity = await GetChamberQunatity(Invoices.ShippingDetail.Chamber5.ChamberQuantity, Invoices.ShippingDetail.Chamber5.LorryDip, int.Parse(e.Value.ToString()));
+                        await TextChangedReceiving(5, Invoices.ReceivingDetail.Chamber5.ChamberQuantity);
+                        break;
+                    default:
+                        // Handle invalid chamber number
+                        break;
+                }
+            }
+
+            else
+            {
+                toastService.ShowWarning("Please insert Tempreture and SG first");
+            }
+        }
+        catch (Exception ex)
+        {
+
+        }
+
+    }
+
+
+
+
+    private async Task TextChangedReceiving(int chamberNumber, int Quantity)
     {
         try
         {
             if (Invoices.ReceivingDetail.SG != 0 && Invoices.ReceivingDetail.TempF != 0)
             {
-                int quantity = int.Parse(e.Value.ToString());
-                double calculatedQuantity = await GetQtyAt85F(Invoices.ReceivingDetail.SG, Invoices.ReceivingDetail.TempF, quantity);
+                double calculatedQuantity = await GetQtyAt85F(Invoices.ReceivingDetail.SG, Invoices.ReceivingDetail.TempF, Quantity);
 
                 // Set the quantity for the specified chamber
                 switch (chamberNumber)
@@ -1766,7 +1853,7 @@
                         break;
                 }
             }
-            else if (e.Value != "")
+            else if (Quantity != 0)
             {
 
             }

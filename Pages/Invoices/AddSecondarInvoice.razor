@@ -5,6 +5,7 @@
 @using System.Text.Json
 @using VehicleManagement.ApiService
 @inject IApiService API
+@inject AuthenticationStateProvider _authenticationStateProvider
 <div class="container-fluid py-4">
     <div class="row">
         <div class="col-12">
@@ -146,6 +147,7 @@
     public string txtinvoice;
     public string pkinvoice;
     public string txtvehicle;
+    public string User;
     public DateTime txtdate = DateTime.Now.Date;
     public string txtshipping;
     public string txtreveiving;
@@ -167,7 +169,7 @@
     }
     private async Task Saveonly()
     {
-        if (pkinvoice!= null)
+        if (pkinvoice != null)
         {
             IsLoading = true;
             await SaveScInvoice();
@@ -184,7 +186,8 @@
     PKInvoice pkdetails = new PKInvoice();
     private async Task SaveScInvoice()
     {
-
+        var authState = await _authenticationStateProvider.GetAuthenticationStateAsync();
+        User = authState.User.Identity.Name;
         try
         {
 
@@ -219,7 +222,8 @@
                     supplypoint = txtshipping,
                     receiivingpoint = txtreveiving,
                     contractor = txtcontracter,
-                    chambers = chambers
+                    chambers = chambers,
+                    user=User
                 };
 
             JsonSerializerOptions options = new JsonSerializerOptions
@@ -292,6 +296,7 @@
         public string supplypoint { get; set; }
         public string receiivingpoint { get; set; }
         public string contractor { get; set; }
+        public string? user { get; set; }
         public List<string> chambers { get; set; }
     }
 }
