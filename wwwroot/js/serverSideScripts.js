@@ -266,6 +266,9 @@ function LoadLocationMap() {
         document.getElementById("Lati").value = latitude;
         document.getElementById("Longi").value = longitude;
 
+        sessionStorage.setItem('lat', latitude);
+        sessionStorage.setItem('long', longitude);
+
         DotNet.invokeMethodAsync('VehicleManagement', 'StateHasChanged');
 
 

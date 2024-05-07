@@ -56,6 +56,7 @@
                                 </div>
                             </div>
                             <div class="col-md-8">
+                                <p>Right Click to Select Point</p>
                                 <div id="mapDiv" style="height:80vh;width:100%">
                                 </div>
                             </div>
@@ -100,8 +101,11 @@
     {
         try
         {
-
-
+            string lat = await js.InvokeAsync<string>("sessionStorage.getItem", "lat");
+            string lon = await js.InvokeAsync<string>("sessionStorage.getItem", "long");
+            Longitude = decimal.Parse(lon);
+            Latitude = decimal.Parse(lat);
+            StateHasChanged();
             // Validate input fields
             if (Longitude != 0 && Latitude != 0)
             {
