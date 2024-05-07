@@ -268,7 +268,9 @@
                     PosList.Add(new AddPositions
                         {
                             VehicleID = VehicleID,
-                            Position = e.Value.ToString()
+                            Position = e.Value.ToString(),
+                            IsFrom = 1,
+                            Remarks = ""
                         });
                 }
                 else if (From == 2) //Remarks
@@ -276,7 +278,9 @@
                     PosList.Add(new AddPositions
                         {
                             VehicleID = VehicleID,
-                            Remarks = e.Value.ToString()
+                            Remarks = e.Value.ToString(),
+                            IsFrom = 2,
+                            Position = ""
                         });
                 }
             }
@@ -362,7 +366,7 @@
                 count++;
             }
 
-         ////   Get the wwwroot path
+            ////   Get the wwwroot path
             var wwwRootPath = Path.Combine(Environment.ContentRootPath, "wwwroot");
 
             // Define the file path
@@ -438,6 +442,7 @@
                     toastService.ShowSuccess($"Positions and Remarks Updated");
                     IsEdit = false;
                     LoadingText = "Loading Fleets...";
+                    PosList = new List<AddPositions>();
                     StateHasChanged(); // Trigger re-render to reflect updated text
 
                     await LoadFleetStatusreport();
