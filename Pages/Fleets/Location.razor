@@ -1,0 +1,189 @@
+﻿@page "/location"
+@using System.Text.Json
+@using VehicleManagement.ApiService
+@using VehicleManagement.Models.General.Driver
+@using VehicleManagement.Pages.Redirects
+@inject IToastService toastService
+@inject IApiService API
+@inject IJSRuntime js
+
+<Nav PageName="Locations" />
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="card mb-4">
+                <div class="card-header pb-0">
+
+                    <div class="card-body px-0 pt-0 pb-2">
+
+                        <div class="row">
+
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <label for="example-text-input" class="form-control-label">Location Name</label>
+                                    <input type="text" placeholder="Location Name" @bind="@LocationName" class="form-control">
+
+                                </div>
+
+
+                                <div class="form-group">
+                                    <label for="example-text-input" class="form-control-label">Longitude</label>
+                                    <input type="text" id="Longi" placeholder="Longitude" @bind="@Longitude" @oninput="UpdateLongitude" class="form-control">
+
+                                </div>
+
+
+                                <div class="form-group">
+                                    <label for="example-text-input" class="form-control-label">Latitude</label>
+                                    <input type="text" id="Lati" placeholder="Latitude" @bind="@Latitude" @oninput="UpdateLatitude" class="form-control">
+
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="form-group" style="text-align:center;">
+                                            <button class="btn btn-primary btn-sm" @onclick="PreviewLocation">Preview</button>
+
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-group" style="text-align:center;">
+                                            <button class="btn btn-primary btn-sm ms-auto" @onclick="AddLocation">Add Location</button>
+
+                                        </div>
+                                    </div>
+
+                                </div>
+                            </div>
+                            <div class="col-md-8">
+                                <div id="mapDiv" style="height:80vh;width:100%">
+                                </div>
+                            </div>
+
+
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+ 
+
+</script>
+
+@code {
+
+    public string? LocationName { get; set; }
+    public decimal Longitude { get; set; }
+    public decimal Latitude { get; set; }
+
+    private void UpdateLongitude(ChangeEventArgs e)
+    {
+        Longitude = Convert.ToDecimal(e.Value.ToString());
+    }
+
+    private void UpdateLatitude(ChangeEventArgs e)
+    {
+        Latitude = Convert.ToDecimal(e.Value.ToString());
+    }
+
+    [JSInvokable]
+    public static Task StateHasChanged()
+    {       
+        return Task.CompletedTask;
+    }
+
+    private async Task PreviewLocation()
+    {
+        try
+        {
+
+
+            // Validate input fields
+            if (Longitude != 0 && Latitude != 0)
+            {
+                // Call JavaScript function to create polygon
+                await js.InvokeVoidAsync("createPolygon", Latitude, Longitude);
+            }
+            else
+            {
+                // Display error if input fields are empty
+                toastService.ShowError("Empty fields are not allowed");
+            }
+        }
+        catch (Exception ex)
+        {
+            // Display error if an exception occurs
+            toastService.ShowError($"An error occurred: {ex.Message}");
+        }
+    }
+    public bool isEmpty()
+    {
+        if (LocationName != null && Longitude != null && Latitude != null)
+        {
+            return false;
+        }
+        else
+        {
+            return true;
+        }
+
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstrender)
+    {
+        if (firstrender)
+        {
+            await js.InvokeVoidAsync("LoadLocationMap");
+        }
+        else
+        {
+
+        }
+
+    }
+
+
+    private async Task AddLocation()
+    {
+        try
+        {
+            if (LocationName != null && !isEmpty())
+            {
+                var AddLocation = await API.GetRequest($"Fleet/AddLocationPolygon/{LocationName}/{Longitude}/{Latitude}/{250}/{360}");
+                string Result = JsonSerializer.Deserialize<string>(AddLocation);
+                if (Result == "200")
+                {
+                    Longitude = 0;
+                    Latitude = 0;
+                    LocationName = "";
+                    toastService.ShowSuccess($"Location: {LocationName} Added Successfully");
+                }
+                else
+                {
+                    toastService.ShowError("Error: " + Result);
+                }
+            }
+            else
+            {
+                toastService.ShowError("Empty Fields are not Allowed");
+            }
+        }
+        catch (Exception ex)
+        {
+            toastService.ShowError($"Error {ex}");
+        }
+
+
+    }
+    public class Locations
+    {
+        public int LocationID { get; set; }
+        public string? LocationName { get; set; }
+        public decimal Latitude { get; set; }
+        public decimal Longitude { get; set; }
+    }
+}

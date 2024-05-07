@@ -42,7 +42,7 @@
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    @foreach (var item in invoices)
+                                    @foreach (var item in invoices.OrderByDescending(a=>a.invoicenumber))
                                     {
                                         <tr>
                                             <td>
@@ -69,7 +69,7 @@
                                             </td>
                                             <td class="align-middle text-center">
                                                 <a @onclick="@(()=>ShowMessage(item.invoicenumber))" class="text-secondary font-weight-bold text-xs cursor-pointer">
-                                                    View
+                                                    Add Receiving Data
                                                 </a>
                                             </td>
                                         </tr>
@@ -78,7 +78,15 @@
                             }
                             else
                             {
-                                <DataLoaderComponent IsLoading="@IsLoading" LoadingText="Loading Invoice Data..." />
+                                if (IsLoading)
+                                {
+                                    <DataLoaderComponent IsLoading="@IsLoading" LoadingText="Loading Invoice Data..." />
+                                }
+                                else
+                                {
+                                 <span> No Records are found</span>   
+                                }
+
                             }
                         </table>
                     </div>
@@ -140,6 +148,7 @@
         IsLoading = true;
         await LoadInvoices();
         IsLoading = false;
+        StateHasChanged();
     }
 
     private async Task LoadInvoices()
@@ -157,10 +166,11 @@
                     };
                 invoices = JsonSerializer.Deserialize<List<SecondaryInvoices>>(rec, options);
 
+                
                 StateHasChanged();
             }
             else
-            {
+            { 
                 Console.WriteLine("API request returned null.");
             }
 

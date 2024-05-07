@@ -26,6 +26,9 @@ function loadmap() {
     // ];
     // addPolygon(polygonCoordinates);
 }
+
+
+
 function convertToThreeDigit(number) {
     if (number < 10) {
         return "00" + number;
@@ -238,6 +241,102 @@ function getDeviceToken() {
         });
     });
 }
+
+
+function LoadLocationMap() {
+    var latlng = new google.maps.LatLng(30.3753, 69.3451);
+    var options = {
+        zoom: 6,
+        center: latlng,
+        mapTypeId: google.maps.MapTypeId.ROADMAP,
+        styles: [
+            { elementType: 'labels', stylers: [{ visibility: 'on' }] }
+        ]
+    };
+
+    map = new google.maps.Map(document.getElementById("mapDiv"), options);
+
+    // Add event listener for double-click on the map
+   
+
+    // Add event listener for right-click on the map
+    map.addListener('rightclick', function (event) {
+        var latitude = event.latLng.lat();
+        var longitude = event.latLng.lng();
+        document.getElementById("Lati").value = latitude;
+        document.getElementById("Longi").value = longitude;
+
+        DotNet.invokeMethodAsync('VehicleManagement', 'StateHasChanged');
+
+
+    });
+
+    // Add event listener for click on the map
+    map.addListener('click', function (event) {
+        // Handle click event if needed
+    });
+}
+
+window.createPolygon = function () {
+    // Get latitude and longitude from textboxes
+    var latitude = parseFloat(document.getElementById("Lati").value);
+    var longitude = parseFloat(document.getElementById("Longi").value);
+
+    // Validate latitude and longitude
+    if (isNaN(latitude) || isNaN(longitude)) {
+        // Show error message or handle invalid input
+        return;
+    }
+
+    // Convert latitude and longitude to a Google Maps LatLng object
+    var center = new google.maps.LatLng(latitude, longitude);
+
+    // Define circle options
+    var circleOptions = {
+        strokeColor: "#FF0000",
+        strokeOpacity: 0.8,
+        strokeWeight: 2,
+        fillColor: "#FF0000",
+        fillOpacity: 0.35,
+        map: map,
+        center: center,
+        radius: 250 // Radius in meters
+    };
+
+    // Create circle overlay
+    var circle = new google.maps.Circle(circleOptions);
+
+    // Convert circle to polygon
+    var circleCoords = [];
+    var circleBounds = circle.getBounds();
+    var northEast = circleBounds.getNorthEast();
+    var southWest = circleBounds.getSouthWest();
+
+    // Generate circle coordinates
+    for (var i = 0; i < 360; i += 10) {
+        var angle = i * Math.PI / 180;
+        var x = center.lng() + circleOptions.radius * Math.cos(angle) / (111111 * Math.cos(center.lat() * Math.PI / 180));
+        var y = center.lat() + circleOptions.radius * Math.sin(angle) / 111111;
+        circleCoords.push({ lat: y, lng: x });
+    }
+
+    // Create polygon
+    var polygon = new google.maps.Polygon({
+        paths: circleCoords,
+        strokeColor: "#FF0000",
+        strokeOpacity: 0.8,
+        strokeWeight: 2,
+        fillColor: "#FF0000",
+        fillOpacity: 0.35,
+        map: map
+    });
+
+    // Focus on the polygon's center
+    map.setCenter(center);
+    map.setZoom(14); // Adjust the zoom level as needed to fit the polygon within the map viewport
+
+};
+
 
 
 
