@@ -86,7 +86,7 @@
 
             await JSRuntime.InvokeVoidAsync("loadGoogleMaps");
             await JSRuntime.InvokeVoidAsync("initializeAutoComplete", "vehicleid", vehicles);
-          
+
 
         }
         else
@@ -265,7 +265,7 @@
             SearchData();
         }
     }
-    
+
     private async Task SearchData()
     {
         if (vhiclenumber.Trim() != "")
@@ -277,8 +277,8 @@
                 await JSRuntime.InvokeVoidAsync("searchMarkerWithLatLong", rec.lat, rec.@long);
             }
 
-            
-          
+
+
 
             // await NotificationService.SendNotificationAsync("Title", "Body", deviceTokens);
         }
@@ -322,9 +322,9 @@
                         speed = tpl.speed,
                         driver = tpl.fueldata,
                         location = tpl.locationname.ToString(),
-                        status = tpl.engineStatus+ "("+tpl.timestamp+")",
+                        status = tpl.engineStatus + "(" + tpl.timestamp + ")",
                         directionAngle = int.Parse(tpl.vehicledirectionangle)
-                    });
+                });
 
                     Console.WriteLine($"Marker data added successfully: {tpl.vehicleId}");
                 }

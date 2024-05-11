@@ -126,10 +126,10 @@
                                                         <p>@(sr = (sr + 1))</p>
                                                     </td>
                                                     <td style="text-align:center">
-                                                        <p>@item.VehicleID</p>
+                                                        <p>@item.Vehicle</p>
                                                     </td>
                                                     <td style="text-align:center">
-                                                        <p>@item.Qty</p>
+                                                        <p>@item.qty</p>
                                                     </td>
                                                     <td class="contact-info">
                                                         <p @onclick="() => HandleButtonClick(Trim(item.Driver1))">@item.Driver1</p>
@@ -138,7 +138,7 @@
                                                         <p @onclick="() => HandleButtonClick(Trim(item.Driver2))">@item.Driver2</p>
                                                     </td>
                                                     <td style="text-align:center">
-                                                        <span>@item.LoadingDate</span>
+                                                        <span>@item.FillingDate</span>
                                                     </td>
                                                     <td style="text-align:center">
                                                         <span>@item.Product</span>
@@ -152,7 +152,7 @@
 
                                                             @if (IsEdit)
                                                             {
-                                                                <input class="form-control" type="text" value="@item.Position" @onchange="@((e)=>SearchTable(e,item.VehicleID,1))" />
+                                                                <input class="form-control" type="text" value="@item.Position" @onchange="@((e)=>SearchTable(e,item.Vehicle,1))" />
 
                                                             }
                                                             else
@@ -167,7 +167,7 @@
                                                         <span>@item.Destination</span>
                                                     </td>
                                                     <td>
-                                                        <span>@item.Location</span>
+                                                        <span>@item.location</span>
                                                     </td>
                                                     <td>
                                                         <span>
@@ -176,7 +176,7 @@
 
                                                             @if (IsEdit)
                                                             {
-                                                                <input class="form-control" type="text" value="@item.Remarks" @onchange="@((e)=>SearchTable(e,item.VehicleID,2))" />
+                                                                <input class="form-control" type="text" value="@item.Remarks" @onchange="@((e)=>SearchTable(e,item.Vehicle,2))" />
                                                             }
                                                             else
                                                             {
@@ -268,7 +268,8 @@
                     PosList.Add(new AddPositions
                         {
                             VehicleID = VehicleID,
-                            Position = e.Value.ToString()
+                            Position = e.Value.ToString(),
+                            IsFrom=1
                         });
                 }
                 else if (From == 2) //Remarks
@@ -276,7 +277,8 @@
                     PosList.Add(new AddPositions
                         {
                             VehicleID = VehicleID,
-                            Remarks = e.Value.ToString()
+                            Remarks = e.Value.ToString(),
+                            IsFrom=2
                         });
                 }
             }
@@ -285,10 +287,12 @@
                 if (From == 1) // Position
                 {
                     rec.Position = e.Value.ToString();
+                    rec.IsFrom = 1;
                 }
                 else if (From == 2) //Remarks
                 {
                     rec.Remarks = e.Value.ToString();
+                    rec.IsFrom = 2;
                 }
             }
 
@@ -358,7 +362,7 @@
             int count = 1;
             foreach (var report in fleet)
             {
-                sb.AppendLine($"\"{count}\",\"{report.VehicleID}\",\"{report.Qty}\",\"{report.Driver1}\",\"{report.Driver2}\",\"{report.LoadingDate}\",\"{report.Product}\",\"{report.FillingPoint}\",\"{report.Position}\",\"{report.Destination}\",\"{report.Location}\",\"{report.Remarks}\"");
+                sb.AppendLine($"\"{count}\",\"{report.Vehicle}\",\"{report.qty}\",\"{report.Driver1}\",\"{report.Driver2}\",\"{report.FillingDate}\",\"{report.Product}\",\"{report.FillingPoint}\",\"{report.Position}\",\"{report.Destination}\",\"{report.location}\",\"{report.Remarks}\"");
                 count++;
             }
 
@@ -391,7 +395,7 @@
                     ReferenceHandler = null
                 };
             string jsonData = JsonSerializer.Serialize(BusinessID, options);
-            var Main = await API.PostRequest($"Fleet/FleetStatusReport", jsonData);
+            var Main = await API.PostRequest($"Fleet/GetFleetStatus", jsonData);
             if (Main != "")
             {
                 fleet = Newtonsoft.Json.JsonConvert.DeserializeObject<List<fleetstatusData>>(Main);
@@ -469,17 +473,19 @@
     public class fleetstatusData
     {
 
-        public string? VehicleID { get; set; }
-        public string? Qty { get; set; }
+        public string? Vehicle { get; set; }
+        public string? qty { get; set; }
         public string? Driver1 { get; set; }
         public string? Driver2 { get; set; }
-        public string? Position { get; set; }
-        public string? Remarks { get; set; }
-        public DateTime? LoadingDate { get; set; }
+        public DateTime? FillingDate { get; set; }
         public string? Product { get; set; }
         public string? FillingPoint { get; set; }
         public string? Destination { get; set; }
-        public string? Location { get; set; }
+        public string? Position { get; set; }
+        public string? location { get; set; }
+        public string? status_ { get; set; }
+        public string? Remarks { get; set; }
+        public int BusinessId { get; set; }
     }
 
 }

@@ -28,7 +28,16 @@ function loadmap() {
 }
 
 
+function normalizeAngle(angle) {
+    // If angle is greater than or equal to 360, subtract 360 until it's less than 360
+    while (angle >= 360) {
+        angle -= 360;
+    }
 
+   
+
+    return angle;
+}
 function convertToThreeDigit(number) {
     if (number < 10) {
         return "00" + number;
@@ -48,7 +57,7 @@ window.addMarker = function (data) {
         var position = { lat: markerData.lat, lng: markerData.lng };
 
         var icon = {
-            url: 'Truck/image_' + convertToThreeDigit(markerData.directionAngle) + '.png',
+            url: 'Truck/image_' + convertToThreeDigit(normalizeAngle(markerData.directionAngle)) + '.png',
             scaledSize: new google.maps.Size(30, 30),
             origin: new google.maps.Point(0, 0),
             anchor: new google.maps.Point(15, 15),
