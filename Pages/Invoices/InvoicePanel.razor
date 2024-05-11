@@ -1315,6 +1315,30 @@
                     return;
                 }
 
+                if (Invoices.ReceivingDetail.Chamber1.LorryDip != 0)
+                {
+                    await QunatityReceiv(1, Invoices.ReceivingDetail.Chamber1.LorryDip);
+                }
+                if (Invoices.ReceivingDetail.Chamber2.LorryDip != 0)
+                {
+                    await QunatityReceiv(2, Invoices.ReceivingDetail.Chamber2.LorryDip);
+                }
+
+                if (Invoices.ReceivingDetail.Chamber3.LorryDip != 0)
+                {
+                    await QunatityReceiv(3, Invoices.ReceivingDetail.Chamber3.LorryDip);
+                }
+
+                if (Invoices.ReceivingDetail.Chamber4.LorryDip != 0)
+                {
+                    await QunatityReceiv(4, Invoices.ReceivingDetail.Chamber4.LorryDip);
+                }
+
+                if (Invoices.ReceivingDetail.Chamber5.LorryDip != 0)
+                {
+                    await QunatityReceiv(5, Invoices.ReceivingDetail.Chamber5.LorryDip);
+                }
+
 
             }
             else if (currentIndex == 2)
@@ -1424,12 +1448,12 @@
                     // float ShortOnTempExempt = TotalShortageLTRdip - ShortContratorCharge;
 
                     Invoices.CalculationDifference.ShortOnTemp = Math.Abs(ShortOnTempExempt);
-                    if (ReceivingTemp > 0)
-                    {
-                        float Shortage1F = ShortOnTempExempt / ReceivingTemp;
+                    // if (ReceivingTemp > 0)
+                    // {
+                    float Shortage1F = ShortOnTempExempt / ReceivingTemp;
 
-                        Invoices.CalculationDifference.Shortage1FTemp = Math.Abs((float)Math.Round(Shortage1F, 3));
-                    }
+                    Invoices.CalculationDifference.Shortage1FTemp = Math.Abs((float)Math.Round(Shortage1F, 3));
+                    // }
 
 
                     float QunatityShouldR = TotalChamberQuantityS - Math.Abs(ShortOnTempExempt);
@@ -1751,60 +1775,11 @@
         try
         {
 
-            if (e.Value != "0")
+            if (e.Value != "0" )
             {
-                switch (chamberNumber)
-                {
-                    case 1:
-                        if (e.Value == "")
-                        {
-                            Invoices.ReceivingDetail.Chamber1 = new Recieve_Chamber();
-                            return;
-                        }
-                        Invoices.ReceivingDetail.Chamber1.ChamberQuantity = await GetChamberQunatity(Invoices.ShippingDetail.Chamber1.ChamberQuantity, Invoices.ShippingDetail.Chamber1.LorryDip, int.Parse(e.Value.ToString()));
-                        await TextChangedReceiving(1, Invoices.ReceivingDetail.Chamber1.ChamberQuantity);
-
-                        break;
-                    case 2:
-                        if (e.Value == "")
-                        {
-                            Invoices.ReceivingDetail.Chamber2 = new Recieve_Chamber();
-                            return;
-                        }
-                        Invoices.ReceivingDetail.Chamber2.ChamberQuantity = await GetChamberQunatity(Invoices.ShippingDetail.Chamber2.ChamberQuantity, Invoices.ShippingDetail.Chamber2.LorryDip, int.Parse(e.Value.ToString()));
-                        await TextChangedReceiving(2, Invoices.ReceivingDetail.Chamber2.ChamberQuantity);
-                        break;
-                    case 3:
-                        if (e.Value == "")
-                        {
-                            Invoices.ReceivingDetail.Chamber3 = new Recieve_Chamber();
-                            return;
-                        }
-                        Invoices.ReceivingDetail.Chamber3.ChamberQuantity = await GetChamberQunatity(Invoices.ShippingDetail.Chamber3.ChamberQuantity, Invoices.ShippingDetail.Chamber3.LorryDip, int.Parse(e.Value.ToString()));
-                        await TextChangedReceiving(3, Invoices.ReceivingDetail.Chamber3.ChamberQuantity);
-                        break;
-                    case 4:
-                        if (e.Value == "")
-                        {
-                            Invoices.ReceivingDetail.Chamber4 = new Recieve_Chamber();
-                            return;
-                        }
-                        Invoices.ReceivingDetail.Chamber4.ChamberQuantity = await GetChamberQunatity(Invoices.ShippingDetail.Chamber4.ChamberQuantity, Invoices.ShippingDetail.Chamber4.LorryDip, int.Parse(e.Value.ToString()));
-                        await TextChangedReceiving(4, Invoices.ReceivingDetail.Chamber4.ChamberQuantity);
-                        break;
-                    case 5:
-                        if (e.Value == "")
-                        {
-                            Invoices.ReceivingDetail.Chamber5 = new Recieve_Chamber();
-                            return;
-                        }
-                        Invoices.ReceivingDetail.Chamber5.ChamberQuantity = await GetChamberQunatity(Invoices.ShippingDetail.Chamber5.ChamberQuantity, Invoices.ShippingDetail.Chamber5.LorryDip, int.Parse(e.Value.ToString()));
-                        await TextChangedReceiving(5, Invoices.ReceivingDetail.Chamber5.ChamberQuantity);
-                        break;
-                    default:
-                        // Handle invalid chamber number
-                        break;
-                }
+                e.Value = e.Value == "" ? "0" : e.Value;
+                int Values = int.Parse(e.Value.ToString());
+                await QunatityReceiv(chamberNumber, Values);
             }
 
             else
@@ -1820,7 +1795,72 @@
     }
 
 
+    public async Task QunatityReceiv(int chamberNumber, int value)
+    {
+        try
+        {
 
+
+            switch (chamberNumber)
+            {
+                case 1:
+                    if (value == 0)
+                    {
+                        Invoices.ReceivingDetail.Chamber1 = new Recieve_Chamber();
+                        return;
+                    }
+                    Invoices.ReceivingDetail.Chamber1.ChamberQuantity = await GetChamberQunatity(Invoices.ShippingDetail.Chamber1.ChamberQuantity, Invoices.ShippingDetail.Chamber1.LorryDip, value);
+                    await TextChangedReceiving(1, Invoices.ReceivingDetail.Chamber1.ChamberQuantity);
+
+                    break;
+                case 2:
+                    if (value == 0)
+                    {
+                        Invoices.ReceivingDetail.Chamber2 = new Recieve_Chamber();
+                        return;
+                    }
+                    Invoices.ReceivingDetail.Chamber2.ChamberQuantity = await GetChamberQunatity(Invoices.ShippingDetail.Chamber2.ChamberQuantity, Invoices.ShippingDetail.Chamber2.LorryDip,value);
+                    await TextChangedReceiving(2, Invoices.ReceivingDetail.Chamber2.ChamberQuantity);
+                    break;
+                case 3:
+                    if (value == 0)
+                    {
+                        Invoices.ReceivingDetail.Chamber3 = new Recieve_Chamber();
+                        return;
+                    }
+                    Invoices.ReceivingDetail.Chamber3.ChamberQuantity = await GetChamberQunatity(Invoices.ShippingDetail.Chamber3.ChamberQuantity, Invoices.ShippingDetail.Chamber3.LorryDip, value);
+                    await TextChangedReceiving(3, Invoices.ReceivingDetail.Chamber3.ChamberQuantity);
+                    break;
+                case 4:
+                    if (value == 0)
+                    {
+                        Invoices.ReceivingDetail.Chamber4 = new Recieve_Chamber();
+                        return;
+                    }
+                    Invoices.ReceivingDetail.Chamber4.ChamberQuantity = await GetChamberQunatity(Invoices.ShippingDetail.Chamber4.ChamberQuantity, Invoices.ShippingDetail.Chamber4.LorryDip, value);
+                    await TextChangedReceiving(4, Invoices.ReceivingDetail.Chamber4.ChamberQuantity);
+                    break;
+                case 5:
+                    if (value == 0)
+                    {
+                        Invoices.ReceivingDetail.Chamber5 = new Recieve_Chamber();
+                        return;
+                    }
+                    Invoices.ReceivingDetail.Chamber5.ChamberQuantity = await GetChamberQunatity(Invoices.ShippingDetail.Chamber5.ChamberQuantity, Invoices.ShippingDetail.Chamber5.LorryDip, value);
+                    await TextChangedReceiving(5, Invoices.ReceivingDetail.Chamber5.ChamberQuantity);
+                    break;
+                default:
+                    // Handle invalid chamber number
+                    break;
+            }
+
+        }
+        catch (Exception ex)
+        {
+
+        }
+
+    }
 
     private async Task TextChangedReceiving(int chamberNumber, int Quantity)
     {

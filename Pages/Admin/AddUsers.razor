@@ -846,6 +846,12 @@
 
 
                 }
+                else if(Result==202)
+                {
+                    toastService.ShowSuccess($"Username already exists");
+                    User = new Users();
+                    UserModal.CloseModal();
+                }
                 else
                 {
                     UserModal.CloseModal();
