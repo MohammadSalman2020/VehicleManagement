@@ -73,7 +73,7 @@
                         </AuthorizeView>
 
 
-                        <a class="btn btn-primary" href="Reports/fleet_status_report.csv" download="FleetStatus.csv" @onclick="ExportToCSV">Export To CSV</a>
+                        <a class="btn btn-primary" download="FleetStatus.csv" @onclick="ExportToCSV">Export To CSV</a>
                     }
                 </div>
 
@@ -101,17 +101,18 @@
                                     <table class="table-bordered">
                                         <!-- Added 'table-bordered' class -->
                                         <thead style="background-color:#5e72e4;color:white">
-                                            <tr style="text-align:center">
+                                            <tr style="text-align:center;background-color:#5e72e4;color:white;">
                                                 <th>Sr#</th>
                                                 <th style="padding:5px">Vehicle_#</th>
                                                 <th>Qty</th>
                                                 <th>Driver_1</th>
                                                 <th>Driver_2</th>
-                                                <th>Report/FillingData</th>
+                                                <th>FillingDate</th>
                                                 <th>Product</th>
                                                 <th>FillingPoint</th>
                                                 <th>Heading</th>
                                                 <th>Destination</th>
+                                                <th>Status</th>
                                                 <th>CurrentLocation</th>
                                                 <th>Remarks</th>
                                             </tr>
@@ -119,9 +120,39 @@
                                         <tbody>
 
 
-                                            @foreach (var item in fleet)
+                                            @foreach (var item in fleet.OrderBy(a => a.status_))
                                             {
-                                                <tr>
+                                                string backcolor = "";
+                                                string forecolor = "";
+                                                if (item.status_ == "PrimaryTrip")
+                                                {
+                                                    backcolor = "#87f187";
+                                                    forecolor = "#000000";
+                                                }
+                                                else if (item.status_ == "LoadAssigned")
+                                                {
+                                                    backcolor = "#FFA500";
+                                                    forecolor = "#000000";
+                                                }
+                                                else if (item.status_ == "Available")
+                                                {
+                                                    backcolor = "#FFFF00";
+                                                    forecolor = "#000000";
+                                                }
+                                                else if (item.status_ == "OnTripSC")
+                                                {
+                                                    backcolor = "#0000FF";
+                                                    forecolor = "#000000";
+                                                }
+                                                else if (item.status_ == "Maintenance")
+                                                {
+                                                    backcolor = "#ea7d7d";
+                                                    forecolor = "#000000";
+                                                }
+
+
+
+                                                <tr style="background-color:@backcolor;color:@forecolor;">
                                                     <td style="text-align:center">
                                                         <p>@(sr = (sr + 1))</p>
                                                     </td>
@@ -132,10 +163,10 @@
                                                         <p>@item.qty</p>
                                                     </td>
                                                     <td class="contact-info">
-                                                        <p @onclick="() => HandleButtonClick(Trim(item.Driver1))">@item.Driver1</p>
+                                                        <p @onclick="() => HandleButtonClick(item.Driver1)">@item.Driver1</p>
                                                     </td>
                                                     <td class="contact-info">
-                                                        <p @onclick="() => HandleButtonClick(Trim(item.Driver2))">@item.Driver2</p>
+                                                        <p @onclick="() => HandleButtonClick(item.Driver2)">@item.Driver2</p>
                                                     </td>
                                                     <td style="text-align:center">
                                                         <span>@item.FillingDate</span>
@@ -153,7 +184,12 @@
                                                             @if (IsEdit)
                                                             {
                                                                 <input class="form-control" type="text" value="@item.Position" @onchange="@((e)=>SearchTable(e,item.Vehicle,1))" />
+                                                               @*  <select @bind="selectedchecklist" class="form-control">
+                                                                    <option value=""></option>
+                                                                    <option value="@State1">UP</option>
+                                                                    <option value="@State2">DOWN</option>
 
+                                                                </select> *@
                                                             }
                                                             else
                                                             {
@@ -166,14 +202,14 @@
                                                     <td style="text-align:center">
                                                         <span>@item.Destination</span>
                                                     </td>
+                                                    <td style="text-align:center">
+                                                        <span>@item.status_</span>
+                                                    </td>
                                                     <td>
                                                         <span>@item.location</span>
                                                     </td>
                                                     <td>
                                                         <span>
-
-
-
                                                             @if (IsEdit)
                                                             {
                                                                 <input class="form-control" type="text" value="@item.Remarks" @onchange="@((e)=>SearchTable(e,item.Vehicle,2))" />
@@ -182,14 +218,10 @@
                                                             {
                                                                 <span>@item.Remarks</span>
                                                             }
-
                                                         </span>
                                                     </td>
                                                 </tr>
                                             }
-
-
-
                                         </tbody>
                                     </table>
 
@@ -233,10 +265,13 @@
 
     string modalDisplay = "none";
     string phoneNumber;
+    private string State1 = "UP";
+    private string State2 = "DOWN";
     public string? LoadingText;
     public List<int> BusinessID = new List<int>();
     int sr = 0;
     public bool IsLoading { get; set; }
+    public string selectedchecklist { get; set; }
     public bool IsEdit { get; set; }
     List<fleetstatusData> fleet = new List<fleetstatusData>();
     List<AddPositions> PosList = new List<AddPositions>();
@@ -251,9 +286,18 @@
         {
             // Get the phone number from the regex match
             phoneNumber = match.Groups[1].Value.Trim();
-            phoneNumber = phoneNumber.Replace(" ", "").Replace("-", "");
-            phoneNumber = "+92" + phoneNumber.Substring(1);
-            modalDisplay = "block";
+
+            if (phoneNumber == "")
+            {
+                toastService.ShowError("Contact number not available.");
+            }
+            else
+            {
+                phoneNumber = phoneNumber.Replace(" ", "").Replace("-", "");
+                phoneNumber = "+92" + phoneNumber.Substring(1);
+                modalDisplay = "block";
+            }
+
         }
     }
     private async Task SearchTable(ChangeEventArgs e, string VehicleID, int From)
@@ -362,13 +406,13 @@
             StringBuilder sb = new StringBuilder();
 
             // Header
-            sb.AppendLine("Sr#,Vehicle ID,Qty,Driver 1,Driver 2,Reporting/Filling Date,Product,Filling Point,Heading,Destination,Current Location,Remarks");
+            sb.AppendLine("Sr#,Vehicle ID,Qty,Driver 1,Driver 2,Filling Date,Product,Filling Point,Heading,Destination,Status,Current Location,Remarks");
 
             // Data
             int count = 1;
-            foreach (var report in fleet)
+            foreach (var report in fleet.OrderBy(a => a.status_))
             {
-                sb.AppendLine($"\"{count}\",\"{report.Vehicle}\",\"{report.qty}\",\"{report.Driver1}\",\"{report.Driver2}\",\"{report.FillingDate}\",\"{report.Product}\",\"{report.FillingPoint}\",\"{report.Position}\",\"{report.Destination}\",\"{report.location}\",\"{report.Remarks}\"");
+                sb.AppendLine($"\"{count}\",\"{report.Vehicle}\",\"{report.qty}\",\"{report.Driver1}\",\"{report.Driver2}\",\"{report.FillingDate}\",\"{report.Product}\",\"{report.FillingPoint}\",\"{report.Position}\",\"{report.Destination}\",\"{report.status_}\",\"{report.location}\",\"{report.Remarks}\"");
                 count++;
             }
 
@@ -376,17 +420,20 @@
             var wwwRootPath = Path.Combine(Environment.ContentRootPath, "wwwroot");
 
             // Define the file path
-            var filePath = Path.Combine(wwwRootPath, "Reports", "fleet_status_report.csv");
+            var filePath = Path.Combine(wwwRootPath, "Reports", "FleetStatus.csv");
 
             // Save CSV file
             await File.WriteAllTextAsync(filePath, sb.ToString());
 
             // Get the relative URL
-            var relativeUrl = Path.Combine("Reports", "fleet_status_report.csv");
+            var relativeUrl = Path.Combine("Reports", "FleetStatus.csv");
 
             // Navigate to the CSV file
+
             await JSRuntime.InvokeVoidAsync("downloadFile", relativeUrl);
             // File.Delete(filePath);
+
+            toastService.ShowSuccess(relativeUrl);
         }
 
     }

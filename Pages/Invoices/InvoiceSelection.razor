@@ -19,6 +19,9 @@
                     <div class="form-group d-grid gap-2">
                         <button class="btn btn-warning btn-sm btn-block" @onclick="Secondary">Generate Secondary Trip</button>
                     </div>
+                    <div class="form-group d-grid gap-2">
+                        <button class="btn btn-warning btn-sm btn-block" @onclick="Cost">Add Trip Cost</button>
+                    </div>
                 </div>
             </div>
         </div>
@@ -42,7 +45,7 @@
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    @foreach (var item in invoices.OrderByDescending(a=>a.invoicenumber))
+                                    @foreach (var item in invoices.OrderByDescending(a => a.invoicenumber))
                                     {
                                         <tr>
                                             <td>
@@ -84,7 +87,7 @@
                                 }
                                 else
                                 {
-                                 <span> No Records are found</span>   
+                                    <span> No Records are found</span>
                                 }
 
                             }
@@ -123,12 +126,38 @@
 
     </Body>
 </Modal>
+<Modal @ref="costmodal" Title="Add Primary Invoice to Add Cost">
+    <Body>
+        <div class="container-fluid">
+            <!-- Ensure full width of the viewport -->
+            <div class="row justify-content-center">
+                <!-- Center your column for visual appeal -->
+                <div class="col-12">
+                    <!-- Full width on small screens, half on medium and up -->
+                    <div class="card">
+                        <div class="card-body">
+                            <div class="form-group d-grid gap-2">
+                                <label for="txtsecondaryInvoice">Primary Invoice Reference</label>
+                                <input required type="text" class="form-control" @onkeydown="HandleEnterPress2" id="txtsecondaryInvoice" @bind-value="primaryinvoice" @bind-value:event="oninput" />
+                            </div>
+                            <div class="form-group d-grid gap-2">
+                                <button class="btn btn-warning btn-sm btn-block" @onclick="GotoCost">Submit</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </Body>
+</Modal>
 
 
 
 @code {
 
     private Modal modal;
+    private Modal costmodal;
     private string primaryinvoice;
     public bool IsLoading = false;
     private async Task Primary()
@@ -141,6 +170,11 @@
     private async Task Secondary()
     {
         modal.Show();
+
+    }
+    private async Task Cost()
+    {
+        costmodal.Show();
 
     }
     protected override async void OnInitialized()
@@ -166,11 +200,11 @@
                     };
                 invoices = JsonSerializer.Deserialize<List<SecondaryInvoices>>(rec, options);
 
-                
+
                 StateHasChanged();
             }
             else
-            { 
+            {
                 Console.WriteLine("API request returned null.");
             }
 
@@ -185,11 +219,22 @@
     {
         navmgr.NavigateTo($"/sc_invoice?pk={primaryinvoice.Trim()}");
     }
+    private async Task GotoCost()
+    {
+        navmgr.NavigateTo($"/addcost?pk={primaryinvoice.Trim()}");
+    }
     private async Task HandleEnterPress(KeyboardEventArgs e)
     {
         if (e.Code == "Enter" || e.Key == "Enter")
         {
             navmgr.NavigateTo($"/sc_invoice?pk={primaryinvoice.Trim()}");
+        }
+    } 
+    private async Task HandleEnterPress2(KeyboardEventArgs e)
+    {
+        if (e.Code == "Enter" || e.Key == "Enter")
+        {
+            navmgr.NavigateTo($"/addcost?pk={primaryinvoice.Trim()}");
         }
     }
     private async Task ShowMessage(string x)
