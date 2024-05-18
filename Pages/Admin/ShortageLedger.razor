@@ -92,10 +92,14 @@
                                                         <span class="text-secondary text-xs font-weight-bold">@item.dated.ToString("MM-dd-yyyy")</span>
                                                     </td>
                                                     <td class="align-middle text-center">
-                                                        <span class="text-secondary text-xs font-weight-bold">@item.driverName</span>
+                                                        <span class="text-secondary text-xs font-weight-bold">
+                                                            @((item.driverName != null ? item.driverName : "No Attendance"))
+                                                        </span>
                                                     </td>
                                                     <td class="align-middle text-center">
-                                                        <span class="text-secondary text-xs font-weight-bold">@item.driver2Name</span>
+                                                         <span class="text-secondary text-xs font-weight-bold">
+                                                        @((item.driver2Name != null ? item.driver2Name : "No Attendance"))
+                                                        </span>
                                                     </td>
                                                     <td class="align-middle text-center text-sm">
 
@@ -165,10 +169,15 @@
                                                             </td>
 
                                                             <td class="align-middle text-center">
-                                                                <span class="text-secondary text-xs font-weight-bold">@shorts.driverName (@shorts.driverID)</span>
+                                                                <span class="text-secondary text-xs font-weight-bold">
+                                                                    @((shorts.driverName != null ? shorts.driverName : "No Attendance") + " " + (shorts.driverID != null ? shorts.driverID : ""))
+                                                                </span>
+
                                                             </td>
                                                             <td class="align-middle text-center">
-                                                                <span class="text-secondary text-xs font-weight-bold">@shorts.driver2Name (@shorts.driver2ID)</span>
+                                                                <span class="text-secondary text-xs font-weight-bold">
+                                                                    @((shorts.driver2Name != null ? shorts.driver2Name : "No Attendance") + " " + (shorts.driver2ID != null ? shorts.driver2ID : ""))
+                                                                </span>
                                                             </td>
                                                             <td class="align-middle text-center text-sm">
 
