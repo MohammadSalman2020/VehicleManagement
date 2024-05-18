@@ -349,7 +349,26 @@ window.createPolygon = function () {
 
 };
 
+window.addGlobalKeydownListener = function (dotNetObject) {
+    window.onkeydown = function (event) {
+        if (event.key === 'F2') {
+            event.preventDefault();
+            dotNetObject.invokeMethodAsync('OnF2Press');
+        } else if (event.key === 'F1') {
+            event.preventDefault();
+            dotNetObject.invokeMethodAsync('OnF1Press');
+        }
+        else if (event.key === 'F3') {
+            event.preventDefault();
+            dotNetObject.invokeMethodAsync('OnF3Press');
+        }
+        
+    };
+};
 
+window.removeGlobalKeydownListener = function (dotNetObject) {
+    window.onkeydown = null;
+};
 
 
 

@@ -65,6 +65,7 @@
                                             <th class="text-center font-colors text-uppercase  text-xxs font-weight-bolder opacity-7">Status</th>
                                             <th class="text-center font-colors text-uppercase  text-xxs font-weight-bolder opacity-7"></th>
                                             <th class="text-center font-colors text-uppercase  text-xxs font-weight-bolder opacity-7"></th>
+                                            <th class="text-center font-colors text-uppercase  text-xxs font-weight-bolder opacity-7"></th>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -127,6 +128,11 @@
                                                    <td class="align-middle">
                                                         <a @onclick="@(()=>EditButton(item.invoiceNumber))" class="text-secondary font-weight-bold text-xs cursor-pointer">
                                                             Edit
+                                                        </a>
+                                                    </td> 
+                                                    <td class="align-middle">
+                                                        <a @onclick="@(()=>AddCost(item.invoiceNumber))" class="text-secondary font-weight-bold text-xs cursor-pointer">
+                                                            AddCost
                                                         </a>
                                                     </td>
                                                 </tr>
@@ -285,6 +291,10 @@
         IsChildLoad = false;
 
         await GetAllInvoices();
+    }
+    private async Task AddCost(string StoNo)
+    {
+        NavigationManager.NavigateTo($"/addcost?pk={StoNo}");
     }
     private async Task EditButton(string StoNo)
     {

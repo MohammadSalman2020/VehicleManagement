@@ -1,0 +1,1298 @@
+﻿@page "/addcost"
+@inject NavigationManager navmanager
+@using Microsoft.AspNetCore.WebUtilities;
+@inject IToastService toastService
+@using System.Text.Json
+@using System.Text.Json.Serialization
+@using VehicleManagement.ApiService
+@inject IJSRuntime js
+@using static VehicleManagement.Pages.Expenses.AdCost
+@inject IApiService API
+@inject AuthenticationStateProvider _authenticationStateProvider
+@implements IAsyncDisposable
+<style>
+    tr {
+        cursor: default;
+    }
+
+    .highlight {
+        background: #5e72e4;
+        color: white;
+    }
+
+    .hoverable {
+        cursor: pointer;
+        color: white;
+        padding: 10px;
+        transition: color 0.3s ease;
+    }
+
+
+
+        .hoverable:hover {
+            color: black; /* Change this to the color you want on hover */
+        }
+
+</style>
+<script>
+    $(function () {
+
+        /* Attach event handler to the table body using event delegation */
+        $('#myTable tbody').on('click', 'tr', function (e) {
+
+            /* Get current row */
+            var row = $(this);
+
+            /* Get the InvoiceID from the first cell of the clicked row */
+            var invoiceID = row.find('td:first').text();
+
+            /* Set the InvoiceID into session storage */
+            sessionStorage.setItem('selected_invoice', invoiceID);
+
+            /* Print the InvoiceID in the console */
+            console.log('Selected InvoiceID:', invoiceID);
+
+            /* Check if 'Ctrl', 'cmd' or 'Shift' keyboard key was pressed
+             * 'Ctrl' => is represented by 'e.ctrlKey' or 'e.metaKey'
+             * 'Shift' => is represented by 'e.shiftKey' */
+            if ((e.ctrlKey || e.metaKey) || e.shiftKey) {
+                /* If pressed highlight the other row that was clicked */
+                row.addClass('highlight');
+            } else {
+                /* Otherwise just highlight one row and clean others */
+                row.siblings().removeClass('highlight');
+                row.addClass('highlight');
+            }
+
+        });
+
+        /* This 'event' is used just to avoid that the table text
+         * gets selected (just for styling).
+         * For example, when pressing 'Shift' keyboard key and clicking
+         * (without this 'event') the text of the 'table' will be selected.
+         * You can remove it if you want, I just tested this in
+         * Chrome v30.0.1599.69 */
+        $(document).bind('selectstart dragstart', function (e) {
+            e.preventDefault(); return false;
+        });
+
+    });
+
+
+</script>
+<div class="container-fluid py-4" style="padding:0px;">
+
+    <div class="row" style="padding:5px;padding-top:0px;">
+
+        <div class="col-12" style="padding-left:0px;padding-top:0px;">
+            <div class="card mb-12" style="padding-left:0px;padding-top:0px;">
+                <div class="card-header pb-0" style="padding-left:0px;padding-top:0px;padding-right:0px" id="contentToPrint">
+                    <div class="container" style="padding-left:0px;padding-top:0px;padding-right:0px;">
+                        <div class="row" style="padding:20px;">
+                            <div style="width:100%;padding-right:0px;margin-top:30px;">
+                                <div style="text-align:right;padding-right:30px;">
+                                    <button title="Add Fuel" @onclick="openfuelmodal" style="padding:6px;margin-left:5px;color:red;background-color:none !important;padding-left:20px;padding-right:20px;" class="btn"><i class="fas fa-gas-pump"></i></button>
+                                    <button title="Add Other Expenses" @onclick="openexpensemodal" style="padding:6px;margin-left:5px;color:forestgreen;background-color:none !important;padding-left:20px;padding-right:20px;" class="btn"><i class="fa fa-file"></i></button>
+                                    <button title="Add KM Travelled" @onclick="opendistancemodal" style="padding:6px;margin-left:5px;color:#5e72e4;background-color:none !important;padding-left:20px;padding-right:20px;" class="btn"><i class="fa fa-truck"></i></button>
+                                </div>
+                                <div style="overflow-x:scroll;padding-right:30px;">
+                                    <table id="myTable" style="width: 100%; border-collapse: collapse; border-spacing: 0;justify-content:space-between;">
+                                        <thead>
+                                            <tr style="background-color: #ddd;font-size:12px;">
+                                                <th style="padding: 8px; text-align: center;">Invoice#</th>
+                                                <th style="padding: 8px; text-align: center;">Type</th>
+                                                <th style="padding: 8px; text-align: center;">Vehicle</th>
+                                                <th style="padding: 8px; text-align: center;">TripDate</th>
+                                                <th style="padding: 8px; text-align: center;">Loading Point</th>
+                                                <th style="padding: 8px; text-align: center;">Decanting Point</th>
+                                                <th style="padding: 8px; text-align: center;">Qty</th>
+                                                <th style="padding: 8px; text-align: center;">Drivers</th>
+                                                <th style="padding: 8px; text-align: center;">Fuel</th>
+                                                <th style="padding: 8px; text-align: center;">Expenses</th>
+                                                <th style="padding: 8px; text-align: center;">Distance(KM)</th>
+
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            @foreach (var x in costdata)
+                                            {
+                                                <tr style="font-size:12px;text-align:center;">
+                                                    <td style="padding: 8px; text-align: center;">@x.Stono</td>
+                                                    <td style="padding: 8px; text-align: center;">@x.Type</td>
+                                                    <td style="padding: 8px; text-align: center;">@x.Vehicle</td>
+                                                    <td style="padding: 8px; text-align: center;">@(x.TripDate.HasValue ? x.TripDate.Value.ToShortDateString() : "N/A")</td>
+                                                    <td style="padding: 8px; text-align: center;">@x.LoadingPoint</td>
+                                                    <td style="padding: 8px; text-align: center;">@x.ReceivingPoint</td>
+                                                    <td style="padding: 8px; text-align: center;">@x.Qty</td>
+                                                    <td style="padding: 8px; text-align: center;">@x.Drivers</td>
+                                                    <td style="padding: 8px; text-align: center;">@x.FuelLiters</td>
+                                                    <td style="padding: 8px; text-align: center;">@x.Expense</td>
+                                                    <td style="padding: 8px; text-align: center;">
+                                                        @(x.Distance.HasValue ? Math.Round(x.Distance.Value, 2).ToString() : "N/A")
+                                                    </td>
+
+                                                </tr>
+                                            }
+                                            @*   <!-- Additional Rows -->
+                                            <tr style="font-size:12px;text-align:center;">
+                                            <td style="padding: 8px; text-align: left;">456</td>
+                                            <td style="padding: 8px; text-align: left;">SC</td>
+                                            <td style="padding: 8px; text-align: left;">TLK-920</td>
+                                            <td style="padding: 8px; text-align: left;">03-May</td>
+                                            <td style="padding: 8px; text-align: left;">MCH</td>
+                                            <td style="padding: 8px; text-align: left;">BAKRI PUMP</td>
+                                            <td style="padding: 8px; text-align: left;"></td>
+                                            <td style="padding: 8px; text-align: left;">A+B</td>
+                                            <td style="padding: 8px; text-align: left;">900</td>
+                                            <td style="padding: 8px; text-align: left;">6000</td>
+                                            <td style="padding: 8px; text-align: left;">2800</td>
+                                            </tr>
+                                            <tr style="font-size:12px;text-align:center;">
+                                            <td style="padding: 8px; text-align: left;">478941</td>
+                                            <td style="padding: 8px; text-align: left;">SC</td>
+                                            <td style="padding: 8px; text-align: left;">TLK-920</td>
+                                            <td style="padding: 8px; text-align: left;">06-May</td>
+                                            <td style="padding: 8px; text-align: left;">MCH</td>
+                                            <td style="padding: 8px; text-align: left;">RANA FS</td>
+                                            <td style="padding: 8px; text-align: left;"></td>
+                                            <td style="padding: 8px; text-align: left;">A+B</td>
+                                            <td style="padding: 8px; text-align: left;">900</td>
+                                            <td style="padding: 8px; text-align: left;">6000</td>
+                                            <td style="padding: 8px; text-align: left;">2800</td>
+                                            </tr>
+                                            <tr style="font-size:12px;text-align:center;">
+                                            <td style="padding: 8px; text-align: left;">745641</td>
+                                            <td style="padding: 8px; text-align: left;">SC</td>
+                                            <td style="padding: 8px; text-align: left;">TLK-920</td>
+                                            <td style="padding: 8px; text-align: left;">07-May</td>
+                                            <td style="padding: 8px; text-align: left;">MCH</td>
+                                            <td style="padding: 8px; text-align: left;">MALIK FS</td>
+                                            <td style="padding: 8px; text-align: left;"></td>
+                                            <td style="padding: 8px; text-align: left;">A+B</td>
+                                            <td style="padding: 8px; text-align: left;">900</td>
+                                            <td style="padding: 8px; text-align: left;">6000</td>
+                                            <td style="padding: 8px; text-align: left;">2800</td>
+                                            </tr>
+                                            <tr style="font-size:12px;text-align:center;">
+                                            <td style="padding: 8px; text-align: left;">7874841</td>
+                                            <td style="padding: 8px; text-align: left;">SC</td>
+                                            <td style="padding: 8px; text-align: left;">TLK-920</td>
+                                            <td style="padding: 8px; text-align: left;">07-May</td>
+                                            <td style="padding: 8px; text-align: left;">MCH</td>
+                                            <td style="padding: 8px; text-align: left;">XYZ pump</td>
+                                            <td style="padding: 8px; text-align: left;"></td>
+                                            <td style="padding: 8px; text-align: left;">A+B</td>
+                                            <td style="padding: 8px; text-align: left;">900</td>
+                                            <td style="padding: 8px; text-align: left;">6000</td>
+                                            <td style="padding: 8px; text-align: left;">2800</td>
+                                            </tr>
+                                            <tr style="font-size:12px;text-align:center;">
+                                            <td style="padding: 8px; text-align: left;">54556456</td>
+                                            <td style="padding: 8px; text-align: left;">SC</td>
+                                            <td style="padding: 8px; text-align: left;">TLK-920</td>
+                                            <td style="padding: 8px; text-align: left;">08-May</td>
+                                            <td style="padding: 8px; text-align: left;">MCH</td>
+                                            <td style="padding: 8px; text-align: left;">ABC PUMP</td>
+                                            <td style="padding: 8px; text-align: left;"></td>
+                                            <td style="padding: 8px; text-align: left;">A+B</td>
+                                            <td style="padding: 8px; text-align: left;">900</td>
+                                            <td style="padding: 8px; text-align: left;">6000</td>
+                                            <td style="padding: 8px; text-align: left;">2800</td>
+                                            </tr> *@
+
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                            <div>
+
+                                @if (costdata.Count > 0)
+                                {
+                                    <div class="col-md-12">
+                                        <div style="display:flex;justify-content:space-between;padding-top:30px;">
+                                            <label style="cursor:pointer;color:red;" title="View Details" @onclick="ShowFuel">@("Total Filled Fuel: " + (costdata.Sum(a => a.FuelLiters) ?? 0))</label>
+                                            <label style="cursor:pointer;color:forestgreen;" title="View Details" @onclick="ShowExpenses">
+                                                @("Other Expenses : " + @costdata.Sum(a => a.Expense))
+                                            </label>
+
+                                            <label style="cursor:pointer;color:#5e72e4;">@("Total Distance Travelled: " + @ToltalKM)</label>
+
+                                        </div>
+                                    </div>
+                                    <hr />
+                                    <div class="col-md-12">
+                                        <div class="row">
+                                            <div class="col-md-7" style="display:flex;justify-content:space-between;padding-top:20px;">
+                                            <label>@("Vehicle Fixed Average: " + costdata[0].Average)</label>
+
+                                            <label>
+                                                @("Vehicle Current Trip Average: " + CurrentAverage)
+                                            </label>
+
+                                            <label>@("Expected Fuel: " + ExpectedFuel)</label>
+                                        </div>
+                                            <div class="col-md-5" style="display:flex;justify-content:space-between;padding-top:20px;">
+                                            <label>@("Filled Fuel: " + (costdata.Sum(a => a.FuelLiters) ?? 0))</label>
+                                            <label>@("Difference : " + Difference)</label>
+                                            @if (@status == "Short")
+                                            {
+                                                <label style="color:red;">@("Status : " + status)</label>
+
+                                            }
+                                            else
+                                            {
+                                                <label style="color:forestgreen;">@("Status : " + status)</label>
+
+                                            }
+                                        </div>
+                                        <div class="col-md-12">
+                                                <div style="display:block;float:right;padding-top:20px;">
+                                                <button class="btn btn-primary"> Weave</button>
+                                                <button class="btn btn-danger"> Make Deduction</button>
+                                            </div>
+                                        </div>
+                                        </div>
+                                    </div>
+                                }
+
+                            </div>
+                        </div>
+                        <hr />
+
+
+                    </div>
+
+                </div>
+                @*  <div style="display:flex;padding-bottom:30px;">
+                <div style="width:50%;"></div>
+                <div style="width:10%;"></div>
+                <div style="width:30%;">
+                <table style="float:right;" border="1">
+                <tr>
+                <td style="padding:10px;">Total</td>
+                <td style="padding:10px;">Amount</td>
+                <td style="padding:10px;">View</td>
+                </tr>
+                <tr style="background-color:red;color:white;padding-right:20px;">
+                <td>Fuel:</td>
+                <td>@FilledFuel</td>
+                <td>
+                <i title="View" @onclick="ShowFuel" class="fa fa-eye hoverable" aria-hidden="true"></i>
+
+                </td>
+                </tr>
+
+                <tr style="background-color:forestgreen;color:white;padding-right:20px;">
+                <td>Expanses:</td>
+                <td>@costdata.Sum(a => a.Expense)</td>
+                <td>
+                <i title="View" @onclick="ShowExpenses" class="fa fa-eye hoverable" aria-hidden="true"></i>
+                </td>
+                </tr>
+                <tr style="background-color:#5e72e4;color:white;padding-right:20px;">
+                <td>KM Travelled:</td>
+                <td>@(ToltalKM)</td>
+                <td>
+                <i class="fa fa-eye hoverable" aria-hidden="true"></i>
+                </td>
+                </tr>
+                </table>
+                </div>
+                </div> *@
+            </div>
+        </div>
+    </div>
+    <Modal @ref="modal" Title="Add Fuel">
+        <Body>
+            <div class="col-md-12" style="max-height: 500px; overflow-y: auto;">
+                <div class="card">
+
+                    <div class="card-body">
+
+                        <div class="row">
+
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="example-text-input" class="form-control-label">Slip Number</label>
+                                    <input type="text" placeholder="Slip Number" @bind="addCostData.SlipID" class="form-control">
+
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="example-text-input" class="form-control-label">Invoice ID</label>
+                                    <input type="text" placeholder="Invoice number" @bind="InvoiceID" class="form-control">
+
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group" style="max-height: 100px; overflow-y: auto;">
+                                    <label for="example-text-input" class="form-control-label">Filling Station</label>
+                                    <select class="form-control" @onchange="SelectedFuel">
+                                        <option selected="selected" value="0">Select Fuel Station</option>
+
+                                        @foreach (var item in fuelStations)
+                                        {
+                                            <option value="@item.locationid">@item.locationname</option>
+                                        }
+                                    </select>
+
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <div class="form-group">
+                                        <label for="example-text-input" class="form-control-label">Filling Date</label>
+                                        <input type="datetime-local" @bind="addCostData.FillingDate" class="form-control">
+
+                                    </div>
+                                </div>
+
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <div class="form-group">
+                                        <label for="example-text-input" class="form-control-label">Filled Liters</label>
+                                        <input type="number" @bind="addCostData.FuelLiters" class="form-control">
+
+                                    </div>
+
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <div class="form-group">
+                                        <label for="example-text-input" class="form-control-label">Rate Per Liter</label>
+                                        <input type="number" @bind="addCostData.PerLiterRate" class="form-control">
+                                    </div>
+                                </div>
+                            </div>
+                            <br />
+                            <div class="col-md-12">
+                                <button style="width:100%;" @onclick="AddFuel" class="btn btn-success">Submit</button>
+                            </div>
+
+                        </div>
+                        @*  @if (!IsEdit)
+                        {
+                        <div class="col-md-12">
+                        <div class="form-group" style="text-align:center;">
+                        <button class="btn btn-primary btn-sm ms-auto" @onclick="AddDriver">Submit</button>
+
+                        </div>
+                        </div>
+                        }
+                        else
+                        {
+                        <div class="col-md-12">
+                        <div class="form-group" style="text-align:center;">
+                        <button class="btn btn-warning btn-sm ms-auto" @onclick="UpdateDriver">Update</button>
+
+                        </div>
+                        </div>
+                        } *@
+
+
+                    </div>
+
+
+                </div>
+            </div>
+        </Body>
+    </Modal>
+
+    <Modal @ref="expensemodal" Title="Add Expense">
+        <Body>
+            <div class="col-md-12">
+                <div class="card">
+
+                    <div class="card-body">
+
+                        <div class="row">
+
+
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="example-text-input" class="form-control-label">Invoice ID</label>
+                                    <input type="text" disabled="disabled" placeholder="Invoice number" @bind="InvoiceID" class="form-control">
+
+                                </div>
+                            </div>
+
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <div class="form-group">
+                                        <label for="example-text-input" class="form-control-label">Exp Date</label>
+                                        <input type="datetime-local" @bind="addCostData.ExpDate" class="form-control">
+
+                                    </div>
+                                </div>
+
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <div class="form-group">
+                                        <label for="example-text-input" class="form-control-label">ExpAmount</label>
+                                        <input type="number" @bind="addCostData.ExpAmount" class="form-control">
+
+                                    </div>
+
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <div class="form-group">
+                                        <label for="example-text-input" class="form-control-label">Expense Description</label>
+                                        <input type="text" @bind="addCostData.ExpDescription" class="form-control">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-12">
+                                <div class="form-group">
+                                    <div class="form-group">
+                                        <label for="example-text-input" class="form-control-label">Remarks</label>
+                                        <input type="text" @bind="addCostData.Remarks" class="form-control">
+                                    </div>
+                                </div>
+                            </div>
+
+                            <br />
+                            <div class="col-md-12">
+                                <button style="width:100%;" @onclick="addExpense" class="btn btn-success">Submit</button>
+                            </div>
+
+                        </div>
+                        @*  @if (!IsEdit)
+                        {
+                        <div class="col-md-12">
+                        <div class="form-group" style="text-align:center;">
+                        <button class="btn btn-primary btn-sm ms-auto" @onclick="AddDriver">Submit</button>
+
+                        </div>
+                        </div>
+                        }
+                        else
+                        {
+                        <div class="col-md-12">
+                        <div class="form-group" style="text-align:center;">
+                        <button class="btn btn-warning btn-sm ms-auto" @onclick="UpdateDriver">Update</button>
+
+                        </div>
+                        </div>
+                        } *@
+
+
+                    </div>
+
+
+                </div>
+            </div>
+        </Body>
+    </Modal>
+
+    <Modal @ref="distancemodal" Title="Add Distance">
+        <Body>
+            <div class="col-md-12">
+                <div class="card">
+
+                    <div class="card-body">
+
+                        <div class="row">
+
+
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="example-text-input" class="form-control-label">Invoice ID</label>
+                                    <input type="text" disabled="disabled" placeholder="Invoice number" @bind="InvoiceID" class="form-control">
+
+                                </div>
+                            </div>
+
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <div class="form-group">
+                                        <label for="example-text-input" class="form-control-label">Distance KM</label>
+                                        <input type="number" @bind="addCostData.DistanceValue" class="form-control">
+
+                                    </div>
+                                </div>
+
+                            </div>
+
+                            <br />
+                            <div class="col-md-12">
+                                <button style="width:100%;" @onclick="adddistance" class="btn btn-success">Submit</button>
+                            </div>
+
+                        </div>
+                        @*  @if (!IsEdit)
+                        {
+                        <div class="col-md-12">
+                        <div class="form-group" style="text-align:center;">
+                        <button class="btn btn-primary btn-sm ms-auto" @onclick="AddDriver">Submit</button>
+
+                        </div>
+                        </div>
+                        }
+                        else
+                        {
+                        <div class="col-md-12">
+                        <div class="form-group" style="text-align:center;">
+                        <button class="btn btn-warning btn-sm ms-auto" @onclick="UpdateDriver">Update</button>
+
+                        </div>
+                        </div>
+                        } *@
+
+
+                    </div>
+
+
+                </div>
+            </div>
+        </Body>
+    </Modal>
+
+    <Modal @ref="fueldetail" Title="Fuel Details">
+        <Body>
+            <div class="col-md-12">
+                <div class="card">
+
+                    <div class="card-body">
+
+                        <div class="row" style="overflow-x:auto">
+
+                            <table class="table table-responsive">
+                                <thead>
+                                    <tr style="font-size:12px;text-align:center;">
+                                        <td style="padding: 8px; text-align: center;">Filling Station</td>
+                                        <td style="padding: 8px; text-align: center;">Filling Date</td>
+                                        <td style="padding: 8px; text-align: center;">Liters</td>
+                                        <td style="padding: 8px; text-align: center;">Amount</td>
+                                    </tr>
+                                </thead>
+                                <tbody>
+
+                                    @foreach (var x in fueldetails)
+                                    {
+                                        <tr style="font-size:12px;text-align:center;">
+                                            <td style="padding: 8px; text-align: center;">@x.fillingStation</td>
+                                            <td style="padding: 8px; text-align: center;">@Convert.ToDateTime(x.fillingDate).ToShortDateString()</td>
+                                            <td style="padding: 8px; text-align: center;">@x.fuelLiters</td>
+                                            <td style="padding: 8px; text-align: center;">@x.amount</td>
+                                        </tr>
+                                    }
+
+
+                                </tbody>
+                            </table>
+                        </div>
+                        @*  @if (!IsEdit)
+                        {
+                        <div class="col-md-12">
+                        <div class="form-group" style="text-align:center;">
+                        <button class="btn btn-primary btn-sm ms-auto" @onclick="AddDriver">Submit</button>
+
+                        </div>
+                        </div>
+                        }
+                        else
+                        {
+                        <div class="col-md-12">
+                        <div class="form-group" style="text-align:center;">
+                        <button class="btn btn-warning btn-sm ms-auto" @onclick="UpdateDriver">Update</button>
+
+                        </div>
+                        </div>
+                        } *@
+
+
+                    </div>
+
+
+                </div>
+            </div>
+        </Body>
+    </Modal>
+    <Modal @ref="ExpenseDetailsModal" Title="Expense Details">
+        <Body>
+            <div class="col-md-12">
+                <div class="card">
+
+                    <div class="card-body">
+
+                        <div class="row" style="overflow-x:auto">
+
+                            <table class="table table-responsive">
+                                <thead>
+                                    <tr style="font-size:12px;text-align:center;">
+                                        <td style="padding: 8px; text-align: center;">InvoiceID</td>
+                                        <td style="padding: 8px; text-align: center;">Exp_Description</td>
+                                        <td style="padding: 8px; text-align: center;">Exp_Date</td>
+                                        <td style="padding: 8px; text-align: center;">Exp_Amount</td>
+                                        <td style="padding: 8px; text-align: center;">Exp_Remarks</td>
+                                    </tr>
+                                </thead>
+                                <tbody>
+
+                                    @foreach (var x in expDetails)
+                                    {
+                                        <tr style="font-size:12px;text-align:center;">
+                                            <td style="padding: 8px; text-align: center;">@x.invoiceID</td>
+                                            <td style="padding: 8px; text-align: center;">@x.expDescription</td>
+                                            <td style="padding: 8px; text-align: center;">@Convert.ToDateTime(x.expDate).ToShortDateString()</td>
+                                            <td style="padding: 8px; text-align: center;">@x.expAmount</td>
+                                            <td style="padding: 8px; text-align: center;">@x.remarks</td>
+                                        </tr>
+                                    }
+
+
+                                </tbody>
+                            </table>
+                        </div>
+                        @*  @if (!IsEdit)
+                        {
+                        <div class="col-md-12">
+                        <div class="form-group" style="text-align:center;">
+                        <button class="btn btn-primary btn-sm ms-auto" @onclick="AddDriver">Submit</button>
+
+                        </div>
+                        </div>
+                        }
+                        else
+                        {
+                        <div class="col-md-12">
+                        <div class="form-group" style="text-align:center;">
+                        <button class="btn btn-warning btn-sm ms-auto" @onclick="UpdateDriver">Update</button>
+
+                        </div>
+                        </div>
+                        } *@
+
+
+                    </div>
+
+
+                </div>
+            </div>
+        </Body>
+    </Modal>
+</div>
+
+<script>
+    window.shortcut = {
+        onF2Press: function (dotNetObject) {
+            document.addEventListener('keydown', function (event) {
+                if (event.key === 'F2') {
+                    dotNetObject.invokeMethodAsync('openfuelmodal');
+                }
+            });
+        }
+    };
+
+</script>
+@code {
+    private DotNetObjectReference<AdCost> _dotNetRef;
+    public string SlipID = "";
+    public float km = 0;
+    public string VehicleID = "";
+    public string InvoiceID = "";
+    public string FillingStation = "";
+    public DateTime FillingDate = DateTime.Now.Date;
+    public int fuelliters = 0;
+    public double PerLiterRate = 0;
+    public int selectedfuelstation;
+    List<FuelDetais> fueldetails = new List<FuelDetais>();
+
+    public double CurrentAverage;
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            _dotNetRef = DotNetObjectReference.Create(this);
+            await js.InvokeVoidAsync("addGlobalKeydownListener", _dotNetRef);
+        }
+    }
+    [JSInvokable]
+    public void OnF1Press()
+    {
+
+        if (InvoiceID != null)
+        {
+            modal.Show();
+        }
+        else
+        {
+            toastService.ShowError("Select Trip");
+        }
+
+    }
+    [JSInvokable]
+    public void OnF2Press()
+    {
+        if (InvoiceID != null)
+        {
+            expensemodal.Show();
+        }
+        else
+        {
+            toastService.ShowError("Select Trip");
+        }
+
+    }
+    [JSInvokable]
+    public void OnF3Press()
+    {
+        if (InvoiceID != null)
+        {
+            distancemodal.Show();
+        }
+        else
+        {
+            toastService.ShowError("Select Trip");
+        }
+
+    }
+    public async ValueTask DisposeAsync()
+    {
+        if (_dotNetRef != null)
+        {
+            await js.InvokeVoidAsync("removeGlobalKeydownListener", _dotNetRef);
+            _dotNetRef.Dispose();
+        }
+    }
+
+
+    private void SelectedFuel(ChangeEventArgs e)
+    {
+        if (e.Value != "0")
+        {
+            selectedfuelstation = Convert.ToInt32(e.Value);
+        }
+    }
+
+    private async void ShowFuel()
+    {
+
+        await ShowFuelDetails();
+        fueldetail.Show();
+
+
+    }
+    private async void ShowExpenses()
+    {
+        ShowExpDetails();
+        ExpenseDetailsModal.Show();
+    }
+    private async void ShowDistance()
+    {
+        distancemodal.Show();
+    }
+    private async void openfuelmodal()
+    {
+        InvoiceID = await js.InvokeAsync<string>("sessionStorage.getItem", "selected_invoice");
+        if (InvoiceID != null)
+        {
+            modal.Show();
+        }
+        else
+        {
+            toastService.ShowError("Plese Select Trip");
+        }
+
+
+    }
+    private async void openexpensemodal()
+    {
+        InvoiceID = await js.InvokeAsync<string>("sessionStorage.getItem", "selected_invoice");
+        if (InvoiceID != null)
+        {
+            expensemodal.Show();
+        }
+        else
+        {
+            toastService.ShowError("Plese Select Trip");
+        }
+    }
+    private async void opendistancemodal()
+    {
+        InvoiceID = await js.InvokeAsync<string>("sessionStorage.getItem", "selected_invoice");
+        if (InvoiceID != null)
+        {
+            distancemodal.Show();
+        }
+        else
+        {
+            toastService.ShowError("Plese Select Trip");
+        }
+    }
+    private Modal modal;
+    private Modal fueldetail;
+    private Modal distancemodal;
+    private Modal expensemodal;
+    private Modal ExpenseDetailsModal;
+    List<TripCost> costdata = new List<TripCost>();
+    List<ExpenseDetail> expDetails = new List<ExpenseDetail>();
+    CostData addCostData = new CostData();
+
+    List<FuelStations> fuelStations = new List<FuelStations>();
+    string pkinvoice = "";
+    public double ExpectedFuel;
+    public double FilledFuel;
+    public double ToltalKM;
+    public double Difference;
+    public string status = "-";
+    protected override async void OnInitialized()
+    {
+        // Get the query string parameter value for 'id'
+        var uri = navmanager.ToAbsoluteUri(navmanager.Uri);
+        var id = QueryHelpers.ParseQuery(uri.Query).TryGetValue("pk", out var value);
+        pkinvoice = value;
+
+        await LoadCostData();
+        await LodFuelStations();
+        addCostData.FillingDate = DateTime.Now;
+        addCostData.ExpDate = DateTime.Now;
+        selectedfuelstation = 0;
+        CurrentAverage = (Math.Round((costdata.Sum(a => a.Distance ?? 0) / costdata.Sum(a => a.FuelLiters) ?? 0), 2));
+        ToltalKM = costdata.Sum(a => a.Distance ?? 0);
+        if (costdata.Count > 0)
+        {
+            ExpectedFuel = (ToltalKM / costdata[0].Average) ?? 0;
+            FilledFuel = costdata.Sum(a => a.FuelLiters) ?? 0;
+
+            Difference = FilledFuel - ExpectedFuel;
+
+            if (Difference < 0)
+            {
+                status = "Extra";
+            }
+            else if (Difference > 0)
+            {
+                status = "Short";
+            }
+            else
+            {
+                status = "-";
+            }
+        }
+
+        StateHasChanged();
+    }
+    private async Task ShowFuelDetails()
+    {
+        try
+        {
+            var rec = await API.GetRequest($"Invoice/GetFuelDetails?pkInvoice={pkinvoice}");
+            if (rec != null)
+            {
+                fueldetails = JsonSerializer.Deserialize<List<FuelDetais>>(rec);
+                StateHasChanged();
+            }
+            else
+            {
+                Console.WriteLine("API request returned null.");
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error: {ex.Message}");
+            // Handle the exception appropriately (e.g., log, display error message, etc.)
+        }
+    }
+    private async Task ShowExpDetails()
+    {
+        try
+        {
+            var rec = await API.GetRequest($"Invoice/GetExpDetails?pkInvoice={pkinvoice}");
+            if (rec != null)
+            {
+                expDetails = JsonSerializer.Deserialize<List<ExpenseDetail>>(rec);
+                StateHasChanged();
+            }
+            else
+            {
+                Console.WriteLine("API request returned null.");
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error: {ex.Message}");
+            // Handle the exception appropriately (e.g., log, display error message, etc.)
+        }
+    }
+
+    private async Task LoadCostData()
+    {
+        try
+        {
+            var rec = await API.GetRequest($"Invoice/GetTripCost?pkInvoice={pkinvoice}");
+            if (rec != null)
+            {
+                costdata = JsonSerializer.Deserialize<List<TripCost>>(rec);
+                StateHasChanged();
+            }
+            else
+            {
+                Console.WriteLine("API request returned null.");
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error: {ex.Message}");
+            // Handle the exception appropriately (e.g., log, display error message, etc.)
+        }
+    }
+
+    private async Task Submitrecord()
+    {
+        try
+        {
+            modal.CloseModal();
+
+            SlipID = "";
+            InvoiceID = "";
+            fuelliters = 0;
+            PerLiterRate = 0;
+        }
+        catch (Exception ex)
+        {
+            toastService.ShowError($"Error {ex}");
+        }
+
+
+    }
+    private async Task AddFuel()
+    {
+        try
+        {
+
+            addCostData.InvoiceID = InvoiceID;
+            addCostData.flag = "f";
+            addCostData.VehicleID = costdata[0].Vehicle;
+            addCostData.FuelAmount = addCostData.FuelLiters * addCostData.PerLiterRate;
+            var f = fuelStations.Where(a => a.locationid == selectedfuelstation).FirstOrDefault();
+            addCostData.FillingStation = f.locationname;
+            JsonSerializerOptions options = new JsonSerializerOptions
+                {
+                    WriteIndented = true,
+                    ReferenceHandler = null
+                };
+            string jsonData = JsonSerializer.Serialize(addCostData, options);
+
+            var cost = await API.PostRequest($"Invoice/AddCostData", jsonData);
+            string Result = JsonSerializer.Deserialize<string>(cost);
+            if (Result == "200")
+            {
+                toastService.ShowSuccess($"Fuel Added");
+                modal.CloseModal();
+                addCostData.SlipID = "";
+                addCostData.InvoiceID = "";
+                addCostData.FuelLiters = 0;
+                addCostData.PerLiterRate = 0;
+                addCostData.FuelAmount = 0;
+                InvoiceID = "";
+                await LoadCostData();
+
+                CurrentAverage = (Math.Round((costdata.Sum(a => a.Distance ?? 0) / costdata.Sum(a => a.FuelLiters) ?? 0), 2));
+                ToltalKM = costdata.Sum(a => a.Distance ?? 0);
+                if (costdata.Count > 0)
+                {
+                    ExpectedFuel = (ToltalKM / costdata[0].Average) ?? 0;
+                    FilledFuel = costdata.Sum(a => a.FuelLiters) ?? 0;
+
+                    Difference = FilledFuel - ExpectedFuel;
+
+                    if (Difference < 0)
+                    {
+                        status = "Extra";
+                    }
+                    else if (Difference > 0)
+                    {
+                        status = "Short";
+                    }
+                }
+                StateHasChanged();
+            }
+            else
+            {
+                modal.CloseModal();
+                toastService.ShowError($"Fuel Not Added");
+
+            }
+
+
+
+
+
+        }
+        catch (Exception ex)
+        {
+            toastService.ShowSuccess(ex.Message);
+
+        }
+
+
+    }
+
+    private async Task addExpense()
+    {
+        try
+        {
+
+            addCostData.InvoiceID = InvoiceID;
+            addCostData.flag = "e";
+            addCostData.VehicleID = costdata[0].Vehicle;
+            // addCostData.FuelAmount = addCostData.FuelLiters * addCostData.PerLiterRate;
+            //  var f = fuelStations.Where(a => a.locationid == selectedfuelstation).FirstOrDefault();
+            // addCostData.FillingStation = f.locationname;
+            JsonSerializerOptions options = new JsonSerializerOptions
+                {
+                    WriteIndented = true,
+                    ReferenceHandler = null
+                };
+            string jsonData = JsonSerializer.Serialize(addCostData, options);
+
+            var cost = await API.PostRequest($"Invoice/AddCostData", jsonData);
+            string Result = JsonSerializer.Deserialize<string>(cost);
+            if (Result == "200")
+            {
+                toastService.ShowSuccess($"Expense Added");
+                expensemodal.CloseModal();
+                addCostData.SlipID = "";
+                addCostData.InvoiceID = "";
+                addCostData.FuelLiters = 0;
+                addCostData.PerLiterRate = 0;
+                addCostData.FuelAmount = 0;
+                addCostData.ExpAmount = 0;
+                addCostData.ExpDescription = "";
+                addCostData.Remarks = "";
+                addCostData.DistanceValue = 0;
+                InvoiceID = "";
+                await LoadCostData();
+
+                CurrentAverage = (Math.Round((costdata.Sum(a => a.Distance ?? 0) / costdata.Sum(a => a.FuelLiters) ?? 0), 2));
+                ToltalKM = costdata.Sum(a => a.Distance ?? 0);
+                if (costdata.Count > 0)
+                {
+                    ExpectedFuel = (ToltalKM / costdata[0].Average) ?? 0;
+                    FilledFuel = costdata.Sum(a => a.FuelLiters) ?? 0;
+
+                    Difference = FilledFuel - ExpectedFuel;
+
+                    if (Difference < 0)
+                    {
+                        status = "Extra";
+                    }
+                    else if (Difference > 0)
+                    {
+                        status = "Short";
+                    }
+                }
+                StateHasChanged();
+            }
+            else
+            {
+                expensemodal.CloseModal();
+                toastService.ShowError($"Expense Not Added");
+
+            }
+
+
+
+
+
+        }
+        catch (Exception ex)
+        {
+            toastService.ShowSuccess(ex.Message);
+
+        }
+
+
+    }
+
+    private async Task adddistance()
+    {
+        try
+        {
+
+            addCostData.InvoiceID = InvoiceID;
+            addCostData.flag = "k";
+            addCostData.VehicleID = costdata[0].Vehicle;
+            // addCostData.FuelAmount = addCostData.FuelLiters * addCostData.PerLiterRate;
+            //  var f = fuelStations.Where(a => a.locationid == selectedfuelstation).FirstOrDefault();
+            //  addCostData.FillingStation = f.locationname;
+            JsonSerializerOptions options = new JsonSerializerOptions
+                {
+                    WriteIndented = true,
+                    ReferenceHandler = null
+                };
+            string jsonData = JsonSerializer.Serialize(addCostData, options);
+
+            var cost = await API.PostRequest($"Invoice/AddCostData", jsonData);
+            string Result = JsonSerializer.Deserialize<string>(cost);
+            if (Result == "200")
+            {
+                toastService.ShowSuccess($"Distance Added");
+                distancemodal.CloseModal();
+                addCostData.SlipID = "";
+                addCostData.InvoiceID = "";
+                addCostData.FuelLiters = 0;
+                addCostData.PerLiterRate = 0;
+                addCostData.FuelAmount = 0;
+                addCostData.ExpAmount = 0;
+                addCostData.ExpDescription = "";
+                addCostData.Remarks = "";
+                addCostData.DistanceValue = 0;
+                InvoiceID = "";
+                await LoadCostData();
+
+                CurrentAverage = (Math.Round((costdata.Sum(a => a.Distance ?? 0) / costdata.Sum(a => a.FuelLiters) ?? 0), 2));
+                ToltalKM = costdata.Sum(a => a.Distance ?? 0);
+                if (costdata.Count > 0)
+                {
+                    ExpectedFuel = (ToltalKM / costdata[0].Average) ?? 0;
+                    FilledFuel = costdata.Sum(a => a.FuelLiters) ?? 0;
+
+                    Difference = FilledFuel - ExpectedFuel;
+
+                    if (Difference < 0)
+                    {
+                        status = "Extra";
+                    }
+                    else if (Difference > 0)
+                    {
+                        status = "Short";
+                    }
+                }
+                StateHasChanged();
+            }
+            else
+            {
+                distancemodal.CloseModal();
+                toastService.ShowError($"Distance Not Added");
+
+            }
+
+
+
+
+
+        }
+        catch (Exception ex)
+        {
+            toastService.ShowSuccess(ex.Message);
+
+        }
+
+
+    }
+
+    private async Task LodFuelStations()
+    {
+        try
+        {
+            var rec = await API.GetRequest($"Fleet/GetFuelStations");
+            if (rec != null)
+            {
+                fuelStations = JsonSerializer.Deserialize<List<FuelStations>>(rec);
+
+            }
+            else
+            {
+                Console.WriteLine("API request returned null.");
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error: {ex.Message}");
+            // Handle the exception appropriately (e.g., log, display error message, etc.)
+        }
+    }
+
+
+
+    public class TripCost
+    {
+        [JsonPropertyName("stono")]
+        public string? Stono { get; set; }
+
+        [JsonPropertyName("primaryReference")]
+        public string? PrimaryReference { get; set; }
+
+        [JsonPropertyName("type")]
+        public string? Type { get; set; }
+
+        [JsonPropertyName("vehicle")]
+        public string? Vehicle { get; set; }
+
+        [JsonPropertyName("tripDate")]
+        public DateTime? TripDate { get; set; }
+
+        [JsonPropertyName("loadingPoint")]
+        public string? LoadingPoint { get; set; }
+
+        [JsonPropertyName("receivingPoint")]
+        public string? ReceivingPoint { get; set; }
+
+        [JsonPropertyName("qty")]
+        public int? Qty { get; set; }
+
+        [JsonPropertyName("drivers")]
+        public string? Drivers { get; set; }
+
+        [JsonPropertyName("fuelliters")]
+        public double? FuelLiters { get; set; }
+
+        [JsonPropertyName("expense")]
+        public double? Expense { get; set; }
+
+        [JsonPropertyName("distance")]
+        public double? Distance { get; set; }
+
+        [JsonPropertyName("average")]
+        public double? Average { get; set; }
+    }
+
+    public class FuelStations
+    {
+        public int locationid { get; set; }
+        public string locationname { get; set; }
+    }
+
+    public class CostData
+    {
+        public string? flag { get; set; }
+        public string? SlipID { get; set; }
+        public string? VehicleID { get; set; }
+        public string? InvoiceID { get; set; }
+        public string? FillingStation { get; set; }
+        public DateTime FillingDate { get; set; }
+        public float FuelLiters { get; set; }
+        public float PerLiterRate { get; set; }
+        public float FuelAmount { get; set; }
+        public string? User_ { get; set; }
+        public float DistanceValue { get; set; }
+        public string? ExpDescription { get; set; }
+        public DateTime ExpDate { get; set; }
+        public float ExpAmount { get; set; }
+        public string? Remarks { get; set; }
+    }
+    public class FuelDetais
+    {
+        public string? fillingStation { get; set; }
+        public DateTime? fillingDate { get; set; }
+        public double? fuelLiters { get; set; }
+        public double? amount { get; set; }
+    }
+
+    public class ExpenseDetail
+    {
+        public string? invoiceID { get; set; }
+        public string? expDescription { get; set; }
+        public DateTime? expDate { get; set; }
+        public double? expAmount { get; set; }
+        public string? remarks { get; set; }
+    }
+}
