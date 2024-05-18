@@ -12,7 +12,7 @@
 @inject IApiService API
 @inject IUserClaimsService UserClaimsService
 @inject IJSRuntime js
-<AuthorizeView Policy="MainCom">
+<AuthorizeView>
     <Authorized>
         <Nav PageName="Maintainance" />
 
@@ -20,43 +20,77 @@
             <div class="row">
                 <div class="col-12">
                     <div class="card mb-4">
-                        <div class="fleet-cards">
-                            <div class="container">
-                                @if (MaintainanceList.Count > 0)
-                                {
-                                    @foreach (var item in MaintainanceList)
-                                    {
-                                        <div class="card">
-                                            <div class="card-header">
-                                                <span class="edit-icon" @onclick="@(() => OpenModal(item.mainid))"><i class="fa fa-edit"></i></span>
-                                               
+                        <AuthorizeView Policy="MainCom">
+                            <Authorized Context="Main">
+                                <div class="card-header pb-0">
+                                    <div class="row col-md-12" style="text-align:center;">
+                                        <div class="col-md-3">
+                                            <div class="form-group">
+                                                <button class="btn btn-primary btn-sm ms-auto" @onclick="OpenModal">Add New</button>
                                             </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </Authorized>
+                        </AuthorizeView>
+                        <div class="fleet-cards">
+                            <div class="container" style="justify-content:center !important;">
+                                @if (!@IsChildLoading)
+                                {
+                                    @if (MaintainanceList.Count > 0)
+                                    {
+                                        @foreach (var item in MaintainanceList)
+                                        {
+                                            <div class="card">
+                                                <AuthorizeView Policy="MainCom">
+                                                    <Authorized Context="Main">
+
+                                                        <div class="card-header">
+                                                            <span class="edit-icon" @onclick="@(() => OpenModal(item.mainid))"><i class="fa fa-edit"></i></span>
+
+                                                        </div>
+                                                    </Authorized>
+                                                </AuthorizeView>
+                                                <div class="card-body">
+                                                    <span class="tag tag-danger">On Maintenance</span>
+                                                    <h4>@item.vehicleNumber</h4>
+                                                    <p>
+                                                        <i class="fa fa-map-marker" aria-hidden="true"></i>
+                                                        &nbsp;@item.location
+                                                    </p>
+                                                    <p>
+                                                        <i class="fa fa-building" aria-hidden="true"></i>
+                                                        &nbsp;@item.mainFrom
+                                                        <br /><br />
+                                                        <i class="fa fa-user" aria-hidden="true"></i>
+                                                        &nbsp;@item.onMainDate.ToString("MM-dd-yyyy")
+                                                    </p>
+
+                                                </div>
+
+                                            </div>
+                                        }
+                                    }
+                                    else
+                                    {
+                                        <div>
+
                                             <div class="card-body">
-                                                <span class="tag tag-danger">On Maintenance</span>
-                                                <h4>@item.vehicleNumber</h4>
-                                                <p>
-                                                    <i class="fa fa-map-marker" aria-hidden="true"></i>
-                                                    &nbsp;@item.location
-                                                </p>
-                                                <p>
-                                                    <i class="fa fa-building" aria-hidden="true"></i>
-                                                    &nbsp;@item.mainFrom
-                                                    <br /><br />
-                                                    <i class="fa fa-user" aria-hidden="true"></i>
-                                                    &nbsp;@item.onMainDate.ToString("MM-dd-yyyy")
-                                                </p>
+
+
+                                                <span class="tag tag-success">No Vehicle in Maintainance</span>
+
+
 
                                             </div>
 
                                         </div>
                                     }
                                 }
-                                else
+                                else if (@IsChildLoading)
                                 {
-                                    <DataLoaderComponent IsLoading="@IsChildLoading" LoadingText="Loading Maintainance..." />
-
+                                    <DataLoaderComponent IsLoading="@IsChildLoading" LoadingText="Loading Maintainance Fleets..." />
                                 }
-
 
 
                             </div>
@@ -65,6 +99,99 @@
                 </div>
             </div>
         </div>
+        <Modal @ref="AddModal" Title="Add Vehicles">
+            <Body>
+                <div class="col-md-12">
+                    <div class="card">
+
+                        <div class="card-body">
+
+                            <div class="row">
+
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label for="example-text-input" class="form-control-label">Business</label>
+
+                                        <select class="form-control" @onchange="AvailBusiness">
+                                            @if (BusinessList.Count > 0)
+                                            {
+                                                <option value="0" selected="@(SelectedVehicleIds.Count==0?"selected":null)">Select One</option>
+                                                foreach (var item in BusinessList)
+                                                {
+                                                    <option value="@item.busID">@item.busDesc</option>
+                                                }
+                                            }
+                                            else
+                                            {
+                                                <option value="0">Loading...</option>
+                                            }
+
+
+                                        </select>
+                                    </div>
+                                </div>
+                                @if (VehicleList.Count > 0)
+                                {
+                                    <div class="col-md-6">
+                                        <div class="form-group" style="overflow:scroll;height:320px;">
+                                            <label for="example-text-input" class="form-control-label">Vehicle List</label>
+                                            @foreach (var item in VehicleList)
+                                            {
+                                                <div>
+                                                    <input type="checkbox"
+                                                           id="vehicle-@(item)"
+                                                           checked="@IsVehicleSelected(item)"
+                                                           @onchange="(e) => ToggleVehicleSelection(item, (bool)e?.Value)" />
+                                                    <label for="vehicle-@(item)">@item</label>
+                                                </div>
+                                            }
+
+                                        </div>
+                                    </div>
+
+                                    <div class="col-md-6 reason-text">
+                                        <div class="form-group">
+                                            <label for="example-text-input" class="form-control-label">Reason</label>
+                                            <input type="text" placeholder="Reason" @bind="@Reason" class="form-control">
+
+                                        </div>
+                                    </div>
+
+
+
+                                    @if (IsChildLoading)
+                                    {
+                                        <DataLoaderComponent IsLoading="@IsChildLoading" LoadingText="Saving Records..." />
+
+
+                                    }
+                                    else
+                                    {
+                                        <div class="col-md-12">
+                                            <div class="form-group" style="text-align:center;">
+                                                <button class="btn btn-primary btn-sm ms-auto" @onclick="AddAvail">Submit</button>
+
+                                            </div>
+                                        </div>
+                                    }
+
+
+                                }
+                                else
+                                {
+                                    <DataLoaderComponent IsLoading="@IsChildLoading" LoadingText="Loading Vehicles..." />
+
+                                }
+
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+            </Body>
+        </Modal>
+
+
         <Modal @ref="modal" Title="Finish Maintainance">
             <Body>
                 <div class="col-md-12">
@@ -80,7 +207,7 @@
 
                                     </div>
                                 </div>
-                              
+
                                 <div class="col-md-12">
                                     <div class="form-group" style="text-align:center;">
                                         @if (IsLoading)
@@ -139,27 +266,116 @@
         }
     }
     private Modal modal;
+    private Modal AddModal;
     public List<GetMain> MaintainanceList = new List<GetMain>();
     public List<int> BusinessID = new List<int>();
-
+    public List<GetBusiness> BusinessList = new List<GetBusiness>();
+    public List<string> VehicleList = new List<string>();
+    private List<string> SelectedVehicleIds = new List<string>();
     public bool IsLoading = false;
     public bool IsChildLoading = false;
     public int MainIDs = 0;
-
+    public string Reason { get; set; }
+    private void OpenModal()
+    {
+        AddModal.Show();
+    }
     private async Task OpenModal(int MainID)
     {
         MainIDs = MainID;
         modal.Show();
 
     }
+    // Toggle vehicle selection
+    private void ToggleVehicleSelection(string vehicleId, bool isChecked)
+    {
+        if (isChecked)
+        {
+            if (!SelectedVehicleIds.Contains(vehicleId))
+            {
+                SelectedVehicleIds.Add(vehicleId);
+            }
+        }
+        else
+        {
+            if (SelectedVehicleIds.Contains(vehicleId))
+            {
+                SelectedVehicleIds.Remove(vehicleId);
+            }
+        }
+    }
 
+    private bool IsVehicleSelected(string vehicleId)
+    {
+        return SelectedVehicleIds.Contains(vehicleId);
+    }
+
+    public async Task GetAllVehicle(int BusID)
+    {
+
+        try
+        {
+
+            var Vehicles = await API.GetRequest($"Invoice/GetAllVehicle/{BusID}");
+            if (Vehicles != "")
+            {
+
+                VehicleList = JsonSerializer.Deserialize<List<string>>(Vehicles);
+
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex.Message);
+        }
+    }
+    private async Task AvailBusiness(ChangeEventArgs e)
+    {
+        IsChildLoading = true;
+        if (e.Value != "0")
+        {
+            VehicleList = new List<string>();
+            await GetAllVehicle(int.Parse(e.Value.ToString()));
+
+        }
+        else
+        {
+            BusinessList = new List<GetBusiness>();
+            VehicleList = new List<string>();
+        }
+        IsChildLoading = false;
+    }
+    public async Task GetAllBusiness()
+    {
+
+        try
+        {
+            JsonSerializerOptions options = new JsonSerializerOptions
+                {
+                    WriteIndented = true,
+                    ReferenceHandler = null
+                };
+            string jsonData = JsonSerializer.Serialize(BusinessID, options);
+            var Vehicles = await API.PostRequest($"Available/GetBusinessAll", jsonData);
+            if (Vehicles != "")
+            {
+
+                BusinessList = JsonSerializer.Deserialize<List<GetBusiness>>(Vehicles);
+
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex.Message);
+        }
+    }
     protected override async Task OnInitializedAsync()
     {
         try
         {
             IsChildLoading = true;
             BusinessID = await UserClaimsService.GetBusinessIdsAsync();
-
+            await GetAllBusiness();
             await GetAllMaintainance();
 
             IsChildLoading = false;
@@ -173,11 +389,17 @@
     {
         try
         {
-            var Main = await API.GetRequest($"Fleet/GetMaintaince");
+            JsonSerializerOptions options = new JsonSerializerOptions
+                {
+                    WriteIndented = true,
+                    ReferenceHandler = null
+                };
+            string jsonData = JsonSerializer.Serialize(BusinessID, options);
+            var Main = await API.PostRequest($"Fleet/GetMaintaince", jsonData);
             if (Main != "")
             {
-                var rec = JsonSerializer.Deserialize<List<GetMain>>(Main);
-                MaintainanceList = rec.Where(b => BusinessID.Contains(b.busID)).OrderByDescending(p => p.mainid).ToList();
+                MaintainanceList = JsonSerializer.Deserialize<List<GetMain>>(Main).OrderByDescending(p => p.mainid).ToList();
+
             }
         }
         catch (Exception ex)
@@ -209,4 +431,58 @@
         }
         IsLoading = false;
     }
+
+
+
+    private async Task AddAvail()
+    {
+        try
+        {
+
+            if (SelectedVehicleIds.Count > 0 && Reason != null)
+            {
+
+                IsChildLoading = true;
+
+                JsonSerializerOptions options = new JsonSerializerOptions
+                    {
+                        WriteIndented = true,
+                        ReferenceHandler = null
+                    };
+                string jsonData = JsonSerializer.Serialize(SelectedVehicleIds, options);
+                var AddUser = await API.PostRequest($"Fleet/AddVehicleToMain/{Reason}", jsonData);
+                int Result = JsonSerializer.Deserialize<int>(AddUser);
+                if (Result == 200)
+                {
+
+                    AddModal.CloseModal();
+                    toastService.ShowSuccess($"Vehicles Added to Maintainance");
+                    await GetAllMaintainance();
+                    VehicleList = new List<string>();
+                    SelectedVehicleIds = new List<string>();
+                    Reason = string.Empty;
+
+                }
+                else
+                {
+
+                    toastService.ShowError("Error...");
+                    modal.CloseModal();
+
+                }
+
+            }
+            else
+            {
+                toastService.ShowError("Please select any vehicle or add reason");
+            }
+        }
+        catch (Exception ex)
+        {
+            toastService.ShowError($"Error {ex}");
+        }
+
+        IsChildLoading = false;
+    }
+
 }

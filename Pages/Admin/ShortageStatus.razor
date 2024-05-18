@@ -1,0 +1,289 @@
+﻿@page "/shortagestatus"
+
+@using System.Text.Json
+@using System.Text
+@using System.Web
+@using VehicleManagement.ApiService
+@using VehicleManagement.Authentication
+@using VehicleManagement.Models.General
+@using VehicleManagement.Models.General.Driver
+@using VehicleManagement.Pages.Redirects
+@inject IToastService toastService
+@inject IApiService API
+ @inject IJSRuntime js
+ @inject IUserClaimsService UserClaimsService
+ @inject NavigationManager NavigationManager
+<AuthorizeView Policy="MainCom">
+    <Authorized>
+        <Nav PageName="Shortage Status" />
+
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col-12">
+                    <div class="card mb-4">
+
+
+                        <div class="card-body px-0 pt-0 pb-2">
+                            <div class="table-responsive p-0">
+                                <table class="table align-items-center mb-0">
+
+                                    <thead>
+                                        <tr>
+                                            <th class="text-uppercase font-colors  text-xxs font-weight-bolder opacity-7">Colour</th>
+                                            <th class="text-uppercase font-colors  text-xxs font-weight-bolder opacity-7 ps-2" style="text-align:center">Status</th>
+                                            <th class="text-center font-colors text-uppercase  text-xxs font-weight-bolder opacity-7">Count</th>
+                                            <th class="text-center font-colors text-uppercase  text-xxs font-weight-bolder opacity-7"></th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @if (!IsChildLoading)
+                                        {
+                                            @if (Shortage.Count > 0)
+                                            {
+                                                <tr>
+                                                    <td class="align-middle text-center" style="background-color:#fbe4d5;color:black">
+                                                        <p class="text-xs font-weight-bold mb-0">All</p>
+                                                    </td>
+                                                    <td class="align-middle text-center">
+                                                        <div class="d-flex px-2 py-1">
+                                                            <div class="d-flex flex-column justify-content-center">
+                                                                <h6 class="mb-0 text-sm">All Status</h6>
+                                                            </div>
+                                                        </div>
+                                                    </td>
+                                                    <td class="align-middle text-center">
+                                                        <span class="text-secondary text-xs font-weight-bold">@Sum </span>
+                                                    </td>
+                                                    <td class="align-middle text-center">
+                                                        <span class="text-secondary text-xs font-weight-bold" style="cursor:pointer"  @onclick="@(()=>GetView("All"))">View</span>
+                                                    </td>
+                                                </tr>
+                                                @foreach (var item in Shortage)
+                                                {
+                                                    <tr>
+                                                        <td class="align-middle text-center" style="background-color:@GetBackgroundColor(item.statusColor);color:black">
+                                                            <p class="text-xs font-weight-bold mb-0">@item.statusColor</p>
+                                                        </td>
+                                                        <td class="align-middle text-center">
+                                                            <div class="d-flex px-2 py-1">
+                                                                <div class="d-flex flex-column justify-content-center">
+                                                                    <h6 class="mb-0 text-sm">@item.statusDesc</h6>
+                                                                </div>
+                                                            </div>
+                                                        </td>
+                                                        <td class="align-middle text-center">
+                                                            <span class="text-secondary text-xs font-weight-bold">@item.count</span>
+                                                        </td>
+                                                        <td class="align-middle text-center">
+                                                            <span class="text-secondary text-xs font-weight-bold" style="cursor:pointer" title="Status @item.statusDesc" @onclick="@(()=>GetView(item.statusColor))">View</span>
+                                                        </td>
+                                                    </tr>
+                                                }
+
+
+                                            }
+                                            else
+                                            {
+                                                <tr>
+                                                    <td colspan="12">
+                                                        <p class="text-xs font-weight-bold mb-0">No Data Available..</p>
+                                                    </td>
+
+                                                </tr>
+                                            }
+                                        }
+                                        else if (IsChildLoading)
+                                        {
+                                            <tr>
+                                                <td colspan="12">
+                                                    <DataLoaderComponent IsLoading="@IsChildLoading" LoadingText="Loading Shortage Status..." />
+                                                </td>
+
+                                            </tr>
+                                        }
+
+
+
+
+
+                                    </tbody>
+
+
+
+
+
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </Authorized>
+    <NotAuthorized>
+        @if (_isJsReady)
+        {
+            <_403 />
+
+        }
+    </NotAuthorized>
+</AuthorizeView>
+
+
+
+@code {
+    private bool _isJsReady = false;
+    private Modal modal;
+    public List<int> BusinessID = new List<int>();
+    public List<ShortageStatuses> Shortage = new List<ShortageStatuses>();
+    public List<GetInvoiceShortages> GetInvoiceShortage = new List<GetInvoiceShortages>();
+    public bool IsChildLoading = false;
+    public int Sum { get; set; }
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            try
+            {
+                // Attempt a simple JavaScript call to check if JS is ready
+                await js.InvokeVoidAsync("console.log", "");
+                _isJsReady = true; // JS is ready, so set a flag or take action
+                StateHasChanged();
+            }
+            catch
+            {
+                // If JS isn't ready, handle it gracefully
+                _isJsReady = false; // JavaScript is not yet ready
+            }
+        }
+    }
+
+    public string GetBackgroundColor(string statusColor)
+    {
+        switch (statusColor.ToLower())
+        {
+            case "grey":
+                return "#d8d8d8";
+            case "red":
+                return "Red";
+            case "green":
+                return "#70ad47";
+            case "yellow":
+                return "Yellow";
+            case "blue":
+                return "#00b0f0";
+            case "white":
+                return "White";
+            default:
+                return "transparent";
+        }
+    }
+
+    public async Task GetAllShortage()
+    {
+
+        try
+        {
+            JsonSerializerOptions options = new JsonSerializerOptions
+                {
+                    WriteIndented = true,
+                    ReferenceHandler = null
+                };
+            string jsonData = JsonSerializer.Serialize(BusinessID, options);
+            var Vehicles = await API.PostRequest($"Shortage/GetAllShortageStatus", jsonData);
+            if (Vehicles != "")
+            {
+
+                Shortage = JsonSerializer.Deserialize<List<ShortageStatuses>>(Vehicles);
+                Sum = Shortage.Sum(p => p.count);
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex.Message);
+        }
+    }
+    public async Task GetAllInvoiceShortage()
+    {
+
+        try
+        {
+            JsonSerializerOptions options = new JsonSerializerOptions
+                {
+                    WriteIndented = true,
+                    ReferenceHandler = null
+                };
+            string jsonData = JsonSerializer.Serialize(BusinessID, options);
+            var Vehicles = await API.PostRequest($"Shortage/GetInvoiceShortages", jsonData);
+            if (Vehicles != "")
+            {
+
+                GetInvoiceShortage = JsonSerializer.Deserialize<List<GetInvoiceShortages>>(Vehicles);
+
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex.Message);
+        }
+    }
+    protected override async Task OnInitializedAsync()
+    {
+
+        IsChildLoading = true;
+        try
+        {
+
+            BusinessID = await UserClaimsService.GetBusinessIdsAsync();
+            await GetAllShortage();
+            await GetAllInvoiceShortage();
+        }
+        catch (Exception ex)
+        {
+            IsChildLoading = false;
+        }
+        IsChildLoading = false;
+    }
+    private void OpenModal()
+    {
+        modal.Show();
+    }
+
+    private async Task GetView(string Color)
+    {
+        try
+        {
+            string jsonString = string.Empty;
+            if (Color=="All")
+            {
+                jsonString = Newtonsoft.Json.JsonConvert.SerializeObject(GetInvoiceShortage);
+            }
+            else
+            {
+                var rec = GetInvoiceShortage.Where(p => p.statusColor == Color).ToList();
+
+                jsonString = Newtonsoft.Json.JsonConvert.SerializeObject(rec);
+            }
+          
+
+            // Encode the JSON string as Base64 to make it URL-safe
+            string base64EncodedJson = Convert.ToBase64String(Encoding.UTF8.GetBytes(jsonString));
+
+            // Encode the Base64 string to make it URL-safe
+            string encodedJson = HttpUtility.UrlEncode(base64EncodedJson);
+
+            // Navigate to the destination page with the encoded JSON string as a query parameter
+            NavigationManager.NavigateTo($"/ShortageStatusReport?Js={encodedJson}");
+        }
+        catch (Exception ex)
+        {
+            toastService.ShowError($"Error: {ex.Message}");
+        }
+
+
+
+    }
+
+}
+

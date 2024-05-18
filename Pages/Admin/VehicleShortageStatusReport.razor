@@ -1,0 +1,388 @@
+﻿@page "/ShortageStatusReport"
+@using System.Text.Json
+@using System.Web
+@using System.Text
+@using VehicleManagement.ApiService
+@using VehicleManagement.Models.General
+@using VehicleManagement.Models.General.Driver
+@using VehicleManagement.Pages.Redirects
+@inject IToastService toastService
+@inject IApiService API
+ @inject IJSRuntime js
+ @inject NavigationManager NavigationManager
+ @inject AuthenticationStateProvider _authenticationStateProvider
+<AuthorizeView Policy="MainCom">
+    <Authorized>
+        <Nav PageName="Shortage Status Report" />
+
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col-12">
+                    <div class="card mb-4">
+                        @if (isEditing)
+                        {
+                            <div class="card-header pb-0">
+                                <div class="row col-md-12" style="text-align:center;">
+
+                                    <div class="col-md-3">
+                                        <div class="form-group">
+                                            <button class="btn btn-danger btn-sm ms-auto" @onclick="Update">Update</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        }
+
+
+                        <div class="card-body px-0 pt-0 pb-2">
+                            <div class="table-responsive p-0" style="max-width:1270px;">
+                                <table class="table align-items-center mb-0">
+
+                                    <thead>
+                                        <tr>
+                                            <th class="text-uppercase font-colors  text-xxs font-weight-bolder opacity-7">Business</th>
+                                            <th class="text-uppercase font-colors  text-xxs font-weight-bolder opacity-7 ps-2" style="text-align:center">Date</th>
+                                            <th class="text-center font-colors text-uppercase  text-xxs font-weight-bolder opacity-7">Vehicle No</th>
+                                            <th class="text-center font-colors text-uppercase  text-xxs font-weight-bolder opacity-7">Filling Location</th>
+                                            <th class="text-center font-colors text-uppercase  text-xxs font-weight-bolder opacity-7">Decanting Location</th>
+                                            <th class="text-center font-colors text-uppercase  text-xxs font-weight-bolder opacity-7">Primary Shortage</th>
+                                            <th class="text-center font-colors text-uppercase  text-xxs font-weight-bolder opacity-7">Secondary Shortage</th>
+                                            <th class="text-center font-colors text-uppercase  text-xxs font-weight-bolder opacity-7">Total Shortage</th>
+                                            <th class="text-center font-colors text-uppercase  text-xxs font-weight-bolder opacity-7">Remarks</th>
+                                            <th class="text-center font-colors text-uppercase  text-xxs font-weight-bolder opacity-7">Super Visor Remarks</th>
+
+
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+
+                                        @if (!isLoading)
+                                        {
+
+                                            @if (GetInvoiceShortage.Count > 0)
+                                            {
+                                                @foreach (var item in GetInvoiceShortage)
+                                                {
+                                                    <tr style="background:@item.statusColor" @ondblclick="EnableEditing">
+                                                        <td class="align-middle text-center">
+                                                            <div class="d-flex px-2 py-1">
+                                                                <div>
+                                                                    <img src="css/invoice-icon.png" class="avatar avatar-sm me-3" alt="user1">
+                                                                </div>
+                                                                <div class="d-flex flex-column justify-content-center">
+                                                                    <h6 class="mb-0 text-sm" style="color:black !important;">@item.business</h6>
+
+                                                                </div>
+                                                            </div>
+                                                        </td>
+                                                        <td class="align-middle text-center">
+                                                            <p class="text-xs font-weight-bold mb-0" style="color:black !important;">@item.dated.ToString("dd-MM-yyyy")</p>
+
+                                                        </td>
+                                                        <td class="align-middle text-center">
+                                                            <span class="text-secondary text-xs font-weight-bold" style="color:black !important;">@item.vehicleID</span>
+                                                        </td>
+                                                        <td class="align-middle text-center">
+                                                            <span class="text-secondary text-xs font-weight-bold" style="color:black !important;">@item.supplyPoint</span>
+                                                        </td>
+                                                        <td class="align-middle text-center text-sm">
+                                                            <span class="text-secondary text-xs font-weight-bold" style="color:black !important;">@item.receiving</span>
+                                                        </td>
+                                                        <td class="align-middle text-center text-sm">
+                                                            <span class="text-secondary text-xs font-weight-bold" style="color:black !important;">@item.primaryShortage</span>
+                                                        </td>
+                                                        <td class="align-middle text-center text-sm">
+                                                            <span class="text-secondary text-xs font-weight-bold" style="color:black !important;">@item.secondaryShortage</span>
+                                                        </td>
+                                                        <td class="align-middle text-center text-sm">
+                                                            <span class="text-secondary text-xs font-weight-bold" style="color:black !important;">@item.totalShortage</span>
+                                                        </td>
+                                                        @if (isEditing)
+                                                        {
+                                                            <td class="align-middle text-center text-sm">
+                                                                <select class="form-control" @onchange="@((e)=>SearchTable(e,item.invoiceID,1))">
+                                                                    @if (ShortageStatuss.Count > 0)
+                                                                    {
+                                                                        <option value="0" style="text-align:center;">Select One</option>
+
+                                                                        @foreach (var items in ShortageStatuss)
+                                                                        {
+                                                                            <option value="@items.shortageStatusID" style="text-align:center;" selected="@(item.statusDesc==items.statusDesc?"selected":null)">@items.statusDesc</option>
+                                                                        }
+                                                                    }
+                                                                    else
+                                                                    {
+                                                                        <option value="0" style="text-align:center;">Loading...</option>
+                                                                    }
+
+
+
+                                                                </select>
+                                                            </td>
+                                                            @if (GetRole == "admin" || GetRole == "SafetySupervisor")
+                                                            {
+                                                                <td class="align-middle text-center text-sm">
+                                                                    <input type="text" placeholder="Remarks" value="@item.remarks" @onchange="@((e)=>SearchTable(e,item.invoiceID,2))" class="form-control">
+                                                                </td>
+                                                            }
+                                                            else
+                                                            {
+                                                                <td class="align-middle text-center">
+                                                                    <span class="text-secondary text-xs font-weight-bold" style="color:black !important;">@item.remarks</span>
+                                                                </td>
+                                                            }
+
+                                                        }
+                                                        else
+                                                        {
+                                                            <td class="align-middle text-center text-sm">
+
+                                                                <span class="text-secondary text-xs font-weight-bold" style="color:black !important;">@item.statusDesc</span>
+
+
+                                                            </td>
+                                                            <td class="align-middle text-center">
+                                                                <span class="text-secondary text-xs font-weight-bold" style="color:black !important;">@item.remarks</span>
+                                                            </td>
+                                                        }
+
+
+
+
+                                                    </tr>
+
+                                                }
+                                            }
+                                            else
+                                            {
+                                                <tr>
+                                                    <td class="align-middle text-center" colspan="12">
+                                                        <span class="text-secondary text-xs font-weight-bold"> No Data Available...</span>
+
+                                                    </td>
+                                                </tr>
+                                            }
+
+                                        }
+                                        else if(isLoading)
+                                        {
+                                            <tr>
+                                                <td class="align-middle text-center" colspan="12">
+                                                    <DataLoaderComponent IsLoading="@isLoading" LoadingText="Loading Shortage Report..." />
+
+                                                </td>
+                                            </tr>
+                                          
+                                        }
+
+                                    </tbody>
+
+
+
+
+
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </Authorized>
+    <NotAuthorized>
+        @if (_isJsReady)
+        {
+            <_403 />
+
+        }
+    </NotAuthorized>
+</AuthorizeView>
+
+
+
+@code {
+    private bool _isJsReady = false;
+
+    public List<GetInvoiceShortages> GetInvoiceShortage = new List<GetInvoiceShortages>();
+    public List<ShortageStatusList> ShortageStatuss = new List<ShortageStatusList>();
+    private bool isEditing = false;
+    private bool isLoading = false;
+    private string GetRole = string.Empty;
+    List<RemarksModel> PosList = new List<RemarksModel>();
+
+    private void EnableEditing()
+    {
+        isEditing = !isEditing;
+    }
+
+    private async Task Update()
+    {
+        try
+        {
+            isLoading = true;
+            if (PosList.Count > 0)
+            {
+                JsonSerializerOptions options = new JsonSerializerOptions
+                    {
+                        WriteIndented = true,
+                        ReferenceHandler = null
+                    };
+                string jsonData = JsonSerializer.Serialize(PosList, options);
+                var AddDriver = await API.PostRequest($"Shortage/UpdateShortageStatus", jsonData);
+                int Result = JsonSerializer.Deserialize<int>(AddDriver);
+                if (Result == 200)
+                {
+                    toastService.ShowSuccess($"Status and Remarks Updated");
+                    NavigationManager.NavigateTo("/shortagestatus");
+                }
+
+            }
+            else
+            {
+                toastService.ShowError("Please select any status or add remarks");
+            }
+        }
+        catch(Exception ex)
+        {
+
+        }
+
+        isLoading = false;
+    }
+
+
+
+    private async Task SearchTable(ChangeEventArgs e, string InvoiceID, int isFrom)
+    {
+        if (e.Value != "0")
+        {
+
+            if (isFrom == 1)
+            {
+                int Status = int.Parse(e.Value.ToString());
+                var rec = PosList.Where(p => p.InvoiceID == InvoiceID).FirstOrDefault();
+                if (rec != null)
+                {
+                    rec.Remarks = rec.Remarks == "" ? "" : rec.Remarks;
+                    rec.StatusID = rec.StatusID = Status;
+                }
+                else
+                {
+                    PosList.Add(new RemarksModel
+                        {
+                            StatusID = Status,
+                            InvoiceID = InvoiceID,
+                            Remarks = ""
+                        });
+                }
+            }
+            else if (isFrom == 2)
+            {
+
+                var rec = PosList.Where(p => p.InvoiceID == InvoiceID).FirstOrDefault();
+                if (rec != null)
+                {
+                    rec.Remarks = e.Value.ToString();
+                    rec.StatusID = rec.StatusID == 0 ? 0 : rec.StatusID;
+                }
+                else
+                {
+                    PosList.Add(new RemarksModel
+                        {
+
+                            Remarks = e.Value.ToString(),
+                            InvoiceID = InvoiceID,
+                            StatusID = 0
+                        });
+                }
+            }
+
+        }
+
+
+    }
+
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            try
+            {
+                // Attempt a simple JavaScript call to check if JS is ready
+                await js.InvokeVoidAsync("console.log", "");
+                _isJsReady = true; // JS is ready, so set a flag or take action
+                StateHasChanged();
+            }
+            catch
+            {
+                // If JS isn't ready, handle it gracefully
+                _isJsReady = false; // JavaScript is not yet ready
+            }
+        }
+    }
+
+    public async Task GetAllStatus()
+    {
+
+        try
+        {
+
+            var Vehicles = await API.GetRequest($"Shortage/StortageStatus");
+            if (Vehicles != "")
+            {
+
+                ShortageStatuss = JsonSerializer.Deserialize<List<ShortageStatusList>>(Vehicles);
+
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex.Message);
+        }
+    }
+
+    protected override async void OnInitialized()
+    {
+        isLoading = true;
+        try
+        {
+
+            // Retrieve the encoded JSON string from the query parameters if it exists
+            string encodedJson = NavigationManager.ToAbsoluteUri(NavigationManager.Uri).Query;
+
+            // Check if the "json" query parameter exists
+            if (encodedJson.Contains("Js="))
+            {
+                // Extract the value of the "json" query parameter
+                encodedJson = encodedJson.Split("Js=")[1];
+
+                // Decode the URL-safe Base64 string
+                string base64EncodedJson = HttpUtility.UrlDecode(encodedJson);
+
+                // Convert the Base64 string back to UTF-8 encoded bytes
+                byte[] base64EncodedBytes = Convert.FromBase64String(base64EncodedJson);
+
+                // Decode the UTF-8 bytes back to the original JSON string
+                string jsonString = Encoding.UTF8.GetString(base64EncodedBytes);
+
+                // Deserialize the JSON string back into the Invoices object
+                GetInvoiceShortage = Newtonsoft.Json.JsonConvert.DeserializeObject<List<GetInvoiceShortages>>(jsonString);
+                await GetAllStatus();
+                var authState = await _authenticationStateProvider.GetAuthenticationStateAsync();
+                var user = authState.User;
+                GetRole = user.Claims.FirstOrDefault(c => c.Type == "rolee")?.Value;
+
+            }
+        }
+        catch (Exception ex)
+        {
+
+        }
+
+        isLoading = false;
+        StateHasChanged();
+    }
+
+}

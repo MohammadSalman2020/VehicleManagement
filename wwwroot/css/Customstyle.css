@@ -1301,3 +1301,12 @@ td, th {
         opacity: 1; /* Higher opacity in the middle for fading effect */
     }
 }
+
+.reason-text {
+    margin-top: -245px !important;
+}
+@media screen and (max-width: 768px) {
+    .reason-text {
+        margin-top: 0px !important;
+    }
+}

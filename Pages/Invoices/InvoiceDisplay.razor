@@ -878,10 +878,7 @@
             }
             else if (Result == "204")
             {
-               // toastService.ShowWarning("Invoice is saved without driver attendance");
-                toastService.ShowSuccess("Invoice Added Success");
-
-                NavigationManager.NavigateTo("/addinvoice");
+                toastService.ShowWarning($"Please Mark the Driver Attendance for Date {Invoices.Details.Date.ToString("MM-dd-yyyy")}");
             }
             else
             {
@@ -922,10 +919,7 @@
             }
             else if (Result == "204")
             {
-               // toastService.ShowWarning("Invoice is saved without driver attendance");
-                toastService.ShowSuccess("Invoice Updated Success");
-
-                NavigationManager.NavigateTo("/addinvoice");
+                toastService.ShowWarning($"Please Mark the Driver Attendance for Date {Invoices.Details.Date.ToString("MM-dd-yyyy")}");
             }
             else
             {
