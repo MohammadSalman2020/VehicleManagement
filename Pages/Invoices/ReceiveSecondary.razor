@@ -55,8 +55,8 @@
                     <br />
                     <div class="form-group">
                         <InputFile OnChange="@LoadFiles" MaxSize="10485760" />
-                       
-                            <button class="btn btn-success" @onclick="SaveInvoice">Save Invoice</button>
+
+                        <button class="btn btn-success" @onclick="SaveInvoice">Save Invoice</button>
 
                     </div>
                 </div>
@@ -83,13 +83,16 @@
     private bool IsLoading = false;
     List<RecInv> chambers = new List<RecInv>();
     public int invoiceno;
+    public string Primary;
 
     protected override async void OnInitialized()
     {
         // Get the query string parameter value for 'id'
         var uri = navmanager.ToAbsoluteUri(navmanager.Uri);
         var id = QueryHelpers.ParseQuery(uri.Query).TryGetValue("inv", out var value);
+        var PrimarySTO = QueryHelpers.ParseQuery(uri.Query).TryGetValue("STO", out var val);
         invoiceno = int.Parse(value);
+        Primary = val;
         await LoadInvocie();
     }
     public string invoicepath;
@@ -99,7 +102,7 @@
         try
         {
             List<string> selectedchambers = new List<string>();
-            foreach(var x in chambers)
+            foreach (var x in chambers)
             {
                 if (invoicepath != null)
                 {
@@ -172,7 +175,7 @@
                 enable = true;
                 StateHasChanged();
                 IsLoading = false;
-               
+
             }
             catch (Exception ex)
             {
@@ -189,7 +192,7 @@
     {
         try
         {
-            var rec = await API.GetRequest($"Invoice/Rec_Sec_Invoice/{invoiceno}");
+            var rec = await API.GetRequest($"Invoice/Rec_Sec_Invoice/{invoiceno}/{Primary}");
 
             if (rec != null)
             {
@@ -210,6 +213,7 @@
     }
     public class RecInv
     {
+        public string primarySTO { get; set; } = "";
         public int invoiceno { get; set; }
         public int ch_no { get; set; }
         public int disp_dip { get; set; }
