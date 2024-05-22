@@ -71,7 +71,7 @@
                                                 <span class="text-secondary text-xs font-weight-bold">@item.receiving</span>
                                             </td>
                                             <td class="align-middle text-center">
-                                                <a @onclick="@(()=>ShowMessage(item.invoicenumber))" class="text-secondary font-weight-bold text-xs cursor-pointer">
+                                                <a @onclick="@(()=>ShowMessage(item.invoicenumber,item.primaryreferences))" class="text-secondary font-weight-bold text-xs cursor-pointer">
                                                     Add Receiving Data
                                                 </a>
                                             </td>
@@ -237,9 +237,9 @@
             navmgr.NavigateTo($"/addcost?pk={primaryinvoice.Trim()}");
         }
     }
-    private async Task ShowMessage(string x)
+    private async Task ShowMessage(string x,string STO)
     {
-        navmgr.NavigateTo($"/rec_sec?inv={x}");
+        navmgr.NavigateTo($"/rec_sec?inv={x}&STO={STO}");
 
     }
 

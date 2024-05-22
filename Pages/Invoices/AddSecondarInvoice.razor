@@ -240,6 +240,10 @@
                 navmanager.NavigateTo($"/inv_selection");
                 toastService.ShowSuccess($"Secondary Invoice Added");
             }
+            else if (Result == "504")
+            {
+                toastService.ShowWarning($"Mark Driver Attendance First");
+            }
 
         }
         catch (Exception ex)
