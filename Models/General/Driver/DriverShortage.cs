@@ -21,6 +21,8 @@
 
     public class DriverShortageSec
     {
+        public int invoiceID { get; set; }
+
         public string? vehicleID { get; set; }
 
         public string? driverID { get; set; }
