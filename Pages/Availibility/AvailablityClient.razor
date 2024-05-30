@@ -346,6 +346,7 @@
                 Load.dated = DateTime.Now;
                 Load.businessID = rec.business;
                 Load.isActive = true;
+                Load.decenting = Load.decenting ?? "";
                 string jsonData = JsonSerializer.Serialize(Load);
                 var AddUser = await API.PostRequest($"Available/AddLoad", jsonData);
                 int Result = JsonSerializer.Deserialize<int>(AddUser);
