@@ -269,19 +269,35 @@ function LoadLocationMap() {
    
 
     // Add event listener for right-click on the map
-    map.addListener('rightclick', function (event) {
+    map.addListener('rightclick', async function (event) {
         var latitude = event.latLng.lat();
         var longitude = event.latLng.lng();
         document.getElementById("Lati").value = latitude;
         document.getElementById("Longi").value = longitude;
 
+        const apiKey = 'AIzaSyA0WrdLe-pQk18WGZ4C8y6DqhaHHjUH1og'; // Replace with your Google Maps API Key
+        try {
+            const response = await fetch(`https://maps.googleapis.com/maps/api/geocode/json?latlng=${latitude},${longitude}&key=${apiKey}`);
+            const data = await response.json();
+
+            if (data.status === "OK") {
+                const addressComponents = data.results[0].address_components;
+                const cityComponent = addressComponents.find(component => component.types.includes("locality"));
+
+                if (cityComponent) {
+                    sessionStorage.setItem('CityName', cityComponent.long_name);
+                }
+            }
+        } catch (error) {
+            console.error('Error:', error);
+        }
+
         sessionStorage.setItem('lat', latitude);
         sessionStorage.setItem('long', longitude);
 
         DotNet.invokeMethodAsync('VehicleManagement', 'StateHasChanged');
-
-
     });
+
 
     // Add event listener for click on the map
     map.addListener('click', function (event) {

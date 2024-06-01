@@ -1,7 +1,7 @@
 ﻿@page "/inv_selection"
 @using System.Text.Json
 @using VehicleManagement.ApiService
-
+@using VehicleManagement.Authentication
 @inject NavigationManager navmgr
 @inject IApiService API
 <div class="container-fluid py-4">
@@ -101,7 +101,7 @@
 
 
 
-<Modal @ref="modal" Title="Add Primary Reference">
+<Modal @ref="modal" Title="Add Secondary Trip">
     <Body>
         <div class="container-fluid">
             <!-- Ensure full width of the viewport -->
@@ -111,9 +111,13 @@
                     <!-- Full width on small screens, half on medium and up -->
                     <div class="card">
                         <div class="card-body">
+                            <div class="form-group">
+                                <label for="enableCheckbox">Enable Primary Invoice Reference</label> &nbsp;
+                                <input type="checkbox" @bind="isPrimaryInvoiceEnabled" />
+                            </div>
                             <div class="form-group d-grid gap-2">
                                 <label for="txtsecondaryInvoice">Primary Invoice Reference</label>
-                                <input required type="text" class="form-control" @onkeydown="HandleEnterPress" id="txtsecondaryInvoice" @bind-value="primaryinvoice" @bind-value:event="oninput" />
+                                <input required type="text" class="form-control" @onkeydown="HandleEnterPress" id="txtsecondaryInvoice" @bind-value="primaryinvoice" @bind-value:event="oninput" disabled="@(isPrimaryInvoiceEnabled ? false : true)" />
                             </div>
                             <div class="form-group d-grid gap-2">
                                 <button class="btn btn-warning btn-sm btn-block" @onclick="Submit">Submit</button>
@@ -155,7 +159,7 @@
 
 
 @code {
-
+    private bool isPrimaryInvoiceEnabled = true;
     private Modal modal;
     private Modal costmodal;
     private string primaryinvoice;
@@ -184,7 +188,8 @@
         IsLoading = false;
         StateHasChanged();
     }
-
+   
+    
     private async Task LoadInvoices()
     {
         try
@@ -217,7 +222,16 @@
     }
     private async Task Submit()
     {
-        navmgr.NavigateTo($"/sc_invoice?pk={primaryinvoice.Trim()}");
+        if (isPrimaryInvoiceEnabled)
+        {
+            navmgr.NavigateTo($"/sc_invoice?pk={primaryinvoice.Trim()}");
+
+        }
+        else
+        {
+            navmgr.NavigateTo($"/sc_invoice?pk=none");
+
+        }
     }
     private async Task GotoCost()
     {
@@ -251,4 +265,6 @@
         public string shipping { get; set; }
         public string receiving { get; set; }
     }
+  
 }
+

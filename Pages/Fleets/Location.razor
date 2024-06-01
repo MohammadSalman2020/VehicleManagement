@@ -103,6 +103,8 @@
         {
             string lat = await js.InvokeAsync<string>("sessionStorage.getItem", "lat");
             string lon = await js.InvokeAsync<string>("sessionStorage.getItem", "long");
+            cityname = await js.InvokeAsync<string>("sessionStorage.getItem", "CityName");
+
             Longitude = decimal.Parse(lon);
             Latitude = decimal.Parse(lat);
             StateHasChanged();
@@ -150,14 +152,15 @@
 
     }
 
-
+    string cityname = "";
     private async Task AddLocation()
     {
         try
         {
             if (LocationName != null && !isEmpty())
             {
-                var AddLocation = await API.GetRequest($"Fleet/AddLocationPolygon/{LocationName}/{Longitude}/{Latitude}/{250}/{360}");
+                
+                var AddLocation = await API.GetRequest($"Fleet/AddLocationPolygon/{LocationName}/{Longitude}/{Latitude}/{250}/{360}/{cityname}");
                 string Result = JsonSerializer.Deserialize<string>(AddLocation);
                 if (Result == "200")
                 {

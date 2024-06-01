@@ -246,6 +246,30 @@
         @* <div class="right-section"></div> <!-- Right section --> *@
     </div> <!-- End of container -->
 </div>
+<style>
+    table.gen, .gen th, .gen td {
+        border: 1px solid black;
+        border-collapse: collapse;
+        padding: 8px;
+    }
+
+    .icon {
+        vertical-align: middle;
+    }
+
+    /* CSS for signatures */
+    .signature-container {
+        display: flex;
+        justify-content: space-between;
+        margin-top: 20px;
+    }
+
+    .signature {
+        border-top: 1px solid black;
+        padding-top: 5px;
+        text-align: center;
+    }
+</style>
 @code {
     void OnPrint()
     {

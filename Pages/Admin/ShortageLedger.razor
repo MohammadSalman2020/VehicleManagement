@@ -103,7 +103,7 @@
                                                     </td>
                                                     <td class="align-middle text-center text-sm">
 
-                                                        <span class="badge badge-sm bg-gradient-success">@(item.invoiceType == "pk" ? "Primary" : "Secondary")</span>
+                                                        <span class="badge badge-sm @(item.invoiceType == "pk" ? "bg-gradient-success" : "bg-gradient-danger")">@(item.invoiceType == "pk" ? "Primary" : "Secondary")</span>
 
 
                                                     </td>

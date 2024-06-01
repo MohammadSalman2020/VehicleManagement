@@ -21,7 +21,7 @@
 
                                 <div class="form-group">
                                     <label for="vehicle">Vehicle ID</label>
-                                    <input type="text" required placeholder="Vehicle number" class="form-control mb-2" id="vehicle" @bind="txtvehicle" />
+                                    <input type="text" required placeholder="Vehicle number" @onkeydown="HandleKeyDown" class="form-control mb-2" id="vehicle" @bind="txtvehicle" />
                                 </div>
                                 <div class="form-group">
                                     <label for="date">Invoice Date</label>
@@ -39,7 +39,13 @@
                                     <input type="text" required class="form-control mb-2" id="receivingPoint" @bind="txtreveiving" />
                                 </div>
 
-
+                                @if (pkinvoice == "none")
+                                {
+                                    <div class="form-group">
+                                        <label for="receivingPoint">Product</label>
+                                        <input type="text" required class="form-control mb-2" id="product" @bind="txtproduct" />
+                                    </div>
+                                }
 
 
                             </div>
@@ -51,81 +57,100 @@
                                 <div class="form-group">
                                     <label for="textBoxId">Select Loaded Chambers</label>
                                 </div>
-                                <div class="form-check">
-                                    <input class="form-check-input" type="checkbox" id="chamber1" @bind="chamber1" />
-                                    <label class="form-check-label" for="chamber1">
-                                        @if (pkdetails.chamber1 != null)
-                                        {
-                                            @("Chamber 1 " + pkdetails.chamber1.Split("*")[1] + "( " + pkdetails.chamber1.Split("*")[2] + " )")
+                                @if (pkdetails.chamber1 != null)
+                                {
+                                    @if (pkdetails.chamber1.Split("*")[1] != "0")
+                                    {
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" id="chamber1" @bind="chamber1" />
+                                            <label class="form-check-label" for="chamber1">
+                                                @if (pkdetails.chamber1 != null)
+                                                {
+                                                    @("Chamber 1 " + pkdetails.chamber1.Split("*")[1] + "( " + pkdetails.chamber1.Split("*")[2] + " )")
 
-                                        }
-                                        else
-                                        {
-                                            @("Chamber 1")
-                                            ;
-                                        }
-                                    </label>
-                                </div>
-                                <div class="form-check">
-                                    <input class="form-check-input" type="checkbox" id="chamber2" @bind="chamber2" />
-                                    <label class="form-check-label" for="chamber2">
-                                        @if (pkdetails.chamber2 != null)
-                                        {
-                                            @("Chamber 2 " + pkdetails.chamber2.Split("*")[1] + "( " + pkdetails.chamber2.Split("*")[2] + " )")
+                                                }
+                                                else
+                                                {
+                                                    @("Chamber 1")
+                                                    ;
+                                                }
+                                            </label>
+                                        </div>
+                                    }
+                                    @if (pkdetails.chamber2.Split("*")[1] != "0")
+                                    {
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" id="chamber2" @bind="chamber2" />
+                                            <label class="form-check-label" for="chamber2">
+                                                @if (pkdetails.chamber2 != null)
+                                                {
+                                                    @("Chamber 2 " + pkdetails.chamber2.Split("*")[1] + "( " + pkdetails.chamber2.Split("*")[2] + " )")
 
-                                        }
-                                        else
-                                        {
-                                            @("Chamber 2")
-                                            ;
-                                        }
-                                    </label>
-                                </div>
-                                <div class="form-check">
-                                    <input class="form-check-input" type="checkbox" id="chamber3" @bind="chamber3" />
-                                    <label class="form-check-label" for="chamber1">
-                                        @if (pkdetails.chamber3 != null)
-                                        {
-                                            @("Chamber 3 " + pkdetails.chamber3.Split("*")[1] + "( " + pkdetails.chamber3.Split("*")[2] + " )")
+                                                }
+                                                else
+                                                {
+                                                    @("Chamber 2")
+                                                    ;
+                                                }
+                                            </label>
+                                        </div>
+                                    }
+                                    @if (pkdetails.chamber3.Split("*")[1] != "0")
+                                    {
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" id="chamber3" @bind="chamber3" />
+                                            <label class="form-check-label" for="chamber3">
+                                                @if (pkdetails.chamber3 != null)
+                                                {
+                                                    @("Chamber 3 " + pkdetails.chamber3.Split("*")[1] + "( " + pkdetails.chamber3.Split("*")[2] + " )")
 
-                                        }
-                                        else
-                                        {
-                                            @("Chamber 3")
-                                            ;
-                                        }
-                                    </label>
-                                </div>
-                                <div class="form-check">
-                                    <input class="form-check-input" type="checkbox" id="chamber4" @bind="chamber4" />
-                                    <label class="form-check-label" for="chamber4">
-                                        @if (pkdetails.chamber4 != null)
-                                        {
-                                            @("Chamber 4 " + pkdetails.chamber4.Split("*")[1] + "( " + pkdetails.chamber4.Split("*")[2] + " )")
+                                                }
+                                                else
+                                                {
+                                                    @("Chamber 3")
+                                                    ;
+                                                }
+                                            </label>
+                                        </div>
+                                    }
+                                    @if (pkdetails.chamber4.Split("*")[1] != "0")
+                                    {
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" id="chamber4" @bind="chamber4" />
+                                            <label class="form-check-label" for="chamber4">
+                                                @if (pkdetails.chamber4 != null)
+                                                {
+                                                    @("Chamber 4 " + pkdetails.chamber4.Split("*")[1] + "( " + pkdetails.chamber4.Split("*")[2] + " )")
 
-                                        }
-                                        else
-                                        {
-                                            @("Chamber 4")
-                                            ;
-                                        }
-                                    </label>
-                                </div>
-                                <div class="form-check">
-                                    <input class="form-check-input" type="checkbox" id="chamber5" @bind="chamber5" />
-                                    <label class="form-check-label" for="chamber5">
-                                        @if (pkdetails.chamber5 != null)
-                                        {
-                                            @("Chamber 5 " + pkdetails.chamber5.Split("*")[1] + "( " + pkdetails.chamber5.Split("*")[2] + " )")
+                                                }
+                                                else
+                                                {
+                                                    @("Chamber 4")
+                                                    ;
+                                                }
+                                            </label>
+                                        </div>
+                                    }
 
-                                        }
-                                        else
-                                        {
-                                            @("Chamber 5")
-                                            ;
-                                        }
-                                    </label>
-                                </div>
+                                    @if (pkdetails.chamber5.Split("*")[1] != "0")
+                                    {
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" id="chamber5" @bind="chamber5" />
+                                            <label class="form-check-label" for="chamber5">
+                                                @if (pkdetails.chamber5 != null)
+                                                {
+                                                    @("Chamber 5 " + pkdetails.chamber5.Split("*")[1] + "( " + pkdetails.chamber5.Split("*")[2] + " )")
+
+                                                }
+                                                else
+                                                {
+                                                    @("Chamber 5")
+                                                    ;
+                                                }
+                                            </label>
+                                        </div>
+                                    }
+                                }
 
                                 <div class="form-group">
                                     <button class="btn btn-success " @onclick="Saveonly">Generate Secondary Trip</button>
@@ -147,6 +172,7 @@
     public string txtinvoice;
     public string pkinvoice;
     public string txtvehicle;
+    public string txtproduct;
     public string User;
     public DateTime txtdate = DateTime.Now.Date;
     public string txtshipping;
@@ -212,34 +238,38 @@
             {
                 chambers.Add("chamber5");
             }
+            
+                var obj = new SecondaryInvoice
+                    {
+                        primaryreference = pkinvoice,
+                        vehicle = txtvehicle,
+                        scondaryinvoice = txtinvoice.ToString(),
+                        _date = txtdate.Date,
+                        supplypoint = txtshipping,
+                        product = txtproduct,
+                        receiivingpoint = txtreveiving,
+                        contractor = txtcontracter,
+                        chambers = chambers,
+                        user = User
+                    };
 
-            var obj = new SecondaryInvoice
+                JsonSerializerOptions options = new JsonSerializerOptions
+                    {
+                        WriteIndented = true,
+                        ReferenceHandler = null
+                    };
+                string jsonData = JsonSerializer.Serialize(obj, options);
+
+                var scinvoice = await API.PostRequest($"Invoice/SaveSecondaryInvoice", jsonData);
+                string Result = JsonSerializer.Deserialize<string>(scinvoice);
+                if (Result == "200")
                 {
-                    primaryreference = pkinvoice,
-                    vehicle = txtvehicle,
-                    scondaryinvoice = txtinvoice.ToString(),
-                    _date = txtdate.Date,
-                    supplypoint = txtshipping,
-                    receiivingpoint = txtreveiving,
-                    contractor = txtcontracter,
-                    chambers = chambers,
-                    user=User
-                };
-
-            JsonSerializerOptions options = new JsonSerializerOptions
-                {
-                    WriteIndented = true,
-                    ReferenceHandler = null
-                };
-            string jsonData = JsonSerializer.Serialize(obj, options);
-
-            var scinvoice = await API.PostRequest($"Invoice/SaveSecondaryInvoice", jsonData);
-            string Result = JsonSerializer.Deserialize<string>(scinvoice);
-            if (Result == "200")
-            {
-                navmanager.NavigateTo($"/inv_selection");
-                toastService.ShowSuccess($"Secondary Invoice Added");
-            }
+                    navmanager.NavigateTo($"/inv_selection");
+                    toastService.ShowSuccess($"Secondary Invoice Added");
+                }
+            
+          
+           
 
         }
         catch (Exception ex)
@@ -251,23 +281,81 @@
             // Handle the exception appropriately (e.g., log, display error message, etc.)
         }
     }
-    private async Task LoadPKInvoiceData()
+
+    private async Task HandleBlur(FocusEventArgs e)
     {
-        try
+        var rec =await  API.GetRequest($"Invoice/GetSCInvoiceData/{txtvehicle}");
+
+        if (rec != null)
         {
-            var rec = await API.GetRequest($"Invoice/GetPkInvoiceData/{pkinvoice.ToString()}");
+            pkdetails = JsonSerializer.Deserialize<PKInvoice>(rec);
+            txtvehicle = pkdetails.vehicle;
+            txtshipping = pkdetails.shipping;
+            StateHasChanged();
+        }
+        else
+        {
+            Console.WriteLine("API request returned null.");
+        }
+    }
+
+    private async Task HandleKeyDown(KeyboardEventArgs e)
+    {
+        if (e.Key == "Enter" || e.Key=="Tab")
+        {
+            var rec = await API.GetRequest($"Invoice/GetSCInvoiceData/{txtvehicle}");
 
             if (rec != null)
             {
                 pkdetails = JsonSerializer.Deserialize<PKInvoice>(rec);
-                txtvehicle = pkdetails.vehicle;
-                txtshipping = pkdetails.shipping;
+                
                 StateHasChanged();
             }
             else
             {
                 Console.WriteLine("API request returned null.");
             }
+        }
+    }
+
+
+    private async Task LoadPKInvoiceData()
+    {
+        try
+        {
+            if (pkinvoice != "none")
+            {
+                var rec = await API.GetRequest($"Invoice/GetPkInvoiceData/{pkinvoice.ToString()}");
+
+                if (rec != null)
+                {
+                    pkdetails = JsonSerializer.Deserialize<PKInvoice>(rec);
+                    txtvehicle = pkdetails.vehicle;
+                    txtshipping = pkdetails.shipping;
+                    StateHasChanged();
+                }
+                else
+                {
+                    Console.WriteLine("API request returned null.");
+                }
+            }
+            else
+            {
+                var rec = await API.GetRequest($"Invoice/GetSCInvoiceData/{txtvehicle}");
+
+                if (rec != null)
+                {
+                    pkdetails = JsonSerializer.Deserialize<PKInvoice>(rec);
+                    txtvehicle = pkdetails.vehicle;
+                    txtshipping = pkdetails.shipping;
+                    StateHasChanged();
+                }
+                else
+                {
+                    Console.WriteLine("API request returned null.");
+                }
+            }
+           
 
         }
         catch (Exception ex)
@@ -278,25 +366,26 @@
     }
     public class PKInvoice
     {
-        public string invoiceid { get; set; }
-        public string vehicle { get; set; }
-        public string shipping { get; set; }
-        public string chamber1 { get; set; }
-        public string chamber2 { get; set; }
-        public string chamber3 { get; set; }
-        public string chamber4 { get; set; }
-        public string chamber5 { get; set; }
+        public string? invoiceid { get; set; }
+        public string? vehicle { get; set; }
+        public string? shipping { get; set; }
+        public string? chamber1 { get; set; }
+        public string? chamber2 { get; set; }
+        public string? chamber3 { get; set; }
+        public string? chamber4 { get; set; }
+        public string? chamber5 { get; set; }
     }
     public class SecondaryInvoice
     {
-        public string primaryreference { get; set; }
-        public string vehicle { get; set; }
-        public string scondaryinvoice { get; set; }
+        public string? primaryreference { get; set; }
+        public string? vehicle { get; set; }
+        public string? scondaryinvoice { get; set; }
         public DateTime _date { get; set; }
-        public string supplypoint { get; set; }
-        public string receiivingpoint { get; set; }
-        public string contractor { get; set; }
+        public string? supplypoint { get; set; }
+        public string? product { get; set; }
+        public string? receiivingpoint { get; set; }
+        public string? contractor { get; set; }
         public string? user { get; set; }
-        public List<string> chambers { get; set; }
+        public List<string>? chambers { get; set; }
     }
 }
