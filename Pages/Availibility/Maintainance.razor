@@ -106,6 +106,8 @@
 
                         <div class="card-body">
 
+                            @if (Vehiclesitem.Count>0)
+                            {   
                             <div class="row">
 
                                 <div class="col-md-6">
@@ -183,8 +185,12 @@
 
                                 }
 
-                            </div>
-
+                                </div>
+                            }
+                            else
+                            {
+                                <DataLoaderComponent IsLoading="true" LoadingText="Loading Vehicles and Business Please wait.."/>
+                            }
                         </div>
                     </div>
                 </div>
@@ -270,6 +276,7 @@
     public List<GetMain> MaintainanceList = new List<GetMain>();
     public List<int> BusinessID = new List<int>();
     public List<GetBusiness> BusinessList = new List<GetBusiness>();
+    public List<BusVehicle> Vehiclesitem = new List<BusVehicle>();
     public List<string> VehicleList = new List<string>();
     private List<string> SelectedVehicleIds = new List<string>();
     public bool IsLoading = false;
@@ -310,17 +317,17 @@
         return SelectedVehicleIds.Contains(vehicleId);
     }
 
-    public async Task GetAllVehicle(int BusID)
+    public async Task GetAllVehicle()
     {
 
         try
         {
 
-            var Vehicles = await API.GetRequest($"Invoice/GetAllVehicle/{BusID}");
+            var Vehicles = await API.GetRequest($"Invoice/GetAllVehicle");
             if (Vehicles != "")
             {
 
-                VehicleList = JsonSerializer.Deserialize<List<string>>(Vehicles);
+                Vehiclesitem = JsonSerializer.Deserialize<List<BusVehicle>>(Vehicles);
 
             }
         }
@@ -335,7 +342,8 @@
         if (e.Value != "0")
         {
             VehicleList = new List<string>();
-            await GetAllVehicle(int.Parse(e.Value.ToString()));
+            int BusID = int.Parse(e.Value.ToString());
+            VehicleList = Vehiclesitem.Where(p => p.busID ==BusID).Select(p=>p.vehicle).ToList();
 
         }
         else
@@ -376,14 +384,19 @@
             IsChildLoading = true;
             BusinessID = await UserClaimsService.GetBusinessIdsAsync();
             await GetAllBusiness();
+
             await GetAllMaintainance();
 
+
             IsChildLoading = false;
+
+            StateHasChanged();
         }
         catch (Exception ex)
         {
             IsChildLoading = false;
         }
+        await GetAllVehicle();
     }
     public async Task GetAllMaintainance()
     {
