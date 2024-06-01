@@ -238,38 +238,39 @@
             {
                 chambers.Add("chamber5");
             }
-            
-                var obj = new SecondaryInvoice
-                    {
-                        primaryreference = pkinvoice,
-                        vehicle = txtvehicle,
-                        scondaryinvoice = txtinvoice.ToString(),
-                        _date = txtdate.Date,
-                        supplypoint = txtshipping,
-                        product = txtproduct,
-                        receiivingpoint = txtreveiving,
-                        contractor = txtcontracter,
-                        chambers = chambers,
-                        user = User
-                    };
 
-                JsonSerializerOptions options = new JsonSerializerOptions
-                    {
-                        WriteIndented = true,
-                        ReferenceHandler = null
-                    };
-                string jsonData = JsonSerializer.Serialize(obj, options);
-
-                var scinvoice = await API.PostRequest($"Invoice/SaveSecondaryInvoice", jsonData);
-                string Result = JsonSerializer.Deserialize<string>(scinvoice);
-                if (Result == "200")
+            var obj = new SecondaryInvoice
                 {
+                    primaryreference = pkinvoice,
+                    vehicle = txtvehicle,
+                    scondaryinvoice = txtinvoice.ToString(),
+                    _date = txtdate.Date,
+                    supplypoint = txtshipping,
+                    product = txtproduct,
+                    receiivingpoint = txtreveiving,
+                    contractor = txtcontracter,
+                    chambers = chambers,
+                    user = User
+                };
 
-                    navmanager.NavigateTo($"/inv_selection");
-                    toastService.ShowSuccess($"Secondary Invoice Added");
-                }
+            // JsonSerializerOptions options = new JsonSerializerOptions
+            //     {
+            //         WriteIndented = true,
+            //         ReferenceHandler = null
+            //     };
+            // string jsonData = JsonSerializer.Serialize(obj, options);
 
+            // var scinvoice = await API.PostRequest($"Invoice/SaveSecondaryInvoice", jsonData);
+            // string Result = JsonSerializer.Deserialize<string>(scinvoice);
+            // if (Result == "200")
+            // {
 
+            //     navmanager.NavigateTo($"/inv_selection");
+            //     toastService.ShowSuccess($"Secondary Invoice Added");
+            // }
+
+            JsonSerializerOptions options = new JsonSerializerOptions
+                {
                     WriteIndented = true,
                     ReferenceHandler = null
                 };
@@ -287,6 +288,7 @@
                 toastService.ShowWarning($"Mark Driver Attendance First");
             }
         }
+
         catch (Exception ex)
         {
             Console.WriteLine($"Error: {ex.Message}");
@@ -297,9 +299,11 @@
         }
     }
 
+
+
     private async Task HandleBlur(FocusEventArgs e)
     {
-        var rec =await  API.GetRequest($"Invoice/GetSCInvoiceData/{txtvehicle}");
+        var rec = await API.GetRequest($"Invoice/GetSCInvoiceData/{txtvehicle}");
 
         if (rec != null)
         {
@@ -316,14 +320,15 @@
 
     private async Task HandleKeyDown(KeyboardEventArgs e)
     {
-        if (e.Key == "Enter" || e.Key=="Tab")
+        if (e.Key == "Enter" || e.Key == "Tab")
         {
             var rec = await API.GetRequest($"Invoice/GetSCInvoiceData/{txtvehicle}");
 
             if (rec != null)
             {
-                pkdetails = JsonSerializer.Deserialize<PKInvoice>(rec);
-                
+                pkdetails = JsonSerializer.Deserialize<PKInvoice>
+                    (rec);
+
                 StateHasChanged();
             }
             else
@@ -344,7 +349,8 @@
 
                 if (rec != null)
                 {
-                    pkdetails = JsonSerializer.Deserialize<PKInvoice>(rec);
+                    pkdetails = JsonSerializer.Deserialize<PKInvoice>
+                        (rec);
                     txtvehicle = pkdetails.vehicle;
                     txtshipping = pkdetails.shipping;
                     StateHasChanged();
@@ -360,7 +366,8 @@
 
                 if (rec != null)
                 {
-                    pkdetails = JsonSerializer.Deserialize<PKInvoice>(rec);
+                    pkdetails = JsonSerializer.Deserialize<PKInvoice>
+                        (rec);
                     txtvehicle = pkdetails.vehicle;
                     txtshipping = pkdetails.shipping;
                     StateHasChanged();
@@ -370,7 +377,7 @@
                     Console.WriteLine("API request returned null.");
                 }
             }
-           
+
 
         }
         catch (Exception ex)
@@ -401,6 +408,8 @@
         public string? receiivingpoint { get; set; }
         public string? contractor { get; set; }
         public string? user { get; set; }
-        public List<string>? chambers { get; set; }
+        public List<string>
+            ? chambers
+        { get; set; }
     }
 }
