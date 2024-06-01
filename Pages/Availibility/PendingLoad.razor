@@ -1,0 +1,241 @@
+﻿@page "/pendingdecanting"
+
+@using System.Text.Json
+@using VehicleManagement.ApiService
+@using VehicleManagement.Authentication
+@using VehicleManagement.Models.General
+@inject IJSRuntime js
+
+@inject IToastService toast
+@inject IApiService API
+@inject IUserClaimsService UserClaimsService
+<AuthorizeView>
+    <Authorized>
+        <Nav PageName="Pending Load" />
+
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col-12">
+                    <div class="card mb-4">
+                        @if (isEditing)
+                        {
+                            <div class="card-header pb-0">
+                                <div class="row col-md-12" style="text-align:center;">
+
+                                    <div class="col-md-3">
+                                        <div class="form-group">
+                                            <button class="btn btn-danger btn-sm ms-auto" @onclick="Update">Save Changes</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        }
+                        <div class="fleet-cards">
+                            <div class="container" style="justify-content:center !important;">
+                                @if (!IsChildLoading)
+                                {
+
+
+                                    @if (LoadList.Count > 0)
+                                    {
+                                        @foreach (var item in LoadList)
+                                        {
+                                            <div class="card" @ondblclick="EnableEditing">
+
+                                                <div class="card-body">
+                                                    <span class="tag tag-danger">Pending Load</span>
+
+                                                    &nbsp;
+
+                                                    <h4>@item.vehicle &nbsp;&nbsp;@item.chamberSeq</h4>
+                                                    <span class="fa fa-map-marker">@item.location</span>
+                                                    <p>
+                                                        <i class="fa fa-map-marker" aria-hidden="true"></i>
+                                                        &nbsp;Shipping:  @item.loading
+                                                        <br> <i class="fa fa-map-marker" aria-hidden="true"></i>
+                                                        &nbsp;Receiving:
+                                                        @if (isEditing)
+                                                        {
+                                                            <input type="text" @onchange="@((e)=>SearchTable(e,item.loadID))" class="form-control" />
+                                                        }
+                                                        else
+                                                        {
+                                                            @item.decenting
+                                                        }
+                                                    </p>
+
+                                                </div>
+
+                                            </div>
+                                        }
+                                    }
+                                    else
+                                    {
+                                        <div>
+
+                                            <div class="card-body">
+
+
+                                                <span class="tag tag-success">No Vehicle on Load..</span>
+
+
+
+                                            </div>
+
+                                        </div>
+                                    }
+                                }
+                                else if (IsChildLoading)
+                                {
+                                    <DataLoaderComponent IsLoading="@IsChildLoading" LoadingText="Loading..." />
+                                }
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+
+    </Authorized>
+    <NotAuthorized>
+        @if (_isJsReady)
+        {
+            <_403 />
+
+        }
+    </NotAuthorized>
+</AuthorizeView>
+
+
+@code {
+    private bool _isJsReady = false;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            try
+            {
+                // Attempt a simple JavaScript call to check if JS is ready
+                await js.InvokeVoidAsync("console.log", "");
+                _isJsReady = true; // JS is ready, so set a flag or take action
+                StateHasChanged();
+            }
+            catch
+            {
+                // If JS isn't ready, handle it gracefully
+                _isJsReady = false; // JavaScript is not yet ready
+            }
+        }
+    }
+
+    public List<GetAllLoad> LoadList = new List<GetAllLoad>();
+    public bool IsChildLoading = false;
+    public List<int> BusinessID = new List<int>();
+    private bool isEditing = false;
+    List<PendingDecanting> PosList = new List<PendingDecanting>();
+
+    private void EnableEditing()
+    {
+        isEditing = !isEditing;
+    }
+    private async Task Update()
+    {
+        try
+        {
+            IsChildLoading = true;
+            if (PosList.Count > 0)
+            {
+                JsonSerializerOptions options = new JsonSerializerOptions
+                    {
+                        WriteIndented = true,
+                        ReferenceHandler = null
+                    };
+                string jsonData = JsonSerializer.Serialize(PosList, options);
+                var AddDriver = await API.PostRequest($"Available/UpdateDec", jsonData);
+                int Result = JsonSerializer.Deserialize<int>(AddDriver);
+                if (Result == 200)
+                {
+                    isEditing = false;
+                    await GetAllLoad();
+                    toast.ShowSuccess($"Decanting Point Updated");
+                }
+
+            }
+            else
+            {
+                toast.ShowError("Please add any decanting point");
+            }
+        }
+        catch (Exception ex)
+        {
+
+        }
+
+        IsChildLoading = false;
+    }
+
+    private async Task SearchTable(ChangeEventArgs e, int LoadID)
+    {
+
+        var rec = PosList.Where(p => p.LoadID == LoadID).FirstOrDefault();
+        if (rec != null)
+        {
+            rec.Decanting = e.Value.ToString();
+        }
+        else
+        {
+            PosList.Add(new PendingDecanting
+                {
+                    Decanting = e.Value.ToString(),
+                    LoadID = LoadID,
+                });
+        }
+
+
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+
+        IsChildLoading = true;
+        try
+        {
+            BusinessID = await UserClaimsService.GetBusinessIdsAsync();
+            await GetAllLoad();
+        }
+        catch (Exception ex)
+        {
+            IsChildLoading = false;
+        }
+        IsChildLoading = false;
+    }
+    public async Task GetAllLoad()
+    {
+        try
+        {
+            JsonSerializerOptions options = new JsonSerializerOptions
+                {
+                    WriteIndented = true,
+                    ReferenceHandler = null
+                };
+            string jsonData = JsonSerializer.Serialize(BusinessID, options);
+            var AvailDrafts = await API.PostRequest($"Available/GetAllLoadPending", jsonData);
+            if (AvailDrafts != "")
+            {
+
+                LoadList = JsonSerializer.Deserialize<List<GetAllLoad>>(AvailDrafts);
+
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex.Message);
+        }
+    }
+
+
+
+}

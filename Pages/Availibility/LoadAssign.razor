@@ -5,6 +5,7 @@
 @using VehicleManagement.Authentication
 @using VehicleManagement.Models.General
 @inject IJSRuntime js
+@inject NavigationManager Nav
 
 @inject IToastService toast
 @inject IApiService API
@@ -17,6 +18,18 @@
             <div class="row">
                 <div class="col-12">
                     <div class="card mb-4">
+
+                        <div class="card-header pb-0">
+                            <div class="row col-md-12" style="text-align:center;">
+
+                                <div class="col-md-3">
+                                    <div class="form-group">
+                                        <button class="btn btn-danger btn-sm ms-auto" disabled="@(TotalPendingLoad==0?true:false)" @onclick="PendingLoad">Total Pending Load : @TotalPendingLoad</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
                         <div class="fleet-cards">
                             <div class="container" style="justify-content:center !important;">
                                 @if (!IsChildLoading)
@@ -47,16 +60,16 @@
                                                     <span class="tag tag-success">Load Assigned</span>
 
                                                     &nbsp;
-                                              @*       @if (@item.isActive)
-                                                    {
-                                                        <span class="badge badge-sm bg-gradient-success">@(item.isActive == true ? "Active" : "In-Active")</span>
+                                                    @*       @if (@item.isActive)
+                                        {
+                                        <span class="badge badge-sm bg-gradient-success">@(item.isActive == true ? "Active" : "In-Active")</span>
 
-                                                    }
-                                                    else
-                                                    {
-                                                        <span class="badge badge-sm bg-gradient-danger">@(item.isActive == true ? "Active" : "In-Active")</span>
+                                        }
+                                        else
+                                        {
+                                        <span class="badge badge-sm bg-gradient-danger">@(item.isActive == true ? "Active" : "In-Active")</span>
 
-                                                    } *@
+                                        } *@
                                                     <h4>@item.vehicle &nbsp;&nbsp;@item.chamberSeq</h4>
                                                     <span class="fa fa-map-marker">@item.location</span>
                                                     <p>
@@ -334,6 +347,7 @@
     private int AvailIDs;
     private int MainAvailIDs;
     private int LoadIDs = 0;
+    private int TotalPendingLoad = 0;
     protected override async Task OnInitializedAsync()
     {
 
@@ -343,6 +357,7 @@
 
             BusinessID = await UserClaimsService.GetBusinessIdsAsync();
 
+            await GetTotalPending();
             await GetAllLoad();
 
 
@@ -356,16 +371,46 @@
         }
         IsChildLoading = false;
     }
+    public async Task GetTotalPending()
+    {
+        try
+        {
+            JsonSerializerOptions options = new JsonSerializerOptions
+                {
+                    WriteIndented = true,
+                    ReferenceHandler = null
+                };
+            string jsonData = JsonSerializer.Serialize(BusinessID, options);
+            var AvailDrafts = await API.PostRequest($"Available/GetPendingLoad", jsonData);
+            if (AvailDrafts != "")
+            {
+
+                TotalPendingLoad = JsonSerializer.Deserialize<int>(AvailDrafts);
+
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex.Message);
+        }
+    }
+
     public async Task GetAllLoad()
     {
         try
         {
-            var AvailDrafts = await API.GetRequest($"Available/GetAllLoad");
+            JsonSerializerOptions options = new JsonSerializerOptions
+                {
+                    WriteIndented = true,
+                    ReferenceHandler = null
+                };
+            string jsonData = JsonSerializer.Serialize(BusinessID, options);
+            var AvailDrafts = await API.PostRequest($"Available/GetAllLoad", jsonData);
             if (AvailDrafts != "")
             {
 
-                var rec = JsonSerializer.Deserialize<List<GetAllLoad>>(AvailDrafts);
-                LoadList = rec.Where(b => BusinessID.Contains(b.businessID)).OrderByDescending(p => p.loadID).ToList();
+                LoadList = JsonSerializer.Deserialize<List<GetAllLoad>>(AvailDrafts);
+
             }
         }
         catch (Exception ex)
@@ -511,5 +556,10 @@
             Console.WriteLine(ex.Message);
         }
         IsLoading2 = false;
+    }
+
+    public async Task PendingLoad()
+    {
+        Nav.NavigateTo("/pendingdecanting");
     }
 }

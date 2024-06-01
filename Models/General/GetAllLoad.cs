@@ -5,6 +5,7 @@
         public int loadID { get; set; }
         public int availID { get; set; }
         public int businessID { get; set; }
+        public int totalLoad { get; set; }
 
         public string vehicle { get; set; }
         public string chamberSeq { get; set; }
