@@ -47,7 +47,7 @@
                                                     <span class="tag tag-success">Load Assigned</span>
 
                                                     &nbsp;
-                                                    @if (@item.isActive)
+                                              @*       @if (@item.isActive)
                                                     {
                                                         <span class="badge badge-sm bg-gradient-success">@(item.isActive == true ? "Active" : "In-Active")</span>
 
@@ -56,7 +56,7 @@
                                                     {
                                                         <span class="badge badge-sm bg-gradient-danger">@(item.isActive == true ? "Active" : "In-Active")</span>
 
-                                                    }
+                                                    } *@
                                                     <h4>@item.vehicle &nbsp;&nbsp;@item.chamberSeq</h4>
                                                     <span class="fa fa-map-marker">@item.location</span>
                                                     <p>
