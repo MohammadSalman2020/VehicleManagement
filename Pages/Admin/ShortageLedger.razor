@@ -36,32 +36,37 @@
                                         <input id="searchInput" type="text" class="form-control" required @oninput="SearchTable" />
                                     </div>
                                 </div>
-                                <div class="row col-md-8" style="text-align:right;">
-                                    <div class="col-6">
-                                    </div>
-                                    <div class="row col-6">
-                                        @if (IsMerge)
-                                        {
+                                <AuthorizeView Policy="AvailMan">
+                                    <Authorized Context="AdminSuper">
 
+
+                                        <div class="row col-md-8" style="text-align:right;">
                                             <div class="col-6">
+                                            </div>
+                                            <div class="row col-6">
+                                                @if (IsMerge)
+                                                {
 
-                                                <div class="form-group">
-                                                    <button class="btn btn-danger btn-sm ms-auto" @onclick="Merge"> Merge</button>
+                                                    <div class="col-6">
+                                                        <div class="form-group">
+                                                            <button class="btn btn-danger btn-sm ms-auto" @onclick="Merge"> Merge</button>
+                                                        </div>
+                                                    </div>
+
+                                                }
+                                                <div class="col-6">
+                                                    <div class="form-group">
+                                                        <button class="btn btn-primary btn-sm ms-auto" @onclick="EnableMerge">@(IsMerge == true ? "Disable Merge" : "Enable Merge")</button>
+                                                    </div>
                                                 </div>
+
+
                                             </div>
 
-                                        }
-                                        <div class="col-6">
-                                            <div class="form-group">
-                                                <button class="btn btn-primary btn-sm ms-auto" @onclick="EnableMerge">@(IsMerge == true ? "Disable Merge" : "Enable Merge")</button>
-                                            </div>
+
                                         </div>
-
-
-                                    </div>
-
-
-                                </div>
+                                    </Authorized>
+                                </AuthorizeView>
                             </div>
 
                         </div>
@@ -177,11 +182,15 @@
                                                                 Edit
                                                             </a>
                                                         </td>
-                                                        <td class="align-middle">
-                                                            <a @onclick="@(()=>AddCost(item.invoiceNumber))" class="text-secondary font-weight-bold text-xs cursor-pointer">
-                                                                AddCost
-                                                            </a>
-                                                        </td>
+                                                        <AuthorizeView Policy="AvailMan">
+                                                            <Authorized Context="AdminSuper">
+                                                                <td class="align-middle">
+                                                                    <a @onclick="@(()=>AddCost(item.invoiceNumber))" class="text-secondary font-weight-bold text-xs cursor-pointer">
+                                                                        AddCost
+                                                                    </a>
+                                                                </td>
+                                                            </Authorized>
+                                                        </AuthorizeView>
                                                     </tr>
                                                     @if (item.shortages.Count > 0)
                                                     {
@@ -426,9 +435,10 @@
                     toastService.ShowSuccess("Merge Success");
                     StateHasChanged();
                 }
-                else if(Result=="202")
+                else if (Result == "202")
                 {
                     toastService.ShowWarning("Some InvoiceID's are already MERGED");
+                    selectedInvoiceIds = new List<int>();
                     StateHasChanged();
                 }
             }
