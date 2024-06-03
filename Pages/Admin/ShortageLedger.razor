@@ -150,9 +150,16 @@
                                                             </span>
                                                         </td>
                                                         <td class="align-middle text-center text-sm">
+                                                            @if (item.invoiceType == "pk")
+                                                            {
+                                                                <span class="badge badge-sm bg-gradient-success">@(item.invoiceType == "pk" ? "Primary" : "Secondary")</span>
 
-                                                            <span class="badge badge-sm bg-gradient-success">@(item.invoiceType == "pk" ? "Primary" : "Secondary")</span>
+                                                            }
+                                                            else
+                                                            {
+                                                                <span class="badge badge-sm bg-gradient-danger">@(item.invoiceType == "pk" ? "Primary" : "Secondary")</span>
 
+                                                            }
 
                                                         </td>
                                                         <td class="align-middle text-center">
@@ -235,7 +242,16 @@
                                                                 </td>
                                                                 <td class="align-middle text-center text-sm">
 
-                                                                    <span class="badge badge-sm bg-gradient-warning">@(shorts.invoiceType == "pk" ? "Primary" : "Secondary")</span>
+                                                                    @if (shorts.invoiceType == "pk")
+                                                                    {
+                                                                        <span  class="badge badge-sm bg-gradient-warning">@(shorts.invoiceType == "pk" ? "Primary" : "Secondary")</span>
+
+                                                                    }
+                                                                    else
+                                                                    {
+                                                                        <span class="badge badge-sm bg-gradient-danger">@(shorts.invoiceType == "pk" ? "Primary" : "Secondary")</span>
+
+                                                                    }
 
 
                                                                 </td>
