@@ -468,7 +468,7 @@
             try
             {
                 // Attempt a simple JavaScript call to check if JS is ready
-                await Js.InvokeVoidAsync("console.log", "JavaScript is ready!");
+                await Js.InvokeVoidAsync("console.log", "");
                 _isJsReady = true; // JS is ready, so set a flag or take action
                 StateHasChanged();
             }

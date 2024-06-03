@@ -19,9 +19,13 @@
                     <div class="form-group d-grid gap-2">
                         <button class="btn btn-warning btn-sm btn-block" @onclick="Secondary">Generate Secondary Trip</button>
                     </div>
-                    <div class="form-group d-grid gap-2">
-                        <button class="btn btn-warning btn-sm btn-block" @onclick="Cost">Add Trip Cost</button>
-                    </div>
+                    <AuthorizeView Policy="AvailMan">
+                        <Authorized Context="AdminSuper">
+                            <div class="form-group d-grid gap-2">
+                                <button class="btn btn-warning btn-sm btn-block" @onclick="Cost">Add Trip Cost</button>
+                            </div>
+                        </Authorized>
+                    </AuthorizeView>
                 </div>
             </div>
         </div>
@@ -188,8 +192,8 @@
         IsLoading = false;
         StateHasChanged();
     }
-   
-    
+
+
     private async Task LoadInvoices()
     {
         try
@@ -243,7 +247,7 @@
         {
             navmgr.NavigateTo($"/sc_invoice?pk={primaryinvoice.Trim()}");
         }
-    } 
+    }
     private async Task HandleEnterPress2(KeyboardEventArgs e)
     {
         if (e.Code == "Enter" || e.Key == "Enter")
@@ -251,7 +255,7 @@
             navmgr.NavigateTo($"/addcost?pk={primaryinvoice.Trim()}");
         }
     }
-    private async Task ShowMessage(string x,string STO)
+    private async Task ShowMessage(string x, string STO)
     {
         navmgr.NavigateTo($"/rec_sec?inv={x}&STO={STO}");
 
@@ -265,6 +269,6 @@
         public string shipping { get; set; }
         public string receiving { get; set; }
     }
-  
+
 }
 
