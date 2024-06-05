@@ -191,11 +191,23 @@
                                                         </td>
                                                         <AuthorizeView Policy="AvailMan">
                                                             <Authorized Context="AdminSuper">
-                                                                <td class="align-middle">
-                                                                    <a @onclick="@(()=>AddCost(item.invoiceNumber))" class="text-secondary font-weight-bold text-xs cursor-pointer">
-                                                                        AddCost
-                                                                    </a>
-                                                                </td>
+                                                                @if(!item.isChecked)
+                                                                {
+                                                                    <td class="align-middle">
+                                                                        <a @onclick="@(()=>AddCost(item.invoiceNumber))" class="text-secondary font-weight-bold text-xs cursor-pointer">
+                                                                            AddCost
+                                                                        </a>
+                                                                    </td>
+                                                                }
+                                                                else
+                                                                {
+                                                                    <td class="align-middle">
+                                                                        <a class="text-secondary font-weight-bold text-xs" style="color:red !important;">
+                                                                           Cost Added
+                                                                        </a>
+                                                                    </td>
+                                                                }
+                                                                
                                                             </Authorized>
                                                         </AuthorizeView>
                                                     </tr>
@@ -454,6 +466,12 @@
                 else if (Result == "202")
                 {
                     toastService.ShowWarning("Some InvoiceID's are already MERGED");
+                    selectedInvoiceIds = new List<int>();
+                    StateHasChanged();
+                }
+                else if (Result == "604")
+                {
+                    toastService.ShowWarning("Invoices doesn't contains same vehicles");
                     selectedInvoiceIds = new List<int>();
                     StateHasChanged();
                 }
