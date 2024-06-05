@@ -9,6 +9,7 @@
 @inject IJSRuntime js
 @using static VehicleManagement.Pages.Expenses.AdCost
 @inject IApiService API
+@inject NavigationManager nav
 @inject AuthenticationStateProvider _authenticationStateProvider
 @implements IAsyncDisposable
 <style>
@@ -1268,6 +1269,7 @@
                 {
                     fuelShortage = new FuelShortage();
                     toastService.ShowSuccess($"Waived Success");
+                    nav.NavigateTo("/addinvoice");
                 }
                 else if (Result == "605")
                 {
@@ -1332,6 +1334,7 @@
                 {
                     fuelShortage = new FuelShortage();
                     toastService.ShowSuccess($"Deduction Success");
+                    nav.NavigateTo("/addinvoice");
                 }
                 else if (Result == "605")
                 {
