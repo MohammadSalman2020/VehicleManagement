@@ -14,7 +14,7 @@
         public string status { get; set; }
         public DateTime dated { get; set; }
         public string vehicleID { get; set; }
-
+        public bool isChecked { get; set; }
         public List<DriverShortageSec> shortages { get; set; }
     }
 
