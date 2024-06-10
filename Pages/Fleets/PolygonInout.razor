@@ -1,0 +1,227 @@
+﻿@page "/polygonlog"
+@using System.Text.Json
+@using System.Collections.Generic
+@using System.IO
+@using Microsoft.AspNetCore.Components
+@using System.Threading.Tasks
+@inject IJSRuntime JSRuntime
+@using System.Text
+@using System.Text.RegularExpressions
+@using VehicleManagement.ApiService
+@using VehicleManagement.Authentication
+@using VehicleManagement.Models.General
+@inject NavigationManager NavigationManager
+@using VehicleManagement.Models.DB
+@using VehicleManagement.Models.General.Fleet
+@inject IApiService API
+@inject IUserClaimsService UserClaimsService
+@inject IToastService toastService
+@inject IWebHostEnvironment Environment
+<style>
+    .reports{
+        display:flex;
+    }
+</style>
+<div style="margin-top:10px;padding:0px;">
+    <div class="row">
+        <div class="col-12">
+            <div>
+                @*   <div class="card-header d-flex justify-content-between">
+                <span>Polygon Report</span>
+
+                </div> *@
+
+                <div class="card-body">
+                    @if (!IsLoading)
+                    {
+                        @if (log.Count > 0)
+                        {
+                            <div class="reports">
+                                <div class="table-responsive">
+                                    <div style="max-width: 98%;">
+
+
+
+
+                                        <!-- Your table code -->
+                                        <table class="table-bordered" style="width:100%;">
+                                            <!-- Added 'table-bordered' class -->
+                                            <thead style="color:black">
+                                                <tr>
+                                                    <th style="text-align:center;" colspan="3">NHHB In Report</th>
+                                                </tr>
+                                                <tr style="text-align:center;background-color:#5e72e4;color:white;">
+
+                                                    <th>Sr#</th>
+                                                    <th style="padding:5px">Vehicle_#</th>
+                                                    <th style="padding:5px">Duration</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+
+
+                                                @foreach (var item in log)
+                                                {
+                                                    string backcolor = "";
+                                                    string forecolor = "";
+                                                    if (int.Parse(item.days_) == 0)
+                                                    {
+                                                        backcolor = "#87f187";
+                                                        forecolor = "#000000";
+                                                    }
+                                                    else if (int.Parse(item.days_) > 0 && int.Parse(item.days_) <= 2)
+                                                    {
+                                                        backcolor = "#FFA500";
+                                                        forecolor = "#000000";
+                                                    }
+                                                    else if (int.Parse(item.days_) > 2 && int.Parse(item.days_) <= 4)
+                                                    {
+                                                        backcolor = "deeppink";
+                                                        forecolor = "white";
+                                                    }
+                                                    else if (int.Parse(item.days_) > 4)
+                                                    {
+                                                        backcolor = "red";
+                                                        forecolor = "white";
+                                                    }
+
+                                                    <tr style="background-color:@backcolor;color:@forecolor;">
+                                                        <td style="text-align:center">
+                                                            <p style="margin:0px">@(item.srNumber)</p>
+                                                        </td>
+                                                        <td style="text-align:center">
+                                                            <p style="margin:0px">@item.vehicleId</p>
+                                                        </td>
+                                                        <td style="text-align:center">
+                                                            <p style="margin:0px">@item.duration</p>
+                                                        </td>
+                                                    </tr>
+                                                }
+                                            </tbody>
+                                        </table>
+
+
+                                    </div>
+                                </div>
+                                <div class="table-responsive">
+                                    <div style="max-width: 100%;">
+
+
+
+                                        <!-- Your table code -->
+                                        <table class="table-bordered" style="width:100%;">
+                                            <!-- Added 'table-bordered' class -->
+                                            <thead style="color:black">
+                                                <tr style="text-align:center;">
+                                                    <th colspan="3">NHHB Out Report (2 days)</th>
+                                                </tr>
+                                                <tr style="text-align:center;background-color:#5e72e4;color:white;">
+                                                    <th>Sr#</th>
+                                                    <th style="padding:5px">Vehicle_#</th>
+                                                    <th style="padding:5px">Duration Out</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+
+
+                                                @foreach (var item in outlog)
+                                                {
+                                                    string backcolor = "white";
+                                                    string forecolor = "black";
+                                                    
+
+                                                    <tr style="background-color:@backcolor;color:@forecolor;">
+                                                        <td style="text-align:center">
+                                                            <p style="margin:0px">@(item.srNumber)</p>
+                                                        </td>
+                                                        <td style="text-align:center">
+                                                            <p style="margin:0px">@item.vehicleId</p>
+                                                        </td>
+                                                        <td style="text-align:center">
+                                                            <p style="margin:0px">@(item.duration+" ago")</p>
+                                                        </td>
+                                                    </tr>
+                                                }
+                                            </tbody>
+                                        </table>
+
+
+                                    </div>
+                                </div>
+                            </div>
+                        }
+                        else
+                        {
+                            <p>No Data Found...</p>
+                        }
+
+                    }
+                    else if (IsLoading)
+                    {
+                        <div class="text-center">
+                            <div class="spinner-border" role="status">
+                                <span class="visually-hidden">Loading...</span>
+                            </div>
+
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+@code {
+
+
+    public bool IsLoading { get; set; }
+    List<PolygonTimeSheetLog> log = new List<PolygonTimeSheetLog>();
+    List<PolygonTimeSheetLog> outlog = new List<PolygonTimeSheetLog>();
+
+    public async Task LoadLog()
+    {
+        try
+        {
+
+            var Main = await API.GetRequest($"Fleet/GetPolygonInOUt");
+            if (Main != "")
+            {
+                log = Newtonsoft.Json.JsonConvert.DeserializeObject<List<PolygonTimeSheetLog>>(Main);
+                // fleet = rec.Where(p => BusinessID.Contains(p.busID)).ToList();
+            }
+            var outdata = await API.GetRequest($"Fleet/GetPolygonOut");
+            if (outdata != "")
+            {
+                outlog = Newtonsoft.Json.JsonConvert.DeserializeObject<List<PolygonTimeSheetLog>>(outdata);
+                // fleet = rec.Where(p => BusinessID.Contains(p.busID)).ToList();
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex.Message);
+        }
+    }
+
+
+
+
+    protected override async Task OnInitializedAsync()
+    {
+        IsLoading = true;
+        await LoadLog();
+        IsLoading = false;
+
+    }
+
+
+
+    public class PolygonTimeSheetLog
+    {
+        public long srNumber { get; set; }
+        public string vehicleId { get; set; }
+        public string polygonName { get; set; }
+        public string days_ { get; set; } // Change to long
+        public string duration { get; set; }
+    }
+}

@@ -64,7 +64,7 @@
     width: 30px;
 }
 
-<style >
+
 body {
     margin: 0;
     font-family: Arial
@@ -74,6 +74,9 @@ body {
     overflow: hidden;
     background-color: #5e72e4;
 }
+
+
+
 
 @media print {
     .topnav,
@@ -1122,7 +1125,7 @@ body {
 }
 
 .card {
-    margin: 5px;
+    margin-top: 5px;
     background-color: #fff;
     border-radius: 10px;
     box-shadow: 0 2px 20px rgba(10, 10, 10, 0.2);
@@ -1152,7 +1155,7 @@ body {
     flex-direction: column;
     justify-content: center;
     align-items: flex-start;
-    padding: 15px;
+    padding: 5px;
     min-height: auto;
 }
 
@@ -1317,5 +1320,16 @@ td, th {
         max-width: 1270px !important;
         max-height: 430px !important;
 
+    }
+}
+
+@media (max-width: 768px) {
+    .search-container {
+        position: static !important;
+        padding-left: 20px !important;
+        margin-bottom: 10px !important; /* Add some space below the search container */
+    }
+    .reports{
+        display:block !important;
     }
 }
