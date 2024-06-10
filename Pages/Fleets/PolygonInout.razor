@@ -18,8 +18,16 @@
 @inject IToastService toastService
 @inject IWebHostEnvironment Environment
 <style>
-    .reports{
-        display:flex;
+    .reports {
+        display: flex;
+
+    }
+    .fpart{
+        width: 48%;
+        margin-bottom:10px;
+    }
+    .lpart{
+        width: 52%;
     }
 </style>
 <div style="margin-top:10px;padding:0px;">
@@ -37,8 +45,8 @@
                         @if (log.Count > 0)
                         {
                             <div class="reports">
-                                <div class="table-responsive">
-                                    <div style="max-width: 98%;">
+                                <div class="table-responsive fpart">
+                                    <div style="width: 99%;">
 
 
 
@@ -48,7 +56,7 @@
                                             <!-- Added 'table-bordered' class -->
                                             <thead style="color:black">
                                                 <tr>
-                                                    <th style="text-align:center;" colspan="3">NHHB In Report</th>
+                                                    <th style="text-align:center;" colspan="3">NHHB In Report (@(log.Count))</th>
                                                 </tr>
                                                 <tr style="text-align:center;background-color:#5e72e4;color:white;">
 
@@ -103,7 +111,7 @@
 
                                     </div>
                                 </div>
-                                <div class="table-responsive">
+                                <div class="table-responsive lpart">
                                     <div style="max-width: 100%;">
 
 
@@ -113,7 +121,7 @@
                                             <!-- Added 'table-bordered' class -->
                                             <thead style="color:black">
                                                 <tr style="text-align:center;">
-                                                    <th colspan="3">NHHB Out Report (2 days)</th>
+                                                    <th colspan="3">NHHB Out Report (@(outlog.Count))</th>
                                                 </tr>
                                                 <tr style="text-align:center;background-color:#5e72e4;color:white;">
                                                     <th>Sr#</th>
@@ -128,7 +136,12 @@
                                                 {
                                                     string backcolor = "white";
                                                     string forecolor = "black";
-                                                    
+
+                                                    if (int.Parse(item.days_) > 3)
+                                                    {
+                                                        backcolor = "red";
+                                                        forecolor = "white";
+                                                    }
 
                                                     <tr style="background-color:@backcolor;color:@forecolor;">
                                                         <td style="text-align:center">
@@ -138,7 +151,7 @@
                                                             <p style="margin:0px">@item.vehicleId</p>
                                                         </td>
                                                         <td style="text-align:center">
-                                                            <p style="margin:0px">@(item.duration+" ago")</p>
+                                                            <p style="margin:0px">@(item.duration + " ago")</p>
                                                         </td>
                                                     </tr>
                                                 }
