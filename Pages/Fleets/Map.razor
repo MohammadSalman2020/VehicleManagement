@@ -3,7 +3,7 @@
 @using VehicleManagement.ApiService
 @using VehicleManagement.Authentication
 @using VehicleManagement.Models.General
-
+@inject IUserClaimsService UserClaimsService
 @inject IWebHostEnvironment WebHostEnvironment
 @inject IJSRuntime JSRuntime
 @inject IApiService API
@@ -160,7 +160,7 @@
     List<string> vehicles = new List<string>();
     private async Task Getvhicles()
     {
-        List<int> ids = await claims.GetBusinessIdsAsync();
+         BusinessID = await claims.GetBusinessIdsAsync();
 
         var rec = await API.GetRequest($"Fleet/GetAllVehicles");
 
@@ -168,7 +168,7 @@
         {
             var list = JsonSerializer.Deserialize<List<BusinessVehicles>>(rec);
 
-            vehicles = list.Where(a => ids.Contains(a.busid)).Select(a => a.vehicleid).Distinct().ToList();
+            vehicles = list.Where(a => BusinessID.Contains(a.busid)).Select(a => a.vehicleid).Distinct().ToList();
 
 
             // foreach( var x in ids)
@@ -195,6 +195,7 @@
         await LoadData();
         //  await Addmarkers();
         await AddPointsAsync();
+       
         // var veh = await API.GetRequest($"Inspection/GetVehicles");
         // if (veh != "")
         // {
@@ -232,60 +233,69 @@
         //     Console.WriteLine($"Error adding markers: {ex.Message}");
         // }
     }
+    public List<int> BusinessID = new List<int>();
     private async Task Addmarkers()
     {
-
-        string webRootPath = WebHostEnvironment.WebRootPath;
-        string filePath = Path.Combine(webRootPath, "htlpoints.json");
-        if (File.Exists(filePath))
+        var rec = BusinessID.Contains(1);
+        if (rec)
         {
-            try
+
+
+            string webRootPath = WebHostEnvironment.WebRootPath;
+            string filePath = Path.Combine(webRootPath, "htlpoints.json");
+            if (File.Exists(filePath))
             {
+                try
+                {
 
 
-                string jsonContent = File.ReadAllText(filePath);
-                points = JsonSerializer.Deserialize<List<MarkerData>>(jsonContent);
+                    string jsonContent = File.ReadAllText(filePath);
+                    points = JsonSerializer.Deserialize<List<MarkerData>>(jsonContent);
+                }
+                catch (Exception ex)
+                {
+
+                    string s = ex.Message;
+                }
+
             }
-            catch (Exception ex)
+
+            foreach (var x in points)
             {
-
-                string s = ex.Message;
+                await AddPint(double.Parse(x.Long.ToString()), double.Parse(x.LAT.ToString()), x.name);
+                //   List<(double Latitude, double Longitude)> dataset = GeoLocation.GenerateDataset(double.Parse(x.LAT.ToString()), double.Parse(x.Long.ToString()));
+                //   await AddPolyGon(dataset);
+                StateHasChanged();
             }
-
         }
-
-        foreach (var x in points)
-        {
-            await AddPint(double.Parse(x.Long.ToString()), double.Parse(x.LAT.ToString()), x.name);
-            //   List<(double Latitude, double Longitude)> dataset = GeoLocation.GenerateDataset(double.Parse(x.LAT.ToString()), double.Parse(x.Long.ToString()));
-            //   await AddPolyGon(dataset);
-            StateHasChanged();
-        }
-
     }
 
     public async Task AddPointsAsync()
     {
         try
         {
-            string webRootPath = WebHostEnvironment.WebRootPath;
-            string filePath = Path.Combine(webRootPath, "htlpoints.json");
-
-            if (File.Exists(filePath))
+            var rec = BusinessID.Contains(1);
+            if (rec)
             {
-                string jsonContent = File.ReadAllText(filePath);
-                var points = JsonSerializer.Deserialize<List<MarkerData>>(jsonContent);
+                string webRootPath = WebHostEnvironment.WebRootPath;
+                string filePath = Path.Combine(webRootPath, "htlpoints.json");
 
-                // Convert MarkerData instances into JavaScript objects
-                var jsPoints = points.Select(p => new
+                if (File.Exists(filePath))
                 {
-                    lat = double.Parse(p.Long.ToString()),
-                    lng = double.Parse(p.LAT.ToString()),
-                    description = p.name
-                }).ToList();
+                    string jsonContent = File.ReadAllText(filePath);
+                    var points = JsonSerializer.Deserialize<List<MarkerData>>(jsonContent);
 
-                // Call JavaScript function to add points on the map
-                await JSRuntime.InvokeVoidAsync("addpoint", jsPoints);
+                    // Convert MarkerData instances into JavaScript objects
+                    var jsPoints = points.Select(p => new
+                    {
+                        lat = double.Parse(p.Long.ToString()),
+                        lng = double.Parse(p.LAT.ToString()),
+                        description = p.name
+                    }).ToList();
+
+                    // Call JavaScript function to add points on the map
+                    await JSRuntime.InvokeVoidAsync("addpoint", jsPoints);
+                }
             }
         }
         catch (Exception ex)

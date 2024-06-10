@@ -3,6 +3,7 @@
 @import url('https://netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.css');
 @import url(https://fonts.googleapis.com/css?family=Oswald:700);
 @import url(https://fonts.googleapis.com/css?family=Droid+Serif);
+
 .color-black {
     color: black !important;
 }
@@ -86,15 +87,16 @@ body {
         display: none !important;
     }
 }
-    .topnav a {
-        float: left;
-        display: block;
-        color: #f2f2f2;
-        text-align: center;
-        padding: 14px 16px;
-        text-decoration: none;
-        font-size: 17px;
-    }
+
+.topnav a {
+    float: left;
+    display: block;
+    color: #f2f2f2;
+    text-align: center;
+    padding: 14px 16px;
+    text-decoration: none;
+    font-size: 17px;
+}
 
 .active {
     background-color: #3f55d1;
@@ -687,14 +689,18 @@ a:hover {
 {
     text-align: center !important;
 }
-.btnhoo:hover{
-    color:blue !important;
+
+.btnhoo:hover {
+    color: blue !important;
 }
+
 }
 
 
 .forms-de {
-input[type=text], select, textarea {
+    input [type=text], select, textarea
+
+{
     width: 100%;
     padding: 12px;
     border: 1px solid #ccc;
@@ -728,9 +734,11 @@ input[type=submit] {
     background-color: #f8f9fa;
     padding: 20px;
 }
-.custom-pad{
-    padding:5px;
+
+.custom-pad {
+    padding: 5px;
 }
+
 .col-25 {
     float: left;
     width: 25%;
@@ -760,25 +768,27 @@ input[type=submit] {
 
 @media screen and (max-width: 768px) {
     .col-6 {
-        width:100%;
+        width: 100%;
     }
 }
-
 
 }
 
 .font-colors {
     color: black !important;
 }
+
 .custom-modal {
     /* Add your modal styles here */
     /*body
 
 {
     overflow: hidden;*/ /* Prevent scrolling when modal is open */
-/*}*/
+    /*}*/
 
-.modal-overlay {
+    .modal-overlay
+
+{
     position: fixed;
     top: 0;
     left: 0;
@@ -820,17 +830,20 @@ input[type=submit] {
 .modal-body {
     padding: 10px 0;
 }
+
 @media screen and (max-width: 768px) {
     .modal-overlay {
-      overflow:auto;
-      align-items:normal;
+        overflow: auto;
+        align-items: normal;
     }
+
     .modal-content {
         height: 820px;
     }
+}
 
 }
-}
+
 .tabItem.active[b-gd96puohnh] {
     overflow: hidden;
     cursor: pointer;
@@ -838,23 +851,26 @@ input[type=submit] {
     border: solid 1px #fff;
     text-align: center;
 }
-.tabItem{
-    color:#fff;
+
+.tabItem {
+    color: #fff;
 }
-.tabsHeader{
-    display:none !important;
+
+.tabsHeader {
+    display: none !important;
 }
+
 @media (max-width: 600px) {
     /* Adjust styling for small screens */
-    .tabItem{
-        width:100% !important;
+    .tabItem {
+        width: 100% !important;
     }
 }
+
 @import url('https://fonts.googleapis.com/css?family=Montserrat:400,600,700');
 @import url('https://fonts.googleapis.com/css?family=Catamaran:400,800');
 
 .custom_404 {
-   
     .error-container
 
 {
@@ -1011,7 +1027,6 @@ a.more-link {
     letter-spacing: 1px;
 }
 
-
 }
 
 .inspectionprint {
@@ -1023,24 +1038,25 @@ a.more-link {
     font-family: Arial, sans-serif;
     font-size: 10px;
 }
+
 @media print {
     header, footer {
         display: none !important;
     }
-        body {
+
+    body {
         margin: 0;
         padding: 0;
     }
+
     .topnav,
     #myTopnav {
         display: none !important;
     }
 }
+
 .container {
-   
-  
     background-color: #ffffff; /* White background for center */
-  
 }
 
 .left-section, .right-section {
@@ -1078,6 +1094,7 @@ th {
     height: 16px; /* Adjust size as needed */
     vertical-align: middle;
 }
+
 .signature-container {
     display: flex;
     justify-content: space-between; /* Adjust as needed */
@@ -1096,12 +1113,11 @@ th {
     display: inline-block;
     margin: 10px 5px 5px 5px; /* Top, right, bottom, left margin */
 }
+
 }
 
 
 .fleet-cards {
-
-  
     *
 
 {
@@ -1120,8 +1136,8 @@ body {
 
 .container {
     display: flex;
-/*    justify-content: space-evenly;
-*/    flex-wrap: wrap;
+    /*    justify-content: space-evenly;
+*/ flex-wrap: wrap;
 }
 
 .card {
@@ -1290,7 +1306,7 @@ td, th {
     width: 100%;
     height: 100%;
     border-radius: 2%; /* Uncommented to maintain the circle shape */
-    background: #5e72e4;
+    background: #e0e2ee;
     opacity: 0.2;
     animation: fadeInOut 2s ease-in-out infinite; /* The infinite animation duration for continuous loop */
 }
@@ -1308,18 +1324,17 @@ td, th {
 .reason-text {
     margin-top: -245px !important;
 }
+
 @media screen and (max-width: 768px) {
     .reason-text {
         margin-top: 0px !important;
     }
 }
 
-@media screen and (max-width:1670px)
-{
+@media screen and (max-width:1670px) {
     .widt {
         max-width: 1270px !important;
         max-height: 430px !important;
-
     }
 }
 
@@ -1329,7 +1344,23 @@ td, th {
         padding-left: 20px !important;
         margin-bottom: 10px !important; /* Add some space below the search container */
     }
-    .reports{
-        display:block !important;
+
+    .reports {
+        display: block !important;
     }
+
+    .fpart {
+        width: 100% !important;
+    }
+
+        .fpart div {
+            width: 100% !important;
+        }
+
+    .lpart {
+        width: 100% !important;
+    }
+        .lpart div {
+            width: 100% !important;
+        }
 }
