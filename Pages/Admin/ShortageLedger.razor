@@ -33,7 +33,7 @@
 
                                     <div class="form-group">
                                         <label for="example-text-input" class="form-control-label">Search :</label>
-                                        <input id="searchInput" type="text" class="form-control" required @oninput="SearchTable" />
+                                        <input id="searchInput" type="text" class="form-control" onkeyup="filterTable(this.value)" />
                                     </div>
                                 </div>
                                 <AuthorizeView Policy="AvailMan">
@@ -546,7 +546,7 @@
         IsChildLoad = true;
         string searchValue = e.Value.ToString();
         await JSRuntime.InvokeVoidAsync("filterTable", searchValue);
-        IsChildLoad = true;
+        IsChildLoad = false;
     }
     public async Task GetAllInvoices()
     {
