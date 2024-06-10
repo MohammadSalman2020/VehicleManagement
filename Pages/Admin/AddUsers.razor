@@ -96,7 +96,7 @@
                                                     </td>
 
                                                     <td class="align-middle text-center" style="word-wrap: break-word; white-space: normal; max-width: 150px !important;">
-                                                        <span class="text-secondary text-xs font-weight-bold" >@item.business</span>
+                                                        <span class="text-secondary text-xs font-weight-bold">@item.business</span>
                                                     </td>
 
                                                     <td class="align-middle text-center text-sm">
@@ -846,7 +846,7 @@
 
 
                 }
-                else if(Result==202)
+                else if (Result == 202)
                 {
                     toastService.ShowSuccess($"Username already exists");
                     User = new Users();
@@ -1242,7 +1242,14 @@
         if (rec != null)
         {
             AllBusiness.Remove(rec);
-            // await GetAllBusiness();
+            var Business = await API.GetRequest($"UserManagement/RemoveBus/{busID}/{addUserBusiness.UserID}");
+            if (Business.Contains("200"))
+            {
+                BusinessModal.CloseModal();
+                toastService.ShowSuccess("User Business Removed Success");
+                await GetAllBusiness();
+            }
+           
         }
 
     }

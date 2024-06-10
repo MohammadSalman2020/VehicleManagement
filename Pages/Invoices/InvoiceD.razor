@@ -37,7 +37,6 @@
                 color: black;
                 width: 100%;
                 border-collapse: collapse;
-              
             }
 
                 .details td, .shipping td, .receiving td {
@@ -51,12 +50,12 @@
                 }
 
                 .details .header, .shipping .header, .receiving .header {
-                    color:white;
+                    color: white;
                     font-weight: bold;
                     background-color: #5e72e4;
                 }
 
-            
+
             .header-span {
                 display: block;
                 font-size: 16px;
@@ -109,7 +108,7 @@
                                 <td>STO NO</td>
                                 <td>@Invoices.Details.STONo</td>
                                 <td>Prepared By</td>
-                                <td>@Invoices.User</td>
+                                <td>@(Invoices.User ?? User)</td>
                             </tr>
                             <tr>
                                 <td>Supply Point</td>
@@ -124,7 +123,7 @@
                                 <td>@Invoices.Details.Contractor</td>
                             </tr>
                         </table>
-                     
+
                         <table class="shipping">
                             <tr class="header">
                                 <td>Chamber (Shipping)</td>
@@ -167,7 +166,7 @@
                                 <td>@Invoices.ShippingDetail.Chamber5.Quantity</td>
                             </tr>
                         </table>
-                      
+
                         <table class="receiving">
                             <tr class="header">
                                 <td>Chamber (Receiving)</td>
@@ -210,7 +209,7 @@
                                 <td>@Invoices.ReceivingDetail.Chamber5.Quantity</td>
                             </tr>
                         </table>
-                  
+
                         <table class="receiving">
                             <tr class="header">
                                 <td>Chamber (Summary)</td>
@@ -251,8 +250,27 @@
                                 <td>@Invoices.CalculationDifference.TotalShortageByDip</td>
                                 <td>Short On Temperature (Exempted)</td>
                                 <td>@Invoices.CalculationDifference.ShortOnTemp</td>
-                                <td>Shortage Charge to Contractor</td>
-                                <td>@Invoices.CalculationDifference.ShortageCharge</td>
+                                @if (@Invoices.CalculationDifference.Status == "Short")
+                                {
+                                    <td>Shortage Charge to Contractor</td>
+                                    <td style="color:red;">@Invoices.CalculationDifference.ShortageCharge</td>
+                                }
+                                else if (@Invoices.CalculationDifference.Status == "Extra")
+                                {
+                                    <td>Shortage Charge to Contractor</td>
+                                    <td style="color:blue;">@Invoices.CalculationDifference.ShortageCharge</td>
+                                }
+                                else
+                                {
+                                    <td>Shortage Charge to Contractor</td>
+                                    <td>@Invoices.CalculationDifference.ShortageCharge</td>
+                                }
+
+                               
+                            </tr>
+                            <tr>
+                                <td colspan="3">Status</td>
+                                <td colspan="6" style="color:@(Invoices.CalculationDifference.Status=="Extra"?"blue":"red")">@Invoices.CalculationDifference.Status</td>
                             </tr>
                         </table>
                         @if (IsView == "View")
@@ -362,6 +380,7 @@
             }
             var authState = await _authenticationStateProvider.GetAuthenticationStateAsync();
             User = authState.User.Identity.Name;
+
         }
         catch (Exception ex)
         {
