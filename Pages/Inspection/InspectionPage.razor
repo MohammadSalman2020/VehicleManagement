@@ -197,13 +197,13 @@
                         else
                         {
                         <th colspan="3">@Scopes[j]</th>
-                       
+
                         }
-                   @*  <th>@Scopes[j]</th>
-                    <th>Inspector Remarks</th> *@
-                    @* <th style="text-align:center;justify-content:center">Response</th> *@
+                        @*  <th>@Scopes[j]</th>
+                <th>Inspector Remarks</th> *@
+                        @* <th style="text-align:center;justify-content:center">Response</th> *@
                     </thead>
-                    <tbody>
+                    <tbody style="font-weight:bold;color:black;">
                         @for (int i = 0; i < @scopeObservations.Count; i++)
                         {
                             <tr>
@@ -251,6 +251,11 @@
         border: 1px solid black;
         border-collapse: collapse;
         padding: 8px;
+    }
+
+    table.gen {
+        color:black;
+        font-weight:bold;
     }
 
     .icon {
