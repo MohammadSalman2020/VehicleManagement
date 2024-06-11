@@ -770,6 +770,9 @@ input[type=submit] {
     .col-6 {
         width: 100%;
     }
+    .col-lgg-6{
+        max-width:100% !important;
+    }
 }
 
 }
@@ -1379,6 +1382,7 @@ td, th {
     }
    
 }
+
     @media (max-width: 576px) {
         .numbers h5 {
             font-size: xx-large;
@@ -1466,3 +1470,12 @@ td, th {
             display: block;
         }
     }
+
+@media screen and (max-width: 768px) {
+ 
+
+    .col-lgg-6 {
+        max-width: 100% !important;
+    }
+}
+

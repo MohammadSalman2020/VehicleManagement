@@ -286,7 +286,7 @@
                                                                     }
                                                                 </td>
                                                                 <td class="align-middle">
-                                                                    <a @onclick="@(()=>ShowMessage(shorts.invoiceNumber))" class="text-secondary font-weight-bold text-xs cursor-pointer">
+                                                                    <a @onclick="@(()=>ShowMessage2(shorts.invoiceNumber))" class="text-secondary font-weight-bold text-xs cursor-pointer">
                                                                         View
                                                                     </a>
                                                                 </td>
@@ -530,6 +530,32 @@
                 string encodedJson = HttpUtility.UrlEncode(base64EncodedJson);
 
                 NavigationManager.NavigateTo($"/invoicedisplay?InvoiceID={encodedJson}");
+
+
+            }
+        }
+        catch (Exception ex)
+        {
+            IsChildLoad = false;
+            toastService.ShowError($"Error: {ex.Message}");
+        }
+        IsChildLoad = false;
+    }
+     public async Task ShowMessage2(string STONo)
+    {
+        IsChildLoad = true;
+
+        try
+        {
+
+            var Invoice = Invoicing.Where(p => p.Details.STONo == STONo).FirstOrDefault();
+            if (Invoice != null)
+            {
+                string jsonString = JsonSerializer.Serialize(Invoice);
+                string base64EncodedJson = Convert.ToBase64String(Encoding.UTF8.GetBytes(jsonString));
+                string encodedJson = HttpUtility.UrlEncode(base64EncodedJson);
+
+                NavigationManager.NavigateTo($"/scinvdisplay?InvoiceID={encodedJson}");
 
 
             }
