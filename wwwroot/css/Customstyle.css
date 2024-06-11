@@ -1363,4 +1363,106 @@ td, th {
         .lpart div {
             width: 100% !important;
         }
+    .pctablet{
+        display:none;
+    }
+    .mobile {
+        display: block;
+    }
 }
+@media (min-width: 768px) {
+    .pctablet {
+        display: block;
+    }
+    .mobile {
+        display: none;
+    }
+   
+}
+    @media (max-width: 576px) {
+        .numbers h5 {
+            font-size: xx-large;
+        }
+
+        .row {
+            flex-wrap: wrap;
+        }
+
+        .col-12.col-md-4 {
+            flex: 0 0 33.3333%;
+            max-width: 33.3333%;
+        }
+
+        .col-12.col-md-6 {
+            flex: 0 0 50%;
+            max-width: 50%;
+        }
+
+        .newcard {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100px; /* Adjust height as needed */
+        }
+
+        p.text-sm {
+            font-size: smaller;
+            text-align: center;
+            color: black;
+        }
+
+        .icon {
+            display: none;
+        }
+
+       
+
+        .g-4 {
+            --bs-gutter-y: -0.5rem;
+            --bs-gutter-x: 0.5rem;
+        }
+
+        .newcard {
+            padding: 0;
+        }
+    }
+
+    @media (min-width: 577px) {
+        
+
+        .row-cols-1 {
+            display: flex;
+            flex-wrap: nowrap;
+        }
+
+        .col-12.col-md-4, .col-12.col-md-6 {
+            flex: 0 0 auto;
+            max-width: auto;
+        }
+
+        .col {
+            flex: 1;
+        }
+
+        .newcard {
+            height: auto; /* Default height */
+        }
+
+        .card .row {
+            display: flex;
+            align-items: center;
+        }
+
+        .card .col-8, .card .col-4 {
+            display: flex;
+            align-items: center;
+        }
+
+        .numbers {
+            text-align: left;
+        }
+
+        .icon {
+            display: block;
+        }
+    }

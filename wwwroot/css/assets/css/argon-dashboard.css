@@ -26928,5 +26928,60 @@ pre[class*="language-"] {
     overflow: auto !important;
   }
 }
+@media (max-width: 576px) {
+    .numbers h5 {
+        font-size: larger;
+    }
 
+    .row {
+        flex-wrap: wrap;
+    }
+
+    .col-12.col-md-4 {
+        flex: 0 0 33.3333%;
+        max-width: 33.3333%;
+    }
+
+    .col-12.col-md-6 {
+        flex: 0 0 50%;
+        max-width: 50%;
+    }
+
+    .newcard {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100px; /* Adjust height as needed */
+    }
+
+    p.text-sm {
+        font-size: smaller;
+        text-align: center;
+        color: black;
+    }
+
+    .icon {
+        display: none;
+    }
+
+    .pccounttext {
+        display: none;
+    }
+
+    .g-4 {
+        --bs-gutter-y: -0.5rem;
+    }
+
+    .gy-4 {
+        --bs-gutter-y: -0.5rem;
+    }
+
+    .g-4 {
+        --bs-gutter-x: 0.5rem;
+    }
+
+    .gx-4 {
+        --bs-gutter-x: 0.5rem;
+    }
+}
 /*# sourceMappingURL=dashboard-free.css.map */

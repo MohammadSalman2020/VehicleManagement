@@ -20,13 +20,14 @@
 <style>
     .reports {
         display: flex;
+    }
 
-    }
-    .fpart{
+    .fpart {
         width: 48%;
-        margin-bottom:10px;
+        margin-bottom: 10px;
     }
-    .lpart{
+
+    .lpart {
         width: 52%;
     }
 </style>
@@ -191,24 +192,28 @@
     public bool IsLoading { get; set; }
     List<PolygonTimeSheetLog> log = new List<PolygonTimeSheetLog>();
     List<PolygonTimeSheetLog> outlog = new List<PolygonTimeSheetLog>();
-
+    public List<int> BusinessID = new List<int>();
     public async Task LoadLog()
     {
         try
         {
+            BusinessID = await UserClaimsService.GetBusinessIdsAsync();
+            if (BusinessID.Contains(17))
+            {
+                var Main = await API.GetRequest($"Fleet/GetPolygonInOUt");
+                if (Main != "")
+                {
+                    log = Newtonsoft.Json.JsonConvert.DeserializeObject<List<PolygonTimeSheetLog>>(Main);
+                    // fleet = rec.Where(p => BusinessID.Contains(p.busID)).ToList();
+                }
+                var outdata = await API.GetRequest($"Fleet/GetPolygonOut");
+                if (outdata != "")
+                {
+                    outlog = Newtonsoft.Json.JsonConvert.DeserializeObject<List<PolygonTimeSheetLog>>(outdata);
+                    // fleet = rec.Where(p => BusinessID.Contains(p.busID)).ToList();
+                }
+            }
 
-            var Main = await API.GetRequest($"Fleet/GetPolygonInOUt");
-            if (Main != "")
-            {
-                log = Newtonsoft.Json.JsonConvert.DeserializeObject<List<PolygonTimeSheetLog>>(Main);
-                // fleet = rec.Where(p => BusinessID.Contains(p.busID)).ToList();
-            }
-            var outdata = await API.GetRequest($"Fleet/GetPolygonOut");
-            if (outdata != "")
-            {
-                outlog = Newtonsoft.Json.JsonConvert.DeserializeObject<List<PolygonTimeSheetLog>>(outdata);
-                // fleet = rec.Where(p => BusinessID.Contains(p.busID)).ToList();
-            }
         }
         catch (Exception ex)
         {
