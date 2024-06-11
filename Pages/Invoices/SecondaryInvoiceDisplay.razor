@@ -1,4 +1,4 @@
-﻿@page "/invoicedisplay"
+﻿@page "/scinvdisplay"
 @inject NavigationManager NavigationManager
 @using Microsoft.AspNetCore.WebUtilities
 @using System.Web
@@ -37,6 +37,7 @@
                 color: black;
                 width: 100%;
                 border-collapse: collapse;
+                margin-top:8px;
             }
 
                 .details td, .shipping td, .receiving td {
@@ -126,115 +127,96 @@
 
                         <table class="shipping" style="margin-top:7px;">
                             <tr class="header">
-                                <td>Chamber (Shipping)</td>
-                                <td>1</td>
-                                <td>2</td>
-                                <td>3</td>
-                                <td>4</td>
-                                <td>5</td>
-                            </tr>
-                            <tr>
-                                <td>Temp F</td>
-                                <td colspan="5">@Invoices.ShippingDetail.TempF</td>
-                            </tr>
-                            <tr>
-                                <td>S.G</td>
-                                <td colspan="5">@Invoices.ShippingDetail.SG</td>
-                            </tr>
-                            <tr>
-                                <td>Chamber Quantity</td>
-                                <td>@Invoices.ShippingDetail.Chamber1.ChamberQuantity</td>
-                                <td>@Invoices.ShippingDetail.Chamber2.ChamberQuantity</td>
-                                <td>@Invoices.ShippingDetail.Chamber3.ChamberQuantity</td>
-                                <td>@Invoices.ShippingDetail.Chamber4.ChamberQuantity</td>
-                                <td>@Invoices.ShippingDetail.Chamber5.ChamberQuantity</td>
-                            </tr>
-                            <tr>
-                                <td>Tank Lorry Product Dips(MM)</td>
-                                <td>@Invoices.ShippingDetail.Chamber1.LorryDip</td>
-                                <td>@Invoices.ShippingDetail.Chamber2.LorryDip</td>
-                                <td>@Invoices.ShippingDetail.Chamber3.LorryDip</td>
-                                <td>@Invoices.ShippingDetail.Chamber4.LorryDip</td>
-                                <td>@Invoices.ShippingDetail.Chamber5.LorryDip</td>
-                            </tr>
-                            <tr>
-                                <td>Quantity  85F</td>
-                                <td>@Invoices.ShippingDetail.Chamber1.Quantity</td>
-                                <td>@Invoices.ShippingDetail.Chamber2.Quantity</td>
-                                <td>@Invoices.ShippingDetail.Chamber3.Quantity</td>
-                                <td>@Invoices.ShippingDetail.Chamber4.Quantity</td>
-                                <td>@Invoices.ShippingDetail.Chamber5.Quantity</td>
-                            </tr>
-                        </table>
+                                <td>Chamber</td>
+                                <td>Loading Quantity</td>
+                                <td>Loading Dip</td>
+                                <td>Receiving Quantity</td>
+                                <td>Receiving Dip</td>
 
-                        <table class="receiving">
-                            <tr class="header">
-                                <td>Chamber (Receiving)</td>
-                                <td>1</td>
-                                <td>2</td>
-                                <td>3</td>
-                                <td>4</td>
-                                <td>5</td>
                             </tr>
+
                             <tr>
-                                <td>Temp F</td>
-                                <td colspan="5">@Invoices.ReceivingDetail.TempF</td>
-                            </tr>
-                            <tr>
-                                <td>S.G</td>
-                                <td colspan="5">@Invoices.ReceivingDetail.SG</td>
-                            </tr>
-                            <tr>
-                                <td>Chamber Quantity</td>
+                                <td>Chamber 1</td>
+                                <td>@Invoices.ShippingDetail.Chamber1.ChamberQuantity</td>
+                                <td>@Invoices.ShippingDetail.Chamber1.LorryDip</td>
                                 <td>@Invoices.ReceivingDetail.Chamber1.ChamberQuantity</td>
-                                <td>@Invoices.ReceivingDetail.Chamber2.ChamberQuantity</td>
-                                <td>@Invoices.ReceivingDetail.Chamber3.ChamberQuantity</td>
-                                <td>@Invoices.ReceivingDetail.Chamber4.ChamberQuantity</td>
-                                <td>@Invoices.ReceivingDetail.Chamber5.ChamberQuantity</td>
-                            </tr>
-                            <tr>
-                                <td>Tank Lorry Product Dips(MM)</td>
                                 <td>@Invoices.ReceivingDetail.Chamber1.LorryDip</td>
+                            </tr>
+
+
+                            <tr>
+                                <td>Chamber 2</td>
+                                <td>@Invoices.ShippingDetail.Chamber2.ChamberQuantity</td>
+                                <td>@Invoices.ShippingDetail.Chamber2.LorryDip</td>
+                                <td>@Invoices.ReceivingDetail.Chamber2.ChamberQuantity</td>
                                 <td>@Invoices.ReceivingDetail.Chamber2.LorryDip</td>
+                            </tr>
+
+                            <tr>
+                                <td>Chamber 3</td>
+                                <td>@Invoices.ShippingDetail.Chamber3.ChamberQuantity</td>
+                                <td>@Invoices.ShippingDetail.Chamber3.LorryDip</td>
+                                <td>@Invoices.ReceivingDetail.Chamber3.ChamberQuantity</td>
                                 <td>@Invoices.ReceivingDetail.Chamber3.LorryDip</td>
+                            </tr>
+
+                            <tr>
+                                <td>Chamber 4</td>
+                                <td>@Invoices.ShippingDetail.Chamber4.ChamberQuantity</td>
+                                <td>@Invoices.ShippingDetail.Chamber4.LorryDip</td>
+                                <td>@Invoices.ReceivingDetail.Chamber4.ChamberQuantity</td>
                                 <td>@Invoices.ReceivingDetail.Chamber4.LorryDip</td>
+                            </tr>
+
+                            <tr>
+                                <td>Chamber 5</td>
+                                <td>@Invoices.ShippingDetail.Chamber5.ChamberQuantity</td>
+                                <td>@Invoices.ShippingDetail.Chamber5.LorryDip</td>
+                                <td>@Invoices.ReceivingDetail.Chamber5.ChamberQuantity</td>
                                 <td>@Invoices.ReceivingDetail.Chamber5.LorryDip</td>
                             </tr>
-                            <tr>
-                                <td>Quantity  85F</td>
-                                <td>@Invoices.ReceivingDetail.Chamber1.Quantity</td>
-                                <td>@Invoices.ReceivingDetail.Chamber2.Quantity</td>
-                                <td>@Invoices.ReceivingDetail.Chamber3.Quantity</td>
-                                <td>@Invoices.ReceivingDetail.Chamber4.Quantity</td>
-                                <td>@Invoices.ReceivingDetail.Chamber5.Quantity</td>
-                            </tr>
+
                         </table>
+
 
                         <table class="receiving" style="margin-top:7px;">
                             <tr class="header">
                                 <td>Chamber (Summary)</td>
-                                <td>1</td>
-                                <td>2</td>
-                                <td>3</td>
-                                <td>4</td>
-                                <td>5</td>
-                            </tr>
-                            <tr>
                                 <td>Shortage in MM</td>
-                                <td>@Invoices.ShortageCalculation.Chamber1.ShortageMM</td>
-                                <td>@Invoices.ShortageCalculation.Chamber2.ShortageMM</td>
-                                <td>@Invoices.ShortageCalculation.Chamber3.ShortageMM</td>
-                                <td>@Invoices.ShortageCalculation.Chamber4.ShortageMM</td>
-                                <td>@Invoices.ShortageCalculation.Chamber5.ShortageMM</td>
-                            </tr>
-                            <tr>
                                 <td>Total Shortage in Liters</td>
+
+                            </tr>
+
+                            <tr>
+                                <td>Chamber 1</td>
+                                <td>@Invoices.ShortageCalculation.Chamber1.ShortageMM</td>
                                 <td>@Invoices.ShortageCalculation.Chamber1.TotalShortageLtr</td>
+                            </tr>
+
+                            <tr>
+                                <td>Chamber 2</td>
+                                <td>@Invoices.ShortageCalculation.Chamber2.ShortageMM</td>
                                 <td>@Invoices.ShortageCalculation.Chamber2.TotalShortageLtr</td>
+                            </tr>
+
+                            <tr>
+                                <td>Chamber 3</td>
+                                <td>@Invoices.ShortageCalculation.Chamber3.ShortageMM</td>
                                 <td>@Invoices.ShortageCalculation.Chamber3.TotalShortageLtr</td>
+                            </tr>
+
+                            <tr>
+                                <td>Chamber 4</td>
+                                <td>@Invoices.ShortageCalculation.Chamber4.ShortageMM</td>
                                 <td>@Invoices.ShortageCalculation.Chamber4.TotalShortageLtr</td>
+                            </tr>
+
+                            <tr>
+                                <td>Chamber 5</td>
+                                <td>@Invoices.ShortageCalculation.Chamber5.ShortageMM</td>
                                 <td>@Invoices.ShortageCalculation.Chamber5.TotalShortageLtr</td>
                             </tr>
+
                         </table>
                         <table class="receiving">
                             <tr>
@@ -266,7 +248,7 @@
                                     <td>@Invoices.CalculationDifference.ShortageCharge</td>
                                 }
 
-                               
+
                             </tr>
                             <tr>
                                 <td colspan="3">Status</td>
@@ -494,3 +476,4 @@
 
     }
 }
+
