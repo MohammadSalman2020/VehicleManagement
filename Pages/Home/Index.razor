@@ -1,5 +1,6 @@
 ﻿@page "/"
 @inject IJSRuntime JSRuntime
+@using VehicleManagement.ApiService
 @using VehicleManagement.Models.DB
 @using VehicleManagement.Authentication
 @using VehicleManagement.Shared
@@ -9,54 +10,34 @@
 @inject IJSRuntime js
 @inject AuthenticationStateProvider AuthStateProvider
 @inject NavigationManager NavManager
-
+@inject IApiService API
+@inject IUserClaimsService UserClaimsService
 
 
 <AuthorizeView>
     <Authorized>
-       
         <DataCards />
-      
+
         <div class="row">
             <div class="col-lg-12 mb-lg-0 mb-4">
                 <div class="row">
-                    <div class="col-lg-6 mb-lg-0 mb-4" style="
-    padding-left: 3px;
-    padding-right: 3px;
-">
-                        <div class="card ">
+                    <div class="@MapColumnClass" style="padding-left: 3px; padding-right: 3px;">
+                        <div class="card">
                             <VehicleManagement.Pages.Fleets.Map />
                         </div>
                     </div>
-                    <div class="col-lg-6 mb-lg-0 mb-4" style="
-    padding-left: 13px;
-    padding-right: 18px;
-">
-                        <AuthorizeView Roles="admin,FleetManager">
-                            <Authorized Context="asas">
-                                <VehicleManagement.Pages.Fleets.PolygonInout />
-                            </Authorized>
-                        </AuthorizeView>
-                       
-                 @*        <div class="card "> 
-                            <div class="card-header pb-0 p-3">
-                                <div class="d-flex justify-content-between">
-                                    <h4 class="mb-2">System Suggestions</h4>
-                                </div>
-                                <div class="d-flex justify-content-between">
-                                     <h6 class="mb-2">Digital Inspection</h6>
-                                </div>
-                                <div class="d-flex justify-content-between">
-                                    <p class="mb-2">Lorem Ipsum Text</p>
-                                </div>
-                            </div>
-                        </div> *@
-                    </div>
-
-
+                    @if (PolygonRecordCount > 0)
+                    {
+                        <div class="col-lg-6 mb-lg-0 mb-4" style="padding-left: 13px; padding-right: 18px;">
+                            <AuthorizeView Roles="admin,FleetManager">
+                                <Authorized Context="asas">
+                                    <VehicleManagement.Pages.Fleets.PolygonInout />
+                                </Authorized>
+                            </AuthorizeView>
+                        </div>
+                    }
                 </div>
             </div>
-
         </div>
     </Authorized>
     <Authorizing>
@@ -69,7 +50,6 @@
         }
     </NotAuthorized>
 </AuthorizeView>
-
 @code {
 
     private bool _isJsReady = false;
@@ -83,8 +63,8 @@
                 // Attempt a simple JavaScript call to check if JS is ready
                 await js.InvokeVoidAsync("console.log", "");
                 _isJsReady = true; // JS is ready, so set a flag or take action
-                // await RequestPushNotificationPermission();
-                // await GetDeviceToken();
+                                   // await RequestPushNotificationPermission();
+                                   // await GetDeviceToken();
                 StateHasChanged();
             }
             catch
@@ -97,11 +77,56 @@
     }
 
 
+    protected int PolygonRecordCount { get; set; } = 0;
+
+    protected string MapColumnClass => PolygonRecordCount > 0 ? "col-lg-6 mb-lg-0 mb-4" : "col-lg-12 mb-lg-0 mb-4";
+
     protected override async Task OnInitializedAsync()
     {
-       
+        // Simulate fetching record count. Replace this with your actual data fetching logic.
+        PolygonRecordCount = await GetPolygonRecordCountAsync();
+    }
+    public List<int> BusinessID = new List<int>();
+    private async Task<int>  GetPolygonRecordCountAsync()
+    {
+
+        List<PolygonTimeSheetLog> log = new List<PolygonTimeSheetLog>();
+        List<PolygonTimeSheetLog> outlog = new List<PolygonTimeSheetLog>();
+
+        try
+        {
+            BusinessID = await UserClaimsService.GetBusinessIdsAsync();
+            if (BusinessID.Contains(17))
+            {
+                var Main = await API.GetRequest($"Fleet/GetPolygonInOUt");
+                if (Main != "")
+                {
+                    log = Newtonsoft.Json.JsonConvert.DeserializeObject<List<PolygonTimeSheetLog>>(Main);
+                    // fleet = rec.Where(p => BusinessID.Contains(p.busID)).ToList();
+                }
+                var outdata = await API.GetRequest($"Fleet/GetPolygonOut");
+                if (outdata != "")
+                {
+                    outlog = Newtonsoft.Json.JsonConvert.DeserializeObject<List<PolygonTimeSheetLog>>(outdata);
+                    // fleet = rec.Where(p => BusinessID.Contains(p.busID)).ToList();
+                }
+            }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+            }
+        
+        return ((log.Count > 0 && outlog.Count>0)?1:0);
     }
 
-
+    public class PolygonTimeSheetLog
+    {
+        public long srNumber { get; set; }
+        public string vehicleId { get; set; }
+        public string polygonName { get; set; }
+        public string days_ { get; set; } // Change to long
+        public string duration { get; set; }
+    }
 
 }

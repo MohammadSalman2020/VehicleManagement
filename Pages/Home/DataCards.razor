@@ -17,46 +17,195 @@
     }
 </style>
 <div class="@LoadingClass">
-    <div style="padding-top:10px;">
-        @*   @if (dataCard.total != 0)
-        { *@
-        <div class="row row-cols-1 row-cols-md-2 row-cols-xl-5 g-4">
-            <div class="col mb-3">
-                <div class="card bg-gradient-success" style="color: white;" @onclick='()=>NavigationControl("M")'>
-                    <div  class="newcard">
-                        <div class="row">
-                            <div class="col-8">
-                                <div class="numbers">
-                                    <p class="text-sm mb-0 text-uppercase font-weight-bold">On Maintenance</p>
-                                    <h5 class="font-weight-bolder" style="color: white;">
-                                        @TotalMaintainance.ToString()
-                                    </h5>
-                                </div>
+
+
+
+
+
+    <div class="mobile">
+
+        <div style="padding-top:10px;">
+            <div class="row g-4">
+                <div class="col-12 col-md-4 mb-3">
+                    <div class="card bg-gradient-success" style="color: white;" @onclick='()=>NavigationControl("M")'>
+                        <div class="newcard">
+                            <div class="numbers">
+                                <h5 class="font-weight-bolder" style="color: white;">
+                                    @TotalMaintainance.ToString()
+                                </h5>
                             </div>
-                            <div class="col-3 text-end">
-                                <div class="icon icon-shape bg-gradient-success shadow-success text-center rounded-circle">
-                                    <i class="fa-solid fa-wrench opacity-10" aria-hidden="true"></i>
+                        </div>
+                    </div>
+                    <div>
+                        <p class="text-sm mb-0 text-uppercase font-weight-bold text-center" style="color: black;">Maintenance</p>
+                    </div>
+                </div>
+                <div class="col-12 col-md-4 mb-3">
+                    <div class="card bg-gradient-primary" style="color: white;" @onclick='()=>NavigationControl("A")'>
+                        <div class="newcard">
+                            <div class="numbers">
+                                <h5 class="font-weight-bolder" style="color: white;">
+                                    @TotalAvailable.ToString()
+                                </h5>
+                            </div>
+                        </div>
+                    </div>
+                    <div>
+                        <p class="text-sm mb-0 text-uppercase font-weight-bold text-center" style="color: black;">Available</p>
+                    </div>
+                </div>
+
+                <div class="col-12 col-md-4 mb-3">
+                    <div class="card bg-gradient-danger" style="color: white;" @onclick='()=>NavigationControl("LA")'>
+                        <div class="newcard">
+                            <div class="numbers">
+                                <h5 class="font-weight-bolder" style="color: white;">
+                                    @TotalOnLoad.ToString()
+                                </h5>
+                            </div>
+                        </div>
+                    </div>
+                    <div>
+                        <p class="text-sm mb-0 text-uppercase font-weight-bold text-center" style="color: black;">Load Assigned</p>
+                    </div>
+                </div>
+                <div class="col-12 col-md-6 mb-3">
+                    <div class="card bg-gradient-danger" style="color: white;" @onclick='()=>NavigationControl("OT")'>
+                        <div class="newcard">
+                            <div class="numbers">
+                                <h5 class="font-weight-bolder" style="color: white;">
+                                    @TotalOntrip.ToString()
+                                </h5>
+                            </div>
+                        </div>
+                    </div>
+                    <div>
+                        <p class="text-sm mb-0 text-uppercase font-weight-bold text-center" style="color: black;">On Trip</p>
+                    </div>
+                </div>
+                <div class="col-12 col-md-6 mb-3">
+                    <div class="card bg-gradient-warning" style="color: white;" @onclick='()=>NavigationControl("T")'>
+                        <div class="newcard">
+                            <div class="numbers">
+                                <h5 class="font-weight-bolder" style="color: white;">
+                                    @Total.ToString()
+                                </h5>
+                            </div>
+                        </div>
+                    </div>
+                    <div>
+                        <p class="text-sm mb-0 text-uppercase font-weight-bold text-center" style="color: black;">Total Vehicles</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="pctablet">
+        <div style="padding-top:10px;">
+
+            <div class="row row-cols-1 row-cols-md-2 row-cols-xl-5 g-4">
+                <div class="col mb-3">
+                    <div class="card bg-gradient-success" style="color: white;" @onclick='()=>NavigationControl("M")'>
+                        <div class="newcard">
+                            <div class="row">
+                                <div class="col-8">
+                                    <div class="numbers">
+                                        <p class="text-sm mb-0 text-uppercase font-weight-bold">On Maintenance</p>
+                                        <h5 class="font-weight-bolder" style="color: white;">
+                                            @TotalMaintainance.ToString()
+                                        </h5>
+                                    </div>
+                                </div>
+                                <div class="col-3 text-end">
+                                    <div class="icon icon-shape bg-gradient-success shadow-success text-center rounded-circle">
+                                        <i class="fa-solid fa-wrench opacity-10" aria-hidden="true"></i>
+                                    </div>
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
-            </div>
-            <div class="col mb-3">
-                <div class="card bg-gradient-primary" style="color: white;" @onclick='()=>NavigationControl("A")'>
-                    <div class="newcard">
-                        <div class="row">
-                            <div class="col-8">
-                                <div class="numbers">
-                                    <p class="text-sm mb-0 text-uppercase font-weight-bold">Available</p>
-                                    <h5 class="font-weight-bolder" style="color:white;">
-                                        @TotalAvailable.ToString()
-                                    </h5>
+                <div class="col mb-3">
+                    <div class="card bg-gradient-primary" style="color: white;" @onclick='()=>NavigationControl("A")'>
+                        <div class="newcard">
+                            <div class="row">
+                                <div class="col-8">
+                                    <div class="numbers">
+                                        <p class="text-sm mb-0 text-uppercase font-weight-bold">Available</p>
+                                        <h5 class="font-weight-bolder" style="color:white;">
+                                            @TotalAvailable.ToString()
+                                        </h5>
+                                    </div>
+                                </div>
+                                <div class="col-4 text-end">
+                                    <div class="icon icon-shape bg-gradient-primary shadow-primary text-center rounded-circle">
+                                        <i class="fa fa-map-marker text-lg opacity-10" aria-hidden="true"></i>
+                                    </div>
                                 </div>
                             </div>
-                            <div class="col-4 text-end">
-                                <div class="icon icon-shape bg-gradient-primary shadow-primary text-center rounded-circle">
-                                    <i class="fa fa-map-marker text-lg opacity-10" aria-hidden="true"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col mb-3">
+                    <div class="card bg-gradient-danger" style="color: white;" @onclick='()=>NavigationControl("LA")'>
+                        <div class="newcard">
+                            <div class="row">
+                                <div class="col-8">
+                                    <div class="numbers">
+                                        <p class="text-sm mb-0 text-uppercase font-weight-bold">Load Assigned</p>
+                                        <h5 class="font-weight-bolder" style="color: white;">
+                                            @TotalOnLoad.ToString()
+                                        </h5>
+                                    </div>
+                                </div>
+                                <div class="col-4 text-end">
+                                    <div class="icon icon-shape bg-gradient-danger shadow-danger text-center rounded-circle">
+                                        <i class="fas fa-truck-loading text-lg opacity-10" aria-hidden="true"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col mb-3">
+                    <div class="card bg-gradient-danger" style="color: white;" @onclick='()=>NavigationControl("OT")'>
+                        <div class="newcard">
+                            <div class="row">
+                                <div class="col-8">
+                                    <div class="numbers">
+                                        <p class="text-sm mb-0 text-uppercase font-weight-bold">On Trip </p>
+                                        <h5 class="font-weight-bolder" style="color: white;">
+                                            @TotalOntrip.ToString()
+                                        </h5>
+                                    </div>
+                                </div>
+                                <div class="col-4 text-end">
+                                    <div class="icon icon-shape bg-gradient-danger shadow-danger text-center rounded-circle">
+                                        <i class="fa-solid fa-rocket-launch text-lg opacity-10" aria-hidden="true"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col mb-3">
+                    <div class="card bg-gradient-warning" style="color: white;" @onclick='()=>NavigationControl("T")'>
+                        <div class="newcard">
+                            <div class="row">
+                                <div class="col-8">
+                                    <div class="numbers">
+                                        <p class="text-sm mb-0 text-uppercase font-weight-bold">Total Vehicles</p>
+                                        <h5 class="font-weight-bolder" style="color: white;">
+                                            @Total.ToString()
+                                        </h5>
+                                    </div>
+                                </div>
+                                <div class="col-4 text-end">
+                                    <div class="icon icon-shape bg-gradient-warning shadow-warning text-center rounded-circle">
+                                        <i class="fa fa-plus text-lg opacity-10" aria-hidden="true"></i>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -64,75 +213,7 @@
                 </div>
             </div>
 
-            <div class="col mb-3">
-                <div class="card bg-gradient-danger" style="color: white;" @onclick='()=>NavigationControl("LA")'>
-                    <div  class="newcard">
-                        <div class="row">
-                            <div class="col-8">
-                                <div class="numbers">
-                                    <p class="text-sm mb-0 text-uppercase font-weight-bold">Load Assigned</p>
-                                    <h5 class="font-weight-bolder" style="color: white;">
-                                        @TotalOnLoad.ToString()
-                                    </h5>
-                                </div>
-                            </div>
-                            <div class="col-4 text-end">
-                                <div class="icon icon-shape bg-gradient-danger shadow-danger text-center rounded-circle">
-                                    <i class="fas fa-truck-loading text-lg opacity-10" aria-hidden="true"></i>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="col mb-3">
-                <div class="card bg-gradient-danger" style="color: white;" @onclick='()=>NavigationControl("OT")'>
-                    <div class="newcard">
-                        <div class="row">
-                            <div class="col-8">
-                                <div class="numbers">
-                                    <p class="text-sm mb-0 text-uppercase font-weight-bold">On Trip </p>
-                                    <h5 class="font-weight-bolder" style="color: white;">
-                                        @TotalOntrip.ToString()
-                                    </h5>
-                                </div>
-                            </div>
-                            <div class="col-4 text-end">
-                                <div class="icon icon-shape bg-gradient-danger shadow-danger text-center rounded-circle">
-                                    <i class="fa-solid fa-rocket-launch text-lg opacity-10" aria-hidden="true"></i>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="col mb-3">
-                <div class="card bg-gradient-warning" style="color: white;" @onclick='()=>NavigationControl("T")'>
-                    <div class="newcard">
-                        <div class="row">
-                            <div class="col-8">
-                                <div class="numbers">
-                                    <p class="text-sm mb-0 text-uppercase font-weight-bold">Total Vehicles</p>
-                                    <h5 class="font-weight-bolder" style="color: white;">
-                                        @Total.ToString()
-                                    </h5>
-                                </div>
-                            </div>
-                            <div class="col-4 text-end">
-                                <div class="icon icon-shape bg-gradient-warning shadow-warning text-center rounded-circle">
-                                    <i class="fa fa-plus text-lg opacity-10" aria-hidden="true"></i>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
         </div>
-        @*  }
-        else
-        {
-        <DataLoaderComponent IsLoading="true" LoadingText="Loading Data Cards..." />
-        } *@
     </div>
 </div>
 
