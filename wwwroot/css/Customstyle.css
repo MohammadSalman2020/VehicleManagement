@@ -770,6 +770,9 @@ input[type=submit] {
     .col-6 {
         width: 100%;
     }
+    .col-lgg-6{
+        max-width:100% !important;
+    }
 }
 
 }
@@ -1363,4 +1366,11 @@ td, th {
         .lpart div {
             width: 100% !important;
         }
+}
+@media screen and (max-width: 768px) {
+ 
+
+    .col-lgg-6 {
+        max-width: 100% !important;
+    }
 }
