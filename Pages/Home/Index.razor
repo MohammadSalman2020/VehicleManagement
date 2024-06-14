@@ -1,8 +1,11 @@
 ﻿@page "/"
 @inject IJSRuntime JSRuntime
+@using System.Text.Json
+@using System.Security.Claims
 @using VehicleManagement.ApiService
 @using VehicleManagement.Models.DB
 @using VehicleManagement.Authentication
+@using VehicleManagement.Models.General.User_Management
 @using VehicleManagement.Shared
 @using VehicleManagement.Service
 @inject IJSRuntime JSRuntime
@@ -16,6 +19,90 @@
 
 <AuthorizeView>
     <Authorized>
+
+
+        <AuthorizeView Policy="MainCom">
+            <Authorized Context="forAdmins">
+                <div style="padding-top: 10px;">
+                    <div class="row">
+                        <div class="col-12">
+                            <button title="Select Default Business" @onclick="ToggleCheckboxList" style="padding:6px;margin-left:5px;color:blue;background-color:none !important;padding-left:20px;padding-right:20px;" class="btn"><i class="fa fa-user"></i></button>
+                            <button title="Business List" @onclick="ToggleBusList" style="padding:6px;margin-left:5px;color:forestgreen;background-color:none !important;padding-left:20px;padding-right:20px;" class="btn"><i class="fa fa-file"></i></button>
+
+                            @if (isCheckboxListVisible)
+                            {
+                                <div class="bus-popup">
+                                    <div>
+                                        @if (selectedBusinessIDs.Count > 0)
+                                        {
+                                            <button class="btn btn-primary btn-sm ms-auto" style="padding: 7px;" @onclick="AddBusiness">Set Business</button>
+                                        }
+                                        <div class="form-group">
+                                            @if (AllBusiness.Count > 0)
+                                            {
+                                                <div class="col-12">
+                                                    @foreach (var item in AllBusiness)
+                                                    {
+                                                        <div>
+                                                            <input type="checkbox"
+                                                                   id="Bus-@(item.busID)"
+                                                                   checked="@IsVehicleSelected(item.busID)"
+                                                                   @onchange="(e) => ToggleVehicleSelection(item.busID,item.busDesc, (bool)e?.Value)" />
+                                                            <label for="vehicle-@(item.busDesc)">@item.busDesc</label>
+                                                        </div>
+                                                    }
+                                                </div>
+                                            }
+                                            else
+                                            {
+                                                <DataLoaderComponent IsLoading=true LoadingText="Loading Business" />
+                                            }
+                                        </div>
+                                    </div>
+                                </div>
+
+
+                            }
+
+                            @if (isBusListVisible)
+                            {
+                                <div class="bus-popup">
+                                    <div>
+                                      
+                                        <div class="form-group">
+                                            @if (BusinessList.Count > 0)
+                                            {
+                                                <label style="font-weight:bold;color:#5e72e4">@UserName Business:</label>
+                                                <div class="col-12">
+                                                    @foreach (var item in BusinessList)
+                                                    {
+                                                        <div>
+                                                           
+                                                            <label for="Bus-@(item.busDesc)">@item.busDesc</label>
+                                                        </div>
+                                                    }
+                                                </div>
+                                            }
+                                            else
+                                            {
+                                                <DataLoaderComponent IsLoading=true LoadingText="Loading Business" />
+                                            }
+                                        </div>
+                                    </div>
+                                </div>
+
+
+                            }
+
+
+                        </div>
+                    </div>
+                </div>
+
+            </Authorized>
+        </AuthorizeView>
+
+
         <DataCards />
 
         <div class="row">
@@ -39,6 +126,8 @@
                 </div>
             </div>
         </div>
+
+
     </Authorized>
     <Authorizing>
         <h1>You are Authorizing</h1>
@@ -51,9 +140,68 @@
     </NotAuthorized>
 </AuthorizeView>
 @code {
-
+    private string UserName;
     private bool _isJsReady = false;
+    private bool isCheckboxListVisible = false;
+    private bool isBusListVisible = false;
+    private Modal BusModal;
+    private List<int> selectedBusinessIDs = new List<int>();
+    public List<GetBusiness> AllBusiness = new List<GetBusiness>();
+    public List<GetBusiness> ClaimBusiness = new List<GetBusiness>();
+    public List<GetBusiness> BusinessList = new List<GetBusiness>();
+    public UserSession UserSessions = new UserSession();
+    protected int PolygonRecordCount { get; set; } = 0;
+    public List<int> BusinessID = new List<int>();
+    private void ToggleCheckboxList()
+    {
+        isCheckboxListVisible = !isCheckboxListVisible;
+        if(isCheckboxListVisible)
+        {
+            isBusListVisible = false;
+        }
 
+        // BusModal.Show();
+    }
+    private void ToggleBusList()
+    {
+        isBusListVisible = !isBusListVisible;
+        if(isBusListVisible)
+        {
+            isCheckboxListVisible = false;
+        }
+        // BusModal.Show();
+    }
+    private bool IsVehicleSelected(int BusID)
+    {
+        return selectedBusinessIDs.Contains(BusID);
+    }
+    private void ToggleVehicleSelection(int vehicleId, string BusDesc, bool isChecked)
+    {
+        if (isChecked)
+        {
+            if (!selectedBusinessIDs.Contains(vehicleId))
+            {
+                selectedBusinessIDs.Add(vehicleId);
+                ClaimBusiness.Add(new GetBusiness
+                    {
+                        busDesc = BusDesc,
+                        busID = vehicleId
+                    });
+            }
+        }
+        else
+        {
+            if (selectedBusinessIDs.Contains(vehicleId))
+            {
+                selectedBusinessIDs.Remove(vehicleId);
+                var res = ClaimBusiness.FirstOrDefault(p => p.busID == vehicleId);
+                if (res != null)
+                {
+                    ClaimBusiness.Remove(res);
+                }
+            }
+        }
+    }
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         if (firstRender)
@@ -62,9 +210,7 @@
             {
                 // Attempt a simple JavaScript call to check if JS is ready
                 await js.InvokeVoidAsync("console.log", "");
-                _isJsReady = true; // JS is ready, so set a flag or take action
-                                   // await RequestPushNotificationPermission();
-                                   // await GetDeviceToken();
+                _isJsReady = true;
                 StateHasChanged();
             }
             catch
@@ -77,7 +223,6 @@
     }
 
 
-    protected int PolygonRecordCount { get; set; } = 0;
 
     protected string MapColumnClass => PolygonRecordCount > 0 ? "col-lg-6 mb-lg-0 mb-4" : "col-lg-12 mb-lg-0 mb-4";
 
@@ -85,9 +230,55 @@
     {
         // Simulate fetching record count. Replace this with your actual data fetching logic.
         PolygonRecordCount = await GetPolygonRecordCountAsync();
+        await GetAllBusiness();
     }
-    public List<int> BusinessID = new List<int>();
-    private async Task<int>  GetPolygonRecordCountAsync()
+    private async Task AddBusiness()
+    {
+
+        var authState = await AuthStateProvider.GetAuthenticationStateAsync();
+        var user = authState.User;
+        UserName = user.Identity.Name;
+        if (user.Identity.IsAuthenticated)
+        {
+            UserSessions = await UserClaimsService.GetSession();
+            var Names = string.Join(",", ClaimBusiness.Select(p=>p.busDesc));
+            var ID = string.Join(",", ClaimBusiness.Select(p => p.busID));
+            var customAuth = (CustomAuthenticationStateProvider)AuthStateProvider;
+            await customAuth.UpdateAuthenticationState(new UserSession
+                {
+                    Username = UserSessions.Username,
+                    Role = UserSessions.Role,
+                    BusinessID = ID,
+                    BusinessName = Names
+                }, false);
+
+        }
+        //   await UserClaimsService.GetBusinessNamesAsync(e.Value.ToString());
+
+
+        NavManager.NavigateTo("/", true);
+
+    }
+
+    public async Task GetAllBusiness()
+    {
+        try
+        {
+            var Business = await API.GetRequest($"UserManagement/GetAllBusiness");
+            if (Business != "")
+            {
+                AllBusiness = JsonSerializer.Deserialize<List<GetBusiness>>(Business);
+                BusinessList = await UserClaimsService.GetBusinessDetailsAsync();
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex.Message);
+        }
+
+    }
+
+    private async Task<int> GetPolygonRecordCountAsync()
     {
 
         List<PolygonTimeSheetLog> log = new List<PolygonTimeSheetLog>();
@@ -111,13 +302,13 @@
                     // fleet = rec.Where(p => BusinessID.Contains(p.busID)).ToList();
                 }
             }
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine(ex.Message);
-            }
-        
-        return ((log.Count > 0 && outlog.Count>0)?1:0);
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex.Message);
+        }
+
+        return ((log.Count > 0 && outlog.Count > 0) ? 1 : 0);
     }
 
     public class PolygonTimeSheetLog

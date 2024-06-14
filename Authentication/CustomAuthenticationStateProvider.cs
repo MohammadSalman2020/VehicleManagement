@@ -89,7 +89,7 @@ namespace VehicleManagement.Authentication
             }
         }
 
-        public async Task UpdateAuthenticationState(UserSession userSession)
+        public async Task UpdateAuthenticationState(UserSession userSession,bool IsLogin=true)
         {
             ClaimsPrincipal claimsPrincipal;
             if (userSession != null)
@@ -111,7 +111,11 @@ namespace VehicleManagement.Authentication
                 await _sessionStorage.DeleteAsync("UserSession");
                 claimsPrincipal = _anonymous;
             }
-            NotifyAuthenticationStateChanged(Task.FromResult(new AuthenticationState(claimsPrincipal)));
+            if(IsLogin)
+            {
+                NotifyAuthenticationStateChanged(Task.FromResult(new AuthenticationState(claimsPrincipal)));
+
+            }
         }
     }
 }
