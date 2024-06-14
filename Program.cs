@@ -23,7 +23,14 @@ builder.Services.AddSession(options =>
     options.IdleTimeout = TimeSpan.FromMinutes(20); // Adjust as needed
     options.Cookie.HttpOnly = true;
     options.Cookie.IsEssential = true; // Ensure session cookie is always sent
+
+  
 });
+builder.Services.AddServerSideBlazor()
+               .AddCircuitOptions(options =>
+               {
+                   options.DetailedErrors = true;
+               });
 builder.Services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
 builder.Services.AddSingleton<WeatherForecastService>();
 builder.Services.AddSingleton<UserAccountService>();

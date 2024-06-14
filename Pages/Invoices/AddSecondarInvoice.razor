@@ -336,6 +336,7 @@
     {
         try
         {
+
             if (e.Key == "Enter" || e.Key == "Tab")
             {
                 if (pkinvoice == "none")
@@ -358,6 +359,7 @@
                     }
                     IsChildLoading = false;
                 }
+
             }
         }
         catch(Exception ex)
@@ -366,6 +368,7 @@
         }
  
     }
+
 
 
     private async Task LoadPKInvoiceData()
@@ -436,8 +439,6 @@
         public string? receiivingpoint { get; set; }
         public string? contractor { get; set; }
         public string? user { get; set; }
-        public List<string>
-            ? chambers
-        { get; set; }
+        public List<string>? chambers{ get; set; }
     }
 }
