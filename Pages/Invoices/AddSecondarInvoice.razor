@@ -57,6 +57,8 @@
                                 <div class="form-group">
                                     <label for="textBoxId">Select Loaded Chambers</label>
                                 </div>
+                                @if (!IsChildLoading)
+                                {   
                                 @if (pkdetails.chamber1 != null)
                                 {
                                     @if (pkdetails.chamber1.Split("*")[1] != "0")
@@ -149,7 +151,18 @@
                                                 }
                                             </label>
                                         </div>
+                                        }
                                     }
+                                    else
+                                    {
+                                        <label class="form-check-label">
+                                           No Dips Available
+                                        </label>
+                                    }
+                                }
+                                else if(IsChildLoading)
+                                {
+                                    <DataLoaderComponent IsLoading="@IsChildLoading" LoadingText="Loading Dip"/> 
                                 }
 
                                 <div class="form-group">
@@ -183,6 +196,7 @@
     public bool chamber3;
     public bool chamber4;
     private bool IsLoading = false;
+    private bool IsChildLoading = false;
     public bool chamber5;
     protected override async void OnInitialized()
     {
@@ -320,22 +334,37 @@
 
     private async Task HandleKeyDown(KeyboardEventArgs e)
     {
-        if (e.Key == "Enter" || e.Key == "Tab")
+        try
         {
-            var rec = await API.GetRequest($"Invoice/GetSCInvoiceData/{txtvehicle}");
-
-            if (rec != null)
+            if (e.Key == "Enter" || e.Key == "Tab")
             {
-                pkdetails = JsonSerializer.Deserialize<PKInvoice>
-                    (rec);
+                if (pkinvoice == "none")
+                {
+                    IsChildLoading = true;
 
-                StateHasChanged();
-            }
-            else
-            {
-                Console.WriteLine("API request returned null.");
+                    await Task.Delay(1000);
+                    var rec = await API.GetRequest($"Invoice/GetSCInvoiceData/{txtvehicle}");
+
+                    if (rec != "")
+                    {
+                        pkdetails = new PKInvoice();
+                        pkdetails = JsonSerializer.Deserialize<PKInvoice>(rec);
+
+                         StateHasChanged();
+                    }
+                    else
+                    {
+                        toastService.ShowWarning("Data is null please press the TAB or ENTER Again");
+                    }
+                    IsChildLoading = false;
+                }
             }
         }
+        catch(Exception ex)
+        {
+            
+        }
+ 
     }
 
 
@@ -349,8 +378,7 @@
 
                 if (rec != null)
                 {
-                    pkdetails = JsonSerializer.Deserialize<PKInvoice>
-                        (rec);
+                    pkdetails = JsonSerializer.Deserialize<PKInvoice>(rec);
                     txtvehicle = pkdetails.vehicle;
                     txtshipping = pkdetails.shipping;
                     StateHasChanged();
@@ -360,23 +388,23 @@
                     Console.WriteLine("API request returned null.");
                 }
             }
-            else
-            {
-                var rec = await API.GetRequest($"Invoice/GetSCInvoiceData/{txtvehicle}");
+            // else
+            // {
+            //     var rec = await API.GetRequest($"Invoice/GetSCInvoiceData/{txtvehicle}");
 
-                if (rec != null)
-                {
-                    pkdetails = JsonSerializer.Deserialize<PKInvoice>
-                        (rec);
-                    txtvehicle = pkdetails.vehicle;
-                    txtshipping = pkdetails.shipping;
-                    StateHasChanged();
-                }
-                else
-                {
-                    Console.WriteLine("API request returned null.");
-                }
-            }
+            //     if (rec != null)
+            //     {
+            //         pkdetails = JsonSerializer.Deserialize<PKInvoice>
+            //             (rec);
+            //         txtvehicle = pkdetails.vehicle;
+            //         txtshipping = pkdetails.shipping;
+            //         StateHasChanged();
+            //     }
+            //     else
+            //     {
+            //         Console.WriteLine("API request returned null.");
+            //     }
+            // }
 
 
         }

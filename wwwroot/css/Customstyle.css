@@ -1479,3 +1479,16 @@ td, th {
     }
 }
 
+.bus-popup {
+    padding: 13px;
+    border-radius: 5px;
+    scrollbar-color: #5e72e4 white;
+    scrollbar-color: black;
+    z-index: 1000;
+    position: absolute;
+    height: 200px;
+    overflow-y: scroll;
+    background: white;
+    text-align: justify;
+    width: 160px;
+}
