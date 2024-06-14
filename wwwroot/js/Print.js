@@ -20,3 +20,12 @@ window.selectAllInputValue = function (inputId) {
     }
 };
 
+
+function setSessionStorageItem(key, value) {
+    sessionStorage.setItem(key, value);
+}
+
+function getSessionStorageItem(key) {
+    return sessionStorage.getItem(key);
+}
+
