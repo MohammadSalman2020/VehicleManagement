@@ -1454,7 +1454,7 @@ td, th {
 
         .card .row {
             display: flex;
-            align-items: center;
+            /*align-items: center;*/
         }
 
         .card .col-8, .card .col-4 {

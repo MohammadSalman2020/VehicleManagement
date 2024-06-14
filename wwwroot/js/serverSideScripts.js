@@ -305,6 +305,32 @@ function LoadLocationMap() {
     });
 }
 
+async function getCityNameFromLatLng(latitude, longitude) {
+    const apiKey = 'AIzaSyA0WrdLe-pQk18WGZ4C8y6DqhaHHjUH1og'; // Replace with your Google Maps API Key
+    try {
+        const response = await fetch(`https://maps.googleapis.com/maps/api/geocode/json?latlng=${latitude},${longitude}&key=${apiKey}`);
+        const data = await response.json();
+
+        if (data.status === "OK") {
+            const addressComponents = data.results[0].address_components;
+            const cityComponent = addressComponents.find(component => component.types.includes("locality"));
+
+            if (cityComponent) {
+                return cityComponent.long_name;
+            } else {
+                console.error('City not found in the response');
+                return null;
+            }
+        } else {
+            console.error('Geocoding API returned an error:', data.status);
+            return null;
+        }
+    } catch (error) {
+        console.error('Error:', error);
+        return null;
+    }
+}
+window.getCityNameFromLatLng = getCityNameFromLatLng;
 window.createPolygon = function () {
     // Get latitude and longitude from textboxes
     var latitude = parseFloat(document.getElementById("Lati").value);
@@ -386,5 +412,12 @@ window.removeGlobalKeydownListener = function (dotNetObject) {
     window.onkeydown = null;
 };
 
+
+window.focusElement = (elementId) => {
+    const element = document.getElementById(elementId);
+    if (element) {
+        element.focus();
+    }
+};
 
 

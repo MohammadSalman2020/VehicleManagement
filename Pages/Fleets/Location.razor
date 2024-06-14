@@ -20,50 +20,68 @@
                         <div class="row">
 
                             <div class="col-md-4">
-                                <div class="form-group">
-                                    <label for="example-text-input" class="form-control-label">Location Name</label>
-                                    <input type="text" placeholder="Location Name" @bind="@LocationName" class="form-control">
-
-                                </div>
-
 
                                 <div class="form-group">
-                                    <label for="example-text-input" class="form-control-label">Longitude</label>
-                                    <input type="text" id="Longi" placeholder="Longitude" @bind="@Longitude" @oninput="UpdateLongitude" class="form-control">
+                                    <select class="form-control" @onchange="typechange">
+                                        @if (LocationType.Count > 0)
+                                        {
+                                            <option value="0" selected="@(Bus==0?"selected":null)">Select Type</option>
+                                            foreach (var item in LocationType)
+                                            {
+                                                <option value="@item.typeid" selected="@(item.typeid==Bus ? "selected" : null)">@item.typeDescription</option>
+                                            }
+                                        }
+                                        else
+                                        {
+                                            <option value="0">Loading...</option>
+                                        }
 
-                                </div>
+                                    </select>
+                                    <div class="form-group">
+                                        <label for="example-text-input" class="form-control-label">Location Name</label>
+                                        <input type="text" id="name" placeholder="Location Name" @bind="@LocationName" class="form-control">
 
-
-                                <div class="form-group">
-                                    <label for="example-text-input" class="form-control-label">Latitude</label>
-                                    <input type="text" id="Lati" placeholder="Latitude" @bind="@Latitude" @oninput="UpdateLatitude" class="form-control">
-
-                                </div>
-                                <div class="row">
-                                    <div class="col-md-6">
-                                        <div class="form-group" style="text-align:center;">
-                                            <button class="btn btn-primary btn-sm" @onclick="PreviewLocation">Preview</button>
-
-                                        </div>
-                                    </div>
-                                    <div class="col-md-6">
-                                        <div class="form-group" style="text-align:center;">
-                                            <button class="btn btn-primary btn-sm ms-auto" @onclick="AddLocation">Add Location</button>
-
-                                        </div>
                                     </div>
 
+
+                                    <div class="form-group">
+                                        <label for="example-text-input" class="form-control-label">Latitude</label>
+                                        <input type="text" id="Longi" placeholder="Longitude" @bind="@Longitude" @oninput="UpdateLongitude" class="form-control">
+
+                                    </div>
+
+
+                                    <div class="form-group">
+                                        <label for="example-text-input" class="form-control-label">Longitude</label>
+                                        <input type="text" id="Lati" placeholder="Latitude" @bind="@Latitude" @oninput="UpdateLatitude" class="form-control">
+
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <div class="form-group" style="text-align:center;">
+                                                <button class="btn btn-primary btn-sm" @onclick="PreviewLocation">Preview</button>
+
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="form-group" style="text-align:center;">
+                                                <button class="btn btn-primary btn-sm ms-auto" @onclick="AddLocation">Add Location</button>
+
+                                            </div>
+                                        </div>
+
+                                    </div>
                                 </div>
+
+
+
                             </div>
                             <div class="col-md-8">
                                 <p>Right Click to Select Point</p>
                                 <div id="mapDiv" style="height:80vh;width:100%">
                                 </div>
                             </div>
-
-
                         </div>
-
                     </div>
                 </div>
             </div>
@@ -71,7 +89,7 @@
     </div>
 </div>
 <script>
- 
+
 
 </script>
 
@@ -80,11 +98,27 @@
     public string? LocationName { get; set; }
     public decimal Longitude { get; set; }
     public decimal Latitude { get; set; }
-
+    List<tblLocationType> LocationType = new List<tblLocationType>();
+    public int Bus { get; set; }
     private void UpdateLongitude(ChangeEventArgs e)
     {
         Longitude = Convert.ToDecimal(e.Value.ToString());
     }
+
+    private async Task typechange(ChangeEventArgs e)
+    {
+
+        int Val = int.Parse(e.Value.ToString());
+        if (Val != 0)
+        {
+            Bus = Val;
+
+        }
+
+
+
+    }
+
 
     private void UpdateLatitude(ChangeEventArgs e)
     {
@@ -93,32 +127,64 @@
 
     [JSInvokable]
     public static Task StateHasChanged()
-    {       
+    {
         return Task.CompletedTask;
+    }
+    protected override async Task OnInitializedAsync()
+    {
+
+        try
+        {
+
+            await getLocationTypes();
+
+        }
+        catch (Exception ex)
+        {
+
+        }
+
     }
 
     private async Task PreviewLocation()
     {
         try
         {
-            string lat = await js.InvokeAsync<string>("sessionStorage.getItem", "lat");
-            string lon = await js.InvokeAsync<string>("sessionStorage.getItem", "long");
-            cityname = await js.InvokeAsync<string>("sessionStorage.getItem", "CityName");
-
-            Longitude = decimal.Parse(lon);
-            Latitude = decimal.Parse(lat);
-            StateHasChanged();
-            // Validate input fields
-            if (Longitude != 0 && Latitude != 0)
+            if (Longitude == 0 & Latitude == 0)
             {
-                // Call JavaScript function to create polygon
-                await js.InvokeVoidAsync("createPolygon", Latitude, Longitude);
+                string lat = await js.InvokeAsync<string>("sessionStorage.getItem", "lat");
+                string lon = await js.InvokeAsync<string>("sessionStorage.getItem", "long");
+                cityname = await js.InvokeAsync<string>("sessionStorage.getItem", "CityName");
+
+                Longitude = decimal.Parse(lon);
+                Latitude = decimal.Parse(lat);
+                StateHasChanged();
+                // Validate input fields
+                if (Longitude != 0 && Latitude != 0)
+                {
+                    // Call JavaScript function to create polygon
+                    await js.InvokeVoidAsync("createPolygon", Latitude, Longitude);
+                }
+                else
+                {
+                    // Display error if input fields are empty
+                    toastService.ShowError("Empty fields are not allowed");
+                }
             }
             else
             {
-                // Display error if input fields are empty
-                toastService.ShowError("Empty fields are not allowed");
+                if (Longitude != 0 && Latitude != 0)
+                {
+                    // Call JavaScript function to create polygon
+                    await js.InvokeVoidAsync("createPolygon", Latitude, Longitude);
+                }
+                else
+                {
+                    // Display error if input fields are empty
+                    toastService.ShowError("Empty fields are not allowed");
+                }
             }
+
         }
         catch (Exception ex)
         {
@@ -151,6 +217,21 @@
         }
 
     }
+    private async Task getLocationTypes()
+    {
+        try
+        {
+            var types = await API.GetRequest($"Fleet/GetLocationTypes");
+            LocationType = JsonSerializer.Deserialize<List<tblLocationType>>(types);
+
+        }
+        catch (Exception ex)
+        {
+            toastService.ShowError($"Error {ex}");
+        }
+
+
+    }
 
     string cityname = "";
     private async Task AddLocation()
@@ -159,15 +240,24 @@
         {
             if (LocationName != null && !isEmpty())
             {
-                
-                var AddLocation = await API.GetRequest($"Fleet/AddLocationPolygon/{LocationName}/{Longitude}/{Latitude}/{250}/{360}/{cityname}");
+                cityname = await js.InvokeAsync<string>("getCityNameFromLatLng", Latitude, Longitude);
+                if (cityname == null)
+                {
+                    cityname = "UnKnownCity";
+                }
+                string encodedCityName = Uri.EscapeDataString(cityname);
+                string locationname = Uri.EscapeDataString(LocationName);
+
+                var AddLocation = await API.GetRequest($"Fleet/AddLocationPolygon/{locationname}/{Longitude}/{Latitude}/{250}/{360}/{encodedCityName}/{Bus}");
                 string Result = JsonSerializer.Deserialize<string>(AddLocation);
                 if (Result == "200")
                 {
                     Longitude = 0;
                     Latitude = 0;
                     LocationName = "";
+                    await js.InvokeVoidAsync("focusElement", "name");
                     toastService.ShowSuccess($"Location: {LocationName} Added Successfully");
+
                 }
                 else
                 {
@@ -192,5 +282,10 @@
         public string? LocationName { get; set; }
         public decimal Latitude { get; set; }
         public decimal Longitude { get; set; }
+    }
+    public class tblLocationType
+    {
+        public int typeid { get; set; }
+        public string? typeDescription { get; set; }
     }
 }

@@ -322,21 +322,38 @@
     {
         if (e.Key == "Enter" || e.Key == "Tab")
         {
-            var rec = await API.GetRequest($"Invoice/GetSCInvoiceData/{txtvehicle}");
-
-            if (rec != null)
+            try
             {
-                pkdetails = JsonSerializer.Deserialize<PKInvoice>
-                    (rec);
+                // Log the vehicle ID being used for the request
+               //Console.WriteLine($"Requesting data for vehicle: {txtvehicle}");
 
-                StateHasChanged();
+                var rec = await API.GetRequest($"Invoice/GetSCInvoiceData/{txtvehicle}");
+
+                if (rec != null)
+                {
+                    // Log the raw response from the API
+                 //Console.WriteLine($"API response: {rec}");
+
+                    pkdetails = JsonSerializer.Deserialize<PKInvoice>(rec);
+
+                    // Log the deserialized object
+                  //Console.WriteLine($"Deserialized object: {pkdetails}");
+
+                    StateHasChanged();
+                }
+                else
+                {
+                   //Console.WriteLine("API request returned null.");
+                }
             }
-            else
+            catch (Exception ex)
             {
-                Console.WriteLine("API request returned null.");
+                // Log any exceptions that occur
+               //Console.WriteLine($"Exception occurred: {ex.Message}");
             }
         }
     }
+
 
 
     private async Task LoadPKInvoiceData()
@@ -408,8 +425,6 @@
         public string? receiivingpoint { get; set; }
         public string? contractor { get; set; }
         public string? user { get; set; }
-        public List<string>
-            ? chambers
-        { get; set; }
+        public List<string>? chambers{ get; set; }
     }
 }
