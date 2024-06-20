@@ -1486,9 +1486,22 @@ td, th {
     scrollbar-color: black;
     z-index: 1000;
     position: absolute;
-    height: 200px;
+    
     overflow-y: scroll;
     background: white;
     text-align: justify;
-    width: 160px;
+    
 }
+
+
+
+@keyframes floatRightToLeft {
+    0% {
+        transform: translateX(100%); /* Start outside the right boundary */
+    }
+
+    100% {
+        transform: translateX(-80%); /* End outside the left boundary */
+    }
+}
+

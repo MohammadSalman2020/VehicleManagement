@@ -15,7 +15,23 @@
 @inject NavigationManager NavManager
 @inject IApiService API
 @inject IUserClaimsService UserClaimsService
+<style>
+    .floating-container {
+        position: relative;
+        overflow: hidden;
+        white-space: nowrap;
+    }
 
+    .floating-label {
+        display: inline-block;
+        animation: floatRightToLeft 20s linear infinite;
+    }
+    .item:hover{
+        background-color:darkgray;
+        color:white;
+        cursor:pointer;
+    }
+</style>
 
 <AuthorizeView>
     <Authorized>
@@ -26,31 +42,45 @@
                 <div style="padding-top: 10px;">
                     <div class="row">
                         <div class="col-12">
-                            <button title="Select Default Business" @onclick="ToggleCheckboxList" style="padding:6px;margin-left:5px;color:blue;background-color:none !important;padding-left:20px;padding-right:20px;" class="btn"><i class="fa fa-user"></i></button>
-                            <button title="Business List" @onclick="ToggleBusList" style="padding:6px;margin-left:5px;color:forestgreen;background-color:none !important;padding-left:20px;padding-right:20px;" class="btn"><i class="fa fa-file"></i></button>
-
+                            <div class="row">
+                               @*  <div class="col-2">
+                                    <button title="Select Default Business" @onclick="ToggleCheckboxList" style="padding:6px;margin-left:5px;color:blue;background-color:none !important;padding-left:20px;padding-right:20px;" class="btn">
+                                        <i class="fa fa-user"></i>
+                                    </button>
+                                </div> *@
+                                <!--
+                                <div class="col-md-3">
+                                    <button title="Business List" @onclick="ToggleBusList" style="padding:6px;margin-left:5px;color:forestgreen;background-color:none !important;padding-left:20px;padding-right:20px;" class="btn">
+                                        <i class="fa fa-file"></i>
+                                    </button>
+                                </div>
+                                -->
+                                <div class="col-12">
+                                    <div>
+                                        <label style="cursor:pointer;" @onclick="ToggleCheckboxList">@Data()</label>
+                                    </div>
+                                </div>
+                            </div>
                             @if (isCheckboxListVisible)
                             {
                                 <div class="bus-popup">
                                     <div>
-                                        @if (selectedBusinessIDs.Count > 0)
+                                       @*  @if (selectedBusinessIDs.Count > 0)
                                         {
                                             <button class="btn btn-primary btn-sm ms-auto" style="padding: 7px;" @onclick="AddBusiness">Set Business</button>
-                                        }
+                                        } *@
                                         <div class="form-group">
                                             @if (AllBusiness.Count > 0)
                                             {
                                                 <div class="col-12">
-                                                    @foreach (var item in AllBusiness)
-                                                    {
-                                                        <div>
-                                                            <input type="checkbox"
-                                                                   id="Bus-@(item.busID)"
-                                                                   checked="@IsVehicleSelected(item.busID)"
-                                                                   @onchange="(e) => ToggleVehicleSelection(item.busID,item.busDesc, (bool)e?.Value)" />
-                                                            <label for="vehicle-@(item.busDesc)">@item.busDesc</label>
-                                                        </div>
-                                                    }
+                                                    <ul class="list-group">
+                                                        @foreach (var item in AllBusiness)
+                                                        {
+                                                            <li  class="list-group-item item"  @onclick="() => OnBusinessClick(item.busID, item.busDesc)">
+                                                                @item.busDesc
+                                                            </li>
+                                                        }
+                                                    </ul>
                                                 </div>
                                             }
                                             else
@@ -68,7 +98,7 @@
                             {
                                 <div class="bus-popup">
                                     <div>
-                                      
+
                                         <div class="form-group">
                                             @if (BusinessList.Count > 0)
                                             {
@@ -77,7 +107,7 @@
                                                     @foreach (var item in BusinessList)
                                                     {
                                                         <div>
-                                                           
+
                                                             <label for="Bus-@(item.busDesc)">@item.busDesc</label>
                                                         </div>
                                                     }
@@ -155,17 +185,24 @@
     private void ToggleCheckboxList()
     {
         isCheckboxListVisible = !isCheckboxListVisible;
-        if(isCheckboxListVisible)
+        if (isCheckboxListVisible)
         {
             isBusListVisible = false;
         }
 
         // BusModal.Show();
     }
+    private void OnBusinessClick(int busID, string busDesc)
+    {
+        // Handle the click event here
+        // For example, you can toggle selection or perform any other action
+        ToggleVehicleSelection(busID, busDesc, true);
+        AddBusiness();
+    }
     private void ToggleBusList()
     {
         isBusListVisible = !isBusListVisible;
-        if(isBusListVisible)
+        if (isBusListVisible)
         {
             isCheckboxListVisible = false;
         }
@@ -232,6 +269,11 @@
         PolygonRecordCount = await GetPolygonRecordCountAsync();
         await GetAllBusiness();
     }
+    private string Data()
+    {
+        return data;
+    }
+    string data = "";
     private async Task AddBusiness()
     {
 
@@ -241,7 +283,8 @@
         if (user.Identity.IsAuthenticated)
         {
             UserSessions = await UserClaimsService.GetSession();
-            var Names = string.Join(",", ClaimBusiness.Select(p=>p.busDesc));
+            var Names = string.Join(",", ClaimBusiness.Select(p => p.busDesc));
+
             var ID = string.Join(",", ClaimBusiness.Select(p => p.busID));
             var customAuth = (CustomAuthenticationStateProvider)AuthStateProvider;
             await customAuth.UpdateAuthenticationState(new UserSession
@@ -269,6 +312,23 @@
             {
                 AllBusiness = JsonSerializer.Deserialize<List<GetBusiness>>(Business);
                 BusinessList = await UserClaimsService.GetBusinessDetailsAsync();
+                var bus = BusinessList.Select(a => a.busDesc).ToList();
+                if (bus.Count > 0)
+                {
+                    int count = 1;
+                    foreach (var x in bus)
+                    {
+                        if (count == 1)
+                        {
+                            data = x.ToString();
+                        }
+                        else
+                        {
+                            data = data + " / " + x.ToString();
+                        }
+                        count++;
+                    }
+                }
             }
         }
         catch (Exception ex)
