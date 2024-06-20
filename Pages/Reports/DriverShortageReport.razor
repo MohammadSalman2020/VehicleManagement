@@ -1,0 +1,329 @@
+﻿@page "/shortagereport"
+@using System.Text.Json
+@using System.Collections.Generic
+@using System.IO
+@using Microsoft.AspNetCore.Components
+@using System.Threading.Tasks
+@inject IJSRuntime JSRuntime
+@using System.Text
+@using System.Text.RegularExpressions
+@using VehicleManagement.ApiService
+@using VehicleManagement.Authentication
+@using VehicleManagement.Models.General
+@inject NavigationManager NavigationManager
+@using VehicleManagement.Models.DB
+@using VehicleManagement.Models.General.Fleet
+@inject IApiService API
+@inject IUserClaimsService UserClaimsService
+@inject IToastService toastService
+@inject IWebHostEnvironment Environment
+<style>
+
+
+</style>
+
+<div style="margin-top:10px;padding:0px;">
+    <AuthorizeView Roles="admin,FleetManager,SafetySupervisor">
+        <Authorized Context="access">
+
+            <div class="row">
+                <div class="col-12">
+                    <div class="card mb-4">
+
+                        <div class="card-body">
+
+                            <div class="row">
+                                <div class="col-mb-3">
+                                    <div class="form-group">
+                                        <label>Enter Driver Sap ID</label>
+                                        <input type="text" @bind="driverid" class="form-control" id="driverid" />
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-mb-3" style="vertical-align:central">
+                                <div class="form-group">
+                                    <button class="btn btn-danger btn-sm ms-auto" @onclick="ShowData">Submit</button>
+                                </div>
+                                <div>
+                                    <label>@name</label>
+                                </div>
+                            </div>
+
+
+
+                            <div class="table-responsive">
+                                <div style="overflow-x: scroll; max-width: 100%;">
+
+                                    @if (!IsLoading)
+                                    {
+                                        @if (report.Count > 0)
+                                        {
+                                            sr = 0;
+
+                                            <!-- Your table code -->
+                                            <table class="table-bordered" style="width:100%">
+                                                <!-- Added 'table-bordered' class -->
+                                                <thead style="background-color:#5e72e4;color:white">
+                                                    <tr style="text-align:center;background-color:#5e72e4;color:white;">
+                                                        <th>Sr#</th>
+                                                        <th style="padding:5px">Vehicle_#</th>
+                                                        <th>Location</th>
+                                                        <th>TripDate</th>
+                                                        <th>Type</th>
+                                                        <th>Shortage</th>
+                                                        <th>Total</th>
+                                                        <th>Deduction</th>
+                                                        <th>Salary</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+
+
+                                                    @foreach (var item in report.OrderBy(a => a.primaryReference))
+                                                    {
+                                                        string? primary = "0.0";
+                                                        string? secondary = "0.0";
+
+                                                        int count = report.Count(a => a.primaryReference != "");
+
+                                                        primary = report.Where(a => a.primaryReference == item.primaryReference).Sum(a => a.primary).ToString();
+
+
+                                                        secondary = report.Where(a => a.primaryReference == item.primaryReference).Sum(a => a.secondary).ToString();
+
+
+
+                                                        double total = double.Parse(primary) + double.Parse(secondary);
+
+
+                                                        <tr style="text-align:center;">
+                                                            <td style="text-align:center">
+                                                                <p>@(sr = (sr + 1))</p>
+                                                            </td>
+                                                            <td style="text-align:center">
+                                                                <p>@item.vehicleNo</p>
+                                                            </td>
+                                                            <td style="text-align:center">
+                                                                <p>@item.location</p>
+                                                            </td>
+                                                            <td class="text-align:center">
+                                                                <p>@item.date</p>
+                                                            </td>
+                                                            <td class="text-align:center">
+                                                                <p>@item.type</p>
+                                                            </td>
+                                                            @if (item.type == "pk")
+                                                            {
+                                                                <td style="text-align:center">
+                                                                    <span>@item.primary</span>
+                                                                </td>
+                                                            }
+                                                            else
+                                                            {
+                                                                <td style="text-align:center">
+                                                                    <span>@item.secondary</span>
+                                                                </td>
+                                                            }
+
+                                                            @if (@sr == 1)
+                                                            {
+                                                                <td style="text-align:center" rowspan="@count">
+                                                                    <span>@total</span>
+                                                                </td>
+                                                                <td style="text-align:center" rowspan="@count">
+                                                                    <span>@item.deduction</span>
+                                                                </td>
+                                                                <td style="text-align:center" rowspan="@count">
+                                                                    <span>@item.salary</span>
+                                                                </td>
+                                                            }
+
+
+
+                                                        </tr>
+                                                    }
+                                                </tbody>
+                                            </table>
+
+                                        }
+                                        else
+                                        {
+                                            <p>No Data Found...</p>
+                                        }
+
+                                    }
+                                    else if (IsLoading)
+                                    {
+                                        <div class="text-center">
+                                            <div class="spinner-border" role="status">
+                                                <span class="visually-hidden">Loading...</span>
+                                            </div>
+                                            <p>@LoadingText</p>
+
+                                        </div>
+                                    }
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </Authorized>
+        <NotAuthorized>
+            @if (_isJsReady)
+            {
+                <_403 />
+            }
+            else
+            {
+                <Loader isLoading="true" />
+            }
+
+        </NotAuthorized>
+    </AuthorizeView>
+</div>
+
+<script>
+    window.downloadFile = function (filePath) {
+        var link = document.createElement('a');
+        link.href = filePath;
+        link.download = filePath.substr(filePath.lastIndexOf('/') + 1);
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+    };
+</script>
+
+@code {
+
+
+    public string? LoadingText;
+    public string? name;
+    public int driverid = 0;
+    private bool _isJsReady = false;
+    int sr = 0;
+    public bool IsLoading { get; set; }
+
+    List<DriverShortageSummary> report = new List<DriverShortageSummary>();
+
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            try
+            {
+                await JSRuntime.InvokeVoidAsync("console.log", "");
+                _isJsReady = true; // JS is ready, so set a flag or take action
+                StateHasChanged();
+               
+            }
+            catch (Exception ex)
+            {
+                _isJsReady = false; // JavaScript is not yet ready
+                string e = ex.Message;
+            }
+
+        }
+       
+    }
+
+    private async Task ShowData()
+    {
+        IsLoading = true;
+        await LoadShortagereport();
+        StateHasChanged();
+        IsLoading = false;
+
+    }
+    private async Task ExportToCSV()
+    {
+        if (report != null && report.Count > 0)
+        {
+            StringBuilder sb = new StringBuilder();
+
+            // Header
+            sb.AppendLine("Sr#,Vehicle ID,Qty,Driver 1,Driver 2,Filling Date,Product,Filling Point,Heading,Destination,Status,Current Location,Remarks");
+
+            // Data
+            int count = 1;
+            foreach (var report in report.OrderBy(a => a.date))
+            {
+                //  sb.AppendLine($"\"{count}\",\"{report.Vehicle}\",\"{report.qty}\",\"{report.Driver1}\",\"{report.Driver2}\",\"{report.FillingDate}\",\"{report.Product}\",\"{report.FillingPoint}\",\"{report.Position}\",\"{report.Destination}\",\"{report.status_}\",\"{report.location}\",\"{report.Remarks}\"");
+                count++;
+            }
+
+            ////   Get the wwwroot path
+            var wwwRootPath = Path.Combine(Environment.ContentRootPath, "wwwroot");
+
+            // Define the file path
+            var filePath = Path.Combine(wwwRootPath, "Reports", "FleetStatus.csv");
+
+            // Save CSV file
+            await File.WriteAllTextAsync(filePath, sb.ToString());
+
+            // Get the relative URL
+            var relativeUrl = Path.Combine("Reports", "FleetStatus.csv");
+
+            // Navigate to the CSV file
+
+            await JSRuntime.InvokeVoidAsync("downloadFile", relativeUrl);
+            // File.Delete(filePath);
+
+            toastService.ShowSuccess(relativeUrl);
+        }
+
+    }
+
+    public async Task LoadShortagereport()
+    {
+        try
+        {
+
+            var Main = await API.GetRequest($"Invoice/GetShortReport/{driverid}");
+            if (Main != "")
+            {
+                report = Newtonsoft.Json.JsonConvert.DeserializeObject<List<DriverShortageSummary>>(Main);
+                if (report.Count > 0)
+                {
+                    name = driverid + " : " + report[0].driverName;
+                }
+                // fleet = rec.Where(p => BusinessID.Contains(p.busID)).ToList();
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex.Message);
+        }
+    }
+
+
+
+
+    protected override async Task OnInitializedAsync()
+    {
+
+        IsLoading = false;
+
+    }
+
+
+    public class DriverShortageSummary
+    {
+        public string? vehicleNo { get; set; }
+        public string? location { get; set; }
+        public string? date { get; set; }
+        public string? primaryReference { get; set; }
+        public string? type { get; set; }
+        public string driverid { get; set; }
+        public string? driverName { get; set; }
+        public double? primary { get; set; }
+        public double? secondary { get; set; }
+        public string? over { get; set; } // Adjust the type if 'Over' has a specific data type
+        public double? total { get; set; }
+        public int? deduction { get; set; }
+        public int? salary { get; set; }
+    }
+
+}
