@@ -1,0 +1,1608 @@
+﻿@page "/invoice"
+@using Majorsoft.Blazor.Components.Tabs
+@using System.Linq;
+@using System.Text.Json
+@using System.Web
+@using System.Text
+@using Microsoft.AspNetCore.Components.Server.ProtectedBrowserStorage
+@using VehicleManagement.ApiService
+@using VehicleManagement.Models.General
+@using VehicleManagement.Models.General.Login
+@using VehicleManagement.Pages.Redirects;
+@inject IWebHostEnvironment Environment
+@inject IToastService toastService
+@inject NavigationManager NavigationManager
+@inject IApiService API
+@inject IJSRuntime JS
+@inject AuthenticationStateProvider _authenticationStateProvider
+<style>
+    body {
+        font-family: Arial, sans-serif;
+    }
+
+    .container {
+        width: 100%;
+        max-width: 800px;
+        margin: 0 auto;
+        /*   padding: 10px; */
+    }
+
+    .title {
+        text-align: center;
+        font-size: 24px;
+        font-weight: bold;
+        margin-bottom: 10px;
+    }
+
+    .details, .shipping, .receiving {
+        font-weight: bold;
+        font-size: x-small;
+        color: black;
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+        .details td, .shipping td, .receiving td {
+            border: 1px solid black;
+            padding: 4px;
+            text-align: center;
+        }
+
+        .details td {
+            width: 25%;
+        }
+
+        .details .header, .shipping .header, .receiving .header {
+            color: white;
+            font-weight: bold;
+            background-color: #5e72e4;
+        }
+
+
+    .header-span {
+        display: block;
+        font-size: 16px;
+        font-weight: bold;
+        color: white;
+        background-color: #5e72e4;
+        text-align: center;
+        padding: 5px;
+        border: 1px solid black;
+    }
+
+    .footer {
+        font-weight: bold;
+        text-align: center;
+        background-color: #d9d9d9;
+    }
+
+    .row {
+        display: flex;
+        flex-wrap: wrap;
+    }
+
+    .col-lgg-6 {
+        width: 100%;
+        max-width: 50%;
+        box-sizing: border-box;
+        padding: 10px;
+    }
+
+    .table-responsive {
+        overflow-x: auto;
+    }
+
+    .dropzone {
+        max-width: 600px;
+        height: 600px;
+        border: 2px dashed #3498db;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        margin-bottom: 20px;
+        border-radius: 10px;
+        color: #3498db;
+        cursor: pointer;
+        position: relative;
+        overflow: hidden;
+    }
+
+        .dropzone p {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            margin: 0;
+            pointer-events: none;
+        }
+
+        .dropzone.hovered {
+            border-color: #2ecc71;
+            background-color: #ecf0f1;
+        }
+
+    .file-input {
+        display: none;
+    }
+
+    .preview {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        width: 100%;
+        height: 100%;
+        position: absolute;
+        top: 0;
+        left: 0;
+    }
+
+        .preview img {
+            max-width: 100%;
+            max-height: 100%;
+            display: none;
+            border-radius: 10px;
+        }
+
+
+
+    .text-size {
+        font-size: x-small;
+        text-align: center;
+    }
+</style>
+
+<AuthorizeView>
+    <Authorized>
+        <Nav PageName="Add Invoice" />
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col-12">
+                    <div class="card mb-4">
+                        <div class="card-body px-0 pt-0 pb-2">
+
+
+                            <div class="row">
+                                <div class="col-lgg-6">
+                                    <div class="container">
+
+                                        <table class="details">
+                                            <tr>
+                                                <td>Tank Lorry No</td>
+                                                <td> <input type="text" id="vehicleID" required placeholder="Tank Lorry No" value="@Invoices.Details.TankLorryNO" @onchange="GetChambersQuantity" class="form-control"></td>
+                                                <td>Date</td>
+                                                <td>  <input type="date" placeholder="Date" @bind="Invoices.Details.Date" class="form-control"></td>
+                                            </tr>
+                                            <tr>
+                                                <td>STO NO</td>
+                                                <td>   <input type="text" placeholder="STO No" @bind="Invoices.Details.STONo" class="form-control"></td>
+                                                <td>Shipping Location</td>
+                                                <td>  <input type="text" placeholder="Supply Point" @bind="Invoices.Details.SupplyPoint" class="form-control"></td>
+                                            </tr>
+                                            <tr>
+                                                <td>User</td>
+                                                <td> @Invoices.User</td>
+                                                <td>Receiving Location</td>
+                                                <td>   <input type="text" placeholder="Receiving Location" @bind="Invoices.Details.ReceivingLocation" class="form-control"></td>
+                                            </tr>
+                                            <tr>
+                                                <td>Product</td>
+                                                <td>  <input type="text" placeholder="Product" @bind="Invoices.Details.Product" class="form-control"></td>
+                                                <td>Contractor</td>
+                                                <td>  <input type="text" placeholder="Contractor" @bind="Invoices.Details.Contractor" class="form-control"></td>
+                                            </tr>
+                                        </table>
+
+                                        <table class="shipping" style="margin-top:7px;">
+                                            <tr class="header">
+                                                <td>Chamber (Shipping)</td>
+                                                <td>1</td>
+                                                <td>2</td>
+                                                <td>3</td>
+                                                <td>4</td>
+                                                <td>5</td>
+                                            </tr>
+                                            <tr>
+                                                <td>Temp F</td>
+                                                <td colspan="5">  <input type="number" tabindex="1" placeholder="Tempreture F" id="STemp" @oninput="GetQuantitiesByTemp" onfocus="selectAllInputValue('STemp')" @bind="Invoices.ShippingDetail.TempF" class="form-control"></td>
+                                            </tr>
+                                            <tr>
+                                                <td>S.G</td>
+                                                <td colspan="5">     <input step="0.01" type="number" tabindex="2" placeholder="Gravity" id="SGravity" @oninput="@(e => GetQuantitiesBySG(e))" onfocus="selectAllInputValue('SGravity')" @bind="Invoices.ShippingDetail.SG" class="form-control"></td>
+                                            </tr>
+                                            <tr>
+                                                <td>Chamber Quantity</td>
+                                                <td>
+                                                    <input type="number" tabindex="3" placeholder="Chamber Quantity" id="Chamber1" onfocus="selectAllInputValue('Chamber1')" @bind="Invoices.ShippingDetail.Chamber1.ChamberQuantity" @oninput="@(e => TextChangedShipment(1, e))" class="form-control">
+                                                </td>
+                                                <td>
+                                                    <input type="number" tabindex="5" placeholder="Chamber Quantity" id="SChamber2Q" onfocus="selectAllInputValue('SChamber2Q')" @bind="Invoices.ShippingDetail.Chamber2.ChamberQuantity" @oninput="@(e => TextChangedShipment(2, e))" class="form-control">
+                                                </td>
+                                                <td>
+                                                    <input type="number" tabindex="7" placeholder="Chamber Quantity" id="SChamber3Q" onfocus="selectAllInputValue('SChamber3Q')" @bind="Invoices.ShippingDetail.Chamber3.ChamberQuantity" @oninput="@(e => TextChangedShipment(3, e))" class="form-control">
+                                                </td>
+                                                <td>
+                                                    <input type="number" tabindex="9" placeholder="Chamber Quantity" id="SChamber4Q" onfocus="selectAllInputValue('SChamber4Q')" @bind="Invoices.ShippingDetail.Chamber4.ChamberQuantity" @oninput="@(e => TextChangedShipment(4, e))" class="form-control">
+                                                </td>
+                                                <td>
+                                                    <input type="number" tabindex="11" placeholder="Chamber Quantity" id="SChamber5Q" onfocus="selectAllInputValue('SChamber5Q')" @bind="Invoices.ShippingDetail.Chamber5.ChamberQuantity" @oninput="@(e => TextChangedShipment(5, e))" class="form-control">
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td>Tank Lorry Product Dips(MM)</td>
+                                                <td>
+                                                    <input type="number" tabindex="4" placeholder=" Tank Lorry Product Dips(MM)" id="Chamber1Dip" onfocus="selectAllInputValue('Chamber1Dip')" @bind="Invoices.ShippingDetail.Chamber1.LorryDip" class="form-control">
+                                                </td>
+                                                <td>
+                                                    <input type="number" tabindex="6" placeholder=" Tank Lorry Product Dips(MM)" id="SChamber2D" onfocus="selectAllInputValue('SChamber2D')" @bind="Invoices.ShippingDetail.Chamber2.LorryDip" class="form-control">
+                                                </td>
+                                                <td>
+                                                    <input type="number" tabindex="8" placeholder=" Tank Lorry Product Dips(MM)" id="SChamber3Dip" onfocus="selectAllInputValue('SChamber3Dip')" @bind="Invoices.ShippingDetail.Chamber3.LorryDip" class="form-control">
+                                                </td>
+                                                <td>
+                                                    <input type="number" tabindex="10" placeholder=" Tank Lorry Product Dips(MM)" id="SChamber4Dip" onfocus="selectAllInputValue('SChamber4Dip')" @bind="Invoices.ShippingDetail.Chamber4.LorryDip" class="form-control">
+                                                </td>
+                                                <td>
+                                                    <input type="number" tabindex="12" placeholder=" Tank Lorry Product Dips(MM)" id="SChamber5D" onfocus="selectAllInputValue('SChamber5D')" @bind="Invoices.ShippingDetail.Chamber5.LorryDip" class="form-control">
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td>Quantity  85F</td>
+                                                <td>
+                                                    @Invoices.ShippingDetail.Chamber1.Quantity
+                                                </td>
+                                                <td>
+                                                    @Invoices.ShippingDetail.Chamber2.Quantity
+                                                </td>
+                                                <td>
+                                                    @Invoices.ShippingDetail.Chamber3.Quantity
+                                                </td>
+                                                <td>
+                                                    @Invoices.ShippingDetail.Chamber4.Quantity
+                                                </td>
+                                                <td>
+                                                    @Invoices.ShippingDetail.Chamber5.Quantity
+                                                </td>
+                                            </tr>
+                                        </table>
+
+                                        <table class="receiving">
+                                            <tr class="header">
+                                                <td>Chamber (Receiving)</td>
+                                                <td>1</td>
+                                                <td>2</td>
+                                                <td>3</td>
+                                                <td>4</td>
+                                                <td>5</td>
+                                            </tr>
+                                            <tr>
+                                                <td>Temp F</td>
+                                                <td colspan="5">
+                                                    <input type="number" placeholder="Tempreture F" id="tf" @oninput="GetReceivingQuantitiesByTemp" onfocus="selectAllInputValue('tf')" @bind="Invoices.ReceivingDetail.TempF" class="form-control">
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td>S.G</td>
+                                                <td colspan="5">
+                                                    <input type="number" placeholder="Gravity" id="Rg" onfocus="selectAllInputValue('Rg')" @oninput="GetReceivingQuantitiesBySG" @bind="Invoices.ReceivingDetail.SG" class="form-control">
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td>Chamber Quantity</td>
+                                                <td>
+                                                    @Invoices.ReceivingDetail.Chamber1.ChamberQuantity
+                                                </td>
+                                                <td>
+                                                    @Invoices.ReceivingDetail.Chamber2.ChamberQuantity
+                                                </td>
+                                                <td>
+                                                    @Invoices.ReceivingDetail.Chamber3.ChamberQuantity
+                                                </td>
+                                                <td>
+                                                    @Invoices.ReceivingDetail.Chamber4.ChamberQuantity
+                                                </td>
+                                                <td>
+                                                    @Invoices.ReceivingDetail.Chamber5.ChamberQuantity
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td>Tank Lorry Product Dips(MM)</td>
+                                                <td>
+                                                    <input type="number" disabled="@(Invoices.ShippingDetail.Chamber1.LorryDip==0?"disabled":null)" placeholder=" Tank Lorry Product Dips(MM)" id="RChamber1D" onfocus="selectAllInputValue('RChamber1D')" value="@Invoices.ReceivingDetail.Chamber1.LorryDip" @onchange="@(e => QuantityChangeReceiving(1, e))" class="form-control">
+                                                </td>
+                                                <td>
+                                                    <input type="number" disabled="@(Invoices.ShippingDetail.Chamber2.LorryDip==0?"disabled":null)" placeholder=" Tank Lorry Product Dips(MM)" id="RChamber2D" onfocus="selectAllInputValue('RChamber2D')" value="@Invoices.ReceivingDetail.Chamber2.LorryDip" @onchange="@(e => QuantityChangeReceiving(2, e))" class="form-control">
+                                                </td>
+                                                <td>
+                                                    <input type="number" disabled="@(Invoices.ShippingDetail.Chamber3.LorryDip==0?"disabled":null)" placeholder=" Tank Lorry Product Dips(MM)" id="RChamber3D" onfocus="selectAllInputValue('RChamber3D')" value="@Invoices.ReceivingDetail.Chamber3.LorryDip" @onchange="@(e => QuantityChangeReceiving(3, e))" class="form-control">
+                                                </td>
+                                                <td>
+                                                    <input type="number" disabled="@(Invoices.ShippingDetail.Chamber4.LorryDip==0?"disabled":null)" placeholder=" Tank Lorry Product Dips(MM)" id="RChamber4D" onfocus="selectAllInputValue('RChamber4D')" value="@Invoices.ReceivingDetail.Chamber4.LorryDip" @onchange="@(e => QuantityChangeReceiving(4, e))" class="form-control">
+                                                </td>
+                                                <td>
+                                                    <input type="number" disabled="@(Invoices.ShippingDetail.Chamber5.LorryDip==0?"disabled":null)" placeholder=" Tank Lorry Product Dips(MM)" id="RChamber5D" onfocus="selectAllInputValue('RChamber5D')" value="@Invoices.ReceivingDetail.Chamber5.LorryDip" @onchange="@(e => QuantityChangeReceiving(5, e))" class="form-control">
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td>Quantity  85F</td>
+                                                <td>
+                                                    @Invoices.ReceivingDetail.Chamber1.Quantity
+                                                </td>
+                                                <td>
+                                                    @Invoices.ReceivingDetail.Chamber2.Quantity
+                                                </td>
+                                                <td>
+                                                    @Invoices.ReceivingDetail.Chamber3.Quantity
+                                                </td>
+                                                <td>
+                                                    @Invoices.ReceivingDetail.Chamber4.Quantity
+                                                </td>
+                                                <td>
+                                                    @Invoices.ReceivingDetail.Chamber5.Quantity
+                                                </td>
+                                            </tr>
+                                        </table>
+
+                                        <table class="receiving" style="margin-top:7px;">
+                                            <tr class="header">
+                                                <td>Chamber (Summary)</td>
+                                                <td>1</td>
+                                                <td>2</td>
+                                                <td>3</td>
+                                                <td>4</td>
+                                                <td>5</td>
+                                            </tr>
+                                            <tr>
+                                                <td>Shortage in MM</td>
+                                                <td>@Invoices.ShortageCalculation.Chamber1.ShortageMM</td>
+                                                <td>@Invoices.ShortageCalculation.Chamber2.ShortageMM</td>
+                                                <td>@Invoices.ShortageCalculation.Chamber3.ShortageMM</td>
+                                                <td>@Invoices.ShortageCalculation.Chamber4.ShortageMM</td>
+                                                <td>@Invoices.ShortageCalculation.Chamber5.ShortageMM</td>
+                                            </tr>
+                                            <tr>
+                                                <td>Total Shortage in Liters</td>
+                                                <td>@Invoices.ShortageCalculation.Chamber1.TotalShortageLtr</td>
+                                                <td>@Invoices.ShortageCalculation.Chamber2.TotalShortageLtr</td>
+                                                <td>@Invoices.ShortageCalculation.Chamber3.TotalShortageLtr</td>
+                                                <td>@Invoices.ShortageCalculation.Chamber4.TotalShortageLtr</td>
+                                                <td>@Invoices.ShortageCalculation.Chamber5.TotalShortageLtr</td>
+                                            </tr>
+                                        </table>
+                                        <table class="receiving">
+                                            <tr>
+                                                <td>Temp. Difference (Desp. vs Rec.)</td>
+                                                <td>@Invoices.CalculationDifference.TempDiff</td>
+                                                <td>Shortage  1°F Temp</td>
+                                                <td>@Invoices.CalculationDifference.Shortage1FTemp</td>
+                                                <td>Qty Should be Received</td>
+                                                <td>@Invoices.CalculationDifference.QtyShouldRecieved</td>
+                                            </tr>
+                                            <tr>
+                                                <td>Total Shortage in Liters By Dip</td>
+                                                <td>@Invoices.CalculationDifference.TotalShortageByDip</td>
+                                                <td>Short On Temperature (Exempted)</td>
+                                                <td>@Invoices.CalculationDifference.ShortOnTemp</td>
+                                                @if (@Invoices.CalculationDifference.Status == "Short")
+                                                {
+                                                    <td>Shortage Charge to Contractor</td>
+                                                    <td style="color:red;">@Invoices.CalculationDifference.ShortageCharge</td>
+                                                }
+                                                else if (@Invoices.CalculationDifference.Status == "Extra")
+                                                {
+                                                    <td>Shortage Charge to Contractor</td>
+                                                    <td style="color:blue;">@Invoices.CalculationDifference.ShortageCharge</td>
+                                                }
+                                                else
+                                                {
+                                                    <td>Shortage Charge to Contractor</td>
+                                                    <td>@Invoices.CalculationDifference.ShortageCharge</td>
+                                                }
+
+
+                                            </tr>
+                                            <tr>
+                                                <td colspan="3">Status</td>
+                                                <td colspan="6" style="color:@(Invoices.CalculationDifference.Status=="Extra"?"blue":"red")">@Invoices.CalculationDifference.Status</td>
+                                            </tr>
+                                        </table>
+                                        @if (Invoices.CalculationDifference.Status != null)
+                                        {
+                                            <div class="col-md-12" style="margin-top: 7px;">
+                                                <div class="row">
+
+
+                                                    <div class="col-md-12">
+                                                        <div class="form-group" style="text-align:center;">
+                                                            <button class="btn btn-danger btn-sm ms-auto" @onclick="SavePreview">Save & Preview</button>
+                                                        </div>
+                                                    </div>
+
+                                                </div>
+                                            </div>
+                                        }
+
+
+
+                                    </div>
+                                </div>
+                              
+                                    <div class="col-lgg-6">
+                                        <div class="table-responsive inv-img">
+                                            <div id="dropzone" class="dropzone">
+                                                <p>Click to add Image</p>
+                                                <InputFile type="file" id="fileInput" OnChange="LoadFiles"  class="file-input" />
+                                                <div id="preview" class="preview"></div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                
+
+                            </div>
+
+
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+        <Loader isLoading="@IsLoading" />
+    </Authorized>
+    <NotAuthorized>
+        @if (_isJsReady)
+        {
+            <_403 />
+        }
+        else
+        {
+            <Loader isLoading="true" />
+        }
+
+    </NotAuthorized>
+</AuthorizeView>
+
+
+@code {
+
+    private bool _isJsReady = false;
+
+
+    private Invoicing Invoices { get; set; } = new Invoicing();
+    private GetChamberDetails Shipping { get; set; } = new GetChamberDetails();
+    public List<VehicleDTO> VehicleList = new List<VehicleDTO>();
+    public List<string> Vehicle = new List<string>();
+    private bool IsLoading = false;
+
+
+
+
+
+
+    public async Task GetChambersQuantity(ChangeEventArgs e)
+    {
+        if (e.Value != "")
+        {
+            Invoices.Details.TankLorryNO = e.Value.ToString();
+            int ChamberStatus = await GetShippingChamberDetails(e.Value.ToString());
+
+        }
+    }
+
+    protected override async void OnInitialized()
+    {
+
+        try
+        {
+
+            await GetAllVehicleID();
+
+            // Retrieve the encoded JSON string from the query parameters if it exists
+            string encodedJson = NavigationManager.ToAbsoluteUri(NavigationManager.Uri).Query;
+
+            // Check if the "json" query parameter exists
+            if (encodedJson.Contains("Edit="))
+            {
+                // Extract the value of the "json" query parameter
+                encodedJson = encodedJson.Split("Edit=")[1];
+
+                // Decode the URL-safe Base64 string
+                string base64EncodedJson = HttpUtility.UrlDecode(encodedJson);
+
+                // Convert the Base64 string back to UTF-8 encoded bytes
+                byte[] base64EncodedBytes = Convert.FromBase64String(base64EncodedJson);
+
+                // Decode the UTF-8 bytes back to the original JSON string
+                string jsonString = Encoding.UTF8.GetString(base64EncodedBytes);
+
+                // Deserialize the JSON string back into the Invoices object
+                Invoices = JsonSerializer.Deserialize<Invoicing>(jsonString);
+                StateHasChanged();
+                // Display the image if the path is already set
+                if (!string.IsNullOrEmpty(Invoices.InvoiceFilePath))
+                {
+                    await JS.InvokeVoidAsync("showImageFromPath", Invoices.InvoiceFilePath);
+                }
+            }
+
+            var authState = await _authenticationStateProvider.GetAuthenticationStateAsync();
+            Invoices.User = authState.User.Identity.Name;
+
+
+
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex.Message);
+        }
+
+    }
+    public async Task GetAllVehicleID()
+    {
+
+        try
+        {
+
+            var Vehicles = await API.GetRequest($"Vehicle/GetAllVehicleID");
+            if (Vehicles != "")
+            {
+
+                Vehicle = JsonSerializer.Deserialize<List<string>>(Vehicles);
+
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex.Message);
+        }
+    }
+
+    private async Task LoadFiles(InputFileChangeEventArgs e)
+    {
+        IsLoading = true;
+
+        foreach (var file in e.GetMultipleFiles())
+        {
+            try
+            {
+                if (Invoices.Details.STONo == null)
+                {
+                    IsLoading = false;
+                    toastService.ShowError("Please Enter STO No First");
+                    return;
+                }
+                var fileExtension = Path.GetExtension(file.Name);
+                var trustedFileNameForFileStorage = Invoices.Details.STONo.ToString().Trim() + fileExtension;
+                var folderPath = Path.Combine(Environment.ContentRootPath, "wwwroot\\css\\Development", "HTL_Reports");
+
+                // Create the directory if it doesn't exist
+                if (!Directory.Exists(folderPath))
+                {
+                    Directory.CreateDirectory(folderPath);
+                }
+
+                var filePath = Path.Combine(folderPath, trustedFileNameForFileStorage);
+
+                await using FileStream fs = new(filePath, FileMode.Create);
+                await file.OpenReadStream().CopyToAsync(fs);
+                string correctedFilePath = Path.Combine("css/Development", "HTL_Reports", trustedFileNameForFileStorage);
+                Invoices.InvoiceFilePath = correctedFilePath.Replace("\\", "/");
+                // Display the newly uploaded image
+                await JS.InvokeVoidAsync("showImageFromPath", Invoices.InvoiceFilePath);
+                toastService.ShowSuccess($"File {trustedFileNameForFileStorage} Upload Success");
+            }
+            catch (Exception ex)
+            {
+                toastService.ShowError($"Error {ex.Message}");
+
+                IsLoading = false;
+            }
+
+        }
+        IsLoading = false;
+
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            try
+            {
+                await JS.InvokeVoidAsync("console.log", "");
+                _isJsReady = true; // JS is ready, so set a flag or take action
+                StateHasChanged();
+                await JS.InvokeVoidAsync("initializeDropzone");
+                await JS.InvokeVoidAsync("initializeAutoComplete", "vehicleID", Vehicle);
+
+
+            }
+            catch (Exception ex)
+            {
+                _isJsReady = false; // JavaScript is not yet ready
+                string e = ex.Message;
+            }
+
+        }
+        else
+        {
+            await JS.InvokeVoidAsync("initializeAutoComplete", "vehicleID", Vehicle);
+        }
+    }
+
+    private async Task SavePreview()
+    {
+        try
+        {
+
+            Invoices.InvoiceFilePath = Invoices.InvoiceFilePath == null ? "" : Invoices.InvoiceFilePath;
+
+
+            Invoices.IsView = Invoices.IsView == "Update" ? Invoices.IsView : "View";
+            string jsonString = JsonSerializer.Serialize(Invoices);
+
+            // Encode the JSON string as Base64 to make it URL-safe
+            string base64EncodedJson = Convert.ToBase64String(Encoding.UTF8.GetBytes(jsonString));
+
+            // Encode the Base64 string to make it URL-safe
+            string encodedJson = HttpUtility.UrlEncode(base64EncodedJson);
+
+            // Navigate to the destination page with the encoded JSON string as a query parameter
+            NavigationManager.NavigateTo($"/invoicedisplay?json={encodedJson}");
+        }
+        catch (Exception ex)
+        {
+            toastService.ShowError($"Error : {ex.Message}");
+        }
+    }
+    private bool QtyDipFilledInChamber(Ship_Chamber chamber)
+    {
+        return chamber.ChamberQuantity != 0 && chamber.LorryDip != 0;
+    }
+    private bool AreAllFieldsFilledInChamber(Ship_Chamber chamber)
+    {
+        return chamber.ChamberQuantity != 0 && chamber.LorryDip != 0 && chamber.Quantity != 0 && Invoices.ShippingDetail.TempF != 0 && Invoices.ShippingDetail.SG != 0;
+    }
+    private bool AreAllFieldsFilledInReceivingChamber(Recieve_Chamber chamber)
+    {
+        return chamber.ChamberQuantity != 0 && chamber.LorryDip != 0 && chamber.Quantity != 0 && Invoices.ReceivingDetail.TempF != 0 && Invoices.ReceivingDetail.SG != 0;
+    }
+    public async Task<int> GetShippingChamberDetails(string VehicleID)
+    {
+
+        try
+        {
+
+            Shipping = new GetChamberDetails();
+            var VehicleIDs = await API.GetRequest($"Invoice/GetChamberDetails/{VehicleID}");
+            if (VehicleIDs != "")
+            {
+
+                Shipping = JsonSerializer.Deserialize<GetChamberDetails>(VehicleIDs);
+                if (Shipping != null)
+                {
+                    Invoices.ShippingDetail.Chamber1.ChamberQuantity = Shipping.chamber1Quantity;
+                    Invoices.ShippingDetail.Chamber1.LorryDip = Shipping.chamber1Dip;
+                    Invoices.ShippingDetail.Chamber2.ChamberQuantity = Shipping.chamber2Quantity;
+                    Invoices.ShippingDetail.Chamber2.LorryDip = Shipping.chamber2Dip;
+                    Invoices.ShippingDetail.Chamber3.ChamberQuantity = Shipping.chamber3Quantity;
+                    Invoices.ShippingDetail.Chamber3.LorryDip = Shipping.chamber3Dip;
+                    Invoices.ShippingDetail.Chamber4.ChamberQuantity = Shipping.chamber4Quantity;
+                    Invoices.ShippingDetail.Chamber4.LorryDip = Shipping.chamber4Dip;
+                    Invoices.ShippingDetail.Chamber5.ChamberQuantity = Shipping.chamber5Quantity;
+                    Invoices.ShippingDetail.Chamber5.LorryDip = Shipping.chamber5Dip;
+                    return 200;
+                }
+                else
+                {
+                    return 404;
+                }
+
+            }
+            else
+            {
+                return 404;
+            }
+        }
+        catch (Exception ex)
+        {
+            return 404;
+            Console.WriteLine(ex.Message);
+        }
+    }
+
+
+
+    // private async Task SelectAllInputValue(string Input)
+    // {
+    //     await JS.InvokeVoidAsync("selectAllInputValue", Input);
+    // }
+    bool CalculateShortageForChamber1(Invoicing chamber)
+    {
+        Invoices.ShortageCalculation.Chamber1 = new ShortageChamber();
+        Invoices.ShortageCalculation.Chamber1.ShortageMM = Math.Abs(Invoices.ReceivingDetail.Chamber1.LorryDip - Invoices.ShippingDetail.Chamber1.LorryDip);
+        float ShortMM = Invoices.ShortageCalculation.Chamber1.ShortageMM;
+        float TotalChamberLtr = Invoices.ShippingDetail.Chamber1.ChamberQuantity;
+        // float Loading = Invoices.ShippingDetail.Chamber1.LorryDip;
+        // float LoadingDivision = (TotalChamberLtr / Loading);
+        // float Total = LoadingDivision * ShortMM;
+        float Loading = Invoices.ReceivingDetail.Chamber1.ChamberQuantity;
+        float Total = TotalChamberLtr - Loading;
+
+        Invoices.ShortageCalculation.Chamber1.TotalShortageLtr = Math.Abs((int)Math.Round(Total));
+
+
+        return true;
+    }
+    bool CalculateShortageForChamber2(Invoicing chamber)
+    {
+
+        Invoices.ShortageCalculation.Chamber2 = new ShortageChamber();
+        Invoices.ShortageCalculation.Chamber2.ShortageMM = Math.Abs(Invoices.ReceivingDetail.Chamber2.LorryDip - Invoices.ShippingDetail.Chamber2.LorryDip);
+        float ShortMM = Invoices.ShortageCalculation.Chamber2.ShortageMM;
+        float TotalChamberLtr = Invoices.ShippingDetail.Chamber2.ChamberQuantity;
+        // float Loading = Invoices.ShippingDetail.Chamber2.LorryDip;
+        // float LoadingDivision = (TotalChamberLtr / Loading);
+        // float Total = LoadingDivision * ShortMM;
+        float Loading = Invoices.ReceivingDetail.Chamber2.ChamberQuantity;
+        float Total = TotalChamberLtr - Loading;
+        Invoices.ShortageCalculation.Chamber2.TotalShortageLtr = Math.Abs((int)Math.Round(Total));
+        return true;
+    }
+    bool CalculateShortageForChamber3(Invoicing chamber)
+    {
+        Invoices.ShortageCalculation.Chamber3 = new ShortageChamber();
+        Invoices.ShortageCalculation.Chamber3.ShortageMM = Math.Abs(Invoices.ReceivingDetail.Chamber3.LorryDip - Invoices.ShippingDetail.Chamber3.LorryDip);
+        float ShortMM = Invoices.ShortageCalculation.Chamber3.ShortageMM;
+        float TotalChamberLtr = Invoices.ShippingDetail.Chamber3.ChamberQuantity;
+        // float Loading = Invoices.ShippingDetail.Chamber3.LorryDip;
+        // float LoadingDivision = (TotalChamberLtr / Loading);
+        // float Total = LoadingDivision * ShortMM;
+        float Loading = Invoices.ReceivingDetail.Chamber3.ChamberQuantity;
+        float Total = TotalChamberLtr - Loading;
+        Invoices.ShortageCalculation.Chamber3.TotalShortageLtr = Math.Abs((int)Math.Round(Total));
+
+        return true;
+    }
+    bool CalculateShortageForChamber4(Invoicing chamber)
+    {
+
+        Invoices.ShortageCalculation.Chamber4 = new ShortageChamber();
+        Invoices.ShortageCalculation.Chamber4.ShortageMM = Math.Abs(Invoices.ReceivingDetail.Chamber4.LorryDip - Invoices.ShippingDetail.Chamber4.LorryDip);
+        float ShortMM = Invoices.ShortageCalculation.Chamber4.ShortageMM;
+        float TotalChamberLtr = Invoices.ShippingDetail.Chamber4.ChamberQuantity;
+        // float Loading = Invoices.ShippingDetail.Chamber4.LorryDip;
+        // float LoadingDivision = (TotalChamberLtr / Loading);
+        // float Total = LoadingDivision * ShortMM;
+        float Loading = Invoices.ReceivingDetail.Chamber4.ChamberQuantity;
+        float Total = TotalChamberLtr - Loading;
+        Invoices.ShortageCalculation.Chamber4.TotalShortageLtr = Math.Abs((int)Math.Round(Total));
+
+        return true;
+    }
+    bool CalculateShortageForChamber5(Invoicing chamber)
+    {
+
+        Invoices.ShortageCalculation.Chamber5 = new ShortageChamber();
+        Invoices.ShortageCalculation.Chamber5.ShortageMM = Math.Abs(Invoices.ReceivingDetail.Chamber5.LorryDip - Invoices.ShippingDetail.Chamber5.LorryDip);
+        float ShortMM = Invoices.ShortageCalculation.Chamber5.ShortageMM;
+        float TotalChamberLtr = Invoices.ShippingDetail.Chamber5.ChamberQuantity;
+        // float Loading = Invoices.ShippingDetail.Chamber5.LorryDip;
+        // float LoadingDivision = (TotalChamberLtr / Loading);
+        // float Total = LoadingDivision * ShortMM;
+        float Loading = Invoices.ReceivingDetail.Chamber5.ChamberQuantity;
+        float Total = TotalChamberLtr - Loading;
+        Invoices.ShortageCalculation.Chamber5.TotalShortageLtr = Math.Abs((int)Math.Round(Total));
+
+        return true;
+
+    }
+
+
+
+
+
+
+    private async Task GetQuantitiesBySG(ChangeEventArgs e)
+    {
+        if (e.Value != "")
+        {
+            float Val = float.Parse(e.Value.ToString());
+            double calculated6Quantity1 = await GetQtyAt85F(Val, Invoices.ShippingDetail.TempF, Invoices.ShippingDetail.Chamber1.ChamberQuantity);
+            double calculated6Quantity2 = await GetQtyAt85F(Val, Invoices.ShippingDetail.TempF, Invoices.ShippingDetail.Chamber2.ChamberQuantity);
+            double calculated6Quantity3 = await GetQtyAt85F(Val, Invoices.ShippingDetail.TempF, Invoices.ShippingDetail.Chamber3.ChamberQuantity);
+            double calculated6Quantity4 = await GetQtyAt85F(Val, Invoices.ShippingDetail.TempF, Invoices.ShippingDetail.Chamber4.ChamberQuantity);
+            double calculated6Quantity5 = await GetQtyAt85F(Val, Invoices.ShippingDetail.TempF, Invoices.ShippingDetail.Chamber5.ChamberQuantity);
+
+            // Set the quantity for each chamber
+            Invoices.ShippingDetail.Chamber1.Quantity = int.Parse(calculated6Quantity1.ToString());
+            Invoices.ShippingDetail.Chamber2.Quantity = int.Parse(calculated6Quantity2.ToString());
+            Invoices.ShippingDetail.Chamber3.Quantity = int.Parse(calculated6Quantity3.ToString());
+            Invoices.ShippingDetail.Chamber4.Quantity = int.Parse(calculated6Quantity4.ToString());
+            Invoices.ShippingDetail.Chamber5.Quantity = int.Parse(calculated6Quantity5.ToString());
+        }
+    }
+    private async Task GetQuantitiesByTemp(ChangeEventArgs e)
+    {
+        if (e.Value != "")
+        {
+            float Val = float.Parse(e.Value.ToString());
+            double calculated6Quantity1 = await GetQtyAt85F(Invoices.ShippingDetail.SG, Val, Invoices.ShippingDetail.Chamber1.ChamberQuantity);
+            double calculated6Quantity2 = await GetQtyAt85F(Invoices.ShippingDetail.SG, Val, Invoices.ShippingDetail.Chamber2.ChamberQuantity);
+            double calculated6Quantity3 = await GetQtyAt85F(Invoices.ShippingDetail.SG, Val, Invoices.ShippingDetail.Chamber3.ChamberQuantity);
+            double calculated6Quantity4 = await GetQtyAt85F(Invoices.ShippingDetail.SG, Val, Invoices.ShippingDetail.Chamber4.ChamberQuantity);
+            double calculated6Quantity5 = await GetQtyAt85F(Invoices.ShippingDetail.SG, Val, Invoices.ShippingDetail.Chamber5.ChamberQuantity);
+
+            // Set the quantity for each chamber
+            Invoices.ShippingDetail.Chamber1.Quantity = int.Parse(calculated6Quantity1.ToString());
+            Invoices.ShippingDetail.Chamber2.Quantity = int.Parse(calculated6Quantity2.ToString());
+            Invoices.ShippingDetail.Chamber3.Quantity = int.Parse(calculated6Quantity3.ToString());
+            Invoices.ShippingDetail.Chamber4.Quantity = int.Parse(calculated6Quantity4.ToString());
+            Invoices.ShippingDetail.Chamber5.Quantity = int.Parse(calculated6Quantity5.ToString());
+        }
+    }
+    private async Task GetReceivingQuantitiesByTemp(ChangeEventArgs e)
+    {
+        if (e.Value != "")
+        {
+            float Val = float.Parse(e.Value.ToString());
+            double calculated6Quantity1 = await GetQtyAt85F(Invoices.ReceivingDetail.SG, Val, Invoices.ReceivingDetail.Chamber1.ChamberQuantity);
+            double calculated6Quantity2 = await GetQtyAt85F(Invoices.ReceivingDetail.SG, Val, Invoices.ReceivingDetail.Chamber2.ChamberQuantity);
+            double calculated6Quantity3 = await GetQtyAt85F(Invoices.ReceivingDetail.SG, Val, Invoices.ReceivingDetail.Chamber3.ChamberQuantity);
+            double calculated6Quantity4 = await GetQtyAt85F(Invoices.ReceivingDetail.SG, Val, Invoices.ReceivingDetail.Chamber4.ChamberQuantity);
+            double calculated6Quantity5 = await GetQtyAt85F(Invoices.ReceivingDetail.SG, Val, Invoices.ReceivingDetail.Chamber5.ChamberQuantity);
+
+            // Set the quantity for each chamber
+            Invoices.ReceivingDetail.Chamber1.Quantity = int.Parse(calculated6Quantity1.ToString());
+            Invoices.ReceivingDetail.Chamber2.Quantity = int.Parse(calculated6Quantity2.ToString());
+            Invoices.ReceivingDetail.Chamber3.Quantity = int.Parse(calculated6Quantity3.ToString());
+            Invoices.ReceivingDetail.Chamber4.Quantity = int.Parse(calculated6Quantity4.ToString());
+            Invoices.ReceivingDetail.Chamber5.Quantity = int.Parse(calculated6Quantity5.ToString());
+        }
+    }
+
+    private async Task GetReceivingQuantitiesBySG(ChangeEventArgs e)
+    {
+        if (e.Value != "")
+        {
+            float Val = float.Parse(e.Value.ToString());
+            double calculated6Quantity1 = await GetQtyAt85F(Val, Invoices.ReceivingDetail.TempF, Invoices.ReceivingDetail.Chamber1.ChamberQuantity);
+            double calculated6Quantity2 = await GetQtyAt85F(Val, Invoices.ReceivingDetail.TempF, Invoices.ReceivingDetail.Chamber2.ChamberQuantity);
+            double calculated6Quantity3 = await GetQtyAt85F(Val, Invoices.ReceivingDetail.TempF, Invoices.ReceivingDetail.Chamber3.ChamberQuantity);
+            double calculated6Quantity4 = await GetQtyAt85F(Val, Invoices.ReceivingDetail.TempF, Invoices.ReceivingDetail.Chamber4.ChamberQuantity);
+            double calculated6Quantity5 = await GetQtyAt85F(Val, Invoices.ReceivingDetail.TempF, Invoices.ReceivingDetail.Chamber5.ChamberQuantity);
+
+            // Set the quantity for each chamber
+            Invoices.ReceivingDetail.Chamber1.Quantity = int.Parse(calculated6Quantity1.ToString());
+            Invoices.ReceivingDetail.Chamber2.Quantity = int.Parse(calculated6Quantity2.ToString());
+            Invoices.ReceivingDetail.Chamber3.Quantity = int.Parse(calculated6Quantity3.ToString());
+            Invoices.ReceivingDetail.Chamber4.Quantity = int.Parse(calculated6Quantity4.ToString());
+            Invoices.ReceivingDetail.Chamber5.Quantity = int.Parse(calculated6Quantity5.ToString());
+        }
+    }
+    private async Task TextChangedShipment(int chamberNumber, ChangeEventArgs e)
+    {
+        try
+        {
+            if (Invoices.ShippingDetail.SG != 0 && Invoices.ShippingDetail.TempF != 0)
+            {
+
+                int quantity = int.Parse(e.Value.ToString());
+                double calculatedQuantity = await GetQtyAt85F(Invoices.ShippingDetail.SG, Invoices.ShippingDetail.TempF, quantity);
+
+                switch (chamberNumber)
+                {
+                    case 1:
+                        Invoices.ShippingDetail.Chamber1.Quantity = int.Parse(calculatedQuantity.ToString());
+                        break;
+                    case 2:
+                        Invoices.ShippingDetail.Chamber2.Quantity = int.Parse(calculatedQuantity.ToString());
+                        break;
+                    case 3:
+                        Invoices.ShippingDetail.Chamber3.Quantity = int.Parse(calculatedQuantity.ToString());
+                        break;
+                    case 4:
+                        Invoices.ShippingDetail.Chamber4.Quantity = int.Parse(calculatedQuantity.ToString());
+                        break;
+                    case 5:
+                        Invoices.ShippingDetail.Chamber5.Quantity = int.Parse(calculatedQuantity.ToString());
+                        break;
+                    default:
+                        // Handle invalid chamber number
+                        break;
+                }
+
+            }
+            else if (e.Value != "")
+            {
+
+            }
+
+
+        }
+        catch (Exception ex)
+        {
+
+        }
+    }
+    private async Task<int> GetChamberQunatity(int ChamberQuantity, int LorryDip, int RLorryDip)
+    {
+        try
+        {
+            float RecievingLorryDip = RLorryDip;
+            float ChamberQunatity = ChamberQuantity;
+            float ChamberLorry = LorryDip;
+            float Avg = ChamberQunatity / ChamberLorry;
+            float Total = Avg * RecievingLorryDip;
+            return int.Parse(Math.Round(Total).ToString());
+        }
+        catch (Exception ex)
+        {
+            return 0;
+        }
+
+    }
+
+    private async Task QuantityChangeReceiving(int chamberNumber, ChangeEventArgs e)
+    {
+        try
+        {
+
+            if (e.Value != "0")
+            {
+                e.Value = e.Value == "" ? "0" : e.Value;
+                int Values = int.Parse(e.Value.ToString());
+                await QunatityReceiv(chamberNumber, Values);
+                switch (chamberNumber)
+                {
+                    case 1:
+                        Invoices.ReceivingDetail.Chamber1.LorryDip = Values;
+                        CalculateShortageForChamber1(Invoices);
+                        break;
+                    case 2:
+                        Invoices.ReceivingDetail.Chamber2.LorryDip = Values;
+                        CalculateShortageForChamber2(Invoices);
+                        break;
+                    case 3:
+                        Invoices.ReceivingDetail.Chamber3.LorryDip = Values;
+                        CalculateShortageForChamber3(Invoices);
+                        break;
+                    case 4:
+                        Invoices.ReceivingDetail.Chamber4.LorryDip = Values;
+                        CalculateShortageForChamber4(Invoices);
+                        break;
+                    case 5:
+                        Invoices.ReceivingDetail.Chamber5.LorryDip = Values;
+                        CalculateShortageForChamber5(Invoices);
+                        break;
+                }
+                await CalculateDiff();
+                StateHasChanged();
+
+            }
+
+
+            else
+            {
+                toastService.ShowWarning("Please insert Tempreture and SG first");
+            }
+        }
+        catch (Exception ex)
+        {
+
+        }
+
+    }
+
+    async Task CalculateDiff()
+    {
+        try
+        {
+            Invoices.CalculationDifference = new CalculationDiff();
+
+            float ReceivingTempF = Invoices.ReceivingDetail.TempF;
+            float ShippingTempF = Invoices.ShippingDetail.TempF;
+
+            float Total = ReceivingTempF - ShippingTempF;
+            float ReceivingTemp = (float)Math.Round(Total, 3);
+            Invoices.CalculationDifference.TempDiff = Math.Abs((float)Math.Round(ReceivingTemp));
+
+
+            float TotalChamberQuantityS = Invoices.ShippingDetail.Chamber1.ChamberQuantity + Invoices.ShippingDetail.Chamber2.ChamberQuantity +
+            Invoices.ShippingDetail.Chamber3.ChamberQuantity + Invoices.ShippingDetail.Chamber4.ChamberQuantity +
+            Invoices.ShippingDetail.Chamber5.ChamberQuantity;
+            float TotalChamberQuantityR = Invoices.ReceivingDetail.Chamber1.ChamberQuantity + Invoices.ReceivingDetail.Chamber2.ChamberQuantity +
+       Invoices.ReceivingDetail.Chamber3.ChamberQuantity + Invoices.ReceivingDetail.Chamber4.ChamberQuantity +
+       Invoices.ReceivingDetail.Chamber5.ChamberQuantity;
+
+            float TotalShortageLTRdip = TotalChamberQuantityR - TotalChamberQuantityS;
+            Invoices.CalculationDifference.TotalShortageByDip = Math.Abs(TotalShortageLTRdip);
+
+            #region Required Formula Reconsideration
+
+
+            double TotalQuantity85S = await GetQtyAt85F(Invoices.ShippingDetail.SG, Invoices.ShippingDetail.TempF, TotalChamberQuantityS);
+
+
+            double TotalQuantity85R = await GetQtyAt85F(Invoices.ReceivingDetail.SG, Invoices.ReceivingDetail.TempF, TotalChamberQuantityR);
+
+            #endregion
+            float ShortOnTempExempt = 0.0f;
+            float ShortContratorCharge = float.Parse((TotalQuantity85S - TotalQuantity85R).ToString());
+            if (ShortContratorCharge == 0)
+            {
+                Invoices.CalculationDifference.Status = "-";
+            }
+            else if (ShortContratorCharge > 0)
+            {
+                Invoices.CalculationDifference.Status = "Short";
+                ShortOnTempExempt = Math.Abs(TotalShortageLTRdip) - ShortContratorCharge;
+
+            }
+            else if (ShortContratorCharge < 0)
+            {
+                Invoices.CalculationDifference.Status = "Extra";
+                ShortOnTempExempt = TotalShortageLTRdip - Math.Abs(ShortContratorCharge);
+
+            }
+
+            Invoices.CalculationDifference.ShortageCharge = Math.Abs(ShortContratorCharge);
+
+            // float ShortOnTempExempt = TotalShortageLTRdip - ShortContratorCharge;
+
+            Invoices.CalculationDifference.ShortOnTemp = Math.Abs(ShortOnTempExempt);
+            // if (ReceivingTemp > 0)
+            // {
+            float Shortage1F = ShortOnTempExempt / ReceivingTemp;
+
+            Invoices.CalculationDifference.Shortage1FTemp = Math.Abs((float)Math.Round(Shortage1F, 3));
+            // }
+
+
+            float QunatityShouldR = TotalChamberQuantityS - Math.Abs(ShortOnTempExempt);
+            Invoices.CalculationDifference.QtyShouldRecieved = QunatityShouldR;
+        }
+        catch (Exception ex)
+        {
+            IsLoading = false;
+            toastService.ShowError($"Invalid calculations detected");
+        }
+
+    }
+
+
+    public async Task QunatityReceiv(int chamberNumber, int value)
+    {
+        try
+        {
+
+
+            switch (chamberNumber)
+            {
+                case 1:
+                    if (value == 0)
+                    {
+                        Invoices.ReceivingDetail.Chamber1 = new Recieve_Chamber();
+                        return;
+                    }
+                    Invoices.ReceivingDetail.Chamber1.ChamberQuantity = await GetChamberQunatity(Invoices.ShippingDetail.Chamber1.ChamberQuantity, Invoices.ShippingDetail.Chamber1.LorryDip, value);
+                    await TextChangedReceiving(1, Invoices.ReceivingDetail.Chamber1.ChamberQuantity);
+
+                    break;
+                case 2:
+                    if (value == 0)
+                    {
+                        Invoices.ReceivingDetail.Chamber2 = new Recieve_Chamber();
+                        return;
+                    }
+                    Invoices.ReceivingDetail.Chamber2.ChamberQuantity = await GetChamberQunatity(Invoices.ShippingDetail.Chamber2.ChamberQuantity, Invoices.ShippingDetail.Chamber2.LorryDip, value);
+                    await TextChangedReceiving(2, Invoices.ReceivingDetail.Chamber2.ChamberQuantity);
+                    break;
+                case 3:
+                    if (value == 0)
+                    {
+                        Invoices.ReceivingDetail.Chamber3 = new Recieve_Chamber();
+                        return;
+                    }
+                    Invoices.ReceivingDetail.Chamber3.ChamberQuantity = await GetChamberQunatity(Invoices.ShippingDetail.Chamber3.ChamberQuantity, Invoices.ShippingDetail.Chamber3.LorryDip, value);
+                    await TextChangedReceiving(3, Invoices.ReceivingDetail.Chamber3.ChamberQuantity);
+                    break;
+                case 4:
+                    if (value == 0)
+                    {
+                        Invoices.ReceivingDetail.Chamber4 = new Recieve_Chamber();
+                        return;
+                    }
+                    Invoices.ReceivingDetail.Chamber4.ChamberQuantity = await GetChamberQunatity(Invoices.ShippingDetail.Chamber4.ChamberQuantity, Invoices.ShippingDetail.Chamber4.LorryDip, value);
+                    await TextChangedReceiving(4, Invoices.ReceivingDetail.Chamber4.ChamberQuantity);
+                    break;
+                case 5:
+                    if (value == 0)
+                    {
+                        Invoices.ReceivingDetail.Chamber5 = new Recieve_Chamber();
+                        return;
+                    }
+                    Invoices.ReceivingDetail.Chamber5.ChamberQuantity = await GetChamberQunatity(Invoices.ShippingDetail.Chamber5.ChamberQuantity, Invoices.ShippingDetail.Chamber5.LorryDip, value);
+                    await TextChangedReceiving(5, Invoices.ReceivingDetail.Chamber5.ChamberQuantity);
+                    break;
+                default:
+                    // Handle invalid chamber number
+                    break;
+            }
+
+        }
+        catch (Exception ex)
+        {
+
+        }
+
+    }
+
+    private async Task TextChangedReceiving(int chamberNumber, int Quantity)
+    {
+        try
+        {
+            if (Invoices.ReceivingDetail.SG != 0 && Invoices.ReceivingDetail.TempF != 0)
+            {
+                double calculatedQuantity = await GetQtyAt85F(Invoices.ReceivingDetail.SG, Invoices.ReceivingDetail.TempF, Quantity);
+
+                // Set the quantity for the specified chamber
+                switch (chamberNumber)
+                {
+                    case 1:
+                        Invoices.ReceivingDetail.Chamber1.Quantity = int.Parse(calculatedQuantity.ToString());
+                        break;
+                    case 2:
+                        Invoices.ReceivingDetail.Chamber2.Quantity = int.Parse(calculatedQuantity.ToString());
+                        break;
+                    case 3:
+                        Invoices.ReceivingDetail.Chamber3.Quantity = int.Parse(calculatedQuantity.ToString());
+                        break;
+                    case 4:
+                        Invoices.ReceivingDetail.Chamber4.Quantity = int.Parse(calculatedQuantity.ToString());
+                        break;
+                    case 5:
+                        Invoices.ReceivingDetail.Chamber5.Quantity = int.Parse(calculatedQuantity.ToString());
+                        break;
+                    default:
+                        // Handle invalid chamber number
+                        break;
+                }
+            }
+            else if (Quantity != 0)
+            {
+
+            }
+            else
+            {
+                toastService.ShowWarning("Please insert Tempreture and SG first");
+            }
+        }
+        catch (Exception ex)
+        {
+
+        }
+
+    }
+
+    public async Task<double> GetQtyAt85F(double sg, double temp, double qty)
+    {
+        List<DensityFactorData> data = DensityFactorCollection.GetData();
+        double result = 0;
+        sg = Math.Round(sg, 3);
+        var factor = data.Where(a => a.Density == sg).FirstOrDefault();
+        if (factor != null)
+        {
+            double factvalue = factor.Factor;
+            if (sg == 0)
+            {
+                return 0;
+            }
+            else
+            {
+
+                if (temp > 85)
+                {
+                    result = Math.Round((qty / (1 + (factvalue * (temp - 85)))), 0);
+                }
+                else
+                {
+                    result = Math.Round((qty * (1 - (factvalue * (temp - 85)))), 0);
+                }
+            }
+        }
+        else
+        {
+            return 0;
+        }
+        return result;
+    }
+    public class DensityFactorData
+    {
+        public double Density { get; set; }
+        public double Factor { get; set; }
+
+        public DensityFactorData(double density, double factor)
+        {
+            Density = density;
+            Factor = factor;
+        }
+    }
+    public class DensityFactorCollection
+    {
+        public static List<DensityFactorData> GetData()
+        {
+            return new List<DensityFactorData>
+        {
+             new DensityFactorData(0.640, 0.00083),
+            new DensityFactorData(0.641, 0.00083),
+            new DensityFactorData(0.642, 0.00083),
+            new DensityFactorData(0.643, 0.00083),
+            new DensityFactorData(0.644, 0.00082),
+            new DensityFactorData(0.645, 0.00082),
+            new DensityFactorData(0.646, 0.00082),
+            new DensityFactorData(0.647, 0.00082),
+            new DensityFactorData(0.648, 0.00081),
+            new DensityFactorData(0.649, 0.00081),
+            new DensityFactorData(0.650, 0.00081),
+            new DensityFactorData(0.651, 0.00081),
+            new DensityFactorData(0.652, 0.00080),
+            new DensityFactorData(0.653, 0.00080),
+            new DensityFactorData(0.654, 0.00080),
+            new DensityFactorData(0.655, 0.00080),
+            new DensityFactorData(0.656, 0.00079),
+            new DensityFactorData(0.657, 0.00079),
+            new DensityFactorData(0.658, 0.00079),
+            new DensityFactorData(0.659, 0.00079),
+            new DensityFactorData(0.660, 0.00078),
+            new DensityFactorData(0.661, 0.00078),
+            new DensityFactorData(0.662, 0.00078),
+            new DensityFactorData(0.663, 0.00078),
+            new DensityFactorData(0.664, 0.00077),
+            new DensityFactorData(0.665, 0.00077),
+            new DensityFactorData(0.666, 0.00077),
+            new DensityFactorData(0.667, 0.00077),
+            new DensityFactorData(0.668, 0.00076),
+            new DensityFactorData(0.669, 0.00076),
+            new DensityFactorData(0.670, 0.00076),
+            new DensityFactorData(0.671, 0.00076),
+            new DensityFactorData(0.672, 0.00075),
+            new DensityFactorData(0.673, 0.00075),
+            new DensityFactorData(0.674, 0.00075),
+            new DensityFactorData(0.675, 0.00075),
+            new DensityFactorData(0.676, 0.00075),
+            new DensityFactorData(0.677, 0.00074),
+            new DensityFactorData(0.678, 0.00074),
+            new DensityFactorData(0.679, 0.00074),
+            new DensityFactorData(0.680, 0.00074),
+            new DensityFactorData(0.681, 0.00073),
+            new DensityFactorData(0.682, 0.00073),
+            new DensityFactorData(0.683, 0.00073),
+            new DensityFactorData(0.684, 0.00073),
+            new DensityFactorData(0.685, 0.00073),
+            new DensityFactorData(0.686, 0.00072),
+            new DensityFactorData(0.687, 0.00072),
+            new DensityFactorData(0.688, 0.00072),
+            new DensityFactorData(0.689, 0.00072),
+            new DensityFactorData(0.690, 0.00072),
+            new DensityFactorData(0.691, 0.00071),
+            new DensityFactorData(0.692, 0.00071),
+            new DensityFactorData(0.693, 0.00071),
+            new DensityFactorData(0.694, 0.00071),
+            new DensityFactorData(0.695, 0.00071),
+            new DensityFactorData(0.696, 0.00070),
+            new DensityFactorData(0.697, 0.00070),
+            new DensityFactorData(0.698, 0.00070),
+            new DensityFactorData(0.699, 0.00070),
+            new DensityFactorData(0.700, 0.00070),
+            new DensityFactorData(0.701, 0.00069),
+            new DensityFactorData(0.702, 0.00069),
+            new DensityFactorData(0.703, 0.00069),
+            new DensityFactorData(0.704, 0.00069),
+            new DensityFactorData(0.705, 0.00069),
+            new DensityFactorData(0.706, 0.00068),
+            new DensityFactorData(0.707, 0.00068),
+            new DensityFactorData(0.708, 0.00068),
+            new DensityFactorData(0.709, 0.00068),
+            new DensityFactorData(0.710, 0.00068),
+            new DensityFactorData(0.711, 0.00067),
+            new DensityFactorData(0.712, 0.00067),
+            new DensityFactorData(0.713, 0.00067),
+            new DensityFactorData(0.714, 0.00067),
+            new DensityFactorData(0.715, 0.00067),
+            new DensityFactorData(0.716, 0.00066),
+            new DensityFactorData(0.717, 0.00066),
+            new DensityFactorData(0.718, 0.00066),
+            new DensityFactorData(0.719, 0.00066),
+            new DensityFactorData(0.720, 0.00066),
+            new DensityFactorData(0.721, 0.00065),
+            new DensityFactorData(0.722, 0.00065),
+            new DensityFactorData(0.723, 0.00065),
+            new DensityFactorData(0.724, 0.00065),
+            new DensityFactorData(0.725, 0.00065),
+            new DensityFactorData(0.726, 0.00064),
+            new DensityFactorData(0.727, 0.00064),
+            new DensityFactorData(0.728, 0.00064),
+            new DensityFactorData(0.729, 0.00064),
+            new DensityFactorData(0.730, 0.00064),
+            new DensityFactorData(0.731, 0.00063),
+            new DensityFactorData(0.732, 0.00063),
+            new DensityFactorData(0.733, 0.00063),
+            new DensityFactorData(0.734, 0.00063),
+            new DensityFactorData(0.735, 0.00063),
+            new DensityFactorData(0.736, 0.00062),
+            new DensityFactorData(0.737, 0.00062),
+            new DensityFactorData(0.738, 0.00062),
+            new DensityFactorData(0.739, 0.00062),
+            new DensityFactorData(0.740, 0.00062),
+            new DensityFactorData(0.741, 0.00061),
+            new DensityFactorData(0.742, 0.00061),
+            new DensityFactorData(0.743, 0.00061),
+            new DensityFactorData(0.744, 0.00061),
+            new DensityFactorData(0.745, 0.00061),
+            new DensityFactorData(0.746, 0.00060),
+            new DensityFactorData(0.747, 0.00060),
+            new DensityFactorData(0.748, 0.00060),
+            new DensityFactorData(0.749, 0.00060),
+            new DensityFactorData(0.750, 0.00060),
+            new DensityFactorData(0.751, 0.00059),
+            new DensityFactorData(0.752, 0.00059),
+            new DensityFactorData(0.753, 0.00059),
+            new DensityFactorData(0.754, 0.00059),
+            new DensityFactorData(0.755, 0.00059),
+            new DensityFactorData(0.756, 0.00059),
+            new DensityFactorData(0.757, 0.00058),
+            new DensityFactorData(0.758, 0.00058),
+            new DensityFactorData(0.759, 0.00058),
+            new DensityFactorData(0.760, 0.00058),
+            new DensityFactorData(0.761, 0.00058),
+            new DensityFactorData(0.762, 0.00057),
+            new DensityFactorData(0.763, 0.00057),
+            new DensityFactorData(0.764, 0.00057),
+            new DensityFactorData(0.765, 0.00057),
+            new DensityFactorData(0.766, 0.00057),
+            new DensityFactorData(0.767, 0.00057),
+            new DensityFactorData(0.768, 0.00056),
+            new DensityFactorData(0.769, 0.00056),
+            new DensityFactorData(0.770, 0.00056),
+            new DensityFactorData(0.771, 0.00056),
+            new DensityFactorData(0.772, 0.00056),
+            new DensityFactorData(0.773, 0.00055),
+            new DensityFactorData(0.774, 0.00055),
+            new DensityFactorData(0.775, 0.00055),
+            new DensityFactorData(0.776, 0.00055),
+            new DensityFactorData(0.777, 0.00055),
+            new DensityFactorData(0.778, 0.00054),
+            new DensityFactorData(0.779, 0.00054),
+            new DensityFactorData(0.780, 0.00054),
+            new DensityFactorData(0.781, 0.00054),
+            new DensityFactorData(0.782, 0.00054),
+            new DensityFactorData(0.783, 0.00054),
+            new DensityFactorData(0.784, 0.00053),
+            new DensityFactorData(0.785, 0.00053),
+            new DensityFactorData(0.786, 0.00053),
+            new DensityFactorData(0.787, 0.00053),
+            new DensityFactorData(0.788, 0.00053),
+            new DensityFactorData(0.789, 0.00053),
+            new DensityFactorData(0.790, 0.00052),
+            new DensityFactorData(0.791, 0.00052),
+            new DensityFactorData(0.792, 0.00052),
+            new DensityFactorData(0.793, 0.00052),
+            new DensityFactorData(0.794, 0.00052),
+            new DensityFactorData(0.795, 0.00052),
+            new DensityFactorData(0.796, 0.00051),
+            new DensityFactorData(0.797, 0.00051),
+            new DensityFactorData(0.798, 0.00051),
+            new DensityFactorData(0.799, 0.00051),
+            new DensityFactorData(0.800, 0.00051),
+            new DensityFactorData(0.801, 0.00051),
+            new DensityFactorData(0.802, 0.00050),
+            new DensityFactorData(0.803, 0.00050),
+            new DensityFactorData(0.804, 0.00050),
+            new DensityFactorData(0.805, 0.00050),
+            new DensityFactorData(0.806, 0.00050),
+            new DensityFactorData(0.807, 0.00050),
+            new DensityFactorData(0.808, 0.00049),
+            new DensityFactorData(0.809, 0.00049),
+            new DensityFactorData(0.810, 0.00049),
+            new DensityFactorData(0.811, 0.00049),
+            new DensityFactorData(0.812, 0.00049),
+            new DensityFactorData(0.813, 0.00049),
+            new DensityFactorData(0.814, 0.00049),
+            new DensityFactorData(0.815, 0.00048),
+            new DensityFactorData(0.816, 0.00048),
+            new DensityFactorData(0.817, 0.00048),
+            new DensityFactorData(0.818, 0.00048),
+            new DensityFactorData(0.819, 0.00048),
+            new DensityFactorData(0.820, 0.00048),
+            new DensityFactorData(0.821, 0.00048),
+            new DensityFactorData(0.822, 0.00048),
+            new DensityFactorData(0.823, 0.00048),
+            new DensityFactorData(0.824, 0.00047),
+            new DensityFactorData(0.825, 0.00047),
+            new DensityFactorData(0.826, 0.00047),
+            new DensityFactorData(0.827, 0.00047),
+            new DensityFactorData(0.828, 0.00047),
+            new DensityFactorData(0.829, 0.00047),
+            new DensityFactorData(0.830, 0.00047),
+            new DensityFactorData(0.831, 0.00047),
+            new DensityFactorData(0.832, 0.00047),
+            new DensityFactorData(0.833, 0.00046),
+            new DensityFactorData(0.834, 0.00046),
+            new DensityFactorData(0.835, 0.00046),
+            new DensityFactorData(0.836, 0.00046),
+            new DensityFactorData(0.837, 0.00046),
+            new DensityFactorData(0.838, 0.00046),
+            new DensityFactorData(0.839, 0.00046),
+            new DensityFactorData(0.840, 0.00046),
+            new DensityFactorData(0.841, 0.00046),
+            new DensityFactorData(0.842, 0.00046),
+            new DensityFactorData(0.843, 0.00045),
+            new DensityFactorData(0.844, 0.00045),
+            new DensityFactorData(0.845, 0.00045),
+            new DensityFactorData(0.846, 0.00045),
+            new DensityFactorData(0.847, 0.00045),
+            new DensityFactorData(0.848, 0.00045),
+            new DensityFactorData(0.849, 0.00045),
+            new DensityFactorData(0.850, 0.00045),
+            new DensityFactorData(0.851, 0.00045),
+            new DensityFactorData(0.852, 0.00045),
+            new DensityFactorData(0.853, 0.00044),
+            new DensityFactorData(0.854, 0.00044),
+            new DensityFactorData(0.855, 0.00044),
+            new DensityFactorData(0.856, 0.00044),
+          new DensityFactorData(0.857, 0.00044),
+  new DensityFactorData(0.858, 0.00044),
+  new DensityFactorData(0.859, 0.00044),
+  new DensityFactorData(0.860, 0.00044),
+  new DensityFactorData(0.861, 0.00044),
+  new DensityFactorData(0.862, 0.00044),
+  new DensityFactorData(0.863, 0.00043),
+  new DensityFactorData(0.864, 0.00043),
+  new DensityFactorData(0.865, 0.00043),
+  new DensityFactorData(0.866, 0.00043),
+  new DensityFactorData(0.867, 0.00043),
+  new DensityFactorData(0.868, 0.00043),
+  new DensityFactorData(0.869, 0.00043),
+  new DensityFactorData(0.870, 0.00043),
+  new DensityFactorData(0.871, 0.00043),
+  new DensityFactorData(0.872, 0.00043),
+  new DensityFactorData(0.873, 0.00043),
+  new DensityFactorData(0.874, 0.00043),
+  new DensityFactorData(0.875, 0.00043),
+  new DensityFactorData(0.876, 0.00042),
+  new DensityFactorData(0.877, 0.00042),
+  new DensityFactorData(0.878, 0.00042),
+  new DensityFactorData(0.879, 0.00042),
+  new DensityFactorData(0.880, 0.00042),
+  new DensityFactorData(0.881, 0.00042),
+  new DensityFactorData(0.882, 0.00042),
+  new DensityFactorData(0.883, 0.00042),
+  new DensityFactorData(0.884, 0.00042),
+  new DensityFactorData(0.885, 0.00042),
+  new DensityFactorData(0.886, 0.00042),
+  new DensityFactorData(0.887, 0.00042),
+  new DensityFactorData(0.888, 0.00042),
+  new DensityFactorData(0.889, 0.00042),
+  new DensityFactorData(0.890, 0.00042),
+  new DensityFactorData(0.891, 0.00041),
+  new DensityFactorData(0.892, 0.00041),
+  new DensityFactorData(0.893, 0.00041),
+  new DensityFactorData(0.894, 0.00041),
+  new DensityFactorData(0.895, 0.00041),
+  new DensityFactorData(0.896, 0.00041),
+  new DensityFactorData(0.897, 0.00041),
+  new DensityFactorData(0.898, 0.00041),
+ new DensityFactorData(0.899, 0.00041),
+  new DensityFactorData(0.900, 0.00041),
+  new DensityFactorData(0.901, 0.00041),
+  new DensityFactorData(0.902, 0.00041),
+  new DensityFactorData(0.903, 0.00041),
+  new DensityFactorData(0.904, 0.00041),
+  new DensityFactorData(0.905, 0.00041),
+  new DensityFactorData(0.906, 0.00041),
+  new DensityFactorData(0.907, 0.00041),
+  new DensityFactorData(0.908, 0.00040),
+  new DensityFactorData(0.909, 0.00040),
+  new DensityFactorData(0.910, 0.00040),
+  new DensityFactorData(0.911, 0.00040),
+  new DensityFactorData(0.912, 0.00040),
+  new DensityFactorData(0.913, 0.00040),
+  new DensityFactorData(0.914, 0.00040),
+  new DensityFactorData(0.915, 0.00040),
+  new DensityFactorData(0.916, 0.00040),
+  new DensityFactorData(0.917, 0.00040),
+  new DensityFactorData(0.918, 0.00040),
+  new DensityFactorData(0.919, 0.00040),
+  new DensityFactorData(0.920, 0.00040),
+  new DensityFactorData(0.921, 0.00040),
+  new DensityFactorData(0.922, 0.00040),
+  new DensityFactorData(0.923, 0.00040),
+  new DensityFactorData(0.924, 0.00040),
+  new DensityFactorData(0.925, 0.00040),
+  new DensityFactorData(0.926, 0.00040),
+  new DensityFactorData(0.927, 0.00040),
+  new DensityFactorData(0.928, 0.00040),
+  new DensityFactorData(0.929, 0.00040),
+  new DensityFactorData(0.930, 0.00040),
+  new DensityFactorData(0.931, 0.00039),
+  new DensityFactorData(0.932, 0.00039),
+  new DensityFactorData(0.933, 0.00039),
+  new DensityFactorData(0.934, 0.00039),
+  new DensityFactorData(0.935, 0.00039),
+  new DensityFactorData(0.936, 0.00039),
+  new DensityFactorData(0.937, 0.00039),
+  new DensityFactorData(0.938, 0.00039),
+  new DensityFactorData(0.939, 0.00039),
+  new DensityFactorData(0.940, 0.00039),
+  new DensityFactorData(0.941, 0.00039),
+  new DensityFactorData(0.942, 0.00039),
+  new DensityFactorData(0.943, 0.00039),
+   new DensityFactorData(0.944, 0.00039),
+            new DensityFactorData(0.945, 0.00039),
+            new DensityFactorData(0.946, 0.00039),
+            new DensityFactorData(0.947, 0.00039),
+            new DensityFactorData(0.948, 0.00039),
+            new DensityFactorData(0.949, 0.00039),
+            new DensityFactorData(0.950, 0.00039),
+            new DensityFactorData(0.951, 0.00039),
+            new DensityFactorData(0.952, 0.00038),
+            new DensityFactorData(0.953, 0.00038),
+            new DensityFactorData(0.954, 0.00038),
+            new DensityFactorData(0.955, 0.00038),
+            new DensityFactorData(0.956, 0.00038),
+            new DensityFactorData(0.957, 0.00038),
+            new DensityFactorData(0.958, 0.00038),
+            new DensityFactorData(0.959, 0.00038),
+            new DensityFactorData(0.960, 0.00038),
+            new DensityFactorData(0.961, 0.00038),
+            new DensityFactorData(0.962, 0.00038),
+            new DensityFactorData(0.963, 0.00038),
+            new DensityFactorData(0.964, 0.00038),
+            new DensityFactorData(0.965, 0.00038),
+            new DensityFactorData(0.966, 0.00038),
+            new DensityFactorData(0.967, 0.00038),
+            new DensityFactorData(0.968, 0.00038),
+            new DensityFactorData(0.969, 0.00038),
+            new DensityFactorData(0.970, 0.00038),
+            new DensityFactorData(0.971, 0.00038),
+            new DensityFactorData(0.972, 0.00038),
+            new DensityFactorData(0.973, 0.00038),
+            new DensityFactorData(0.974, 0.00038),
+            new DensityFactorData(0.975, 0.00038),
+            new DensityFactorData(0.976, 0.00038),
+            new DensityFactorData(0.977, 0.00037),
+            new DensityFactorData(0.978, 0.00037),
+            new DensityFactorData(0.979, 0.00037),
+            new DensityFactorData(0.980, 0.00037),
+            new DensityFactorData(0.981, 0.00037),
+            new DensityFactorData(0.982, 0.00037),
+            new DensityFactorData(0.983, 0.00037),
+            new DensityFactorData(0.984, 0.00037),
+            new DensityFactorData(0.985, 0.00037),
+            new DensityFactorData(0.986, 0.00037),
+            new DensityFactorData(0.987, 0.00037),
+            new DensityFactorData(0.988, 0.00037),
+            new DensityFactorData(0.989, 0.00037),
+            new DensityFactorData(0.990, 0.00037),
+            new DensityFactorData(0.991, 0.00037),
+            new DensityFactorData(0.992, 0.00037),
+            new DensityFactorData(0.993, 0.00037),
+            new DensityFactorData(0.994, 0.00037),
+            new DensityFactorData(0.995, 0.00037),
+            new DensityFactorData(0.996, 0.00037),
+            new DensityFactorData(0.997, 0.00037),
+            new DensityFactorData(0.998, 0.00037),
+            new DensityFactorData(0.999, 0.00037),
+            new DensityFactorData(1.000, 0.00037),
+
+
+
+        };
+        }
+    }
+
+
+}
+

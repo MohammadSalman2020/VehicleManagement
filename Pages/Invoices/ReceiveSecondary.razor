@@ -6,7 +6,7 @@
 @inject IToastService toastService
 @inject IWebHostEnvironment Environment
 @inject IApiService API
-<h3>ReceiveSecondary</h3>
+<h3>Receive Secondary</h3>
 <div class="row">
     <div class="col-md-6">
         <!-- Updated this line -->
@@ -219,15 +219,25 @@
         public int disp_dip { get; set; }
         public double dis_liters { get; set; }
         public int rec_dip { get; set; }
+        public int ogra { get; set; }
         public int RecDip
         {
             get => rec_dip;
             set
             {
                 rec_dip = value;
-                // Assuming a correct calculation here; adjust as necessary
-                RecLiters = Math.Round((dis_liters / disp_dip) * rec_dip, 0);
-                ShortExcess = Math.Round(dis_liters - RecLiters, 0);
+                if (rec_dip == ogra)
+                {
+                    RecLiters = 0;
+                    ShortExcess = 0;
+                }
+                else
+                {
+                    // Assuming a correct calculation here; adjust as necessary
+                    RecLiters = Math.Round((dis_liters / disp_dip) * rec_dip, 0);
+                    ShortExcess = Math.Round(dis_liters - RecLiters, 0);
+                }
+
             }
         }
         // Calculated property for RecLiters
