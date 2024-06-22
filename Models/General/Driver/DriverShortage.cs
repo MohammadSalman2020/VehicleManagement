@@ -13,7 +13,9 @@
         public double ltr { get; set; }
         public string status { get; set; }
         public DateTime dated { get; set; }
+        public DateTime? dateAdded { get; set; }
         public string vehicleID { get; set; }
+        public string username { get; set; }
         public bool isChecked { get; set; }
         public List<DriverShortageSec> shortages { get; set; }
     }

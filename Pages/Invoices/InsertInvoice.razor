@@ -5,6 +5,7 @@
 @using System.Web
 @using System.Text
 @using Microsoft.AspNetCore.Components.Server.ProtectedBrowserStorage
+@using System.Reflection
 @using VehicleManagement.ApiService
 @using VehicleManagement.Models.General
 @using VehicleManagement.Models.General.Login
@@ -212,37 +213,37 @@
                                             <tr>
                                                 <td>Chamber Quantity</td>
                                                 <td>
-                                                    <input type="number" tabindex="3" placeholder="Chamber Quantity" id="Chamber1" onfocus="selectAllInputValue('Chamber1')" @bind="Invoices.ShippingDetail.Chamber1.ChamberQuantity" @oninput="@(e => TextChangedShipment(1, e))" class="form-control">
+                                                    <input type="number" disabled="@(Invoices.Details.STONo==null?"disabled":null)" tabindex="3" placeholder="Chamber Quantity" id="Chamber1" onfocus="selectAllInputValue('Chamber1')" @bind="Invoices.ShippingDetail.Chamber1.ChamberQuantity" @oninput="@(e => TextChangedShipment(1, e))" class="form-control">
                                                 </td>
                                                 <td>
-                                                    <input type="number" tabindex="5" placeholder="Chamber Quantity" id="SChamber2Q" onfocus="selectAllInputValue('SChamber2Q')" @bind="Invoices.ShippingDetail.Chamber2.ChamberQuantity" @oninput="@(e => TextChangedShipment(2, e))" class="form-control">
+                                                    <input type="number" disabled="@(Invoices.Details.STONo==null?"disabled":null)" tabindex="5" placeholder="Chamber Quantity" id="SChamber2Q" onfocus="selectAllInputValue('SChamber2Q')" @bind="Invoices.ShippingDetail.Chamber2.ChamberQuantity" @oninput="@(e => TextChangedShipment(2, e))" class="form-control">
                                                 </td>
                                                 <td>
-                                                    <input type="number" tabindex="7" placeholder="Chamber Quantity" id="SChamber3Q" onfocus="selectAllInputValue('SChamber3Q')" @bind="Invoices.ShippingDetail.Chamber3.ChamberQuantity" @oninput="@(e => TextChangedShipment(3, e))" class="form-control">
+                                                    <input type="number" disabled="@(Invoices.Details.STONo==null?"disabled":null)" tabindex="7" placeholder="Chamber Quantity" id="SChamber3Q" onfocus="selectAllInputValue('SChamber3Q')" @bind="Invoices.ShippingDetail.Chamber3.ChamberQuantity" @oninput="@(e => TextChangedShipment(3, e))" class="form-control">
                                                 </td>
                                                 <td>
-                                                    <input type="number" tabindex="9" placeholder="Chamber Quantity" id="SChamber4Q" onfocus="selectAllInputValue('SChamber4Q')" @bind="Invoices.ShippingDetail.Chamber4.ChamberQuantity" @oninput="@(e => TextChangedShipment(4, e))" class="form-control">
+                                                    <input type="number" disabled="@(Invoices.Details.STONo==null?"disabled":null)" tabindex="9" placeholder="Chamber Quantity" id="SChamber4Q" onfocus="selectAllInputValue('SChamber4Q')" @bind="Invoices.ShippingDetail.Chamber4.ChamberQuantity" @oninput="@(e => TextChangedShipment(4, e))" class="form-control">
                                                 </td>
                                                 <td>
-                                                    <input type="number" tabindex="11" placeholder="Chamber Quantity" id="SChamber5Q" onfocus="selectAllInputValue('SChamber5Q')" @bind="Invoices.ShippingDetail.Chamber5.ChamberQuantity" @oninput="@(e => TextChangedShipment(5, e))" class="form-control">
+                                                    <input type="number" disabled="@(Invoices.Details.STONo==null?"disabled":null)" tabindex="11" placeholder="Chamber Quantity" id="SChamber5Q" onfocus="selectAllInputValue('SChamber5Q')" @bind="Invoices.ShippingDetail.Chamber5.ChamberQuantity" @oninput="@(e => TextChangedShipment(5, e))" class="form-control">
                                                 </td>
                                             </tr>
                                             <tr>
                                                 <td>Tank Lorry Product Dips(MM)</td>
                                                 <td>
-                                                    <input type="number" tabindex="4" placeholder=" Tank Lorry Product Dips(MM)" id="Chamber1Dip" onfocus="selectAllInputValue('Chamber1Dip')" @bind="Invoices.ShippingDetail.Chamber1.LorryDip" class="form-control">
+                                                    <input type="number" disabled="@(Invoices.Details.STONo==null?"disabled":null)" tabindex="4" placeholder=" Tank Lorry Product Dips(MM)" id="Chamber1Dip" onfocus="selectAllInputValue('Chamber1Dip')" @bind="Invoices.ShippingDetail.Chamber1.LorryDip" class="form-control">
                                                 </td>
                                                 <td>
-                                                    <input type="number" tabindex="6" placeholder=" Tank Lorry Product Dips(MM)" id="SChamber2D" onfocus="selectAllInputValue('SChamber2D')" @bind="Invoices.ShippingDetail.Chamber2.LorryDip" class="form-control">
+                                                    <input type="number" disabled="@(Invoices.Details.STONo==null?"disabled":null)" tabindex="6" placeholder=" Tank Lorry Product Dips(MM)" id="SChamber2D" onfocus="selectAllInputValue('SChamber2D')" @bind="Invoices.ShippingDetail.Chamber2.LorryDip" class="form-control">
                                                 </td>
                                                 <td>
-                                                    <input type="number" tabindex="8" placeholder=" Tank Lorry Product Dips(MM)" id="SChamber3Dip" onfocus="selectAllInputValue('SChamber3Dip')" @bind="Invoices.ShippingDetail.Chamber3.LorryDip" class="form-control">
+                                                    <input type="number" disabled="@(Invoices.Details.STONo==null?"disabled":null)" tabindex="8" placeholder=" Tank Lorry Product Dips(MM)" id="SChamber3Dip" onfocus="selectAllInputValue('SChamber3Dip')" @bind="Invoices.ShippingDetail.Chamber3.LorryDip" class="form-control">
                                                 </td>
                                                 <td>
-                                                    <input type="number" tabindex="10" placeholder=" Tank Lorry Product Dips(MM)" id="SChamber4Dip" onfocus="selectAllInputValue('SChamber4Dip')" @bind="Invoices.ShippingDetail.Chamber4.LorryDip" class="form-control">
+                                                    <input type="number" disabled="@(Invoices.Details.STONo==null?"disabled":null)" tabindex="10" placeholder=" Tank Lorry Product Dips(MM)" id="SChamber4Dip" onfocus="selectAllInputValue('SChamber4Dip')" @bind="Invoices.ShippingDetail.Chamber4.LorryDip" class="form-control">
                                                 </td>
                                                 <td>
-                                                    <input type="number" tabindex="12" placeholder=" Tank Lorry Product Dips(MM)" id="SChamber5D" onfocus="selectAllInputValue('SChamber5D')" @bind="Invoices.ShippingDetail.Chamber5.LorryDip" class="form-control">
+                                                    <input type="number" disabled="@(Invoices.Details.STONo==null?"disabled":null)" tabindex="12" placeholder=" Tank Lorry Product Dips(MM)" id="SChamber5D" onfocus="selectAllInputValue('SChamber5D')" @bind="Invoices.ShippingDetail.Chamber5.LorryDip" class="form-control">
                                                 </td>
                                             </tr>
                                             <tr>
@@ -425,17 +426,17 @@
 
                                     </div>
                                 </div>
-                              
-                                    <div class="col-lgg-6">
-                                        <div class="table-responsive inv-img">
-                                            <div id="dropzone" class="dropzone">
-                                                <p>Click to add Image</p>
-                                                <InputFile type="file" id="fileInput" OnChange="LoadFiles"  class="file-input" />
-                                                <div id="preview" class="preview"></div>
-                                            </div>
+
+                                <div class="col-lgg-6">
+                                    <div class="table-responsive inv-img">
+                                        <div id="dropzone" class="dropzone">
+                                            <p>Click to add Image</p>
+                                            <InputFile type="file" id="fileInput" OnChange="LoadFiles" class="file-input" />
+                                            <div id="preview" class="preview"></div>
                                         </div>
                                     </div>
-                                
+                                </div>
+
 
                             </div>
 
@@ -630,12 +631,36 @@
             await JS.InvokeVoidAsync("initializeAutoComplete", "vehicleID", Vehicle);
         }
     }
+    public static void TrimStringProperties(object obj)
+    {
+        if (obj == null) return;
+
+        var properties = obj.GetType().GetProperties(BindingFlags.Public | BindingFlags.Instance)
+                             .Where(p => p.CanWrite && p.CanRead);
+
+        foreach (var property in properties)
+        {
+            if (property.PropertyType == typeof(string))
+            {
+                var value = property.GetValue(obj) as string;
+                if (value != null)
+                {
+                    property.SetValue(obj, value.Trim());
+                }
+            }
+            else if (!property.PropertyType.IsValueType && property.PropertyType != typeof(string))
+            {
+                var value = property.GetValue(obj);
+                TrimStringProperties(value);
+            }
+        }
+    }
 
     private async Task SavePreview()
     {
         try
         {
-
+            TrimStringProperties(Invoices);
             Invoices.InvoiceFilePath = Invoices.InvoiceFilePath == null ? "" : Invoices.InvoiceFilePath;
 
 
@@ -1054,7 +1079,16 @@
             Invoices.CalculationDifference.ShortOnTemp = Math.Abs(ShortOnTempExempt);
             // if (ReceivingTemp > 0)
             // {
-            float Shortage1F = ShortOnTempExempt / ReceivingTemp;
+            float Shortage1F = 0.0f;
+            if (ReceivingTemp != 0)
+            {
+                Shortage1F = ShortOnTempExempt / ReceivingTemp;
+            }
+            else
+            {
+                
+                Shortage1F = 0;
+            }
 
             Invoices.CalculationDifference.Shortage1FTemp = Math.Abs((float)Math.Round(Shortage1F, 3));
             // }
