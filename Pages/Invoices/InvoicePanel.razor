@@ -1454,7 +1454,16 @@
                     Invoices.CalculationDifference.ShortOnTemp = Math.Abs(ShortOnTempExempt);
                     // if (ReceivingTemp > 0)
                     // {
-                    float Shortage1F = ShortOnTempExempt / ReceivingTemp;
+                    float Shortage1F = 0.0f;
+                    if (ReceivingTemp != 0)
+                    {
+                        Shortage1F = ShortOnTempExempt / ReceivingTemp;
+                    }
+                    else
+                    {
+
+                        Shortage1F = 0;
+                    }
 
                     Invoices.CalculationDifference.Shortage1FTemp = Math.Abs((float)Math.Round(Shortage1F, 3));
                     // }
