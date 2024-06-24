@@ -36,5 +36,7 @@
         public double ltr { get; set; }
         public string? status { get; set; }
         public DateTime dated { get; set; }
+        public string userName { get; set; }
+        public DateTime dateAdded { get; set; }
     }
 }
