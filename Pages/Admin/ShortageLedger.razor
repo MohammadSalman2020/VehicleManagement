@@ -230,7 +230,7 @@
                                                         </tr>
                                                         foreach (var shorts in item.shortages)
                                                         {
-                                                            <tr class="tbl-accordion-body" data-div-id="@item.invoiceNumber">
+                                                            <tr class="tbl-accordion-body" data-div-id="@item.invoiceNumber" title="@string.Format("Added By: {0}\nDate: {1}", shorts.userName, shorts.dateAdded)">
 
                                                                 <td class="align-middle text-center text-sm">
                                                                     <span class="text-secondary text-xs font-weight-bold">@shorts.invoiceNumber</span>
