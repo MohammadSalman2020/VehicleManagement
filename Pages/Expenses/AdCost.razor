@@ -5,12 +5,14 @@
 @using System.Text.Json
 @using System.Text.Json.Serialization
 @using VehicleManagement.ApiService
+@using VehicleManagement.Authentication
 @using VehicleManagement.Models.General
 @inject IJSRuntime js
 @using static VehicleManagement.Pages.Expenses.AdCost
 @inject IApiService API
 @inject NavigationManager nav
 @inject AuthenticationStateProvider _authenticationStateProvider
+@inject IUserClaimsService UserClaimsService
 @implements IAsyncDisposable
 <style>
     tr {
@@ -341,7 +343,7 @@
 
                                         @foreach (var item in fuelStations)
                                         {
-                                            <option value="@item.locationid">@item.locationname</option>
+                                            <option value="@item.locationID">@item.locationName</option>
                                         }
                                     </select>
 
@@ -842,7 +844,7 @@
     List<TripCost> costdata = new List<TripCost>();
     List<ExpenseDetail> expDetails = new List<ExpenseDetail>();
     CostData addCostData = new CostData();
-    List<FuelStations> fuelStations = new List<FuelStations>();
+    List<BusinessFuel> fuelStations = new List<BusinessFuel>();
     string pkinvoice = "";
     public double ExpectedFuel;
     public double FilledFuel;
@@ -851,7 +853,7 @@
     public double Amount;
     public string status = "-";
     private string? User { get; set; } = string.Empty;
-
+    public List<int> BusinessID = new List<int>();
 
     protected override async void OnInitialized()
     {
@@ -859,7 +861,7 @@
         var uri = navmanager.ToAbsoluteUri(navmanager.Uri);
         var id = QueryHelpers.ParseQuery(uri.Query).TryGetValue("pk", out var value);
         pkinvoice = value;
-
+        BusinessID = await UserClaimsService.GetBusinessIdsAsync();
         await LoadCostData();
         await LodFuelStations();
         addCostData.FillingDate = DateTime.Now;
@@ -983,8 +985,8 @@
             addCostData.flag = "f";
             addCostData.VehicleID = costdata[0].Vehicle;
             addCostData.FuelAmount = addCostData.FuelLiters * addCostData.PerLiterRate;
-            var f = fuelStations.Where(a => a.locationid == selectedfuelstation).FirstOrDefault();
-            addCostData.FillingStation = f.locationname;
+            var f = fuelStations.Where(a => a.locationID == selectedfuelstation).FirstOrDefault();
+            addCostData.FillingStation = f.locationName;
             JsonSerializerOptions options = new JsonSerializerOptions
                 {
                     WriteIndented = true,
@@ -1207,10 +1209,16 @@
     {
         try
         {
-            var rec = await API.GetRequest($"Fleet/GetFuelStations");
+            JsonSerializerOptions options = new JsonSerializerOptions
+                {
+                    WriteIndented = true,
+                    ReferenceHandler = null
+                };
+            string jsonData = JsonSerializer.Serialize(BusinessID, options);
+            var rec = await API.PostRequest($"Fleet/GetFuelStations",jsonData);
             if (rec != null)
             {
-                fuelStations = JsonSerializer.Deserialize<List<FuelStations>>(rec);
+                fuelStations = JsonSerializer.Deserialize<List<BusinessFuel>>(rec);
 
             }
             else
