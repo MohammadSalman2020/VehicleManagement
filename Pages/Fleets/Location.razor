@@ -1,11 +1,14 @@
 ﻿@page "/location"
 @using System.Text.Json
 @using VehicleManagement.ApiService
+@using VehicleManagement.Authentication
 @using VehicleManagement.Models.General.Driver
+@using VehicleManagement.Models.General.User_Management
 @using VehicleManagement.Pages.Redirects
 @inject IToastService toastService
 @inject IApiService API
 @inject IJSRuntime js
+@inject IUserClaimsService UserClaimsService
 
 <Nav PageName="Locations" />
 
@@ -22,21 +25,45 @@
                             <div class="col-md-4">
 
                                 <div class="form-group">
-                                    <select class="form-control" @onchange="typechange">
-                                        @if (LocationType.Count > 0)
-                                        {
-                                            <option value="0" selected="@(Bus==0?"selected":null)">Select Type</option>
-                                            foreach (var item in LocationType)
+                                    <div class="form-group">
+                                        <select class="form-control" @onchange="typechange">
+                                            @if (LocationType.Count > 0)
                                             {
-                                                <option value="@item.typeid" selected="@(item.typeid==Bus ? "selected" : null)">@item.typeDescription</option>
+                                                <option value="0" selected="@(Bus==0?"selected":null)">Select Type</option>
+                                                foreach (var item in LocationType)
+                                                {
+                                                    <option value="@item.typeid" selected="@(item.typeid==Bus ? "selected" : null)">@item.typeDescription</option>
+                                                }
                                             }
-                                        }
-                                        else
-                                        {
-                                            <option value="0">Loading...</option>
-                                        }
+                                            else
+                                            {
+                                                <option value="0">Loading...</option>
+                                            }
 
-                                    </select>
+                                        </select>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="example-text-input" class="form-control-label">Select Business For Fuel Station</label>
+                                        <select class="form-control" @onchange="BusChange">
+                                            @if (AllBusinessDrop.Count > 0)
+                                            {
+                                                <option value="0" selected="@(Bus==0?"selected":null)">Select One</option>
+                                                foreach (var item in AllBusinessDrop)
+                                                {
+                                                    <option value="@item.busID">@item.busDesc</option>
+                                                }
+                                            }
+                                            else
+                                            {
+                                                <option value="0">Loading...</option>
+                                            }
+
+
+                                        </select>
+
+                                    </div>
+
+
                                     <div class="form-group">
                                         <label for="example-text-input" class="form-control-label">Location Name</label>
                                         <input type="text" id="name" placeholder="Location Name" @bind="@LocationName" class="form-control">
@@ -100,9 +127,52 @@
     public decimal Latitude { get; set; }
     List<tblLocationType> LocationType = new List<tblLocationType>();
     public int Bus { get; set; }
+    public int BusID { get; set; } = 0;
+    public List<int> BusinessID = new List<int>();
+    public List<GetBusiness> AllBusinessDrop = new List<GetBusiness>();
     private void UpdateLongitude(ChangeEventArgs e)
     {
         Longitude = Convert.ToDecimal(e.Value.ToString());
+    }
+    public async Task GetAllBusiness()
+    {
+        try
+        {
+            JsonSerializerOptions options = new JsonSerializerOptions
+                {
+                    WriteIndented = true,
+                    ReferenceHandler = null
+                };
+            string jsonData = JsonSerializer.Serialize(BusinessID, options);
+            var Vehicles = await API.PostRequest($"Available/GetBusinessAll", jsonData);
+            if (Vehicles != "")
+            {
+
+                AllBusinessDrop = JsonSerializer.Deserialize<List<GetBusiness>>(Vehicles);
+
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex.Message);
+        }
+
+    }
+    private async Task BusChange(ChangeEventArgs e)
+    {
+
+        int Val = int.Parse(e.Value.ToString());
+        if (Val != 0)
+        {
+            BusID = Val;
+        }
+        else
+        {
+            BusID = 0;
+        }
+
+
+
     }
 
     private async Task typechange(ChangeEventArgs e)
@@ -112,10 +182,14 @@
         if (Val != 0)
         {
             Bus = Val;
-
+        }
+        else
+        {
+            Bus = 0;
+            BusID = 0;
         }
 
-
+     
 
     }
 
@@ -135,8 +209,9 @@
 
         try
         {
-
+            BusinessID = await UserClaimsService.GetBusinessIdsAsync();
             await getLocationTypes();
+            await GetAllBusiness();
 
         }
         catch (Exception ex)
@@ -248,13 +323,15 @@
                 string encodedCityName = Uri.EscapeDataString(cityname);
                 string locationname = Uri.EscapeDataString(LocationName);
 
-                var AddLocation = await API.GetRequest($"Fleet/AddLocationPolygon/{locationname}/{Longitude}/{Latitude}/{250}/{360}/{encodedCityName}/{Bus}");
+                var AddLocation = await API.GetRequest($"Fleet/AddLocationPolygon/{locationname}/{Longitude}/{Latitude}/{250}/{360}/{encodedCityName}/{Bus}/{BusID}");
                 string Result = JsonSerializer.Deserialize<string>(AddLocation);
                 if (Result == "200")
                 {
                     Longitude = 0;
                     Latitude = 0;
                     LocationName = "";
+                    Bus = 0;
+                    BusID = 0;
                     await js.InvokeVoidAsync("focusElement", "name");
                     toastService.ShowSuccess($"Location: {LocationName} Added Successfully");
 
