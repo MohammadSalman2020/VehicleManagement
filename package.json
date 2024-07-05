@@ -1,0 +1,8 @@
+{
+  "dependencies": {
+    "@googlemaps/markerclusterer": "^2.5.3"
+  },
+  "devDependencies": {
+    "eslint": "^9.6.0"
+  }
+}
