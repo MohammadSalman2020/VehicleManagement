@@ -35,8 +35,24 @@
                                 </div>
 
                                 <div class="form-group">
-                                    <label for="receivingPoint">Receiving Point</label>
-                                    <input type="text" required class="form-control mb-2" id="receivingPoint" @bind="txtreveiving" />
+                                    <label for="example-text-input" class="form-control-label">Receiving Points</label>
+                                    <select class="form-control" @onchange="DecantChange">
+                                        @if (GetDecantings.Count > 0)
+                                        {
+                                            <option value="0" selected="@(txtreveiving==null?"selected":null)">Select One</option>
+                                            @foreach (var item in GetDecantings)
+                                            {
+                                                <option value="@item">@item</option>
+                                            }
+                                        }
+                                        else
+                                        {
+                                            <option value="0">Loading...</option>
+                                        }
+
+
+                                    </select>
+
                                 </div>
 
                                 @if (pkinvoice == "none")
@@ -198,14 +214,16 @@
     private bool IsLoading = false;
     private bool IsChildLoading = false;
     public bool chamber5;
+    public List<string> GetDecantings = new List<string>();
     protected override async void OnInitialized()
     {
         // Get the query string parameter value for 'id'
         var uri = navmanager.ToAbsoluteUri(navmanager.Uri);
         var id = QueryHelpers.ParseQuery(uri.Query).TryGetValue("pk", out var value);
         pkinvoice = value;
-
+        await GetAllDecantings();
         await LoadPKInvoiceData();
+      
     }
     private async Task Saveonly()
     {
@@ -222,7 +240,46 @@
 
         }
     }
+    private async Task DecantChange(ChangeEventArgs e)
+    {
 
+        string Val = e.Value.ToString();
+        if (Val != "0")
+        {
+            txtreveiving = e.Value.ToString();
+
+        }
+        else
+        {
+            txtreveiving = null;
+        }
+
+
+
+    }
+    public async Task GetAllDecantings()
+    {
+        try
+        {
+            // JsonSerializerOptions options = new JsonSerializerOptions
+            //     {
+            //         WriteIndented = true,
+            //         ReferenceHandler = null
+            //     };
+            // string jsonData = JsonSerializer.Serialize(BusinessID, options);
+            var AvailDrafts = await API.GetRequest($"Fleet/GetSecDec");
+            if (AvailDrafts != "")
+            {
+
+                GetDecantings = JsonSerializer.Deserialize<List<string>>(AvailDrafts);
+
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex.Message);
+        }
+    }
     PKInvoice pkdetails = new PKInvoice();
     private async Task SaveScInvoice()
     {
