@@ -141,14 +141,46 @@
                             <div class="row">
                                 <div class="col-md-6">
                                     <div class="form-group">
-                                        <label for="example-text-input" class="form-control-label">Loading Point</label>
-                                        <input type="text" @bind="Load.loading" placeholder="Location" class="form-control">
+                                        <label for="example-text-input" class="form-control-label">Loading Points</label>
+                                        <select class="form-control" @onchange="FillingChange">
+                                            @if (Fillings.Count > 0)
+                                            {
+                                                <option value="0" selected="@(Load.loading==null?"selected":null)">Select One</option>
+                                                foreach (var item in Fillings)
+                                                {
+                                                    <option value="@item">@item</option>
+                                                }
+                                            }
+                                            else
+                                            {
+                                                <option value="0">Loading...</option>
+                                            }
+
+
+                                        </select>
+
                                     </div>
                                 </div>
                                 <div class="col-md-6">
                                     <div class="form-group">
-                                        <label for="example-text-input" class="form-control-label">Decenting Point</label>
-                                        <input type="text" @bind="Load.decenting" placeholder="Location" class="form-control">
+                                        <label for="example-text-input" class="form-control-label">Decanting Points</label>
+                                        <select class="form-control" @onchange="DecantChange">
+                                            @if (GetDecantings.Count > 0)
+                                            {
+                                                <option value="0" selected="@(Load.decenting==null?"selected":null)">Select One</option>
+                                                foreach (var item in GetDecantings)
+                                                {
+                                                    <option value="@item">@item</option>
+                                                }
+                                            }
+                                            else
+                                            {
+                                                <option value="0">Loading...</option>
+                                            }
+
+
+                                        </select>
+
                                     </div>
                                 </div>
                                 <div class="col-md-6">
@@ -221,7 +253,8 @@
     public AddLoad Load = new AddLoad();
     public List<int> BusinessID = new List<int>();
     public List<GetBusiness> BusinessList = new List<GetBusiness>();
-
+    public List<string> GetDecantings = new List<string>();
+    public List<string> Fillings = new List<string>();
     public bool IsLoading = false;
     public bool IsFleetManager = false;
     public bool IsChildLoading = false;
@@ -247,7 +280,86 @@
 
         IsChildLoading = false;
     }
+    public async Task GetAllDecantings()
+    {
+        try
+        {
+            // JsonSerializerOptions options = new JsonSerializerOptions
+            //     {
+            //         WriteIndented = true,
+            //         ReferenceHandler = null
+            //     };
+            // string jsonData = JsonSerializer.Serialize(BusinessID, options);
+            var AvailDrafts = await API.GetRequest($"Fleet/GetDecantings");
+            if (AvailDrafts != "")
+            {
 
+                GetDecantings = JsonSerializer.Deserialize<List<string>>(AvailDrafts);
+
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex.Message);
+        }
+    }
+    private async Task DecantChange(ChangeEventArgs e)
+    {
+
+        string Val = e.Value.ToString();
+        if (Val != "0")
+        {
+            Load.decenting= e.Value.ToString();
+
+        }
+        else
+        {
+            Load.decenting= null;
+        }
+
+
+
+    }
+    private async Task FillingChange(ChangeEventArgs e)
+    {
+
+        string Val = e.Value.ToString();
+        if (Val != "0")
+        {
+            Load.loading= e.Value.ToString();
+
+        }
+        else
+        {
+            Load.loading= null;
+        }
+
+
+
+    }
+    public async Task GetFillings()
+    {
+        try
+        {
+            // JsonSerializerOptions options = new JsonSerializerOptions
+            //     {
+            //         WriteIndented = true,
+            //         ReferenceHandler = null
+            //     };
+            // string jsonData = JsonSerializer.Serialize(BusinessID, options);
+            var AvailDrafts = await API.GetRequest($"Fleet/GetFillings");
+            if (AvailDrafts != "")
+            {
+
+                Fillings = JsonSerializer.Deserialize<List<string>>(AvailDrafts);
+
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex.Message);
+        }
+    }
     public async Task GetAllBusiness()
     {
 
@@ -321,6 +433,9 @@
             IsChildLoading = false;
         }
         IsChildLoading = false;
+        StateHasChanged();
+        await GetAllDecantings();
+        await GetFillings();
     }
     public bool isEmpty()
     {
