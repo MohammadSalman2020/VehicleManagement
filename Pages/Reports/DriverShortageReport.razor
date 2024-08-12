@@ -78,69 +78,73 @@
                                                 </thead>
                                                 <tbody>
 
-
-                                                    @foreach (var item in report.OrderBy(a => a.primaryReference))
+                                                    @foreach (var date in report.GroupBy(a => a.date.Value.Month).ToList())
                                                     {
-                                                        string? primary = "0.0";
-                                                        string? secondary = "0.0";
+                                                        int dt = date.Key;
+                                                        int yr = Convert.ToDateTime(date.Key).Year;
+                                                        @foreach (var item in report.Where(a=>a.date.Value.Month==dt && a.date.Value.Year==yr).OrderBy(a => a.primaryReference))
+                                                        {
+                                                            string? primary = "0.0";
+                                                            string? secondary = "0.0";
 
-                                                        int count = report.Count(a => a.primaryReference != "");
+                                                            int count = report.Count(a => a.primaryReference != "" && a.date.Value.Month==dt && a.date.Value.Year==yr);
 
-                                                        primary = report.Where(a => a.primaryReference == item.primaryReference).Sum(a => a.primary).ToString();
-
-
-                                                        secondary = report.Where(a => a.primaryReference == item.primaryReference).Sum(a => a.secondary).ToString();
-
-
-
-                                                        double total = double.Parse(primary) + double.Parse(secondary);
+                                                            primary = report.Where(a => a.primaryReference == item.primaryReference && a.date.Value.Month == dt && a.date.Value.Year == yr).Sum(a => a.primary).ToString();
 
 
-                                                        <tr style="text-align:center;">
-                                                            <td style="text-align:center">
-                                                                <p>@(sr = (sr + 1))</p>
-                                                            </td>
-                                                            <td style="text-align:center">
-                                                                <p>@item.vehicleNo</p>
-                                                            </td>
-                                                            <td style="text-align:center">
-                                                                <p>@item.location</p>
-                                                            </td>
-                                                            <td class="text-align:center">
-                                                                <p>@item.date</p>
-                                                            </td>
-                                                            <td class="text-align:center">
-                                                                <p>@item.type</p>
-                                                            </td>
-                                                            @if (item.type == "pk")
-                                                            {
+                                                            secondary = report.Where(a => a.primaryReference == item.primaryReference && a.date.Value.Month == dt && a.date.Value.Year == yr).Sum(a => a.secondary).ToString();
+
+
+
+                                                            double total = double.Parse(report.Sum(a => a.total).ToString());
+
+
+                                                            <tr style="text-align:center;">
                                                                 <td style="text-align:center">
-                                                                    <span>@item.primary</span>
+                                                                    <p>@(sr = (sr + 1))</p>
                                                                 </td>
-                                                            }
-                                                            else
-                                                            {
                                                                 <td style="text-align:center">
-                                                                    <span>@item.secondary</span>
+                                                                    <p>@item.vehicleNo</p>
                                                                 </td>
-                                                            }
-
-                                                            @if (@sr == 1)
-                                                            {
-                                                                <td style="text-align:center" rowspan="@count">
-                                                                    <span>@total</span>
+                                                                <td style="text-align:center">
+                                                                    <p>@item.location</p>
                                                                 </td>
-                                                                <td style="text-align:center" rowspan="@count">
-                                                                    <span>@item.deduction</span>
+                                                                <td class="text-align:center">
+                                                                    <p>@item.date</p>
                                                                 </td>
-                                                                <td style="text-align:center" rowspan="@count">
-                                                                    <span>@item.salary</span>
+                                                                <td class="text-align:center">
+                                                                    <p>@item.type</p>
                                                                 </td>
-                                                            }
+                                                                @if (item.type == "pk")
+                                                                {
+                                                                    <td style="text-align:center">
+                                                                        <span>@item.primary</span>
+                                                                    </td>
+                                                                }
+                                                                else
+                                                                {
+                                                                    <td style="text-align:center">
+                                                                        <span>@item.secondary</span>
+                                                                    </td>
+                                                                }
+
+                                                                @if (@sr == 1)
+                                                                {
+                                                                    <td style="text-align:center" rowspan="@count">
+                                                                        <span>@total</span>
+                                                                    </td>
+                                                                    <td style="text-align:center" rowspan="@count">
+                                                                        <span>@item.deduction</span>
+                                                                    </td>
+                                                                    <td style="text-align:center" rowspan="@count">
+                                                                        <span>@item.salary</span>
+                                                                    </td>
+                                                                }
 
 
 
-                                                        </tr>
+                                                            </tr>
+                                                        }
                                                     }
                                                 </tbody>
                                             </table>
@@ -217,7 +221,7 @@
                 await JSRuntime.InvokeVoidAsync("console.log", "");
                 _isJsReady = true; // JS is ready, so set a flag or take action
                 StateHasChanged();
-               
+
             }
             catch (Exception ex)
             {
@@ -226,7 +230,7 @@
             }
 
         }
-       
+
     }
 
     private async Task ShowData()
@@ -313,7 +317,7 @@
     {
         public string? vehicleNo { get; set; }
         public string? location { get; set; }
-        public string? date { get; set; }
+        public DateTime? date { get; set; }
         public string? primaryReference { get; set; }
         public string? type { get; set; }
         public string driverid { get; set; }
