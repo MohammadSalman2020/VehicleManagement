@@ -58,7 +58,7 @@
                                                 <span class="text-secondary text-xs font-weight-bold">@item.decentingPoint</span>
                                             </td>
                                             <td class="align-middle">
-                                                <a @onclick="@(()=>ShowMessage(item.invoiceID))" class="text-secondary font-weight-bold text-xs cursor-pointer">
+                                                <a @onclick="@(()=>ShowMessage(item.invoiceNo))" class="text-secondary font-weight-bold text-xs cursor-pointer">
                                                     View
                                                 </a>
                                             </td>
@@ -97,7 +97,7 @@
     {
         await LoadData();
     }
-    public async Task ShowMessage(int InvoiceID)
+    public async Task ShowMessage(string InvoiceID)
     {
         IsMainLoading = true;
 

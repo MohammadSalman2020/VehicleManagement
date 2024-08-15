@@ -29,67 +29,82 @@
                             <div class="row">
 
 
-                                <div class="col-md-4">
+                       @*          <div class="col-md-4">
 
                                     <div class="form-group">
                                         <label for="example-text-input" class="form-control-label">Search :</label>
                                         <input id="searchInput" type="text" class="form-control" onkeyup="filterTable(this.value)" />
                                     </div>
-                                </div>
-
-                                <div class="filter-controls">
-                                    <input type="text" id="filterInput" placeholder="Search...">
-                                    <select id="filterColumn">
-                                        <option value="0">Invoice #</option>
-                                        <option value="1">Vehicle</option>
-                                        <option value="2">Date</option>
-                                        <option value="3">1st Driver Name</option>
-                                        <option value="4">2nd Driver Name</option>
-                                        <option value="5">Type</option>
-                                        <option value="6">Liters(ltr)</option>                                       
-                                        <option value="7">Status</option>
-                                    </select>
-                                    <select id="filterCondition">
-                                        <option value="contains">Contains</option>
-                                        <option value="equals">Equals</option>
-                                        <option value="notEquals">Not Equals</option>
-                                        <option value="greaterThan">Greater Than</option>
-                                        <option value="lessThan">Less Than</option>
-                                    </select>
-                                    <button onclick="filterTable()">Apply Filter</button>
-                                </div>
-
-                                <AuthorizeView Policy="AvailMan">
-                                    <Authorized Context="AdminSuper">
-
-
-                                        <div class="row col-md-8" style="text-align:right;">
-                                            <div class="col-6">
-                                            </div>
-                                            <div class="row col-6">
-                                                @if (IsMerge)
-                                                {
-
-                                                    <div class="col-6">
-                                                        <div class="form-group">
-                                                            <button class="btn btn-danger btn-sm ms-auto" @onclick="Merge"> Merge</button>
-                                                        </div>
-                                                    </div>
-
-                                                }
-                                                <div class="col-6">
-                                                    <div class="form-group">
-                                                        <button class="btn btn-primary btn-sm ms-auto" @onclick="EnableMerge">@(IsMerge == true ? "Disable Merge" : "Enable Merge")</button>
-                                                    </div>
-                                                </div>
-
-
-                                            </div>
-
+                                </div> *@
+                                <div class="col-md-4">
+                                    <div class="filter-controls">
+                                        <div class="form-group">
+                                            <input type="text" class="form-control" id="filterInput" placeholder="Search...">
 
                                         </div>
-                                    </Authorized>
-                                </AuthorizeView>
+
+                                        <div class="form-group">
+                                            <select class="form-control" id="filterColumn">
+                                                <option value="0">Invoice #</option>
+                                                <option value="1">Vehicle</option>
+                                                <option value="2">Date</option>
+                                                <option value="3">1st Driver Name</option>
+                                                <option value="4">2nd Driver Name</option>
+                                                <option value="5">Type</option>
+                                                <option value="6">Liters(ltr)</option>
+                                                <option value="7">Status</option>
+                                            </select>
+                                        </div>
+                                        <div class="form-group">
+                                            <select class="form-control" id="filterCondition">
+                                                <option value="contains">Contains</option>
+                                                <option value="equals">Equals</option>
+                                                <option value="notEquals">Not Equals</option>
+                                                <option value="greaterThan">Greater Than</option>
+                                                <option value="lessThan">Less Than</option>
+                                            </select>
+                                        </div>
+                                        <div class="row col-12">
+                                            <div class="col-6">
+                                                <div class="form-group">
+                                                    <button class="btn btn-danger btn-sm ms-auto" onclick="filterTable()">Apply Filter</button>
+                                                </div>
+                                            </div>
+                                            <AuthorizeView Policy="AvailMan">
+                                                <Authorized Context="AdminSuper">
+
+
+
+                                                    <div class="col-6">
+                                                        @if (IsMerge)
+                                                        {
+
+                                                            <div class="col-12">
+                                                                <div class="form-group">
+                                                                    <button class="btn btn-danger btn-sm ms-auto" @onclick="Merge"> Merge</button>
+                                                                </div>
+                                                            </div>
+
+                                                        }
+                                                        <div class="col-12">
+                                                            <div class="form-group">
+                                                                <button class="btn btn-primary btn-sm ms-auto" @onclick="EnableMerge">@(IsMerge == true ? "Disable Merge" : "Enable Merge")</button>
+                                                            </div>
+                                                        </div>
+
+
+                                                    </div>
+
+
+
+                                                </Authorized>
+                                            </AuthorizeView>
+
+                                            </div>
+                                    
+                                    </div>
+                               </div>
+                           
                             </div>
 
                         </div>
@@ -203,19 +218,35 @@
                                                                 <span>@item.status</span>
                                                             }
                                                         </td>
-                                                        <td class="align-middle">
-                                                            <a @onclick="@(()=>ShowMessage(item.invoiceNumber))" class="text-secondary font-weight-bold text-xs cursor-pointer">
-                                                                View
-                                                            </a>
-                                                        </td>
-                                                        <td class="align-middle">
-                                                            <a @onclick="@(()=>EditButton(item.invoiceNumber))" class="text-secondary font-weight-bold text-xs cursor-pointer">
-                                                                Edit
-                                                            </a>
-                                                        </td>
+
+                                                        @if (item.invoiceType == "pk")
+                                                        {
+                                                            <td class="align-middle">
+                                                                <a @onclick="@(()=>ShowMessage(item.invoiceNumber))" class="text-secondary font-weight-bold text-xs cursor-pointer">
+                                                                    View
+                                                                </a>
+                                                            </td>
+                                                            <td class="align-middle">
+                                                                <a @onclick="@(()=>EditButton(item.invoiceNumber))" class="text-secondary font-weight-bold text-xs cursor-pointer">
+                                                                    Edit
+                                                                </a>
+                                                            </td>
+                                                        }
+
+                                                        else
+                                                        {
+                                                            <td class="align-middle">
+                                                                <a @onclick="@(()=>ShowMessage2(item.invoiceNumber))" class="text-secondary font-weight-bold text-xs cursor-pointer">
+                                                                    View
+                                                                </a>
+                                                            </td>
+                                                            <td class="align-middle">
+                                                            </td>
+                                                        }
+
                                                         <AuthorizeView Policy="AvailMan">
                                                             <Authorized Context="AdminSuper">
-                                                                @if(!item.isChecked)
+                                                                @if (!item.isChecked)
                                                                 {
                                                                     <td class="align-middle">
                                                                         <a @onclick="@(()=>AddCost(item.invoiceNumber))" class="text-secondary font-weight-bold text-xs cursor-pointer">
@@ -227,11 +258,11 @@
                                                                 {
                                                                     <td class="align-middle">
                                                                         <a class="text-secondary font-weight-bold text-xs" style="color:red !important;">
-                                                                           Cost Added
+                                                                            Cost Added
                                                                         </a>
                                                                     </td>
                                                                 }
-                                                                
+
                                                             </Authorized>
                                                         </AuthorizeView>
                                                     </tr>
@@ -280,7 +311,7 @@
 
                                                                     @if (shorts.invoiceType == "pk")
                                                                     {
-                                                                        <span  class="badge badge-sm bg-gradient-warning">@(shorts.invoiceType == "pk" ? "Primary" : "Secondary")</span>
+                                                                        <span class="badge badge-sm bg-gradient-warning">@(shorts.invoiceType == "pk" ? "Primary" : "Secondary")</span>
 
                                                                     }
                                                                     else
@@ -367,87 +398,8 @@
         </AuthorizeView>
     </div>
 </div>
-<script>
-    let sortOrder = 1; // 1 for ascending, -1 for descending
 
-    function sortTable(n) {
-        const table = document.getElementById("invoiceTable");
-        let rows, switching, i, x, y, shouldSwitch;
-        switching = true;
-        while (switching) {
-            switching = false;
-            rows = table.rows;
-            for (i = 1; i < (rows.length - 1); i++) {
-                shouldSwitch = false;
-                x = rows[i].getElementsByTagName("TD")[n];
-                y = rows[i + 1].getElementsByTagName("TD")[n];
-                if (sortOrder == 1) {
-                    if (x.innerHTML.toLowerCase() > y.innerHTML.toLowerCase()) {
-                        shouldSwitch = true;
-                        break;
-                    }
-                } else if (sortOrder == -1) {
-                    if (x.innerHTML.toLowerCase() < y.innerHTML.toLowerCase()) {
-                        shouldSwitch = true;
-                        break;
-                    }
-                }
-            }
-            if (shouldSwitch) {
-                rows[i].parentNode.insertBefore(rows[i + 1], rows[i]);
-                switching = true;
-            }
-        }
-        sortOrder = -sortOrder; // Toggle sort order
-    }
-
-    function filterTable() {
-        const input = document.getElementById('filterInput').value.toUpperCase();
-        const filterColumn = parseInt(document.getElementById('filterColumn').value);
-        const filterCondition = document.getElementById('filterCondition').value;
-        const table = document.getElementById('invoiceTable');
-        const rows = table.getElementsByTagName('tr');
-
-        for (let i = 1; i < rows.length; i++) {
-            const td = rows[i].getElementsByTagName('td')[filterColumn];
-            if (td) {
-                const txtValue = td.textContent || td.innerText;
-                if (applyCondition(txtValue.toUpperCase(), input, filterCondition, filterColumn)) {
-                    rows[i].style.display = '';
-                } else {
-                    rows[i].style.display = 'none';
-                }
-            }
-        }
-    }
-
-    function applyCondition(value, filter, condition, column) {
-        console.log(column + " : " + value + " : " + filter);
-        switch (condition) {
-            case 'contains':
-                return value.includes(filter);
-            case 'equals':
-                return value === filter;
-            case 'notEquals':
-                return value !== filter;
-            case 'greaterThan':
-                if (column === 0 || column === 6) { // Invoice # or Liters column
-                    return parseFloat(value) > parseFloat(filter);
-                }
-                return value > filter;
-            case 'lessThan':
-                if (column === 0 || column === 6) { // Invoice # or Liters column
-                    return parseFloat(value) < parseFloat(filter);
-                }
-                return value < filter;
-            default:
-                return false;
-        }
-    }
-    function openInNewTab(url) {
-        window.open(url, '_blank').focus();
-    }
-</script>
+  
 @code {
 
     private bool _isJsReady = false;
@@ -474,7 +426,7 @@
     public bool IsMerge = false;
     public List<DriverShortage> DriverShortages = new List<DriverShortage>();
     public Invoicing Invoices { get; set; }
-    public List<Invoicing> Invoicing = new List<Invoicing>();
+    public Invoicing Invoicing = new Invoicing();
     public List<int> BusinessID = new List<int>();
     private List<int> selectedInvoiceIds = new List<int>();
 
@@ -531,13 +483,13 @@
         }
         IsChildLoad = false;
         StateHasChanged();
-        await GetAllInvoices();
+
     }
     private async Task AddCost(string StoNo)
     {
         var url = $"/addcost?pk={StoNo}";
-       await JSRuntime.InvokeVoidAsync("openInNewTab", url);
-       // NavigationManager.NavigateTo($"/addcost?pk={StoNo}");
+        await JSRuntime.InvokeVoidAsync("openInNewTab", url);
+        // NavigationManager.NavigateTo($"/addcost?pk={StoNo}");
     }
     private async Task EnableMerge()
     {
@@ -599,7 +551,7 @@
     {
         try
         {
-            var Invoice = Invoicing.Where(p => p.Details.STONo == StoNo).FirstOrDefault();
+            var Invoice = await GetAllInvoices(StoNo);
             if (Invoice != null)
             {
                 Invoice.IsFromDisplay = true;
@@ -608,10 +560,10 @@
                 string base64EncodedJson = Convert.ToBase64String(Encoding.UTF8.GetBytes(jsonString));
                 string encodedJson = HttpUtility.UrlEncode(base64EncodedJson);
 
-              //  NavigationManager.NavigateTo($"/invoicepanel?Edit={encodedJson}");
+                NavigationManager.NavigateTo($"/Invoice?Edit={encodedJson}");
 
-                var url = $"/invoicepanel?Edit={encodedJson}";
-               await JSRuntime.InvokeVoidAsync("openInNewTab", url);
+                //  var url = $"/invoicepanel?Edit={encodedJson}";
+                // await JSRuntime.InvokeVoidAsync("openInNewTab", url);
             }
         }
         catch (Exception ex)
@@ -624,57 +576,57 @@
     }
     public async Task ShowMessage(string STONo)
     {
-        IsChildLoad = true;
+
 
         try
         {
 
-            var Invoice = Invoicing.Where(p => p.Details.STONo == STONo).FirstOrDefault();
+            var Invoice = GetAllInvoices(STONo);
             if (Invoice != null)
             {
                 string jsonString = JsonSerializer.Serialize(Invoice);
                 string base64EncodedJson = Convert.ToBase64String(Encoding.UTF8.GetBytes(jsonString));
                 string encodedJson = HttpUtility.UrlEncode(base64EncodedJson);
 
-               // NavigationManager.NavigateTo($"/invoicedisplay?InvoiceID={encodedJson}");
+                NavigationManager.NavigateTo($"/invoicedisplay?InvoiceID={encodedJson}");
 
-                var url = $"/invoicedisplay?InvoiceID={encodedJson}";
-                JSRuntime.InvokeVoidAsync("openInNewTab", url);
+                // var url = $"/invoicedisplay?InvoiceID={encodedJson}";
+                // JSRuntime.InvokeVoidAsync("openInNewTab", url);
             }
         }
         catch (Exception ex)
         {
-            IsChildLoad = false;
+
             toastService.ShowError($"Error: {ex.Message}");
         }
-        IsChildLoad = false;
+
     }
-     public async Task ShowMessage2(string STONo)
+    public async Task ShowMessage2(string STONo)
     {
-        IsChildLoad = true;
+
 
         try
         {
 
-            var Invoice = Invoicing.Where(p => p.Details.STONo == STONo).FirstOrDefault();
+            var Invoice = await GetAllInvoices(STONo);
             if (Invoice != null)
             {
                 string jsonString = JsonSerializer.Serialize(Invoice);
                 string base64EncodedJson = Convert.ToBase64String(Encoding.UTF8.GetBytes(jsonString));
                 string encodedJson = HttpUtility.UrlEncode(base64EncodedJson);
 
-              //  NavigationManager.NavigateTo($"/scinvdisplay?InvoiceID={encodedJson}");
+                NavigationManager.NavigateTo($"/scinvdisplay?InvoiceID={encodedJson}");
 
-                var url = $"/scinvdisplay?InvoiceID={encodedJson}";
-                await JSRuntime.InvokeVoidAsync("openInNewTab", url);
+                // var url = $"/scinvdisplay?InvoiceID={encodedJson}";
+                // await JSRuntime.InvokeVoidAsync("openInNewTab", url);
             }
         }
         catch (Exception ex)
         {
-            IsChildLoad = false;
+
             toastService.ShowError($"Error: {ex.Message}");
         }
-        IsChildLoad = false;
+
     }
     private async Task SearchTable(ChangeEventArgs e)
     {
@@ -683,22 +635,26 @@
         await JSRuntime.InvokeVoidAsync("filterTable", searchValue);
         IsChildLoad = false;
     }
-    public async Task GetAllInvoices()
+    public async Task<Invoicing> GetAllInvoices(string InvoiceID)
     {
 
         try
         {
 
-            var AvailDrafts = await API.GetRequest($"Invoice/GetInvoicesList");
+            var AvailDrafts = await API.GetRequest($"Invoice/GetInvoiceByID/{InvoiceID}");
             if (AvailDrafts != "")
             {
-                Invoicing = Newtonsoft.Json.JsonConvert.DeserializeObject<List<Invoicing>>(AvailDrafts).OrderByDescending(p => p.Details.Date).ToList();
+                return Invoicing = Newtonsoft.Json.JsonConvert.DeserializeObject<Invoicing>(AvailDrafts);
+            }
+            else
+            {
+                return null;
             }
 
         }
         catch (Exception ex)
         {
-
+            return null;
         }
     }
     public async Task GetShortages()

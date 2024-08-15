@@ -43,6 +43,15 @@
                             <div class="col-mb-3" style="vertical-align:central">
                                 <div class="form-group">
                                     <button class="btn btn-danger btn-sm ms-auto" @onclick="ShowData">Submit</button>
+
+
+                                </div>
+                                <div class="form-group">
+                                    <label for="example-text-input" class="font-weight-bolder mb-0" style="color:black;">
+                                        Show Complete Shortage
+                                    </label>
+                                    <input type="checkbox" class="form-control-label" checked="@DisableChamber5" @onchange="Chamber5Check" />
+
                                 </div>
                                 <div>
                                     <label>@name</label>
@@ -78,16 +87,37 @@
                                                 </thead>
                                                 <tbody>
 
-                                                    @foreach (var date in report.GroupBy(a => a.date.Value.Month).ToList())
+                                                    @foreach (var date in report.GroupBy(a => a.date.Value.Month).OrderByDescending(p => p.Key).ToList())
                                                     {
+                                                        int iteration = 0;
                                                         int dt = date.Key;
-                                                        int yr = Convert.ToDateTime(date.Key).Year;
-                                                        @foreach (var item in report.Where(a=>a.date.Value.Month==dt && a.date.Value.Year==yr).OrderBy(a => a.primaryReference))
+                                                        int yr = Convert.ToDateTime(report[iteration].date).Year;
+                                                        var res = report.Where(p => p.date.Value.Month == dt).Sum(p => p.total).ToString();
+                                                              
+                                                        double total = double.Parse(res);
+                                                                 @if (DisableChamber5)
+                                                                        {
+                                                                         total= total * 2;
+                                                                        }
+                                                                    
+                                                        string monthName = new DateTime(DateTime.Now.Year, dt, 1).ToString("MMMM");
+                                                        <tr style="color: black;background: #a3acb5;text-align: center;">
+                                                            <td style="text-align:center" colspan="12">
+
+                                                                <p style="font-size: larger;font-weight: bold;">@monthName-@yr (@total)</p>
+                                                            </td>
+                                                        </tr>
+
+
+
+
+                                                        @foreach (var item in report.Where(a => a.date.Value.Month == dt && a.date.Value.Year == yr).OrderBy(a => a.primaryReference))
                                                         {
+                                                            int dt2 = 0;
                                                             string? primary = "0.0";
                                                             string? secondary = "0.0";
 
-                                                            int count = report.Count(a => a.primaryReference != "" && a.date.Value.Month==dt && a.date.Value.Year==yr);
+                                                            int count = report.Count(a => a.primaryReference != "" && a.date.Value.Month == dt && a.date.Value.Year == yr);
 
                                                             primary = report.Where(a => a.primaryReference == item.primaryReference && a.date.Value.Month == dt && a.date.Value.Year == yr).Sum(a => a.primary).ToString();
 
@@ -96,7 +126,7 @@
 
 
 
-                                                            double total = double.Parse(report.Sum(a => a.total).ToString());
+
 
 
                                                             <tr style="text-align:center;">
@@ -110,7 +140,7 @@
                                                                     <p>@item.location</p>
                                                                 </td>
                                                                 <td class="text-align:center">
-                                                                    <p>@item.date</p>
+                                                                    <p>@item.date?.ToString("dd-MM-yyyy")</p>
                                                                 </td>
                                                                 <td class="text-align:center">
                                                                     <p>@item.type</p>
@@ -118,25 +148,49 @@
                                                                 @if (item.type == "pk")
                                                                 {
                                                                     <td style="text-align:center">
-                                                                        <span>@item.primary</span>
+                                                                        @if (DisableChamber5)
+                                                                        {
+                                                                            double? primary2 = item.primary * 2;
+                                                                            <span>@primary2</span>
+
+                                                                        }
+                                                                        else
+                                                                        {
+                                                                            <span>@item.primary</span>
+
+                                                                        }
                                                                     </td>
                                                                 }
                                                                 else
                                                                 {
                                                                     <td style="text-align:center">
-                                                                        <span>@item.secondary</span>
+                                                                        @if (DisableChamber5)
+                                                                        {
+                                                                            double? secondary2 = item.secondary * 2;
+                                                                            <span>@secondary2</span>
+
+                                                                        }
+                                                                        else
+                                                                        {
+                                                                            <span>@item.secondary</span>
+
+                                                                        }
                                                                     </td>
                                                                 }
 
-                                                                @if (@sr == 1)
+                                                                @if (sr == 1)
                                                                 {
-                                                                    <td style="text-align:center" rowspan="@count">
-                                                                        <span>@total</span>
+                                                                    int count2 = count + 1;
+                                                                    <td style="text-align:center" rowspan="@count2">
+                                                                       
+                                                                            <span>@total</span>
+                                                                        
+
                                                                     </td>
-                                                                    <td style="text-align:center" rowspan="@count">
+                                                                    <td style="text-align:center" rowspan="@count2">
                                                                         <span>@item.deduction</span>
                                                                     </td>
-                                                                    <td style="text-align:center" rowspan="@count">
+                                                                    <td style="text-align:center" rowspan="@count2">
                                                                         <span>@item.salary</span>
                                                                     </td>
                                                                 }
@@ -145,6 +199,8 @@
 
                                                             </tr>
                                                         }
+                                                        iteration++;
+                                                        sr = 0;
                                                     }
                                                 </tbody>
                                             </table>
@@ -208,9 +264,14 @@
     private bool _isJsReady = false;
     int sr = 0;
     public bool IsLoading { get; set; }
+    public bool DisableChamber5 { get; set; }
 
     List<DriverShortageSummary> report = new List<DriverShortageSummary>();
+    private void Chamber5Check(ChangeEventArgs e)
+    {
+        DisableChamber5 = (bool)e.Value;
 
+    }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
