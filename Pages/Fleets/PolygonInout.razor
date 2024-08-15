@@ -131,7 +131,9 @@
                                             </thead>
                                             <tbody>
 
-                                                @{count = 1;}
+                                                @{
+                                                    count = 1;
+                                                }
                                                 @foreach (var item in outlog2)
                                                 {
                                                     string backcolor = "white";
@@ -202,22 +204,39 @@
         try
         {
             BusinessID = await UserClaimsService.GetBusinessIdsAsync();
-            if (BusinessID.Count>0)
+            if (BusinessID.Count > 0)
             {
                 var Main = await API.GetRequest($"Fleet/GetPolygonInOUt");
                 if (Main != "")
                 {
                     log = Newtonsoft.Json.JsonConvert.DeserializeObject<List<PolygonTimeSheetLog>>(Main);
                     log2 = log.Where(p1 => busvehicle.Any(p2 => p2.vehicle == p1.vehicleId)).ToList();
-                    Console.WriteLine(log2);
+                    // Console.WriteLine(log2);
                     // fleet = rec.Where(p => BusinessID.Contains(p.busID)).ToList();
                 }
                 var outdata = await API.GetRequest($"Fleet/GetPolygonOut");
                 if (outdata != "")
                 {
                     outlog = Newtonsoft.Json.JsonConvert.DeserializeObject<List<PolygonTimeSheetLog>>(outdata);
-                    outlog2 = outlog.Where(p1 => busvehicle.Any(p2 => p2.vehicle == p1.vehicleId)).ToList();
-                    Console.WriteLine(outlog2);
+                    var rec = outlog.Where(p1 => busvehicle.Any(p2 => p2.vehicle == p1.vehicleId)).ToList();
+
+                    foreach (var item in rec)
+                    {
+                        if (!log2.Any(p => p.vehicleId == item.vehicleId))
+                        {
+                            outlog2.Add(new PolygonTimeSheetLog
+                                {
+                                    days_ = item.days_,
+                                    duration = item.duration,
+                                    polygonName = item.polygonName,
+                                    srNumber = item.srNumber,
+                                    vehicleId = item.vehicleId
+                                });
+                        }
+                   
+                    }
+
+                    //  Console.WriteLine(outlog2);
                     // fleet = rec.Where(p => BusinessID.Contains(p.busID)).ToList();
                 }
             }
@@ -227,7 +246,7 @@
         {
             Console.WriteLine(ex.Message);
         }
-    } 
+    }
     public async Task LoadAllVehicles()
     {
         try
@@ -240,10 +259,10 @@
                 vehicleis = Newtonsoft.Json.JsonConvert.DeserializeObject<List<AllVehicle>>(Main);
                 busvehicle = vehicleis.Where(a => a.busID == BusinessID[0]).ToList();
 
-                    // fleet = rec.Where(p => BusinessID.Contains(p.busID)).ToList();
-                }
+                // fleet = rec.Where(p => BusinessID.Contains(p.busID)).ToList();
+            }
 
-            
+
 
         }
         catch (Exception ex)
@@ -259,7 +278,7 @@
     {
 
         IsLoading = true;
-        LoadAllVehicles();
+        await LoadAllVehicles();
         await LoadLog();
         IsLoading = false;
 
