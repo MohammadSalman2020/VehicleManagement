@@ -1,0 +1,417 @@
+﻿  @page "/DriverSummary"
+@using Microsoft.Data.SqlClient
+@using VehicleManagement.Models.General
+
+  @inject IJSRuntime js
+  @inject IConfiguration _configuration
+  <div class="container-fluid py-4">
+    <div class="row">
+<AuthorizeView Roles="admin,FleetManager,SafetySupervisor">
+    <Authorized Context="access">
+        
+                <div class="col-md-12">
+                    <div class="card">
+
+                        <div class="card-body">
+
+                            <div class="row">
+                                <div class="col-md-4">
+                                    <div class="filter-controls">
+                                        <div class="form-group">
+                                            <input type="text" class="form-control" id="searchInput" placeholder="Search..." oninput="filterTabless()">
+
+                                        </div>
+
+                                         
+                                    
+                                    </div>
+                               </div>
+                                 <div class="col-md-2">
+                                          <div class="form-group">
+                                                    <button class="btn btn-danger btn-sm ms-auto" onclick="exportTableToExcel()">Export</button>
+                                                </div>
+                                         </div>
+                             <div class="col-md-4">
+                                 
+                                              <div class="form-group">
+                                                    <button class="btn btn-danger btn-sm ms-auto" onclick="copyTableToClipboard()">Copy To Clipboard</button>
+                                                </div>
+                                         </div>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+                <br />
+
+        <div class="row" style="margin-top:10px;">
+
+            <div class="col-md-12 card">
+                <div class="card-header pb-0">
+                    <h6>Driver Shortage Summary</h6>
+                </div>
+                <div class="card-body px-0 pt-0 pb-2" style="width:1210px;">
+                    <div class="table-responsive p-0" style=" overflow-x: scroll;height: 360px;">
+
+
+                        <table class="table align-items-center mb-0 table-test" id="invoiceTables">
+                            <thead>
+                                <tr>
+
+                                    <th class="text-center font-colors text-uppercase  text-xxs font-weight-bolder opacity-7">STO No</th>
+                                    <th class="text-center font-colors text-uppercase  text-xxs font-weight-bolder opacity-7">Vehicle</th>
+                                    <th class="text-center font-colors text-uppercase  text-xxs font-weight-bolder opacity-7"> Date</th>
+                                    <th class="text-center font-colors text-uppercase  text-xxs font-weight-bolder opacity-7">Primary Reference</th>
+                                    <th class="text-center font-colors text-uppercase  text-xxs font-weight-bolder opacity-7">Type</th>
+                                    <th class="text-center font-colors text-uppercase  text-xxs font-weight-bolder opacity-7">Driver1 ID</th>
+                                    <th class="text-center font-colors text-uppercase  text-xxs font-weight-bolder opacity-7"> Driver1 Name</th>
+                                    <th class="text-center font-colors text-uppercase  text-xxs font-weight-bolder opacity-7">Driver2 ID</th>
+                                    <th class="text-center font-colors text-uppercase  text-xxs font-weight-bolder opacity-7">Driver2 Name</th>
+                                    <th class="text-center font-colors text-uppercase  text-xxs font-weight-bolder opacity-7">Primary</th>
+                                    <th class="text-center font-colors text-uppercase  text-xxs font-weight-bolder opacity-7">Secondary</th>
+                                    <th class="text-center font-colors text-uppercase  text-xxs font-weight-bolder opacity-7">Total</th>
+                                    <th class="text-center font-colors text-uppercase  text-xxs font-weight-bolder opacity-7">Exempted</th>
+                                    <th class="text-center font-colors text-uppercase  text-xxs font-weight-bolder opacity-7">Shortage Deduction</th>
+
+
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @if (!IsLoading)
+                                {
+                                    @if (obj.Count > 0)
+                                    {
+
+                                        foreach (var item in obj)
+
+                                        {
+
+                                            <tr class="tbl-accordion-header">
+
+
+                                                <td class="align-middle text-center">
+                                                    <div class="d-flex px-2 py-1">
+                                                        <div>
+                                                            <img src="css/invoice-icon.png" class="avatar avatar-sm me-3" alt="user1">
+                                                        </div>
+                                                        <div class="d-flex flex-column justify-content-center" style="cursor:pointer;">
+                                                            <h6 class="mb-0 text-sm">@item.stono</h6>
+
+                                                        </div>
+                                                    </div>
+                                                </td>
+                                                <td class="align-middle text-center">
+                                                    <span class="text-secondary text-xs font-weight-bold">@item.VehicleNo</span>
+                                                </td>
+                                                <td class="align-middle text-center">
+                                                    <span class="text-secondary text-xs font-weight-bold">@item.Date</span>
+                                                </td>
+                                                <td class="align-middle text-center">
+                                                    <span class="text-secondary text-xs font-weight-bold">
+                                                        @item.primaryreference
+                                                    </span>
+                                                </td>
+                                                <td class="align-middle text-center text-sm">
+                                                    @if (item.type == "pk")
+                                                    {
+                                                        <span class="badge badge-sm bg-gradient-success">@(item.type == "pk" ? "Primary" : "Secondary")</span>
+
+                                                    }
+                                                    else
+                                                    {
+                                                        <span class="badge badge-sm bg-gradient-danger">@(item.type == "pk" ? "Primary" : "Secondary")</span>
+
+                                                    }
+
+                                                </td>
+                                                <td class="align-middle text-center">
+                                                    <span class="text-secondary text-xs font-weight-bold">
+                                                        @((item.DriverID1 != null ? item.DriverID1 : "No Attendance"))
+                                                    </span>
+                                                </td>
+                                                <td class="align-middle text-center">
+                                                    <span class="text-secondary text-xs font-weight-bold">
+                                                        @((item.DriverName1 != null ? item.DriverName1 : "No Attendance"))
+                                                    </span>
+                                                </td>
+
+                                                <td class="align-middle text-center">
+                                                    <span class="text-secondary text-xs font-weight-bold">
+                                                        @((item.DriverID2 != null ? item.DriverID2 : "No Attendance"))
+                                                    </span>
+                                                </td>
+                                                <td class="align-middle text-center">
+                                                    <span class="text-secondary text-xs font-weight-bold">
+                                                        @((item.DriverName2 != null ? item.DriverName2 : "No Attendance"))
+                                                    </span>
+                                                </td>
+
+                                                <td class="align-middle text-center">
+                                                    <span class="text-secondary text-xs font-weight-bold">@item.Primary </span>
+                                                </td>
+
+                                                <td class="align-middle text-center">
+                                                    <span class="text-secondary text-xs font-weight-bold">@item.Secondary </span>
+                                                </td>
+
+                                                <td class="align-middle text-center">
+                                                    @if (item.Total > item.Exempted)
+                                                    {
+                                                        <span class="badge badge-sm bg-gradient-danger">@item.Total</span>
+
+                                                    }
+                                                    else
+                                                    {
+                                                        <span class="text-secondary text-xs font-weight-bold">@item.Total </span>
+
+                                                    }
+
+                                                </td>
+
+                                                <td class="align-middle text-center">
+                                                    <span class="text-secondary text-xs font-weight-bold">@item.Exempted </span>
+                                                </td>
+                                                <td class="align-middle text-center text-sm">
+                                                    @if (item.ShortageDeduction == 0)
+                                                    {
+                                                        <span class="text-secondary text-xs font-weight-bold">@item.ShortageDeduction </span>
+
+                                                    }
+                                                    else
+                                                    {
+                                                                <span class="badge badge-sm bg-gradient-danger font-weight-bold">@item.ShortageDeduction</span>
+
+                                                    }
+
+
+                                                </td>
+
+
+
+
+
+
+                                            </tr>
+                                        }
+                                    }
+                                }
+                                else if (IsLoading)
+                                {
+                                    <tr>
+                                        <td colspan="12">
+                                            <DataLoaderComponent IsLoading="@IsLoading" LoadingText="Loading Invoices..." />
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+
+
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+
+
+
+
+
+    </Authorized>
+    <NotAuthorized>
+        @if (_isJsReady)
+        {
+            <_403 />
+
+        }
+    </NotAuthorized>
+</AuthorizeView>
+    </div>
+</div>
+@code {
+    private bool _isJsReady = false;
+    public bool IsLoading { get; set; }
+
+    public List<DriverShortageSummaries> obj = new List<DriverShortageSummaries>();
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            try
+            {
+                // Attempt a simple JavaScript call to check if JS is ready
+                await js.InvokeVoidAsync("console.log", "");
+                _isJsReady = true; // JS is ready, so set a flag or take action
+                StateHasChanged();
+            }
+            catch
+            {
+                // If JS isn't ready, handle it gracefully
+                _isJsReady = false; // JavaScript is not yet ready
+            }
+        }
+    }
+    protected override async Task OnInitializedAsync()
+    {
+
+        IsLoading = true;
+        try
+        {
+
+
+            await LoadShortagereport();
+        }
+        catch (Exception ex)
+        {
+            IsLoading = false;
+        }
+        IsLoading = false;
+    }
+    public async Task LoadShortagereport()
+    {
+        try
+        {
+            string query = $@"
+WITH DriverShortage AS (
+    SELECT
+        inv.stono,
+        inv.TankLorryNo AS [VehicleNo],
+        CONCAT(inv.SupplyPoint, '-', inv.ReceivingLocation) AS [Location],
+        FORMAT(inv._Date, 'dd-MMM-yy') AS [Date],
+        inv.primaryreference,
+        inv.type,
+        drv.driverid AS DriverID1,
+        drv.Fullname AS DriverName1,
+        drv2.driverid AS DriverID2,
+        drv2.Fullname AS DriverName2,
+        SUM(CASE WHEN dsl.InvoiceType = 'pk' AND dsl.ShortType = 'Short' THEN dsl.ShortageLtr ELSE 0 END) AS [Primary],
+        SUM(CASE WHEN dsl.InvoiceType = 'sc' AND dsl.ShortType = 'Short' THEN dsl.ShortageLtr ELSE 0 END) AS [Secondary],
+        SUM(CASE
+            WHEN dsl.InvoiceType IN ('pk', 'sc') AND dsl.ShortType = 'Short' THEN dsl.ShortageLtr
+            ELSE 0
+        END) AS [Total]
+    FROM
+        tblDriverShortageLedger dsl
+    JOIN
+        tblinvoices inv ON dsl.InvoiceNumber = inv.STONo
+    JOIN
+        tbldriver drv ON dsl.DriverID = drv.DriverID
+    LEFT JOIN
+        tbldriver drv2 ON dsl.Driver2ID = drv2.DriverID
+    GROUP BY
+        inv.stono,
+        inv.TankLorryNo,
+        CONCAT(inv.SupplyPoint, '-', inv.ReceivingLocation),
+        FORMAT(inv._Date, 'dd-MMM-yy'),
+        drv.Fullname,
+        drv.driverid,
+        drv2.Fullname,
+        drv2.driverid,
+        inv.primaryreference,
+        inv.type
+)
+
+SELECT
+    stono,
+    VehicleNo,
+    Location,
+    Date,
+    primaryreference,
+    type,
+    DriverID1,
+    DriverName1,
+    DriverID2,
+    DriverName2,
+    [Primary] * 2 AS Primary1,
+    [Secondary] * 2 AS Secondary1,
+    ([Primary] * 2) + ([Secondary] * 2) AS Total1,
+    CASE
+        WHEN [type] = 'pk' THEN 100
+        ELSE 50
+    END AS Exempted,
+    CASE
+        WHEN ([Primary] * 2) + ([Secondary] * 2) >
+            CASE
+                WHEN [type] = 'pk' THEN 100
+                ELSE 50
+            END
+        THEN ([Primary] * 2) + ([Secondary] * 2) -
+            CASE
+                WHEN [type] = 'pk' THEN 100
+                ELSE 50
+            END
+        ELSE 0
+    END AS ShortageDeduction
+FROM
+    DriverShortage
+
+GROUP BY
+    stono,
+    VehicleNo,
+    Location,
+    Date,
+    primaryreference,
+    type,
+    DriverID1,
+    DriverName1,
+    DriverID2,
+    DriverName2,
+    [Primary],
+    [Secondary]
+";
+            var connectionString = _configuration.GetConnectionString("Con");
+
+            using (var connection = new SqlConnection(connectionString))
+            {
+                await connection.OpenAsync();
+
+                using (var command = new SqlCommand(query, connection))
+                using (var reader = await command.ExecuteReaderAsync())
+                {
+                    while (await reader.ReadAsync())
+                    {
+                        DriverShortageSummaries dv = new DriverShortageSummaries();
+                        dv = new DriverShortageSummaries
+                            {
+                                Date = reader.GetString(reader.GetOrdinal("Date")),
+
+                                stono = reader.IsDBNull(reader.GetOrdinal("stono")) ? "" : reader.GetString(reader.GetOrdinal("stono")),
+                                DriverID2 = reader.IsDBNull(reader.GetOrdinal("DriverID2")) ? "" : reader.GetString(reader.GetOrdinal("DriverID2")),
+                                DriverID1 = reader.IsDBNull(reader.GetOrdinal("DriverID1")) ? "" : reader.GetString(reader.GetOrdinal("DriverID1")),
+                                DriverName1 = reader.IsDBNull(reader.GetOrdinal("DriverName1")) ? "" : reader.GetString(reader.GetOrdinal("DriverName1")),
+                                DriverName2 = reader.IsDBNull(reader.GetOrdinal("DriverName2")) ? "" : reader.GetString(reader.GetOrdinal("DriverName2")),
+                                Exempted = reader.IsDBNull(reader.GetOrdinal("Exempted")) ? 0 : reader.GetInt32(reader.GetOrdinal("Exempted")),
+
+                                Location = reader.IsDBNull(reader.GetOrdinal("Location")) ? "" : reader.GetString(reader.GetOrdinal("Location")),
+                                Primary = reader.IsDBNull(reader.GetOrdinal("Primary1")) ? 0 : reader.GetDouble(reader.GetOrdinal("Primary1")),
+
+                                primaryreference = reader.IsDBNull(reader.GetOrdinal("primaryreference")) ? "" : reader.GetString(reader.GetOrdinal("primaryreference")),
+                                Secondary = reader.IsDBNull(reader.GetOrdinal("Secondary1")) ? 0 : reader.GetDouble(reader.GetOrdinal("Secondary1")),
+                                ShortageDeduction = reader.IsDBNull(reader.GetOrdinal("ShortageDeduction")) ? 0 : reader.GetDouble(reader.GetOrdinal("ShortageDeduction")),
+
+                                Total = reader.IsDBNull(reader.GetOrdinal("Total1")) ? 0 : reader.GetDouble(reader.GetOrdinal("Total1")),
+
+                                type = reader.IsDBNull(reader.GetOrdinal("type")) ? "" : reader.GetString(reader.GetOrdinal("type")),
+                                VehicleNo = reader.IsDBNull(reader.GetOrdinal("VehicleNo")) ? "" : reader.GetString(reader.GetOrdinal("VehicleNo")),
+
+                            };
+                        obj.Add(dv);
+
+
+
+
+                    }
+                }
+            }
+
+
+
+        }
+        catch (Exception ex)
+        {
+
+        }
+    }
+}

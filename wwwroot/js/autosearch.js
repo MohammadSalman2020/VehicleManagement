@@ -15,6 +15,9 @@
 //        row.style.display = found ? "" : "none";
 //    });
 //}
+
+
+
   let sortOrder = 1; // 1 for ascending, -1 for descending
 
     function sortTable(n) {
@@ -132,4 +135,82 @@
     function openInNewTab(url) {
         window.open(url, '_blank');
     }
+
+
+
+    
+  
+            // Define the filter function
+                function filterTabless() {
+            var searchValue = document.getElementById('searchInput').value.toLowerCase();
+            var table = document.getElementById("invoiceTables");
+            var rows = table.querySelectorAll("tbody tr");
+
+            rows.forEach(function(row) {
+                var cells = row.getElementsByTagName("td");
+                var found = false;
+
+                Array.from(cells).forEach(function(cell) {
+                    if (cell.textContent.toLowerCase().includes(searchValue)) {
+                        found = true;
+                    }
+                });
+
+                row.style.display = found ? "" : "none";
+            });
+        }
+
+              function exportTableToExcel() {
+            var table = document.getElementById('invoiceTables');
+            var workbook = XLSX.utils.table_to_book(table, { sheet: "Sheet1" });
+            var wbout = XLSX.write(workbook, { bookType: 'xlsx', type: 'binary' });
+            
+            function s2ab(s) {
+                var buf = new ArrayBuffer(s.length);
+                var view = new Uint8Array(buf);
+                for (var i = 0; i < s.length; i++) view[i] = s.charCodeAt(i) & 0xFF;
+                return buf;
+            }
+
+            var filename = 'table-data.xlsx';
+            var blob = new Blob([s2ab(wbout)], { type: 'application/octet-stream' });
+            var link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = filename;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+           
+       function copyTableToClipboard() {
+        var table = document.getElementById('invoiceTables');
+        var textContent = '';
+
+        // Extract and format the table header
+        var headerRow = table.querySelector('thead tr');
+        if (headerRow) {
+            var headerText = [];
+            headerRow.querySelectorAll('th').forEach(function(cell) {
+                headerText.push(cell.textContent.trim());
+            });
+            textContent += headerText.join('\t') + '\n'; // Add header row text
+        }
+
+        // Extract and format each row of the table body
+        table.querySelectorAll('tbody tr').forEach(function(row) {
+            var rowText = [];
+            row.querySelectorAll('td').forEach(function(cell) {
+                rowText.push(cell.textContent.trim());
+            });
+            textContent += rowText.join('\t') + '\n'; // Add body row text
+        });
+
+        // Use the Clipboard API to copy the text content
+        navigator.clipboard.writeText(textContent).then(function() {
+            alert('Table text copied to clipboard successfully.');
+        }, function(err) {
+            alert('Failed to copy table text: ', err);
+        });
+    }
+
 
