@@ -168,27 +168,27 @@
                                         <table class="details">
                                             <tr>
                                                 <td>Tank Lorry No</td>
-                                                <td> <input type="text" id="vehicleID" required placeholder="Tank Lorry No" value="@Invoices.Details.TankLorryNO" @onchange="GetChambersQuantity" class="form-control"></td>
+                                                <td> <input type="text" tabindex="1" id="vehicleID" required placeholder="Tank Lorry No" value="@Invoices.Details.TankLorryNO" @onchange="GetChambersQuantity" class="form-control"></td>
                                                 <td>Date</td>
-                                                <td>  <input type="date" placeholder="Date" @bind="Invoices.Details.Date" class="form-control"></td>
+                                                <td>  <input type="date" tabindex="2" placeholder="Date" @bind="Invoices.Details.Date" class="form-control"></td>
                                             </tr>
                                             <tr>
                                                 <td>STO NO</td>
-                                                <td>   <input type="text" placeholder="STO No" @bind="Invoices.Details.STONo" class="form-control"></td>
+                                                <td>   <input type="text" tabindex="3" placeholder="STO No" @bind="Invoices.Details.STONo" class="form-control"></td>
                                                 <td>Shipping Location</td>
-                                                <td>  <input type="text" placeholder="Supply Point" @bind="Invoices.Details.SupplyPoint" class="form-control"></td>
+                                                <td>  <input type="text" tabindex="4" placeholder="Supply Point" @bind="Invoices.Details.SupplyPoint" class="form-control"></td>
                                             </tr>
                                             <tr>
                                                 <td>User</td>
                                                 <td> @Invoices.User</td>
                                                 <td>Receiving Location</td>
-                                                <td>   <input type="text" placeholder="Receiving Location" @bind="Invoices.Details.ReceivingLocation" class="form-control"></td>
+                                                <td>   <input type="text" tabindex="5" placeholder="Receiving Location" @bind="Invoices.Details.ReceivingLocation" class="form-control"></td>
                                             </tr>
                                             <tr>
                                                 <td>Product</td>
-                                                <td>  <input type="text" placeholder="Product" @bind="Invoices.Details.Product" class="form-control"></td>
+                                                <td>  <input type="text" tabindex="6" placeholder="Product" @bind="Invoices.Details.Product" class="form-control"></td>
                                                 <td>Contractor</td>
-                                                <td>  <input type="text" placeholder="Contractor" @bind="Invoices.Details.Contractor" class="form-control"></td>
+                                                <td>  <input type="text" tabindex="7" placeholder="Contractor" @bind="Invoices.Details.Contractor" class="form-control"></td>
                                             </tr>
                                         </table>
 
@@ -203,46 +203,46 @@
                                             </tr>
                                             <tr>
                                                 <td>Temp F</td>
-                                                <td colspan="5">  <input type="number" tabindex="1" placeholder="Tempreture F" id="STemp" @oninput="GetQuantitiesByTemp" onfocus="selectAllInputValue('STemp')" @bind="Invoices.ShippingDetail.TempF" class="form-control"></td>
+                                                <td colspan="5">  <input type="number" tabindex="8" placeholder="Tempreture F" id="STemp" @oninput="GetQuantitiesByTemp" onfocus="selectAllInputValue('STemp')" @bind="Invoices.ShippingDetail.TempF" class="form-control"></td>
                                             </tr>
                                             <tr>
                                                 <td>S.G</td>
-                                                <td colspan="5">     <input step="0.01" type="number" tabindex="2" placeholder="Gravity" id="SGravity" @oninput="@(e => GetQuantitiesBySG(e))" onfocus="selectAllInputValue('SGravity')" @bind="Invoices.ShippingDetail.SG" class="form-control"></td>
+                                                <td colspan="5">     <input step="0.01" type="number" tabindex="9" placeholder="Gravity" id="SGravity" @oninput="@(e => GetQuantitiesBySG(e))" onfocus="selectAllInputValue('SGravity')" @bind="Invoices.ShippingDetail.SG" class="form-control"></td>
                                             </tr>
                                             <tr>
                                                 <td>Chamber Quantity</td>
                                                 <td>
-                                                    <input type="number" disabled="@(Invoices.Details.STONo==null?"disabled":null)" tabindex="3" placeholder="Chamber Quantity" id="Chamber1" onfocus="selectAllInputValue('Chamber1')" @bind="Invoices.ShippingDetail.Chamber1.ChamberQuantity" @oninput="@(e => TextChangedShipment(1, e))" class="form-control">
+                                                    <input type="number" disabled="@(Invoices.Details.STONo==null?"disabled":null)" tabindex="10" placeholder="Chamber Quantity" id="Chamber1" onfocus="selectAllInputValue('Chamber1')" @bind="Invoices.ShippingDetail.Chamber1.ChamberQuantity" @oninput="@(e => TextChangedShipment(1, e))" class="form-control">
                                                 </td>
                                                 <td>
-                                                    <input type="number" disabled="@(Invoices.Details.STONo==null?"disabled":null)" tabindex="5" placeholder="Chamber Quantity" id="SChamber2Q" onfocus="selectAllInputValue('SChamber2Q')" @bind="Invoices.ShippingDetail.Chamber2.ChamberQuantity" @oninput="@(e => TextChangedShipment(2, e))" class="form-control">
+                                                    <input type="number" disabled="@(Invoices.Details.STONo==null?"disabled":null)" tabindex="11" placeholder="Chamber Quantity" id="SChamber2Q" onfocus="selectAllInputValue('SChamber2Q')" @bind="Invoices.ShippingDetail.Chamber2.ChamberQuantity" @oninput="@(e => TextChangedShipment(2, e))" class="form-control">
                                                 </td>
                                                 <td>
-                                                    <input type="number" disabled="@(Invoices.Details.STONo==null?"disabled":null)" tabindex="7" placeholder="Chamber Quantity" id="SChamber3Q" onfocus="selectAllInputValue('SChamber3Q')" @bind="Invoices.ShippingDetail.Chamber3.ChamberQuantity" @oninput="@(e => TextChangedShipment(3, e))" class="form-control">
+                                                    <input type="number" disabled="@(Invoices.Details.STONo==null?"disabled":null)" tabindex="12" placeholder="Chamber Quantity" id="SChamber3Q" onfocus="selectAllInputValue('SChamber3Q')" @bind="Invoices.ShippingDetail.Chamber3.ChamberQuantity" @oninput="@(e => TextChangedShipment(3, e))" class="form-control">
                                                 </td>
                                                 <td>
-                                                    <input type="number" disabled="@(Invoices.Details.STONo==null?"disabled":null)" tabindex="9" placeholder="Chamber Quantity" id="SChamber4Q" onfocus="selectAllInputValue('SChamber4Q')" @bind="Invoices.ShippingDetail.Chamber4.ChamberQuantity" @oninput="@(e => TextChangedShipment(4, e))" class="form-control">
+                                                    <input type="number" disabled="@(Invoices.Details.STONo==null?"disabled":null)" tabindex="13" placeholder="Chamber Quantity" id="SChamber4Q" onfocus="selectAllInputValue('SChamber4Q')" @bind="Invoices.ShippingDetail.Chamber4.ChamberQuantity" @oninput="@(e => TextChangedShipment(4, e))" class="form-control">
                                                 </td>
                                                 <td>
-                                                    <input type="number" disabled="@(Invoices.Details.STONo==null?"disabled":null)" tabindex="11" placeholder="Chamber Quantity" id="SChamber5Q" onfocus="selectAllInputValue('SChamber5Q')" @bind="Invoices.ShippingDetail.Chamber5.ChamberQuantity" @oninput="@(e => TextChangedShipment(5, e))" class="form-control">
+                                                    <input type="number" disabled="@(Invoices.Details.STONo==null?"disabled":null)" tabindex="14" placeholder="Chamber Quantity" id="SChamber5Q" onfocus="selectAllInputValue('SChamber5Q')" @bind="Invoices.ShippingDetail.Chamber5.ChamberQuantity" @oninput="@(e => TextChangedShipment(5, e))" class="form-control">
                                                 </td>
                                             </tr>
                                             <tr>
                                                 <td>Tank Lorry Product Dips(MM)</td>
                                                 <td>
-                                                    <input type="number" disabled="@(Invoices.Details.STONo==null?"disabled":null)" tabindex="4" placeholder=" Tank Lorry Product Dips(MM)" id="Chamber1Dip" onfocus="selectAllInputValue('Chamber1Dip')" @bind="Invoices.ShippingDetail.Chamber1.LorryDip" class="form-control">
+                                                    <input type="number" disabled="@(Invoices.Details.STONo==null?"disabled":null)" tabindex="15" placeholder=" Tank Lorry Product Dips(MM)" id="Chamber1Dip" onfocus="selectAllInputValue('Chamber1Dip')" @bind="Invoices.ShippingDetail.Chamber1.LorryDip" class="form-control">
                                                 </td>
                                                 <td>
-                                                    <input type="number" disabled="@(Invoices.Details.STONo==null?"disabled":null)" tabindex="6" placeholder=" Tank Lorry Product Dips(MM)" id="SChamber2D" onfocus="selectAllInputValue('SChamber2D')" @bind="Invoices.ShippingDetail.Chamber2.LorryDip" class="form-control">
+                                                    <input type="number" disabled="@(Invoices.Details.STONo==null?"disabled":null)" tabindex="16" placeholder=" Tank Lorry Product Dips(MM)" id="SChamber2D" onfocus="selectAllInputValue('SChamber2D')" @bind="Invoices.ShippingDetail.Chamber2.LorryDip" class="form-control">
                                                 </td>
                                                 <td>
-                                                    <input type="number" disabled="@(Invoices.Details.STONo==null?"disabled":null)" tabindex="8" placeholder=" Tank Lorry Product Dips(MM)" id="SChamber3Dip" onfocus="selectAllInputValue('SChamber3Dip')" @bind="Invoices.ShippingDetail.Chamber3.LorryDip" class="form-control">
+                                                    <input type="number" disabled="@(Invoices.Details.STONo==null?"disabled":null)" tabindex="17" placeholder=" Tank Lorry Product Dips(MM)" id="SChamber3Dip" onfocus="selectAllInputValue('SChamber3Dip')" @bind="Invoices.ShippingDetail.Chamber3.LorryDip" class="form-control">
                                                 </td>
                                                 <td>
-                                                    <input type="number" disabled="@(Invoices.Details.STONo==null?"disabled":null)" tabindex="10" placeholder=" Tank Lorry Product Dips(MM)" id="SChamber4Dip" onfocus="selectAllInputValue('SChamber4Dip')" @bind="Invoices.ShippingDetail.Chamber4.LorryDip" class="form-control">
+                                                    <input type="number" disabled="@(Invoices.Details.STONo==null?"disabled":null)" tabindex="18" placeholder=" Tank Lorry Product Dips(MM)" id="SChamber4Dip" onfocus="selectAllInputValue('SChamber4Dip')" @bind="Invoices.ShippingDetail.Chamber4.LorryDip" class="form-control">
                                                 </td>
                                                 <td>
-                                                    <input type="number" disabled="@(Invoices.Details.STONo==null?"disabled":null)" tabindex="12" placeholder=" Tank Lorry Product Dips(MM)" id="SChamber5D" onfocus="selectAllInputValue('SChamber5D')" @bind="Invoices.ShippingDetail.Chamber5.LorryDip" class="form-control">
+                                                    <input type="number"  disabled="@(Invoices.Details.STONo==null?"disabled":null)" tabindex="19" placeholder=" Tank Lorry Product Dips(MM)" id="SChamber5D" onfocus="selectAllInputValue('SChamber5D')" @bind="Invoices.ShippingDetail.Chamber5.LorryDip" class="form-control">
                                                 </td>
                                             </tr>
                                             <tr>
@@ -277,13 +277,13 @@
                                             <tr>
                                                 <td>Temp F</td>
                                                 <td colspan="5">
-                                                    <input type="number" placeholder="Tempreture F" id="tf" @oninput="GetReceivingQuantitiesByTemp" onfocus="selectAllInputValue('tf')" @bind="Invoices.ReceivingDetail.TempF" class="form-control">
+                                                    <input type="number" tabindex="20" placeholder="Tempreture F" id="tf" @oninput="GetReceivingQuantitiesByTemp" onfocus="selectAllInputValue('tf')" @bind="Invoices.ReceivingDetail.TempF" class="form-control">
                                                 </td>
                                             </tr>
                                             <tr>
                                                 <td>S.G</td>
                                                 <td colspan="5">
-                                                    <input type="number" placeholder="Gravity" id="Rg" onfocus="selectAllInputValue('Rg')" @oninput="GetReceivingQuantitiesBySG" @bind="Invoices.ReceivingDetail.SG" class="form-control">
+                                                    <input type="number" tabindex="21" placeholder="Gravity" id="Rg" onfocus="selectAllInputValue('Rg')" @oninput="GetReceivingQuantitiesBySG" @bind="Invoices.ReceivingDetail.SG" class="form-control">
                                                 </td>
                                             </tr>
                                             <tr>
@@ -307,19 +307,19 @@
                                             <tr>
                                                 <td>Tank Lorry Product Dips(MM)</td>
                                                 <td>
-                                                    <input type="number" disabled="@(Invoices.ShippingDetail.Chamber1.LorryDip==0?"disabled":null)" placeholder=" Tank Lorry Product Dips(MM)" id="RChamber1D" onfocus="selectAllInputValue('RChamber1D')" value="@Invoices.ReceivingDetail.Chamber1.LorryDip" @onchange="@(e => QuantityChangeReceiving(1, e))" class="form-control">
+                                                    <input type="number" tabindex="22" disabled="@(Invoices.ShippingDetail.Chamber1.LorryDip==0?"disabled":null)" placeholder=" Tank Lorry Product Dips(MM)" id="RChamber1D" onfocus="selectAllInputValue('RChamber1D')" value="@Invoices.ReceivingDetail.Chamber1.LorryDip" @onchange="@(e => QuantityChangeReceiving(1, e))" class="form-control">
                                                 </td>
                                                 <td>
-                                                    <input type="number" disabled="@(Invoices.ShippingDetail.Chamber2.LorryDip==0?"disabled":null)" placeholder=" Tank Lorry Product Dips(MM)" id="RChamber2D" onfocus="selectAllInputValue('RChamber2D')" value="@Invoices.ReceivingDetail.Chamber2.LorryDip" @onchange="@(e => QuantityChangeReceiving(2, e))" class="form-control">
+                                                    <input type="number" tabindex="23" disabled="@(Invoices.ShippingDetail.Chamber2.LorryDip==0?"disabled":null)" placeholder=" Tank Lorry Product Dips(MM)" id="RChamber2D" onfocus="selectAllInputValue('RChamber2D')" value="@Invoices.ReceivingDetail.Chamber2.LorryDip" @onchange="@(e => QuantityChangeReceiving(2, e))" class="form-control">
                                                 </td>
                                                 <td>
-                                                    <input type="number" disabled="@(Invoices.ShippingDetail.Chamber3.LorryDip==0?"disabled":null)" placeholder=" Tank Lorry Product Dips(MM)" id="RChamber3D" onfocus="selectAllInputValue('RChamber3D')" value="@Invoices.ReceivingDetail.Chamber3.LorryDip" @onchange="@(e => QuantityChangeReceiving(3, e))" class="form-control">
+                                                    <input type="number" tabindex="24" disabled="@(Invoices.ShippingDetail.Chamber3.LorryDip==0?"disabled":null)" placeholder=" Tank Lorry Product Dips(MM)" id="RChamber3D" onfocus="selectAllInputValue('RChamber3D')" value="@Invoices.ReceivingDetail.Chamber3.LorryDip" @onchange="@(e => QuantityChangeReceiving(3, e))" class="form-control">
                                                 </td>
                                                 <td>
-                                                    <input type="number" disabled="@(Invoices.ShippingDetail.Chamber4.LorryDip==0?"disabled":null)" placeholder=" Tank Lorry Product Dips(MM)" id="RChamber4D" onfocus="selectAllInputValue('RChamber4D')" value="@Invoices.ReceivingDetail.Chamber4.LorryDip" @onchange="@(e => QuantityChangeReceiving(4, e))" class="form-control">
+                                                    <input type="number" tabindex="25" disabled="@(Invoices.ShippingDetail.Chamber4.LorryDip==0?"disabled":null)" placeholder=" Tank Lorry Product Dips(MM)" id="RChamber4D" onfocus="selectAllInputValue('RChamber4D')" value="@Invoices.ReceivingDetail.Chamber4.LorryDip" @onchange="@(e => QuantityChangeReceiving(4, e))" class="form-control">
                                                 </td>
                                                 <td>
-                                                    <input type="number" disabled="@(Invoices.ShippingDetail.Chamber5.LorryDip==0?"disabled":null)" placeholder=" Tank Lorry Product Dips(MM)" id="RChamber5D" onfocus="selectAllInputValue('RChamber5D')" value="@Invoices.ReceivingDetail.Chamber5.LorryDip" @onchange="@(e => QuantityChangeReceiving(5, e))" class="form-control">
+                                                    <input type="number" tabindex="26" disabled="@(Invoices.ShippingDetail.Chamber5.LorryDip==0?"disabled":null)" placeholder=" Tank Lorry Product Dips(MM)" id="RChamber5D" onfocus="selectAllInputValue('RChamber5D')" value="@Invoices.ReceivingDetail.Chamber5.LorryDip" @onchange="@(e => QuantityChangeReceiving(5, e))" class="form-control">
                                                 </td>
                                             </tr>
                                             <tr>
@@ -414,6 +414,7 @@
                                                     <div class="col-md-12">
                                                         <div class="form-group" style="text-align:center;">
                                                             <button class="btn btn-danger btn-sm ms-auto" @onclick="SavePreview">Save & Preview</button>
+                                                            <button class="btn btn-warning btn-sm ms-auto" @onclick="Cal">Refresh Calculation</button>
                                                         </div>
                                                     </div>
 
@@ -475,7 +476,7 @@
     public List<string> Vehicle = new List<string>();
     private bool IsLoading = false;
 
-    
+
 
 
 
@@ -656,6 +657,17 @@
         }
     }
 
+    private async Task Cal()
+    {
+        try
+        {
+              await CalculateDiff();            
+        }
+        catch(Exception ex)
+        {
+
+        }
+    }
     private async Task SavePreview()
     {
         try
@@ -822,6 +834,8 @@
     {
         if (e.Value != "")
         {
+            Invoices.CalculationDifference = new CalculationDiff();
+
             float Val = float.Parse(e.Value.ToString());
             double calculated6Quantity1 = await GetQtyAt85F(Val, Invoices.ShippingDetail.TempF, Invoices.ShippingDetail.Chamber1.ChamberQuantity);
             double calculated6Quantity2 = await GetQtyAt85F(Val, Invoices.ShippingDetail.TempF, Invoices.ShippingDetail.Chamber2.ChamberQuantity);
@@ -835,12 +849,14 @@
             Invoices.ShippingDetail.Chamber3.Quantity = int.Parse(calculated6Quantity3.ToString());
             Invoices.ShippingDetail.Chamber4.Quantity = int.Parse(calculated6Quantity4.ToString());
             Invoices.ShippingDetail.Chamber5.Quantity = int.Parse(calculated6Quantity5.ToString());
+            await    CalculateDiff();
         }
     }
     private async Task GetQuantitiesByTemp(ChangeEventArgs e)
     {
         if (e.Value != "")
         {
+            Invoices.CalculationDifference = new CalculationDiff();
             float Val = float.Parse(e.Value.ToString());
             double calculated6Quantity1 = await GetQtyAt85F(Invoices.ShippingDetail.SG, Val, Invoices.ShippingDetail.Chamber1.ChamberQuantity);
             double calculated6Quantity2 = await GetQtyAt85F(Invoices.ShippingDetail.SG, Val, Invoices.ShippingDetail.Chamber2.ChamberQuantity);
@@ -854,12 +870,15 @@
             Invoices.ShippingDetail.Chamber3.Quantity = int.Parse(calculated6Quantity3.ToString());
             Invoices.ShippingDetail.Chamber4.Quantity = int.Parse(calculated6Quantity4.ToString());
             Invoices.ShippingDetail.Chamber5.Quantity = int.Parse(calculated6Quantity5.ToString());
+            await  CalculateDiff();
         }
     }
     private async Task GetReceivingQuantitiesByTemp(ChangeEventArgs e)
     {
         if (e.Value != "")
         {
+            Invoices.CalculationDifference = new CalculationDiff();
+
             float Val = float.Parse(e.Value.ToString());
             double calculated6Quantity1 = await GetQtyAt85F(Invoices.ReceivingDetail.SG, Val, Invoices.ReceivingDetail.Chamber1.ChamberQuantity);
             double calculated6Quantity2 = await GetQtyAt85F(Invoices.ReceivingDetail.SG, Val, Invoices.ReceivingDetail.Chamber2.ChamberQuantity);
@@ -873,6 +892,7 @@
             Invoices.ReceivingDetail.Chamber3.Quantity = int.Parse(calculated6Quantity3.ToString());
             Invoices.ReceivingDetail.Chamber4.Quantity = int.Parse(calculated6Quantity4.ToString());
             Invoices.ReceivingDetail.Chamber5.Quantity = int.Parse(calculated6Quantity5.ToString());
+            await CalculateDiff();
         }
     }
 
@@ -880,6 +900,8 @@
     {
         if (e.Value != "")
         {
+            Invoices.CalculationDifference = new CalculationDiff();
+
             float Val = float.Parse(e.Value.ToString());
             double calculated6Quantity1 = await GetQtyAt85F(Val, Invoices.ReceivingDetail.TempF, Invoices.ReceivingDetail.Chamber1.ChamberQuantity);
             double calculated6Quantity2 = await GetQtyAt85F(Val, Invoices.ReceivingDetail.TempF, Invoices.ReceivingDetail.Chamber2.ChamberQuantity);
@@ -893,6 +915,8 @@
             Invoices.ReceivingDetail.Chamber3.Quantity = int.Parse(calculated6Quantity3.ToString());
             Invoices.ReceivingDetail.Chamber4.Quantity = int.Parse(calculated6Quantity4.ToString());
             Invoices.ReceivingDetail.Chamber5.Quantity = int.Parse(calculated6Quantity5.ToString());
+            await  CalculateDiff();
+
         }
     }
     private async Task TextChangedShipment(int chamberNumber, ChangeEventArgs e)
@@ -1014,6 +1038,13 @@
         try
         {
             Invoices.CalculationDifference = new CalculationDiff();
+            Invoices.CalculationDifference.TempDiff =0;
+            Invoices.CalculationDifference.TotalShortageByDip =0;
+            Invoices.CalculationDifference.Status ="";
+            Invoices.CalculationDifference.ShortageCharge =0;
+            Invoices.CalculationDifference.ShortOnTemp =0;
+            Invoices.CalculationDifference.Shortage1FTemp =0;
+            Invoices.CalculationDifference.QtyShouldRecieved = 0;
 
             float ReceivingTempF = Invoices.ReceivingDetail.TempF;
             float ShippingTempF = Invoices.ShippingDetail.TempF;
@@ -1075,7 +1106,7 @@
             }
             else
             {
-                
+
                 Shortage1F = 0;
             }
 
@@ -1085,6 +1116,7 @@
 
             float QunatityShouldR = TotalChamberQuantityS - Math.Abs(ShortOnTempExempt);
             Invoices.CalculationDifference.QtyShouldRecieved = QunatityShouldR;
+            StateHasChanged();
         }
         catch (Exception ex)
         {
