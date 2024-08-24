@@ -129,7 +129,7 @@ body {
     background-color: #f9f9f9;
     min-width: 160px;
     box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
-    z-index: 1;
+    z-index: 9999;
 }
 
     .dropdown-content a {
@@ -1505,3 +1505,41 @@ td, th {
     }
 }
 
+.filter-slider-panel {
+    position: fixed;
+    top: 0;
+    right: 0;
+    height: 100%;
+    width: 300px; /* Adjust width as needed */
+    z-index:9999;
+    background-color: #f8f9fa;
+    box-shadow: -2px 0 5px rgba(0, 0, 0, 0.3);
+    overflow-y: auto;
+    transform: translateX(100%); /* Start off-screen */
+    transition: transform 0.3s ease-in-out;
+}
+
+.filter-header {
+    padding: 7px;
+    background-color: #5e72e4;
+    color: white;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+    .filter-header h4 {
+        color: white;
+        font-size: 25px;
+    }
+.filter-content {
+    padding: 1rem;
+}
+
+.close-btn {
+    background: none;
+    border: none;
+    color: white;
+   /* font-size: 1.5rem;*/
+    cursor: pointer;
+    font-size: smaller;
+}
