@@ -62,3 +62,37 @@ a, .btn-link {
     .blazor-error-boundary::after {
         content: "An error has occurred."
     }
+
+
+.pagination {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-top: 20px;
+}
+
+    .pagination button {
+        background-color: #007bff; /* Primary button color */
+        color: white;
+        border: none;
+        padding: 10px 20px;
+        margin: 0 5px;
+        border-radius: 4px;
+        cursor: pointer;
+        transition: background-color 0.3s ease;
+    }
+
+        .pagination button:hover {
+            background-color: #0056b3; /* Darker blue on hover */
+        }
+
+        .pagination button:disabled {
+            background-color: #c0c0c0; /* Gray color for disabled state */
+            cursor: not-allowed;
+        }
+
+    .pagination span {
+        margin: 0 10px;
+        font-weight: bold;
+        font-size: 16px;
+    }

@@ -141,48 +141,60 @@
     
   
             // Define the filter function
-                function filterTabless() {
-            var searchValue = document.getElementById('searchInput').value.toLowerCase();
-            var table = document.getElementById("invoiceTables");
-            var rows = table.querySelectorAll("tbody tr");
+function filterTabless(jsonDataString) {
+    // Parse the JSON string back into a JavaScript object/array
+    var jsonData = JSON.parse(jsonDataString);
 
-            rows.forEach(function(row) {
-                var cells = row.getElementsByTagName("td");
-                var found = false;
+    var searchValue = document.getElementById('searchInput').value.toLowerCase();
 
-                Array.from(cells).forEach(function(cell) {
-                    if (cell.textContent.toLowerCase().includes(searchValue)) {
-                        found = true;
-                    }
-                });
+    // Filter the JSON data based on the search value
+    var filteredData = jsonData.filter(function (item) {
+        var itemString = Object.values(item).join(" ").toLowerCase();
+        return itemString.includes(searchValue);
+    });
 
-                row.style.display = found ? "" : "none";
-            });
-        }
+    // Return the filtered data as a JSON string
+    return JSON.stringify(filteredData);
+}
 
-              function exportTableToExcel() {
-            var table = document.getElementById('invoiceTables');
-            var workbook = XLSX.utils.table_to_book(table, { sheet: "Sheet1" });
-            var wbout = XLSX.write(workbook, { bookType: 'xlsx', type: 'binary' });
-            
-            function s2ab(s) {
-                var buf = new ArrayBuffer(s.length);
-                var view = new Uint8Array(buf);
-                for (var i = 0; i < s.length; i++) view[i] = s.charCodeAt(i) & 0xFF;
-                return buf;
-            }
 
-            var filename = 'table-data.xlsx';
-            var blob = new Blob([s2ab(wbout)], { type: 'application/octet-stream' });
-            var link = document.createElement('a');
-            link.href = URL.createObjectURL(blob);
-            link.download = filename;
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-        }
+
+function exportTableToExcel(dataJson) {
+    // Parse the JSON data
+    var data = JSON.parse(dataJson);
+
+    // Create a new workbook and worksheet
+    var workbook = XLSX.utils.book_new();
+    var worksheet = XLSX.utils.json_to_sheet(data);
+
+    // Append the worksheet to the workbook
+    XLSX.utils.book_append_sheet(workbook, worksheet, "Sheet1");
+
+    // Write the workbook to a binary string
+    var wbout = XLSX.write(workbook, { bookType: 'xlsx', type: 'binary' });
+
+    // Convert the binary string to a Blob
+    function s2ab(s) {
+        var buf = new ArrayBuffer(s.length);
+        var view = new Uint8Array(buf);
+        for (var i = 0; i < s.length; i++) view[i] = s.charCodeAt(i) & 0xFF;
+        return buf;
+    }
+
+    var filename = 'table-data.xlsx';
+    var blob = new Blob([s2ab(wbout)], { type: 'application/octet-stream' });
+
+    // Create a link to download the Blob
+    var link = document.createElement('a');
+    link.href = URL.createObjectURL(blob);
+    link.download = filename;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+}
            
-       function copyTableToClipboard() {
+function copyTableToClipboard() {
+    try {
         var table = document.getElementById('invoiceTables');
         var textContent = '';
 
@@ -190,27 +202,33 @@
         var headerRow = table.querySelector('thead tr');
         if (headerRow) {
             var headerText = [];
-            headerRow.querySelectorAll('th').forEach(function(cell) {
+            headerRow.querySelectorAll('th').forEach(function (cell) {
                 headerText.push(cell.textContent.trim());
             });
             textContent += headerText.join('\t') + '\n'; // Add header row text
         }
 
         // Extract and format each row of the table body
-        table.querySelectorAll('tbody tr').forEach(function(row) {
+        table.querySelectorAll('tbody tr').forEach(function (row) {
             var rowText = [];
-            row.querySelectorAll('td').forEach(function(cell) {
+            row.querySelectorAll('td').forEach(function (cell) {
                 rowText.push(cell.textContent.trim());
             });
             textContent += rowText.join('\t') + '\n'; // Add body row text
         });
 
-        // Use the Clipboard API to copy the text content
-        navigator.clipboard.writeText(textContent).then(function() {
-            alert('Table text copied to clipboard successfully.');
-        }, function(err) {
-            alert('Failed to copy table text: ', err);
-        });
-    }
+        // Create a temporary textarea element
+        var textarea = document.createElement('textarea');
+        textarea.value = textContent;
+        document.body.appendChild(textarea);
+        textarea.select();
+        document.execCommand('copy');
+        document.body.removeChild(textarea);
 
+        alert('Copied to Clipboard');
+    } catch (error) {
+        console.error('Failed to copy table text: ', error);
+        alert('An error occurred while copying the table text.');
+    }
+}
 

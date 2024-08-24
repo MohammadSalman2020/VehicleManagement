@@ -1,237 +1,395 @@
 ﻿  @page "/DriverSummary"
 @using Microsoft.Data.SqlClient
+@using VehicleManagement.Authentication
 @using VehicleManagement.Models.General
+@inject IUserClaimsService UserClaimsService
+@inject IToastService toastService
 
   @inject IJSRuntime js
   @inject IConfiguration _configuration
-  <div class="container-fluid py-4">
+<div class="container-fluid py-4">
     <div class="row">
-<AuthorizeView Roles="admin,FleetManager,SafetySupervisor">
-    <Authorized Context="access">
-        
-                <div class="col-md-12">
-                    <div class="card">
+        <AuthorizeView Roles="admin,FleetManager,SafetySupervisor">
+            <Authorized Context="access">
 
-                        <div class="card-body">
+                <div class="col-md-12">
+                    <div class="">
+
+                        <div class="">
+                            <div class="col-md-12" style="text-align:end;">
+                                <!-- Filter Button -->
+                                <img style="cursor:pointer;" src="css/filter.png" @onclick="ToggleFilterPanel" />
+
+                            </div>
+
 
                             <div class="row">
-                                <div class="col-md-4">
-                                    <div class="filter-controls">
-                                        <div class="form-group">
-                                            <input type="text" class="form-control" id="searchInput" placeholder="Search..." oninput="filterTabless()">
 
+                                <div class="col-md-2">
+                                    <!-- Filter Button -->
+                                    <!-- Slider Panel -->
+                                    <div class="filter-slider-panel" style="@PanelStyle">
+                                        <div class="filter-header">
+                                            <h4>Filters</h4>
+                                            <button class="close-btn" @onclick="ToggleFilterPanel">X</button>
+                                        </div>
+                                        <!-- Filter Options -->
+                                        <div class="filter-content">
+                                            <!-- Add your filter controls here -->
+                                            <div class="row col-md-12">
+
+                                                <div class="row filter-controls">
+                                                    <div class="col-md-10">
+                                                        <div class="form-group">
+                                                            <input type="text" @bind="@searchTerm" class="form-control" id="searchInput" placeholder="STO/Driver Name/Driver ID...">
+
+                                                        </div>
+                                                    </div>
+
+
+                                                    <div class="col-md-2" style="align-content: space-evenly;" title="Business/STO/Driver Name/Driver ID/Vehicle/Primary Reference">
+                                                        <div class="form-group">
+                                                            <img style="cursor:pointer;" src="css/search.png" @onclick="@(e => SearchRecords(searchTerm))">
+                                                        </div>
+                                                    </div>
+
+
+
+                                                </div>
+
+
+                                            </div>
+                                            <!-- Date Filter -->
+                                            <div class="row col-md-12">
+                                                <div class="col-md-6">
+                                                    <div class="form-group">
+                                                        <label for="startDate">Start Date:</label>
+                                                        <input type="date" @bind="@startDate" class="form-control" id="startDate">
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-6">
+                                                    <div class="form-group">
+                                                        <label for="endDate">End Date:</label>
+                                                        <input type="date" @bind="@endDate" class="form-control" id="endDate">
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-12" style="text-align:center;">
+                                                    <div class="form-group">
+                                                        <button style="border: white;" class="btn-primary" @onclick="FilterByDateRange">Search</button>
+                                                        <button style="border: white;" class="btn-danger" @onclick="Reset">Reset</button>
+
+
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="row col-md-12">
+                                                <div class="col-md-6" style="text-align:center;" title="Export All Data to Excel"> 
+                                                    <div class="form-group">
+                                                        <img style="cursor:pointer;" src="css/Excel Icon.png" @onclick="ExportToExcel" />
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-6" style="text-align:center;" title="Copy Shown Data">
+
+                                                    <div class="form-group">
+                                                        <img style="cursor:pointer;" src="css/clipboard.png" onclick="copyTableToClipboard()" />
+                                                    </div>
+                                                </div>
+                                                <!-- Add more filter options as needed -->
+                                            </div>
                                         </div>
 
-                                         
-                                    
                                     </div>
-                               </div>
-                                 <div class="col-md-2">
-                                          <div class="form-group">
-                                                    <button class="btn btn-danger btn-sm ms-auto" onclick="exportTableToExcel()">Export</button>
-                                                </div>
-                                         </div>
-                             <div class="col-md-4">
-                                 
-                                              <div class="form-group">
-                                                    <button class="btn btn-danger btn-sm ms-auto" onclick="copyTableToClipboard()">Copy To Clipboard</button>
-                                                </div>
-                                         </div>
+
+                                </div>
+
+                            </div>
+                        </div>
+                    </div>
+                    <br />
+
+                    <div class="row" style="margin-top:10px;">
+
+                        <div class="col-md-12 ">
+
+                            <div class="">
+                                <div class="table-responsive p-0" >
+
+
+                                    <table class="" id="invoiceTables" style="width:100%">
+                                        <thead>
+                                            <tr>
+
+                                                <th class="text-center font-colors text-uppercase  text-xxs font-weight-bolder opacity-7" style="position: sticky;top: 0;background-color: #ffffff;z-index: 1;">STO No</th>
+                                                <th class="text-center font-colors text-uppercase  text-xxs font-weight-bolder opacity-7" style="position: sticky;top: 0;background-color: #ffffff;z-index: 1;">Business</th>
+                                                <th class="text-center font-colors text-uppercase  text-xxs font-weight-bolder opacity-7" style="position: sticky;top: 0;background-color: #ffffff;z-index: 1;">Vehicle</th>
+                                                <th class="text-center font-colors text-uppercase  text-xxs font-weight-bolder opacity-7" style="position: sticky;top: 0;background-color: #ffffff;z-index: 1;"> Date</th>
+                                                <th class="text-center font-colors text-uppercase  text-xxs font-weight-bolder opacity-7" style="position: sticky;top: 0;background-color: #ffffff;z-index: 1;">Location</th>
+                                                <th class="text-center font-colors text-uppercase  text-xxs font-weight-bolder opacity-7" style="position: sticky;top: 0;background-color: #ffffff;z-index: 1;">Type</th>
+                                                <th class="text-center font-colors text-uppercase  text-xxs font-weight-bolder opacity-7" style="position: sticky;top: 0;background-color: #ffffff;z-index: 1;">Driver1 ID</th>
+                                                <th class="text-center font-colors text-uppercase  text-xxs font-weight-bolder opacity-7" style="position: sticky;top: 0;background-color: #ffffff;z-index: 1;"> Driver1 Name</th>
+                                                <th class="text-center font-colors text-uppercase  text-xxs font-weight-bolder opacity-7" style="position: sticky;top: 0;background-color: #ffffff;z-index: 1;">Driver2 ID</th>
+                                                <th class="text-center font-colors text-uppercase  text-xxs font-weight-bolder opacity-7" style="position: sticky;top: 0;background-color: #ffffff;z-index: 1;">Driver2 Name</th>
+                                                <th class="text-center font-colors text-uppercase  text-xxs font-weight-bolder opacity-7" style="position: sticky;top: 0;background-color: #ffffff;z-index: 1;">Primary</th>
+                                                <th class="text-center font-colors text-uppercase  text-xxs font-weight-bolder opacity-7" style="position: sticky;top: 0;background-color: #ffffff;z-index: 1;">Secondary</th>
+                                                <th class="text-center font-colors text-uppercase  text-xxs font-weight-bolder opacity-7" style="position: sticky;top: 0;background-color: #ffffff;z-index: 1;">Total</th>
+                                                <th class="text-center font-colors text-uppercase  text-xxs font-weight-bolder opacity-7" style="position: sticky;top: 0;background-color: #ffffff;z-index: 1;">Exempted</th>
+                                                <th class="text-center font-colors text-uppercase  text-xxs font-weight-bolder opacity-7" style="position: sticky;top: 0;background-color: #ffffff;z-index: 1;">Shortage Deduction</th>
+
+
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            @if (!IsLoading)
+                                            {
+                                                @if (Items.Count > 0)
+                                                {
+                                                    string PR = "";
+                                                    foreach (var item in Items)
+                                                    {
+                                                        @if (item.primaryreference == "")
+                                                        {
+                                                            continue;
+                                                        }
+
+                                                        <tr class="tbl-accordion-header">
+
+
+                                                            <td class="align-middle text-center">
+                                                                <span class="text-secondary text-xs font-weight-bold">@item.stono</span>
+                                                            </td>
+
+                                                            <td class="align-middle text-center">
+                                                                <span class="text-secondary text-xs font-weight-bold">@item.busdesc</span>
+                                                            </td>
+                                                            <td class="align-middle text-center">
+                                                                <span class="text-secondary text-xs font-weight-bold">@item.VehicleNo</span>
+                                                            </td>
+                                                            <td class="align-middle text-center">
+                                                                <span class="text-secondary text-xs font-weight-bold">@item.Date</span>
+                                                            </td>
+                                                            <td class="align-middle text-center">
+                                                                <span class="text-secondary text-xs font-weight-bold">
+                                                                    @item.Location
+                                                                </span>
+                                                            </td>
+                                                            <td class="align-middle text-center text-sm">
+                                                                @if (item.type == "pk")
+                                                                {
+                                                                    <span class="text-secondary text-xs font-weight-bold">@(item.type == "pk" ? "Primary" : "Secondary")</span>
+
+                                                                }
+                                                                else
+                                                                {
+                                                                    <span class="text-secondary text-xs font-weight-bold">@(item.type == "pk" ? "Primary" : "Secondary")</span>
+
+                                                                }
+
+                                                            </td>
+                                                            <td class="align-middle text-center">
+                                                                <span class="text-secondary text-xs font-weight-bold">
+                                                                    @((item.DriverID1 != "" ? item.DriverID1 : "No Attendance"))
+                                                                </span>
+                                                            </td>
+                                                            <td class="align-middle text-center">
+                                                                <span class="text-secondary text-xs font-weight-bold">
+                                                                    @((item.DriverName1 != "" ? item.DriverName1 : "No Attendance"))
+                                                                </span>
+                                                            </td>
+
+                                                            <td class="align-middle text-center">
+                                                                <span class="text-secondary text-xs font-weight-bold">
+                                                                    @((item.DriverID2 != "" ? item.DriverID2 : "No Attendance"))
+                                                                </span>
+                                                            </td>
+                                                            <td class="align-middle text-center">
+                                                                <span class="text-secondary text-xs font-weight-bold">
+                                                                    @((item.DriverName2 != "" ? item.DriverName2 : "No Attendance"))
+                                                                </span>
+                                                            </td>
+
+
+
+                                                            @if (item.type == "sc" && item.primaryreference != PR)
+                                                            {
+                                                                int? count = Items.Where(p => p.primaryreference == item.primaryreference && p.type == "sc" && item.primaryreference != "none").ToList().Count;
+
+                                                                count = item.primaryreference == "none" ? 1 : count;
+
+                                                                <td class="align-middle text-center" style="border: #cccccc 1px solid;" rowspan="@count">
+                                                                    <span class="text-secondary text-xs font-weight-bold">0 </span>
+                                                                </td>
+                                                                <td class="align-middle text-center" style="border: #cccccc 1px solid;" rowspan="@count">
+                                                                    <span class="text-secondary text-xs font-weight-bold">@item.Secondary </span>
+                                                                </td>
+
+                                                                <td class="align-middle text-center" style="border: #cccccc 1px solid;" rowspan="@count">
+                                                                    @if (item.Total > item.Exempted)
+                                                                    {
+                                                                        <span class="badge badge-sm bg-gradient-danger">@item.Total</span>
+
+                                                                    }
+                                                                    else
+                                                                    {
+                                                                        <span class="text-secondary text-xs font-weight-bold">@item.Total </span>
+
+                                                                    }
+
+                                                                </td>
+
+                                                                <td class="align-middle text-center" style="border: #cccccc 1px solid;" rowspan="@count">
+                                                                    <span class="text-secondary text-xs font-weight-bold">@item.Exempted </span>
+                                                                </td>
+                                                                <td class="align-middle text-center" style="border: #cccccc 1px solid;" rowspan="@count">
+                                                                    @if (item.ShortageDeduction == 0)
+                                                                    {
+                                                                        <span class="text-secondary text-xs font-weight-bold">@item.ShortageDeduction </span>
+
+                                                                    }
+                                                                    else
+                                                                    {
+                                                                        <span class="badge badge-sm bg-gradient-danger">@item.ShortageDeduction</span>
+
+                                                                    }
+
+
+                                                                </td>
+                                                                PR = item.primaryreference;
+                                                            }
+                                                            else if (item.type == "pk" || item.primaryreference == "none")
+                                                            {
+                                                                if (item.type == "pk")
+                                                                {
+                                                                    <td class="align-middle text-center" style="border: #cccccc 1px solid;">
+                                                                        <span class="text-secondary text-xs font-weight-bold">@item.Primary </span>
+                                                                    </td>
+                                                                    <td class="align-middle text-center" style="border: #cccccc 1px solid;">
+                                                                        <span class="text-secondary text-xs font-weight-bold">0</span>
+                                                                    </td>
+                                                                }
+                                                                else if (item.type == "sc")
+                                                                {
+                                                                    <td class="align-middle text-center" style="border: #cccccc 1px solid;">
+                                                                        <span class="text-secondary text-xs font-weight-bold">0 </span>
+                                                                    </td>
+                                                                    <td class="align-middle text-center" style="border: #cccccc 1px solid;">
+                                                                        <span class="text-secondary text-xs font-weight-bold">@item.Secondary</span>
+                                                                    </td>
+                                                                }
+
+
+
+                                                                <td class="align-middle text-center" style="border: #cccccc 1px solid;">
+                                                                    @if (item.Total > item.Exempted)
+                                                                    {
+                                                                        <span class="badge badge-sm bg-gradient-danger">@item.Total</span>
+
+                                                                    }
+                                                                    else
+                                                                    {
+                                                                        <span class="text-secondary text-xs font-weight-bold">@item.Total </span>
+
+                                                                    }
+
+                                                                </td>
+
+                                                                <td class="align-middle text-center" style="border: #cccccc 1px solid;">
+                                                                    <span class="text-secondary text-xs font-weight-bold">@item.Exempted </span>
+                                                                </td>
+                                                                <td class="align-middle text-center" style="border: #cccccc 1px solid;">
+                                                                    @if (item.ShortageDeduction == 0)
+                                                                    {
+                                                                        <span class="text-secondary text-xs font-weight-bold">@item.ShortageDeduction </span>
+
+                                                                    }
+                                                                    else
+                                                                    {
+                                                                        <span class="badge badge-sm bg-gradient-danger font-weight-bold">@item.ShortageDeduction</span>
+
+                                                                    }
+
+
+                                                                </td>
+                                                            }
+
+
+
+
+
+
+                                                        </tr>
+
+                                                    }
+                                                }
+                                            }
+                                            else if (IsLoading)
+                                            {
+                                                <tr>
+                                                    <td colspan="12">
+                                                        <DataLoaderComponent IsLoading="@IsLoading" LoadingText="Loading Invoices..." />
+                                                    </td>
+                                                </tr>
+                                            }
+                                        </tbody>
+                                    </table>
+
+
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+
+                    <div class="col-md-12">
+                        <div class="">
+                            <div class="pagination">
+                                <button class="btn btn-primary" @onclick="GoToFirstPage" disabled="@(!CanGoToPreviousPage)"><i style="font-size:24px" class="fa fa-angle-double-left"></i></button>
+                                <button class="btn btn-primary" @onclick="PreviousPage" disabled="@(!CanGoToPreviousPage)"><i style="font-size:24px" class="fa fa-angle-left"></i></button>
+                                <span>Page @CurrentPage of @TotalPages</span>
+                                <button class="btn btn-primary" @onclick="NextPage" disabled="@(!CanGoToNextPage)"><i style="font-size:24px" class="fa fa-angle-right"></i></button>
+                                <button class="btn btn-primary" @onclick="GoToLastPage" disabled="@(!CanGoToNextPage)"><i style="font-size:24px" class="fa fa-angle-double-right"></i></button>
                             </div>
 
                         </div>
                     </div>
+
+
                 </div>
-                <br />
 
-        <div class="row" style="margin-top:10px;">
+            </Authorized>
+            <NotAuthorized>
+                @if (_isJsReady)
+                {
+                    <_403 />
 
-            <div class="col-md-12 card">
-                <div class="card-header pb-0">
-                    <h6>Driver Shortage Summary</h6>
-                </div>
-                <div class="card-body px-0 pt-0 pb-2" style="width:1210px;">
-                    <div class="table-responsive p-0" style=" overflow-x: scroll;height: 360px;">
-
-
-                        <table class="table align-items-center mb-0 table-test" id="invoiceTables">
-                            <thead>
-                                <tr>
-
-                                    <th class="text-center font-colors text-uppercase  text-xxs font-weight-bolder opacity-7">STO No</th>
-                                    <th class="text-center font-colors text-uppercase  text-xxs font-weight-bolder opacity-7">Vehicle</th>
-                                    <th class="text-center font-colors text-uppercase  text-xxs font-weight-bolder opacity-7"> Date</th>
-                                    <th class="text-center font-colors text-uppercase  text-xxs font-weight-bolder opacity-7">Primary Reference</th>
-                                    <th class="text-center font-colors text-uppercase  text-xxs font-weight-bolder opacity-7">Type</th>
-                                    <th class="text-center font-colors text-uppercase  text-xxs font-weight-bolder opacity-7">Driver1 ID</th>
-                                    <th class="text-center font-colors text-uppercase  text-xxs font-weight-bolder opacity-7"> Driver1 Name</th>
-                                    <th class="text-center font-colors text-uppercase  text-xxs font-weight-bolder opacity-7">Driver2 ID</th>
-                                    <th class="text-center font-colors text-uppercase  text-xxs font-weight-bolder opacity-7">Driver2 Name</th>
-                                    <th class="text-center font-colors text-uppercase  text-xxs font-weight-bolder opacity-7">Primary</th>
-                                    <th class="text-center font-colors text-uppercase  text-xxs font-weight-bolder opacity-7">Secondary</th>
-                                    <th class="text-center font-colors text-uppercase  text-xxs font-weight-bolder opacity-7">Total</th>
-                                    <th class="text-center font-colors text-uppercase  text-xxs font-weight-bolder opacity-7">Exempted</th>
-                                    <th class="text-center font-colors text-uppercase  text-xxs font-weight-bolder opacity-7">Shortage Deduction</th>
-
-
-                                </tr>
-                            </thead>
-                            <tbody>
-                                @if (!IsLoading)
-                                {
-                                    @if (obj.Count > 0)
-                                    {
-
-                                        foreach (var item in obj)
-
-                                        {
-
-                                            <tr class="tbl-accordion-header">
-
-
-                                                <td class="align-middle text-center">
-                                                    <div class="d-flex px-2 py-1">
-                                                        <div>
-                                                            <img src="css/invoice-icon.png" class="avatar avatar-sm me-3" alt="user1">
-                                                        </div>
-                                                        <div class="d-flex flex-column justify-content-center" style="cursor:pointer;">
-                                                            <h6 class="mb-0 text-sm">@item.stono</h6>
-
-                                                        </div>
-                                                    </div>
-                                                </td>
-                                                <td class="align-middle text-center">
-                                                    <span class="text-secondary text-xs font-weight-bold">@item.VehicleNo</span>
-                                                </td>
-                                                <td class="align-middle text-center">
-                                                    <span class="text-secondary text-xs font-weight-bold">@item.Date</span>
-                                                </td>
-                                                <td class="align-middle text-center">
-                                                    <span class="text-secondary text-xs font-weight-bold">
-                                                        @item.primaryreference
-                                                    </span>
-                                                </td>
-                                                <td class="align-middle text-center text-sm">
-                                                    @if (item.type == "pk")
-                                                    {
-                                                        <span class="badge badge-sm bg-gradient-success">@(item.type == "pk" ? "Primary" : "Secondary")</span>
-
-                                                    }
-                                                    else
-                                                    {
-                                                        <span class="badge badge-sm bg-gradient-danger">@(item.type == "pk" ? "Primary" : "Secondary")</span>
-
-                                                    }
-
-                                                </td>
-                                                <td class="align-middle text-center">
-                                                    <span class="text-secondary text-xs font-weight-bold">
-                                                        @((item.DriverID1 != null ? item.DriverID1 : "No Attendance"))
-                                                    </span>
-                                                </td>
-                                                <td class="align-middle text-center">
-                                                    <span class="text-secondary text-xs font-weight-bold">
-                                                        @((item.DriverName1 != null ? item.DriverName1 : "No Attendance"))
-                                                    </span>
-                                                </td>
-
-                                                <td class="align-middle text-center">
-                                                    <span class="text-secondary text-xs font-weight-bold">
-                                                        @((item.DriverID2 != null ? item.DriverID2 : "No Attendance"))
-                                                    </span>
-                                                </td>
-                                                <td class="align-middle text-center">
-                                                    <span class="text-secondary text-xs font-weight-bold">
-                                                        @((item.DriverName2 != null ? item.DriverName2 : "No Attendance"))
-                                                    </span>
-                                                </td>
-
-                                                <td class="align-middle text-center">
-                                                    <span class="text-secondary text-xs font-weight-bold">@item.Primary </span>
-                                                </td>
-
-                                                <td class="align-middle text-center">
-                                                    <span class="text-secondary text-xs font-weight-bold">@item.Secondary </span>
-                                                </td>
-
-                                                <td class="align-middle text-center">
-                                                    @if (item.Total > item.Exempted)
-                                                    {
-                                                        <span class="badge badge-sm bg-gradient-danger">@item.Total</span>
-
-                                                    }
-                                                    else
-                                                    {
-                                                        <span class="text-secondary text-xs font-weight-bold">@item.Total </span>
-
-                                                    }
-
-                                                </td>
-
-                                                <td class="align-middle text-center">
-                                                    <span class="text-secondary text-xs font-weight-bold">@item.Exempted </span>
-                                                </td>
-                                                <td class="align-middle text-center text-sm">
-                                                    @if (item.ShortageDeduction == 0)
-                                                    {
-                                                        <span class="text-secondary text-xs font-weight-bold">@item.ShortageDeduction </span>
-
-                                                    }
-                                                    else
-                                                    {
-                                                                <span class="badge badge-sm bg-gradient-danger font-weight-bold">@item.ShortageDeduction</span>
-
-                                                    }
-
-
-                                                </td>
-
-
-
-
-
-
-                                            </tr>
-                                        }
-                                    }
-                                }
-                                else if (IsLoading)
-                                {
-                                    <tr>
-                                        <td colspan="12">
-                                            <DataLoaderComponent IsLoading="@IsLoading" LoadingText="Loading Invoices..." />
-                                        </td>
-                                    </tr>
-                                }
-                            </tbody>
-                        </table>
-
-
-                    </div>
-                </div>
-            </div>
-
-        </div>
-
-
-
-
-
-
-    </Authorized>
-    <NotAuthorized>
-        @if (_isJsReady)
-        {
-            <_403 />
-
-        }
-    </NotAuthorized>
-</AuthorizeView>
+                }
+            </NotAuthorized>
+        </AuthorizeView>
     </div>
 </div>
 @code {
     private bool _isJsReady = false;
     public bool IsLoading { get; set; }
+    private int TotalItems;
+    private int CurrentPage = 1;
+    private int PageSize = 15; // Number of items per page
+    private bool CanGoToPreviousPage => CurrentPage > 1;
+    private bool CanGoToNextPage => CurrentPage < TotalPages;
+    private List<DriverShortageSummaries> Items;
+    public List<int> BusinessID = new List<int>();
+    private string searchTerm;
+    private DateTime? startDate;
+    private DateTime? endDate;
+    private bool isPanelVisible = false;
+    private string selectedCategory;
+
+    // Toggle the filter panel visibility
+    private void ToggleFilterPanel()
+    {
+        isPanelVisible = !isPanelVisible;
+    }
+
+    // CSS style based on panel visibility
+    private string PanelStyle => isPanelVisible ? "transform: translateX(0);" : "transform: translateX(100%);";
 
     public List<DriverShortageSummaries> obj = new List<DriverShortageSummaries>();
 
@@ -253,6 +411,86 @@
             }
         }
     }
+    private List<DriverShortageSummaries> FilteredItems;
+
+    private async void SearchRecords(string searchCriteria)
+    {
+        searchCriteria = searchCriteria.Replace(" ", string.Empty).Trim();
+        if (string.IsNullOrEmpty(searchCriteria))
+        {
+            // If no search criteria, reset to all items
+            FilteredItems = obj;
+
+        }
+        else
+        {
+            // Example search logic based on `primaryreference` and `VehicleNo` fields
+            FilteredItems = obj.Where(item =>
+                (item.stono != null && item.stono.Contains(searchCriteria, StringComparison.OrdinalIgnoreCase)) ||
+                (item.VehicleNo != null && item.VehicleNo.Contains(searchCriteria, StringComparison.OrdinalIgnoreCase))
+                || (item.DriverID1 != null && item.DriverID1.Contains(searchCriteria, StringComparison.OrdinalIgnoreCase))
+                || (item.DriverID2 != null && item.DriverID2.Contains(searchCriteria, StringComparison.OrdinalIgnoreCase))
+                  || (item.DriverName1 != null && item.DriverName1.Contains(searchCriteria, StringComparison.OrdinalIgnoreCase))
+                    || (item.DriverName2 != null && item.DriverName2.Contains(searchCriteria, StringComparison.OrdinalIgnoreCase))
+                     || (item.primaryreference != null && item.primaryreference.Contains(searchCriteria, StringComparison.OrdinalIgnoreCase))
+                     || (item.busdesc != null && item.busdesc.Contains(searchCriteria, StringComparison.OrdinalIgnoreCase))
+            ).ToList();
+        }
+
+        // After filtering, reset the pagination
+        CurrentPage = 1;
+        await LoadData();
+    }
+    private async Task FilterByDateRange()
+    {
+        DateTime startDateTime;
+        DateTime endDateTime;
+        bool isStartDateValid = DateTime.TryParse(startDate?.ToString(), out startDateTime);
+        bool isEndDateValid = DateTime.TryParse(endDate?.ToString(), out endDateTime);
+        if (!isEndDateValid || !isStartDateValid)
+        {
+            toastService.ShowError("Please Select Valid Date");
+            return;
+        }
+        FilteredItems = obj.Where(item =>
+        {
+            DateTime itemDate;
+            bool isItemDateValid = DateTime.TryParse(item.Date, out itemDate);
+
+            if (!isItemDateValid)
+            {
+                return false; // Skip items with invalid date formats
+            }
+
+            bool isAfterStartDate = !isStartDateValid || itemDate >= startDateTime;
+            bool isBeforeEndDate = !isEndDateValid || itemDate <= endDateTime;
+
+            return isAfterStartDate && isBeforeEndDate;
+        }).ToList();
+
+        CurrentPage = 1;
+        await LoadData();
+
+    }
+    private async Task Reset()
+    {
+        startDate = null;
+        endDate = null;
+        FilteredItems = obj;
+
+        CurrentPage = 1;
+        await LoadData();
+
+    }
+    private async Task ExportToExcel()
+    {
+        // Convert the list to JSON
+        var jsonData = System.Text.Json.JsonSerializer.Serialize(obj);
+
+        // Call the JavaScript function
+        await js.InvokeVoidAsync("exportTableToExcel", jsonData);
+    }
+
     protected override async Task OnInitializedAsync()
     {
 
@@ -260,8 +498,13 @@
         try
         {
 
+            BusinessID = await UserClaimsService.GetBusinessIdsAsync();
 
             await LoadShortagereport();
+            FilteredItems = obj;
+
+            await LoadData();
+
         }
         catch (Exception ex)
         {
@@ -269,6 +512,54 @@
         }
         IsLoading = false;
     }
+    private async Task LoadData()
+    {
+        TotalItems = await GetTotalItemCountAsync();
+        TotalPages = (int)Math.Ceiling((double)TotalItems / PageSize);
+        Items = await GetItemsAsync(CurrentPage, PageSize);
+    }
+    private async Task PreviousPage()
+    {
+        if (CanGoToPreviousPage)
+        {
+            CurrentPage--;
+            await LoadData();
+        }
+    }
+    public async Task<List<DriverShortageSummaries>> GetItemsAsync(int page, int pageSize)
+    {
+        return FilteredItems.Skip((page - 1) * pageSize).Take(pageSize).ToList();
+    }
+
+    public async Task<int> GetTotalItemCountAsync()
+    {
+        return FilteredItems.Count();
+    }
+    private async Task NextPage()
+    {
+        if (CanGoToNextPage)
+        {
+            CurrentPage++;
+            await LoadData();
+        }
+    }
+    private async Task GoToFirstPage()
+    {
+        if (CurrentPage != 1)
+        {
+            CurrentPage = 1;
+            await LoadData();
+        }
+    }
+    private async Task GoToLastPage()
+    {
+        if (CurrentPage != TotalPages)
+        {
+            CurrentPage = TotalPages;
+            await LoadData();
+        }
+    }
+    private int TotalPages;
     public async Task LoadShortagereport()
     {
         try
@@ -281,17 +572,16 @@ WITH DriverShortage AS (
         CONCAT(inv.SupplyPoint, '-', inv.ReceivingLocation) AS [Location],
         FORMAT(inv._Date, 'dd-MMM-yy') AS [Date],
         inv.primaryreference,
-        inv.type,
+        inv.type AS invoiceType,
         drv.driverid AS DriverID1,
         drv.Fullname AS DriverName1,
         drv2.driverid AS DriverID2,
         drv2.Fullname AS DriverName2,
-        SUM(CASE WHEN dsl.InvoiceType = 'pk' AND dsl.ShortType = 'Short' THEN dsl.ShortageLtr ELSE 0 END) AS [Primary],
-        SUM(CASE WHEN dsl.InvoiceType = 'sc' AND dsl.ShortType = 'Short' THEN dsl.ShortageLtr ELSE 0 END) AS [Secondary],
-        SUM(CASE
-            WHEN dsl.InvoiceType IN ('pk', 'sc') AND dsl.ShortType = 'Short' THEN dsl.ShortageLtr
-            ELSE 0
-        END) AS [Total]
+        dvm.businessID,
+        bus.busdesc,
+        dsl.ShortageLtr * 2 AS [Primary],
+        dsl.ShortageLtr * 2 AS [Secondary],
+        dsl.ShortageLtr * 2 AS [Total]
     FROM
         tblDriverShortageLedger dsl
     JOIN
@@ -300,6 +590,10 @@ WITH DriverShortage AS (
         tbldriver drv ON dsl.DriverID = drv.DriverID
     LEFT JOIN
         tbldriver drv2 ON dsl.Driver2ID = drv2.DriverID
+    JOIN
+        tbldrivervehiclemap dvm ON inv.TankLorryNo = dvm.vehicleid
+    JOIN
+        tblbusiness bus ON dvm.businessID = bus.busid
     GROUP BY
         inv.stono,
         inv.TankLorryNo,
@@ -310,56 +604,107 @@ WITH DriverShortage AS (
         drv2.Fullname,
         drv2.driverid,
         inv.primaryreference,
-        inv.type
+        inv.type,
+        dvm.businessID,
+        bus.busdesc,
+        dsl.ShortageLtr
+)
+
+, Aggregated AS (
+    SELECT
+        primaryreference,
+        invoiceType AS type,
+        SUM(Secondary) AS AggregatedSecondary,
+        COUNT(*) AS scCount
+    FROM
+        DriverShortage
+    WHERE
+        invoiceType = 'sc'
+    GROUP BY
+        primaryreference,
+        invoiceType
 )
 
 SELECT
-    stono,
-    VehicleNo,
-    Location,
-    Date,
-    primaryreference,
-    type,
-    DriverID1,
-    DriverName1,
-    DriverID2,
-    DriverName2,
-    [Primary] * 2 AS Primary1,
-    [Secondary] * 2 AS Secondary1,
-    ([Primary] * 2) + ([Secondary] * 2) AS Total1,
+    ds.stono,
+    ds.VehicleNo,
+    ds.Location,
+    ds.Date,
+    ds.primaryreference,
+    ds.invoiceType AS type,
+    ds.DriverID1,
+    ds.DriverName1,
+    ds.DriverID2,
+    ds.DriverName2,
+    ds.businessID,
+    ds.busdesc,
+    ds.[Primary] AS Primary1,
     CASE
-        WHEN [type] = 'pk' THEN 100
-        ELSE 50
+        WHEN ds.primaryreference = 'none' THEN ds.[Secondary]
+        ELSE COALESCE(
+            CASE
+                WHEN ds.invoiceType = 'sc' THEN agg.AggregatedSecondary
+                ELSE ds.[Secondary]
+            END,
+            ds.[Secondary]
+        )
+    END AS Secondary1,
+    CASE
+        WHEN ds.primaryreference = 'none' THEN ds.[Total]
+        ELSE COALESCE(
+            CASE
+                WHEN ds.invoiceType = 'sc' THEN agg.AggregatedSecondary
+                ELSE ds.[Total]
+            END,
+            ds.[Total]
+        )
+    END AS Total1,
+    CASE
+        WHEN ds.primaryreference = 'none' THEN
+            CASE
+                WHEN ds.invoiceType = 'pk' THEN 100
+                ELSE 50
+            END
+        ELSE
+            CASE
+                WHEN ds.invoiceType = 'pk' THEN 100
+                ELSE 50
+            END
     END AS Exempted,
     CASE
-        WHEN ([Primary] * 2) + ([Secondary] * 2) >
-            CASE
-                WHEN [type] = 'pk' THEN 100
-                ELSE 50
+        WHEN ds.primaryreference = 'none' THEN
+		CASE
+                WHEN ds.[Total] < 50 THEN 0
+                ELSE ds.[Total] - 50
             END
-        THEN ([Primary] * 2) + ([Secondary] * 2) -
+        WHEN ds.invoiceType = 'sc' THEN
             CASE
-                WHEN [type] = 'pk' THEN 100
-                ELSE 50
+                WHEN agg.AggregatedSecondary < 50 THEN 0
+                ELSE agg.AggregatedSecondary - 50
             END
-        ELSE 0
-    END AS ShortageDeduction
+        ELSE
+            CASE
+                WHEN ds.invoiceType = 'sc' AND agg.AggregatedSecondary < 50 THEN 0
+                WHEN ds.invoiceType = 'pk' AND ds.[Total] < 100 THEN 0
+                WHEN ds.invoiceType = 'sc' THEN ds.[Total] - 50
+                ELSE ds.[Total] - 100
+            END
+    END AS ShortageDeduction,
+    CASE
+        WHEN ds.primaryreference = 'none' THEN NULL
+        WHEN ds.invoiceType = 'sc' THEN agg.scCount
+        ELSE NULL
+    END AS scCount
 FROM
-    DriverShortage
+    DriverShortage ds
+LEFT JOIN
+    Aggregated agg ON ds.primaryreference = agg.primaryreference AND ds.invoiceType = agg.type
+ORDER BY
+    ds.primaryreference,
+    ds.invoiceType,
+    ds.Date,
+    ds.stono;
 
-GROUP BY
-    stono,
-    VehicleNo,
-    Location,
-    Date,
-    primaryreference,
-    type,
-    DriverID1,
-    DriverName1,
-    DriverID2,
-    DriverName2,
-    [Primary],
-    [Secondary]
 ";
             var connectionString = _configuration.GetConnectionString("Con");
 
@@ -383,7 +728,10 @@ GROUP BY
                                 DriverName1 = reader.IsDBNull(reader.GetOrdinal("DriverName1")) ? "" : reader.GetString(reader.GetOrdinal("DriverName1")),
                                 DriverName2 = reader.IsDBNull(reader.GetOrdinal("DriverName2")) ? "" : reader.GetString(reader.GetOrdinal("DriverName2")),
                                 Exempted = reader.IsDBNull(reader.GetOrdinal("Exempted")) ? 0 : reader.GetInt32(reader.GetOrdinal("Exempted")),
+                                scCount = reader.IsDBNull(reader.GetOrdinal("scCount")) ? 0 : reader.GetInt32(reader.GetOrdinal("scCount")),
+                                businessID = reader.IsDBNull(reader.GetOrdinal("businessID")) ? 0 : reader.GetInt32(reader.GetOrdinal("businessID")),
 
+                                busdesc = reader.IsDBNull(reader.GetOrdinal("busdesc")) ? "" : reader.GetString(reader.GetOrdinal("busdesc")),
                                 Location = reader.IsDBNull(reader.GetOrdinal("Location")) ? "" : reader.GetString(reader.GetOrdinal("Location")),
                                 Primary = reader.IsDBNull(reader.GetOrdinal("Primary1")) ? 0 : reader.GetDouble(reader.GetOrdinal("Primary1")),
 
@@ -406,7 +754,7 @@ GROUP BY
                 }
             }
 
-
+            obj = obj.Where(p => BusinessID.Contains(p.businessID)).ToList();
 
         }
         catch (Exception ex)
