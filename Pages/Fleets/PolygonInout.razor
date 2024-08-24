@@ -43,7 +43,7 @@
                 <div class="card-body">
                     @if (!IsLoading)
                     {
-                        @if (log2.Count > 0)
+                        @if (log2.Count > 0 || outlog2.Count > 0)
                         {
                             int count = 1;
                             <div class="reports">
@@ -233,7 +233,7 @@
                                     vehicleId = item.vehicleId
                                 });
                         }
-                   
+
                     }
 
                     //  Console.WriteLine(outlog2);
