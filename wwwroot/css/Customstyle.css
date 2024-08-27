@@ -1543,3 +1543,7 @@ td, th {
     cursor: pointer;
     font-size: smaller;
 }
+
+.filter-input {
+    display: none;
+}
