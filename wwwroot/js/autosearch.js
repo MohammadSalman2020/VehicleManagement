@@ -18,43 +18,43 @@
 
 
 
-  let sortOrder = 1; // 1 for ascending, -1 for descending
+let sortOrder = 1; // 1 for ascending, -1 for descending
 
-    function sortTable(n) {
-        const table = document.getElementById("invoiceTable");
-        let rows, switching, i, x, y, shouldSwitch;
-        switching = true;
-        while (switching) {
-            switching = false;
-            rows = table.rows;
-            for (i = 1; i < (rows.length - 1); i++) {
-                shouldSwitch = false;
-                x = rows[i].getElementsByTagName("TD")[n];
-                y = rows[i + 1].getElementsByTagName("TD")[n];
-                if (sortOrder == 1) {
-                    if (x.innerHTML.toLowerCase() > y.innerHTML.toLowerCase()) {
-                        shouldSwitch = true;
-                        break;
-                    }
-                } else if (sortOrder == -1) {
-                    if (x.innerHTML.toLowerCase() < y.innerHTML.toLowerCase()) {
-                        shouldSwitch = true;
-                        break;
-                    }
+function sortTable(n) {
+    const table = document.getElementById("invoiceTable");
+    let rows, switching, i, x, y, shouldSwitch;
+    switching = true;
+    while (switching) {
+        switching = false;
+        rows = table.rows;
+        for (i = 1; i < (rows.length - 1); i++) {
+            shouldSwitch = false;
+            x = rows[i].getElementsByTagName("TD")[n];
+            y = rows[i + 1].getElementsByTagName("TD")[n];
+            if (sortOrder == 1) {
+                if (x.innerHTML.toLowerCase() > y.innerHTML.toLowerCase()) {
+                    shouldSwitch = true;
+                    break;
+                }
+            } else if (sortOrder == -1) {
+                if (x.innerHTML.toLowerCase() < y.innerHTML.toLowerCase()) {
+                    shouldSwitch = true;
+                    break;
                 }
             }
-            if (shouldSwitch) {
-                rows[i].parentNode.insertBefore(rows[i + 1], rows[i]);
-                switching = true;
-            }
         }
-        sortOrder = -sortOrder; // Toggle sort order
+        if (shouldSwitch) {
+            rows[i].parentNode.insertBefore(rows[i + 1], rows[i]);
+            switching = true;
+        }
     }
- function filterTable() {
+    sortOrder = -sortOrder; // Toggle sort order
+}
+function filterTable() {
     const inputElement = document.getElementById('filterInput');
     const columnElement = document.getElementById('filterColumn');
     const conditionElement = document.getElementById('filterCondition');
-    
+
     if (!inputElement || !columnElement || !conditionElement) {
         console.error("One or more filter elements are missing.");
         return;
@@ -109,38 +109,38 @@
 
 
 
-    function applyCondition(value, filter, condition, column) {
-      
-        switch (condition) {
-            case 'contains':
-                return value.includes(filter);
-            case 'equals':
-                return value === filter;
-            case 'notEquals':
-                return value !== filter;
-            case 'greaterThan':
-                if (column === 0 || column === 6) { // Invoice # or Liters column
-                    return parseFloat(value) > parseFloat(filter);
-                }
-                return value > filter;
-            case 'lessThan':
-                if (column === 0 || column === 6) { // Invoice # or Liters column
-                    return parseFloat(value) < parseFloat(filter);
-                }
-                return value < filter;
-            default:
-                return false;
-        }
+function applyCondition(value, filter, condition, column) {
+
+    switch (condition) {
+        case 'contains':
+            return value.includes(filter);
+        case 'equals':
+            return value === filter;
+        case 'notEquals':
+            return value !== filter;
+        case 'greaterThan':
+            if (column === 0 || column === 6) { // Invoice # or Liters column
+                return parseFloat(value) > parseFloat(filter);
+            }
+            return value > filter;
+        case 'lessThan':
+            if (column === 0 || column === 6) { // Invoice # or Liters column
+                return parseFloat(value) < parseFloat(filter);
+            }
+            return value < filter;
+        default:
+            return false;
     }
-    function openInNewTab(url) {
-        window.open(url, '_blank');
-    }
+}
+function openInNewTab(url) {
+    window.open(url, '_blank');
+}
 
 
 
-    
-  
-            // Define the filter function
+
+
+// Define the filter function
 function filterTabless(jsonDataString) {
     // Parse the JSON string back into a JavaScript object/array
     var jsonData = JSON.parse(jsonDataString);
@@ -160,20 +160,36 @@ function filterTabless(jsonDataString) {
 
 
 function exportTableToExcel(dataJson) {
-    // Parse the JSON data
-    var data = JSON.parse(dataJson);
+    var table = document.getElementById('invoiceTables');
+    var workbook = XLSX.utils.table_to_book(table, { sheet: "Sheet1" });
+    var worksheet = workbook.Sheets['Sheet1'];
 
-    // Create a new workbook and worksheet
-    var workbook = XLSX.utils.book_new();
-    var worksheet = XLSX.utils.json_to_sheet(data);
+    // Optional: Adding styles to the workbook
+    worksheet['!cols'] = [
+        { wpx: 150 }, // Adjust column width if needed
+        { wpx: 100 },
+        { wpx: 120 }
+    ];
 
-    // Append the worksheet to the workbook
-    XLSX.utils.book_append_sheet(workbook, worksheet, "Sheet1");
+    // Add styling to the cells
+    var range = XLSX.utils.decode_range(worksheet['!ref']);
+    for (var R = range.s.r; R <= range.e.r; ++R) {
+        for (var C = range.s.c; C <= range.e.c; ++C) {
+            var cell_address = { c: C, r: R };
+            var cell_ref = XLSX.utils.encode_cell(cell_address);
+            if (!worksheet[cell_ref]) continue;
 
-    // Write the workbook to a binary string
+            worksheet[cell_ref].s = {
+                alignment: {
+                    vertical: 'center',
+                    horizontal: 'center'
+                }
+            };
+        }
+    }
+
     var wbout = XLSX.write(workbook, { bookType: 'xlsx', type: 'binary' });
 
-    // Convert the binary string to a Blob
     function s2ab(s) {
         var buf = new ArrayBuffer(s.length);
         var view = new Uint8Array(buf);
@@ -181,10 +197,11 @@ function exportTableToExcel(dataJson) {
         return buf;
     }
 
-    var filename = 'table-data.xlsx';
-    var blob = new Blob([s2ab(wbout)], { type: 'application/octet-stream' });
+    var today = new Date();
+    var formattedDate = today.toISOString().split('T')[0]; // Format as YYYY-MM-DD
 
-    // Create a link to download the Blob
+    var filename = 'Driver-Shortage-Summary-' + formattedDate + '.xlsx';
+    var blob = new Blob([s2ab(wbout)], { type: 'application/octet-stream' });
     var link = document.createElement('a');
     link.href = URL.createObjectURL(blob);
     link.download = filename;
@@ -192,7 +209,8 @@ function exportTableToExcel(dataJson) {
     link.click();
     document.body.removeChild(link);
 }
-           
+
+
 function copyTableToClipboard() {
     try {
         var table = document.getElementById('invoiceTables');
@@ -231,4 +249,26 @@ function copyTableToClipboard() {
         alert('An error occurred while copying the table text.');
     }
 }
+
+
+
+
+
+window.addKeyboardShortcut = () => {
+    let isFilterVisible = false; // Track the visibility state
+
+    document.addEventListener('keydown', (event) => {
+        if (event.ctrlKey && event.shiftKey && event.code === 'KeyL') {
+            isFilterVisible = !isFilterVisible; // Toggle visibility state
+            const filterInputs = document.querySelectorAll('.filter-input');
+
+            filterInputs.forEach(input => {
+                input.style.display = isFilterVisible ? 'block' : 'none';
+                if (isFilterVisible) {
+                    input.focus();
+                }
+            });
+        }
+    });
+};
 

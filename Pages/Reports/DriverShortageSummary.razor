@@ -16,9 +16,15 @@
                     <div class="">
 
                         <div class="">
-                            <div class="col-md-12" style="text-align:end;">
+                            <div class="row col-md-12" >
                                 <!-- Filter Button -->
-                                <img style="cursor:pointer;" src="css/filter.png" @onclick="ToggleFilterPanel" />
+                                <div class="col-md-6">
+                                    <h4>Press ctrl+shift+L for Filters</h4>
+                                </div>
+                                <div class="col-md-6" style="text-align:end;">
+                                    <img style="cursor:pointer;" src="css/filter.png" @onclick="ToggleFilterPanel" />
+                                </div>
+                              
 
                             </div>
 
@@ -36,54 +42,54 @@
                                         <!-- Filter Options -->
                                         <div class="filter-content">
                                             <!-- Add your filter controls here -->
-                                            <div class="row col-md-12">
+                                            @*  <div class="row col-md-12">
 
-                                                <div class="row filter-controls">
-                                                    <div class="col-md-10">
-                                                        <div class="form-group">
-                                                            <input type="text" @bind="@searchTerm" class="form-control" id="searchInput" placeholder="STO/Driver Name/Driver ID...">
+                                            <div class="row filter-controls">
+                                            <div class="col-md-10">
+                                            <div class="form-group">
+                                            <input type="text" @bind="@searchTerm" class="form-control" id="searchInput" placeholder="STO/Driver Name/Driver ID...">
 
-                                                        </div>
-                                                    </div>
-
-
-                                                    <div class="col-md-2" style="align-content: space-evenly;" title="Business/STO/Driver Name/Driver ID/Vehicle/Primary Reference">
-                                                        <div class="form-group">
-                                                            <img style="cursor:pointer;" src="css/search.png" @onclick="@(e => SearchRecords(searchTerm))">
-                                                        </div>
-                                                    </div>
+                                            </div>
+                                            </div>
 
 
+                                            <div class="col-md-2" style="align-content: space-evenly;" title="Business/STO/Driver Name/Driver ID/Vehicle/Primary Reference">
+                                            <div class="form-group">
+                                            <img style="cursor:pointer;" src="css/search.png" @onclick="@(e => SearchRecords(searchTerm))">
+                                            </div>
+                                            </div>
 
-                                                </div>
+
+
+                                            </div>
 
 
                                             </div>
                                             <!-- Date Filter -->
                                             <div class="row col-md-12">
-                                                <div class="col-md-6">
-                                                    <div class="form-group">
-                                                        <label for="startDate">Start Date:</label>
-                                                        <input type="date" @bind="@startDate" class="form-control" id="startDate">
-                                                    </div>
-                                                </div>
-                                                <div class="col-md-6">
-                                                    <div class="form-group">
-                                                        <label for="endDate">End Date:</label>
-                                                        <input type="date" @bind="@endDate" class="form-control" id="endDate">
-                                                    </div>
-                                                </div>
-                                                <div class="col-md-12" style="text-align:center;">
-                                                    <div class="form-group">
-                                                        <button style="border: white;" class="btn-primary" @onclick="FilterByDateRange">Search</button>
-                                                        <button style="border: white;" class="btn-danger" @onclick="Reset">Reset</button>
-
-
-                                                    </div>
-                                                </div>
+                                            <div class="col-md-6">
+                                            <div class="form-group">
+                                            <label for="startDate">Start Date:</label>
+                                            <input type="date" @bind="@startDate" class="form-control" id="startDate">
                                             </div>
+                                            </div>
+                                            <div class="col-md-6">
+                                            <div class="form-group">
+                                            <label for="endDate">End Date:</label>
+                                            <input type="date" @bind="@endDate" class="form-control" id="endDate">
+                                            </div>
+                                            </div>
+                                            <div class="col-md-12" style="text-align:center;">
+                                            <div class="form-group">
+                                            <button style="border: white;" class="btn-primary" @onclick="FilterByDateRange">Search</button>
+                                            <button style="border: white;" class="btn-danger" @onclick="Reset">Reset</button>
+
+
+                                            </div>
+                                            </div>
+                                            </div> *@
                                             <div class="row col-md-12">
-                                                <div class="col-md-6" style="text-align:center;" title="Export All Data to Excel"> 
+                                                <div class="col-md-6" style="text-align:center;" title="Export All Data to Excel">
                                                     <div class="form-group">
                                                         <img style="cursor:pointer;" src="css/Excel Icon.png" @onclick="ExportToExcel" />
                                                     </div>
@@ -112,33 +118,94 @@
                         <div class="col-md-12 ">
 
                             <div class="">
-                                <div class="table-responsive p-0" >
+                                <div class="table-responsive p-0">
 
 
                                     <table class="" id="invoiceTables" style="width:100%">
-                                        <thead>
+                                        <thead style="    background: black;">
                                             <tr>
 
-                                                <th class="text-center font-colors text-uppercase  text-xxs font-weight-bolder opacity-7" style="position: sticky;top: 0;background-color: #ffffff;z-index: 1;">STO No</th>
-                                                <th class="text-center font-colors text-uppercase  text-xxs font-weight-bolder opacity-7" style="position: sticky;top: 0;background-color: #ffffff;z-index: 1;">Business</th>
-                                                <th class="text-center font-colors text-uppercase  text-xxs font-weight-bolder opacity-7" style="position: sticky;top: 0;background-color: #ffffff;z-index: 1;">Vehicle</th>
-                                                <th class="text-center font-colors text-uppercase  text-xxs font-weight-bolder opacity-7" style="position: sticky;top: 0;background-color: #ffffff;z-index: 1;"> Date</th>
-                                                <th class="text-center font-colors text-uppercase  text-xxs font-weight-bolder opacity-7" style="position: sticky;top: 0;background-color: #ffffff;z-index: 1;">Location</th>
-                                                <th class="text-center font-colors text-uppercase  text-xxs font-weight-bolder opacity-7" style="position: sticky;top: 0;background-color: #ffffff;z-index: 1;">Type</th>
-                                                <th class="text-center font-colors text-uppercase  text-xxs font-weight-bolder opacity-7" style="position: sticky;top: 0;background-color: #ffffff;z-index: 1;">Driver1 ID</th>
-                                                <th class="text-center font-colors text-uppercase  text-xxs font-weight-bolder opacity-7" style="position: sticky;top: 0;background-color: #ffffff;z-index: 1;"> Driver1 Name</th>
-                                                <th class="text-center font-colors text-uppercase  text-xxs font-weight-bolder opacity-7" style="position: sticky;top: 0;background-color: #ffffff;z-index: 1;">Driver2 ID</th>
-                                                <th class="text-center font-colors text-uppercase  text-xxs font-weight-bolder opacity-7" style="position: sticky;top: 0;background-color: #ffffff;z-index: 1;">Driver2 Name</th>
-                                                <th class="text-center font-colors text-uppercase  text-xxs font-weight-bolder opacity-7" style="position: sticky;top: 0;background-color: #ffffff;z-index: 1;">Primary</th>
-                                                <th class="text-center font-colors text-uppercase  text-xxs font-weight-bolder opacity-7" style="position: sticky;top: 0;background-color: #ffffff;z-index: 1;">Secondary</th>
-                                                <th class="text-center font-colors text-uppercase  text-xxs font-weight-bolder opacity-7" style="position: sticky;top: 0;background-color: #ffffff;z-index: 1;">Total</th>
-                                                <th class="text-center font-colors text-uppercase  text-xxs font-weight-bolder opacity-7" style="position: sticky;top: 0;background-color: #ffffff;z-index: 1;">Exempted</th>
-                                                <th class="text-center font-colors text-uppercase  text-xxs font-weight-bolder opacity-7" style="position: sticky;top: 0;background-color: #ffffff;z-index: 1;">Shortage Deduction</th>
+                                                <th class="text-center font-colors text-uppercase text-xxs font-weight-bolder opacity-7"
+                                                    style="position: sticky; top: 0; background-color: #ffffff; z-index: 1; border: #cccccc 1px solid;">
+                                                    STO No
+                                                    <input type="text" class="filter-input" placeholder="Filter by STO No..." @bind="filters.stono" />
+                                                </th>
+                                                <th class="text-center font-colors text-uppercase text-xxs font-weight-bolder opacity-7"
+                                                    style="position: sticky; top: 0; background-color: #ffffff; z-index: 1; border: #cccccc 1px solid;">
+                                                    Business
+                                                    <input type="text" class="filter-input" placeholder="Filter by Business..." @bind="filters.busdesc" />
+                                                </th>
+                                                <th class="text-center font-colors text-uppercase text-xxs font-weight-bolder opacity-7"
+                                                    style="position: sticky; top: 0; background-color: #ffffff; z-index: 1; border: #cccccc 1px solid;">
+                                                    Vehicle
+                                                    <input type="text" class="filter-input" placeholder="Filter by Vehicle..." @bind="filters.VehicleNo" />
+                                                </th>
+                                                <th class="text-center font-colors text-uppercase text-xxs font-weight-bolder opacity-7"
+                                                    style="position: sticky; top: 0; background-color: #ffffff; z-index: 1; border: #cccccc 1px solid;">
+                                                    Date
+                                                    <input type="text" class="filter-input" placeholder="Filter by Date..." @bind="filters.Date" />
+                                                </th>
+                                                <th class="text-center font-colors text-uppercase text-xxs font-weight-bolder opacity-7"
+                                                    style="position: sticky; top: 0; background-color: #ffffff; z-index: 1; border: #cccccc 1px solid;">
+                                                    Location
+                                                    <input type="text" class="filter-input" placeholder="Filter by Location..." @bind="filters.Location" />
+                                                </th>
+                                                <th class="text-center font-colors text-uppercase text-xxs font-weight-bolder opacity-7"
+                                                    style="position: sticky; top: 0; background-color: #ffffff; z-index: 1; border: #cccccc 1px solid;">
+                                                    Type
+                                                    <input type="text" class="filter-input" placeholder="Filter by Type..." @bind="filters.type" />
+                                                </th>
+                                                <th class="text-center font-colors text-uppercase text-xxs font-weight-bolder opacity-7"
+                                                    style="position: sticky; top: 0; background-color: #ffffff; z-index: 1; border: #cccccc 1px solid;">
+                                                    Driver1 ID
+                                                    <input type="text" class="filter-input" placeholder="Filter by Driver1 ID..." @bind="filters.DriverID1" />
+                                                </th>
+                                                <th class="text-center font-colors text-uppercase text-xxs font-weight-bolder opacity-7"
+                                                    style="position: sticky; top: 0; background-color: #ffffff; z-index: 1; border: #cccccc 1px solid;">
+                                                    Driver1 Name
+                                                    <input type="text" class="filter-input" placeholder="Filter by Driver1 Name..." @bind="filters.DriverName1" />
+                                                </th>
+                                                <th class="text-center font-colors text-uppercase text-xxs font-weight-bolder opacity-7"
+                                                    style="position: sticky; top: 0; background-color: #ffffff; z-index: 1; border: #cccccc 1px solid;">
+                                                    Driver2 ID
+                                                    <input type="text" class="filter-input" placeholder="Filter by Driver2 ID..." @bind="filters.DriverID2" />
+                                                </th>
+                                                <th class="text-center font-colors text-uppercase text-xxs font-weight-bolder opacity-7"
+                                                    style="position: sticky; top: 0; background-color: #ffffff; z-index: 1; border: #cccccc 1px solid;">
+                                                    Driver2 Name
+                                                    <input type="text" class="filter-input" placeholder="Filter by Driver2 Name..." @bind="filters.DriverName2" />
+                                                </th>
+                                                <th class="text-center font-colors text-uppercase text-xxs font-weight-bolder opacity-7"
+                                                    style="position: sticky; top: 0; background-color: #ffffff; z-index: 1; border: #cccccc 1px solid;">
+                                                    Primary
+@*                                                     <input type="text" class="filter-input" placeholder="Filter by Primary..." @bind="filters.Primary" />
+ *@                                                </th>
+                                                <th class="text-center font-colors text-uppercase text-xxs font-weight-bolder opacity-7"
+                                                    style="position: sticky; top: 0; background-color: #ffffff; z-index: 1; border: #cccccc 1px solid;">
+                                                    Secondary
+@*                                                     <input type="text" class="filter-input" placeholder="Filter by Secondary..." @bind="filters.Secondary" />
+ *@                                                </th>
+                                                <th class="text-center font-colors text-uppercase text-xxs font-weight-bolder opacity-7"
+                                                    style="position: sticky; top: 0; background-color: #ffffff; z-index: 1; border: #cccccc 1px solid;">
+                                                    Total
+@*                                                     <input type="text" class="filter-input" placeholder="Filter by Total..." @bind="filters.Total" />
+ *@                                                </th>
+                                                <th class="text-center font-colors text-uppercase text-xxs font-weight-bolder opacity-7"
+                                                    style="position: sticky; top: 0; background-color: #ffffff; z-index: 1; border: #cccccc 1px solid;">
+                                                    Exempted
+@*                                                     <input type="text" class="filter-input" placeholder="Filter by Exempted..." @bind="filters.Exempted" />
+ *@                                                </th>
+                                                <th class="text-center font-colors text-uppercase text-xxs font-weight-bolder opacity-7"
+                                                    style="position: sticky; top: 0; background-color: #ffffff; z-index: 1; border: #cccccc 1px solid;">
+                                                    Shortage Deduction
+@*                                                     <input type="text" class="filter-input" placeholder="Filter by Shortage Deduction..." @bind="filters.ShortageDeduction" />
+ *@                                                </th>
+
 
 
                                             </tr>
                                         </thead>
-                                        <tbody>
+                                        <tbody style="    background: white;">
                                             @if (!IsLoading)
                                             {
                                                 @if (Items.Count > 0)
@@ -154,25 +221,25 @@
                                                         <tr class="tbl-accordion-header">
 
 
-                                                            <td class="align-middle text-center">
+                                                            <td class="align-middle text-center" style="border: #cccccc 1px solid;">
                                                                 <span class="text-secondary text-xs font-weight-bold">@item.stono</span>
                                                             </td>
 
-                                                            <td class="align-middle text-center">
+                                                            <td class="align-middle text-center" style="border: #cccccc 1px solid;">
                                                                 <span class="text-secondary text-xs font-weight-bold">@item.busdesc</span>
                                                             </td>
-                                                            <td class="align-middle text-center">
+                                                            <td class="align-middle text-center" style="border: #cccccc 1px solid;">
                                                                 <span class="text-secondary text-xs font-weight-bold">@item.VehicleNo</span>
                                                             </td>
-                                                            <td class="align-middle text-center">
+                                                            <td class="align-middle text-center" style="border: #cccccc 1px solid;">
                                                                 <span class="text-secondary text-xs font-weight-bold">@item.Date</span>
                                                             </td>
-                                                            <td class="align-middle text-center">
+                                                            <td class="align-middle text-center" style="border: #cccccc 1px solid;">
                                                                 <span class="text-secondary text-xs font-weight-bold">
                                                                     @item.Location
                                                                 </span>
                                                             </td>
-                                                            <td class="align-middle text-center text-sm">
+                                                            <td class="align-middle text-center text-sm" style="border: #cccccc 1px solid;">
                                                                 @if (item.type == "pk")
                                                                 {
                                                                     <span class="text-secondary text-xs font-weight-bold">@(item.type == "pk" ? "Primary" : "Secondary")</span>
@@ -185,23 +252,23 @@
                                                                 }
 
                                                             </td>
-                                                            <td class="align-middle text-center">
+                                                            <td class="align-middle text-center" style="border: #cccccc 1px solid;">
                                                                 <span class="text-secondary text-xs font-weight-bold">
                                                                     @((item.DriverID1 != "" ? item.DriverID1 : "No Attendance"))
                                                                 </span>
                                                             </td>
-                                                            <td class="align-middle text-center">
+                                                            <td class="align-middle text-center" style="border: #cccccc 1px solid;">
                                                                 <span class="text-secondary text-xs font-weight-bold">
                                                                     @((item.DriverName1 != "" ? item.DriverName1 : "No Attendance"))
                                                                 </span>
                                                             </td>
 
-                                                            <td class="align-middle text-center">
+                                                            <td class="align-middle text-center" style="border: #cccccc 1px solid;">
                                                                 <span class="text-secondary text-xs font-weight-bold">
                                                                     @((item.DriverID2 != "" ? item.DriverID2 : "No Attendance"))
                                                                 </span>
                                                             </td>
-                                                            <td class="align-middle text-center">
+                                                            <td class="align-middle text-center" style="border: #cccccc 1px solid;">
                                                                 <span class="text-secondary text-xs font-weight-bold">
                                                                     @((item.DriverName2 != "" ? item.DriverName2 : "No Attendance"))
                                                                 </span>
@@ -324,8 +391,8 @@
                                             else if (IsLoading)
                                             {
                                                 <tr>
-                                                    <td colspan="12">
-                                                        <DataLoaderComponent IsLoading="@IsLoading" LoadingText="Loading Invoices..." />
+                                                    <td colspan="18">
+                                                        <DataLoaderComponent IsLoading="@IsLoading" LoadingText="Loading Report..." />
                                                     </td>
                                                 </tr>
                                             }
@@ -339,18 +406,18 @@
 
                     </div>
 
-                    <div class="col-md-12">
-                        <div class="">
-                            <div class="pagination">
-                                <button class="btn btn-primary" @onclick="GoToFirstPage" disabled="@(!CanGoToPreviousPage)"><i style="font-size:24px" class="fa fa-angle-double-left"></i></button>
-                                <button class="btn btn-primary" @onclick="PreviousPage" disabled="@(!CanGoToPreviousPage)"><i style="font-size:24px" class="fa fa-angle-left"></i></button>
-                                <span>Page @CurrentPage of @TotalPages</span>
-                                <button class="btn btn-primary" @onclick="NextPage" disabled="@(!CanGoToNextPage)"><i style="font-size:24px" class="fa fa-angle-right"></i></button>
-                                <button class="btn btn-primary" @onclick="GoToLastPage" disabled="@(!CanGoToNextPage)"><i style="font-size:24px" class="fa fa-angle-double-right"></i></button>
-                            </div>
-
-                        </div>
+                    @*       <div class="col-md-12">
+                    <div class="">
+                    <div class="pagination">
+                    <button class="btn btn-primary" @onclick="GoToFirstPage" disabled="@(!CanGoToPreviousPage)"><i style="font-size:24px" class="fa fa-angle-double-left"></i></button>
+                    <button class="btn btn-primary" @onclick="PreviousPage" disabled="@(!CanGoToPreviousPage)"><i style="font-size:24px" class="fa fa-angle-left"></i></button>
+                    <span>Page @CurrentPage of @TotalPages</span>
+                    <button class="btn btn-primary" @onclick="NextPage" disabled="@(!CanGoToNextPage)"><i style="font-size:24px" class="fa fa-angle-right"></i></button>
+                    <button class="btn btn-primary" @onclick="GoToLastPage" disabled="@(!CanGoToNextPage)"><i style="font-size:24px" class="fa fa-angle-double-right"></i></button>
                     </div>
+
+                    </div>
+                    </div> *@
 
 
                 </div>
@@ -369,12 +436,31 @@
 @code {
     private bool _isJsReady = false;
     public bool IsLoading { get; set; }
-    private int TotalItems;
-    private int CurrentPage = 1;
-    private int PageSize = 15; // Number of items per page
-    private bool CanGoToPreviousPage => CurrentPage > 1;
-    private bool CanGoToNextPage => CurrentPage < TotalPages;
-    private List<DriverShortageSummaries> Items;
+    //   private int TotalItems;
+    //  private int CurrentPage = 1;
+    // private int PageSize = 15; // Number of items per page
+    //  private bool CanGoToPreviousPage => CurrentPage > 1;
+    //  private bool CanGoToNextPage => CurrentPage < TotalPages;
+    private List<DriverShortageSummaries> Items => FilteredItems
+      .Where(i => (string.IsNullOrEmpty(filters.stono) || i.stono.Contains(filters.stono, StringComparison.OrdinalIgnoreCase))
+                  && (string.IsNullOrEmpty(filters.busdesc) || i.busdesc.Contains(filters.busdesc, StringComparison.OrdinalIgnoreCase))
+                  && (string.IsNullOrEmpty(filters.VehicleNo) || i.VehicleNo.Contains(filters.VehicleNo, StringComparison.OrdinalIgnoreCase))
+                  && (string.IsNullOrEmpty(filters.Date) || i.Date.Contains(filters.Date, StringComparison.OrdinalIgnoreCase))
+                  && (string.IsNullOrEmpty(filters.Location) || i.Location.Contains(filters.Location, StringComparison.OrdinalIgnoreCase))
+                  && (string.IsNullOrEmpty(filters.type) || i.type.Contains(filters.type, StringComparison.OrdinalIgnoreCase))
+                  && (string.IsNullOrEmpty(filters.DriverID1) || i.DriverID1.Contains(filters.DriverID1, StringComparison.OrdinalIgnoreCase))
+                  && (string.IsNullOrEmpty(filters.DriverID2) || i.DriverID2.Contains(filters.DriverID2, StringComparison.OrdinalIgnoreCase))
+                  && (string.IsNullOrEmpty(filters.DriverName1) || i.DriverName1.Contains(filters.DriverName1, StringComparison.OrdinalIgnoreCase))
+                  && (string.IsNullOrEmpty(filters.DriverName2) || i.DriverName2.Contains(filters.DriverName2, StringComparison.OrdinalIgnoreCase))
+                  // Handling numeric filters correctly by checking parsed value
+                  // && filters.Primary==0 || i.Primary == filters.Primary
+                  // && filters.Secondary == 0 || i.Secondary == filters.Secondary
+                  // && filters.Exempted==0  ||  i.Exempted == filters.Exempted
+                  // && filters.Total == 0 || i.Total == filters.Total
+                  // && filters.ShortageDeduction == 0 || i.ShortageDeduction == filters.ShortageDeduction
+      )
+      .ToList();
+    private DriverShortageSummaries filters = new DriverShortageSummaries();
     public List<int> BusinessID = new List<int>();
     private string searchTerm;
     private DateTime? startDate;
@@ -400,7 +486,8 @@
             try
             {
                 // Attempt a simple JavaScript call to check if JS is ready
-                await js.InvokeVoidAsync("console.log", "");
+                await js.InvokeVoidAsync("addKeyboardShortcut");
+
                 _isJsReady = true; // JS is ready, so set a flag or take action
                 StateHasChanged();
             }
@@ -438,8 +525,8 @@
         }
 
         // After filtering, reset the pagination
-        CurrentPage = 1;
-        await LoadData();
+        // CurrentPage = 1;
+        //   await LoadData();
     }
     private async Task FilterByDateRange()
     {
@@ -468,8 +555,8 @@
             return isAfterStartDate && isBeforeEndDate;
         }).ToList();
 
-        CurrentPage = 1;
-        await LoadData();
+        // CurrentPage = 1;
+        //  await LoadData();
 
     }
     private async Task Reset()
@@ -478,14 +565,14 @@
         endDate = null;
         FilteredItems = obj;
 
-        CurrentPage = 1;
-        await LoadData();
+        //  CurrentPage = 1;
+        //  await LoadData();
 
     }
     private async Task ExportToExcel()
     {
         // Convert the list to JSON
-        var jsonData = System.Text.Json.JsonSerializer.Serialize(obj);
+        var jsonData = System.Text.Json.JsonSerializer.Serialize(FilteredItems);
 
         // Call the JavaScript function
         await js.InvokeVoidAsync("exportTableToExcel", jsonData);
@@ -503,7 +590,7 @@
             await LoadShortagereport();
             FilteredItems = obj;
 
-            await LoadData();
+            //  await LoadData();
 
         }
         catch (Exception ex)
@@ -512,54 +599,54 @@
         }
         IsLoading = false;
     }
-    private async Task LoadData()
-    {
-        TotalItems = await GetTotalItemCountAsync();
-        TotalPages = (int)Math.Ceiling((double)TotalItems / PageSize);
-        Items = await GetItemsAsync(CurrentPage, PageSize);
-    }
-    private async Task PreviousPage()
-    {
-        if (CanGoToPreviousPage)
-        {
-            CurrentPage--;
-            await LoadData();
-        }
-    }
-    public async Task<List<DriverShortageSummaries>> GetItemsAsync(int page, int pageSize)
-    {
-        return FilteredItems.Skip((page - 1) * pageSize).Take(pageSize).ToList();
-    }
+    // private async Task LoadData()
+    // {
+    //     TotalItems = await GetTotalItemCountAsync();
+    //     TotalPages = (int)Math.Ceiling((double)TotalItems / PageSize);
+    //     Items = await GetItemsAsync(CurrentPage, PageSize);
+    // }
+    // private async Task PreviousPage()
+    // {
+    //     if (CanGoToPreviousPage)
+    //     {
+    //         CurrentPage--;
+    //         await LoadData();
+    //     }
+    // }
+    // public async Task<List<DriverShortageSummaries>> GetItemsAsync(int page, int pageSize)
+    // {
+    //     return FilteredItems.Skip((page - 1) * pageSize).Take(pageSize).ToList();
+    // }
 
-    public async Task<int> GetTotalItemCountAsync()
-    {
-        return FilteredItems.Count();
-    }
-    private async Task NextPage()
-    {
-        if (CanGoToNextPage)
-        {
-            CurrentPage++;
-            await LoadData();
-        }
-    }
-    private async Task GoToFirstPage()
-    {
-        if (CurrentPage != 1)
-        {
-            CurrentPage = 1;
-            await LoadData();
-        }
-    }
-    private async Task GoToLastPage()
-    {
-        if (CurrentPage != TotalPages)
-        {
-            CurrentPage = TotalPages;
-            await LoadData();
-        }
-    }
-    private int TotalPages;
+    // public async Task<int> GetTotalItemCountAsync()
+    // {
+    //     return FilteredItems.Count();
+    // }
+    // private async Task NextPage()
+    // {
+    //     if (CanGoToNextPage)
+    //     {
+    //         CurrentPage++;
+    //         await LoadData();
+    //     }
+    // }
+    // private async Task GoToFirstPage()
+    // {
+    //     if (CurrentPage != 1)
+    //     {
+    //         CurrentPage = 1;
+    //         await LoadData();
+    //     }
+    // }
+    // private async Task GoToLastPage()
+    // {
+    //     if (CurrentPage != TotalPages)
+    //     {
+    //         CurrentPage = TotalPages;
+    //         await LoadData();
+    //     }
+    // }
+    // private int TotalPages;
     public async Task LoadShortagereport()
     {
         try
