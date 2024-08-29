@@ -888,7 +888,7 @@
         }
         catch (Exception ex)
         {
-            IsLoading = false;
+            IsLoading = false;  
             toastService.ShowError($"Error while adding invoice");
         }
 
@@ -949,7 +949,7 @@
             string encodedJson = HttpUtility.UrlEncode(base64EncodedJson);
 
             // Navigate to the destination page with the encoded JSON string as a query parameter
-            NavigationManager.NavigateTo($"/invoicepanel?Edit={encodedJson}");
+            NavigationManager.NavigateTo($"/invoice?Edit={encodedJson}");
         }
         catch (Exception ex)
         {

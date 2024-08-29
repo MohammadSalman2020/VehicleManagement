@@ -242,7 +242,7 @@
                                                     <input type="number" disabled="@(Invoices.Details.STONo==null?"disabled":null)" tabindex="18" placeholder=" Tank Lorry Product Dips(MM)" id="SChamber4Dip" onfocus="selectAllInputValue('SChamber4Dip')" @bind="Invoices.ShippingDetail.Chamber4.LorryDip" class="form-control">
                                                 </td>
                                                 <td>
-                                                    <input type="number"  disabled="@(Invoices.Details.STONo==null?"disabled":null)" tabindex="19" placeholder=" Tank Lorry Product Dips(MM)" id="SChamber5D" onfocus="selectAllInputValue('SChamber5D')" @bind="Invoices.ShippingDetail.Chamber5.LorryDip" class="form-control">
+                                                    <input type="number" disabled="@(Invoices.Details.STONo==null?"disabled":null)" tabindex="19" placeholder=" Tank Lorry Product Dips(MM)" id="SChamber5D" onfocus="selectAllInputValue('SChamber5D')" @bind="Invoices.ShippingDetail.Chamber5.LorryDip" class="form-control">
                                                 </td>
                                             </tr>
                                             <tr>
@@ -489,6 +489,7 @@
             Invoices.Details.TankLorryNO = e.Value.ToString();
             int ChamberStatus = await GetShippingChamberDetails(e.Value.ToString());
 
+
         }
     }
 
@@ -661,9 +662,14 @@
     {
         try
         {
-              await CalculateDiff();            
+            CalculateShortageForChamber1(Invoices);
+            CalculateShortageForChamber2(Invoices);
+            CalculateShortageForChamber3(Invoices);
+            CalculateShortageForChamber4(Invoices);
+            CalculateShortageForChamber5(Invoices);
+            await CalculateDiff();
         }
-        catch(Exception ex)
+        catch (Exception ex)
         {
 
         }
@@ -849,7 +855,7 @@
             Invoices.ShippingDetail.Chamber3.Quantity = int.Parse(calculated6Quantity3.ToString());
             Invoices.ShippingDetail.Chamber4.Quantity = int.Parse(calculated6Quantity4.ToString());
             Invoices.ShippingDetail.Chamber5.Quantity = int.Parse(calculated6Quantity5.ToString());
-            await    CalculateDiff();
+            await CalculateDiff();
         }
     }
     private async Task GetQuantitiesByTemp(ChangeEventArgs e)
@@ -870,7 +876,7 @@
             Invoices.ShippingDetail.Chamber3.Quantity = int.Parse(calculated6Quantity3.ToString());
             Invoices.ShippingDetail.Chamber4.Quantity = int.Parse(calculated6Quantity4.ToString());
             Invoices.ShippingDetail.Chamber5.Quantity = int.Parse(calculated6Quantity5.ToString());
-            await  CalculateDiff();
+            await CalculateDiff();
         }
     }
     private async Task GetReceivingQuantitiesByTemp(ChangeEventArgs e)
@@ -915,7 +921,7 @@
             Invoices.ReceivingDetail.Chamber3.Quantity = int.Parse(calculated6Quantity3.ToString());
             Invoices.ReceivingDetail.Chamber4.Quantity = int.Parse(calculated6Quantity4.ToString());
             Invoices.ReceivingDetail.Chamber5.Quantity = int.Parse(calculated6Quantity5.ToString());
-            await  CalculateDiff();
+            await CalculateDiff();
 
         }
     }
@@ -1038,12 +1044,12 @@
         try
         {
             Invoices.CalculationDifference = new CalculationDiff();
-            Invoices.CalculationDifference.TempDiff =0;
-            Invoices.CalculationDifference.TotalShortageByDip =0;
-            Invoices.CalculationDifference.Status ="";
-            Invoices.CalculationDifference.ShortageCharge =0;
-            Invoices.CalculationDifference.ShortOnTemp =0;
-            Invoices.CalculationDifference.Shortage1FTemp =0;
+            Invoices.CalculationDifference.TempDiff = 0;
+            Invoices.CalculationDifference.TotalShortageByDip = 0;
+            Invoices.CalculationDifference.Status = "";
+            Invoices.CalculationDifference.ShortageCharge = 0;
+            Invoices.CalculationDifference.ShortOnTemp = 0;
+            Invoices.CalculationDifference.Shortage1FTemp = 0;
             Invoices.CalculationDifference.QtyShouldRecieved = 0;
 
             float ReceivingTempF = Invoices.ReceivingDetail.TempF;
@@ -1073,6 +1079,7 @@
             double TotalQuantity85R = await GetQtyAt85F(Invoices.ReceivingDetail.SG, Invoices.ReceivingDetail.TempF, TotalChamberQuantityR);
 
             #endregion
+
             float ShortOnTempExempt = 0.0f;
             float ShortContratorCharge = float.Parse((TotalQuantity85S - TotalQuantity85R).ToString());
             if (ShortContratorCharge == 0)
