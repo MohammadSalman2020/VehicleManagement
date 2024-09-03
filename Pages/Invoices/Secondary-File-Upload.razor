@@ -1,0 +1,500 @@
+﻿@page "/sec-file-upload"
+@using System.Data
+@using System.Globalization
+@using System.IO
+@using Microsoft.Data.SqlClient
+@using OfficeOpenXml
+@using CsvHelper
+@using VehicleManagement.Models.General
+@inject IWebHostEnvironment Environment
+  @inject IConfiguration _configuration
+  @inject IToastService toastService
+<Nav PageName="Upload Secondary" />
+<div class="container-fluid py-4">
+    <div class="row">
+
+        <div class="col-md-12">
+            <div class="card">
+
+                <div class="card-body">
+
+                    <div class="row">
+
+                        <div class="row col-md-6">
+                            <div class="col-md-8">
+                                <div class="filter-controls">
+                                    <div class="form-group">
+                                        <a href="ExcelSample/SecExcelSample.xlsx">Download Sample</a>
+
+                                    </div>
+                                    <div class="form-group">
+                                        <InputFile type="file" class="form-control" OnChange="@OnInputFileChange" />
+
+                                    </div>
+
+
+
+                                </div>
+                            </div>
+                            @if (DataTable != null)
+                            {
+                                <div class="col-md-4">
+                                    <div class="filter-controls">
+
+
+                                        <div class="form-group">
+                                            <button class="btn btn-danger btn-sm ms-auto" disabled="@showProgressBar" @onclick="AddToDB">Save</button>
+                                        </div>
+
+
+                                    </div>
+                                </div>
+                            }
+
+                        </div>
+                        <div class="col-md-8">
+                            @if (DataTable != null)
+                            {
+                                <p>Total Records: @TotalRecords</p>
+
+                            }
+                            <div class="col-md-3">
+                                <div class="filter-controls">
+
+                                    <div class="form-group">
+                                        @if (showProgressBar)
+                                        {
+                                            <div class="progress" style="height: 35px;">
+                                                <div class="progress-bar" role="progressbar" style="width: @progress%;" aria-valuenow="@progress" aria-valuemin="0" aria-valuemax="100">@progress%</div>
+                                            </div>
+
+                                            <p>Please don't leave the page while database insert is in process.</p>
+                                        }
+                                    </div>
+
+                                </div>
+                            </div>
+                        </div>
+
+
+                    </div>
+
+                </div>
+            </div>
+        </div>
+
+
+
+        @if (DataTable != null)
+        {
+
+
+            <!-- Responsive table wrapper -->
+            <!-- Responsive table wrapper -->
+            <div class="card-body px-0 pt-0 pb-2" style="overflow-x: auto;height: 500px;">
+                <div class="table-responsive p-0">
+                    <table class="table align-items-center mb-0 table-test">
+                        <thead>
+                            <tr>
+                                @foreach (DataColumn column in DataTable.Columns)
+                                {
+                                    <th class="text-center font-colors text-uppercase  text-xxs font-weight-bolder opacity-7">@column.ColumnName</th>
+                                }
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (DataRow row in GetCurrentPageData())
+                            {
+                                <tr>
+                                    @foreach (var item in row.ItemArray)
+                                    {
+                                        <td class="align-middle text-center">
+                                            <span class="text-secondary text-xs font-weight-bold"> @item</span>
+                                        </td>
+                                    }
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            @if (!showProgressBar)
+            {
+                <div class="col-md-12">
+                    <div class="">
+                        <div class="pagination">
+                            <button class="btn btn-primary @(CurrentPage == 1 ? "disabled" : "")" @onclick="GoToFirstPage"><i style="font-size:24px" class="fa fa-angle-double-left"></i></button>
+                            <button class="btn btn-primary  @(CurrentPage == 1 ? "disabled" : "")" @onclick="PreviousPage"><i style="font-size:24px" class="fa fa-angle-left"></i></button>
+                            <span>Page @CurrentPage of @TotalPages</span>
+                            <button class="btn btn-primary @(CurrentPage == TotalPages ? "disabled" : "")" @onclick="NextPage"><i style="font-size:24px" class="fa fa-angle-right"></i></button>
+                            <button class="btn btn-primary @(CurrentPage == TotalPages ? "disabled" : "")" @onclick="GoToLastPage"><i style="font-size:24px" class="fa fa-angle-double-right"></i></button>
+                        </div>
+
+                    </div>
+                </div>
+            }
+        }
+        else if (isLoading)
+        {
+            <DataLoaderComponent IsLoading="@isLoading" LoadingText="Loading..." />
+        }
+    </div>
+</div>
+@code {
+    private DataTable DataTable;
+    private int TotalRecords => DataTable?.Rows.Count ?? 0;
+    private int CurrentPage { get; set; } = 1;
+    private int PageSize { get; set; } = 10; // Number of records per page
+    private int TotalPages => (int)Math.Ceiling((double)TotalRecords / PageSize);
+    private bool showProgressBar = false;
+    private bool isLoading = false;
+    private int progress = 0;
+
+    private readonly string[] RequiredColumns = new[]
+      {
+    "Customer Code",
+    "Customer Name",
+    "Transporter",
+    "Tank Lorry No",
+    "Product",
+    "Invoice Number",
+    "Month",
+    "Invoice Date",
+    "Invoiced Quantity",
+    "Supply Point",
+    "Trip Freight",
+    "Sec. Short",
+    "Sec. Shortage Amount",
+    "Shortage Charges to Carriage (ltrs)",
+    "Indent Price",
+    "Shortage Amount Charges to Contrctor",
+    "Transaction Type"
+};
+    private async Task AddToDB()
+    {
+        try
+        {
+            showProgressBar = true;
+            progress = 0;
+            StateHasChanged();
+
+            // Prepare a DataTable for bulk insert
+            DataTable dataTable = new DataTable();
+            dataTable.Columns.Add("TransactionType", typeof(string));
+            dataTable.Columns.Add("CustomerCode", typeof(string));
+            dataTable.Columns.Add("CustomerName", typeof(string));
+            dataTable.Columns.Add("Month", typeof(string));
+            dataTable.Columns.Add("Transporter", typeof(string));
+            dataTable.Columns.Add("TankLorryNo", typeof(string));
+            dataTable.Columns.Add("Product", typeof(string));
+            dataTable.Columns.Add("InvoiceNumber", typeof(string));
+            dataTable.Columns.Add("SupplyPoint", typeof(string));
+            dataTable.Columns.Add("InvoicedQuantity", typeof(int));
+            dataTable.Columns.Add("SecShort", typeof(double));
+            dataTable.Columns.Add("SecShortageAmount", typeof(double));
+            dataTable.Columns.Add("TripFreight", typeof(double));
+            dataTable.Columns.Add("ShortageChargesToCarriageLiters", typeof(double));
+            dataTable.Columns.Add("IndentPrice", typeof(double));
+            dataTable.Columns.Add("ShortageAmountChargesToContractor", typeof(double));
+            dataTable.Columns.Add("InvoiceDate", typeof(DateTime));
+            int processedRows = 0;
+            int totalRows = DataTable.Rows.Count;
+            // Populate the DataTable with records from DataTable.Rows
+            foreach (DataRow row in DataTable.Rows)
+            {
+                var record = new SecStockTransferDTO
+                    {
+                        TransactionType = row["Transaction Type"].ToString() ?? "",
+                        CustomerCode = row["Customer Code"].ToString() ?? "",
+                        CustomerName = row["Customer Name"].ToString() ?? "",
+                        Month = row["Month"].ToString() ?? "",
+                        Transporter = row["Transporter"].ToString() ?? "",
+                        TankLorryNo = row["Tank Lorry No"].ToString() ?? "",
+                        Product = row["Product"].ToString() ?? "",
+                        InvoiceNumber = row["Invoice Number"].ToString() ?? "",
+                        SupplyPoint = row["Supply Point"].ToString() ?? "",
+                        InvoicedQuantity = TryParseInt(row["Invoiced Quantity"].ToString(), 0),
+                        SecShort = TryParseDouble(row["Sec. Short"].ToString(), 0),
+                        SecShortageAmount = TryParseDouble(row["Sec. Shortage Amount"].ToString(), 0),
+                        TripFreight = TryParseDouble(row["Trip Freight"].ToString(), 0),
+                        ShortageChargesToCarriageLiters = TryParseDouble(row["Shortage Charges to Carriage (ltrs)"].ToString(), 0),
+                        IndentPrice = TryParseDouble(row["Indent Price"].ToString(), 0),
+                        ShortageAmountChargesToContractor = TryParseDouble(row["Shortage Amount Charges to Contrctor"].ToString(), 0),
+                        InvoiceDate = TryParseDateTime(row["Invoice Date"].ToString(), DateTime.MinValue),
+                    };
+
+                dataTable.Rows.Add(
+                    record.TransactionType,
+                    record.CustomerCode,
+                    record.CustomerName,
+                    record.Month,
+                    record.Transporter,
+                    record.TankLorryNo,
+                    record.Product,
+                    record.InvoiceNumber,
+                    record.SupplyPoint,
+                    record.InvoicedQuantity,
+                    record.SecShort,
+                    record.SecShortageAmount,
+                    record.TripFreight,
+                    record.ShortageChargesToCarriageLiters,
+                    record.IndentPrice,
+                    record.ShortageAmountChargesToContractor,
+                    record.InvoiceDate
+                );
+
+                processedRows++;
+                progress = (processedRows * 100) / totalRows;
+                StateHasChanged();
+                // StateHasChanged();
+            }
+
+            // Bulk insert the data
+            await BulkInsertAsync(dataTable);
+
+            // Call the stored procedure to remove duplicates
+            var connectionString = _configuration.GetConnectionString("Con");
+            using (SqlConnection connection = new SqlConnection(connectionString))
+            {
+                await connection.OpenAsync();
+                using (SqlCommand cmd = new SqlCommand("sp_DeletSECFirstDuplicateEntries", connection))
+                {
+                    cmd.CommandType = CommandType.StoredProcedure;
+                    await cmd.ExecuteNonQueryAsync();
+                }
+            }
+
+            showProgressBar = false;
+            progress = 0;
+        }
+        catch (Exception ex)
+        {
+            // Handle exception
+        }
+    }
+
+    private int TryParseInt(string value, int defaultValue)
+    {
+        // Remove commas and brackets from the string
+        value = value.Replace(",", "").Replace("(", "").Replace(")", "");
+
+        // Attempt to parse the cleaned string to an integer
+        return int.TryParse(value, out int result) ? result : defaultValue;
+    }
+
+    private double TryParseDouble(string value, double defaultValue)
+    {
+        // Remove commas and brackets from the string
+        value = value.Replace(",", "").Replace("(", "").Replace(")", "");
+
+        // Attempt to parse the cleaned string to a double
+        return double.TryParse(value, out double result) ? result : defaultValue;
+    }
+
+    private DateTime TryParseDateTime(string value, DateTime defaultValue)
+    {
+        return DateTime.TryParse(value, out DateTime result) ? result : defaultValue;
+    }
+    public async Task BulkInsertAsync(DataTable dataTable)
+    {
+        var connectionString = _configuration.GetConnectionString("Con");
+        using (SqlConnection connection = new SqlConnection(connectionString))
+        {
+            await connection.OpenAsync();
+            using (SqlBulkCopy bulkCopy = new SqlBulkCopy(connection))
+            {
+                // Set the destination table name
+                bulkCopy.DestinationTableName = "SecStockTransferRecords";
+
+                // Map the DataTable columns to the SQL table columns
+                bulkCopy.ColumnMappings.Add("TransactionType", "TransactionType");
+                bulkCopy.ColumnMappings.Add("CustomerCode", "CustomerCode");
+                bulkCopy.ColumnMappings.Add("CustomerName", "CustomerName");
+                bulkCopy.ColumnMappings.Add("Month", "Month");
+                bulkCopy.ColumnMappings.Add("Transporter", "Transporter");
+                bulkCopy.ColumnMappings.Add("TankLorryNo", "TankLorryNo");
+                bulkCopy.ColumnMappings.Add("Product", "Product");
+                bulkCopy.ColumnMappings.Add("InvoiceNumber", "InvoiceNumber");
+                bulkCopy.ColumnMappings.Add("SupplyPoint", "SupplyPoint");
+                bulkCopy.ColumnMappings.Add("InvoicedQuantity", "InvoicedQuantity");
+                bulkCopy.ColumnMappings.Add("SecShort", "SecShort");
+                bulkCopy.ColumnMappings.Add("SecShortageAmount", "SecShortageAmount");
+                bulkCopy.ColumnMappings.Add("TripFreight", "TripFreight");
+                bulkCopy.ColumnMappings.Add("ShortageChargesToCarriageLiters", "ShortageChargesToCarriageLiters");
+                bulkCopy.ColumnMappings.Add("IndentPrice", "IndentPrice");
+                bulkCopy.ColumnMappings.Add("ShortageAmountChargesToContractor", "ShortageAmountChargesToContractor");
+                bulkCopy.ColumnMappings.Add("InvoiceDate", "InvoiceDate");
+
+                // Write data to SQL table
+                await bulkCopy.WriteToServerAsync(dataTable);
+            }
+        }
+    }
+
+
+    private async Task OnInputFileChange(InputFileChangeEventArgs e)
+    {
+        if (showProgressBar)
+        {
+            return;
+        }
+
+        isLoading = true;
+        var file = e.File;
+        var fileExtension = Path.GetExtension(e.File.Name);
+        var trustedFileNameForFileStorage = e.File.Name;
+        var folderPath = Path.Combine(Environment.ContentRootPath, "wwwroot\\css\\Media", "Reports");
+
+        // Create the directory if it doesn't exist
+        if (!Directory.Exists(folderPath))
+        {
+            Directory.CreateDirectory(folderPath);
+        }
+
+        var filePath = Path.Combine(folderPath, trustedFileNameForFileStorage);
+        try
+        {
+            //
+
+
+            await using FileStream fs = new(filePath, FileMode.Create);
+            await e.File.OpenReadStream().CopyToAsync(fs);
+
+            // Read the file content
+            DataTable dataTable = null;
+            if (file.Name.EndsWith(".xlsx"))
+            {
+                dataTable = ReadExcelFile(filePath);
+            }
+            else if (file.Name.EndsWith(".csv"))
+            {
+                dataTable = ReadCsvFile(filePath);
+            }
+            if (dataTable != null && ContainsRequiredColumns(dataTable))
+            {
+                DataTable = dataTable;
+            }
+            else
+            {
+                DataTable = null;
+                toastService.ShowError("Uploaded file does not contain the required columns.");
+
+            }
+
+        }
+        finally
+        {
+            // Ensure that the file is deleted after processing
+            try
+            {
+                if (File.Exists(filePath))
+                {
+                    File.Delete(filePath);
+                }
+            }
+            catch (Exception ex)
+            {
+                // Log or handle the exception as necessary
+                Console.WriteLine($"Error deleting file: {ex.Message}");
+            }
+        }
+        CurrentPage = 1;
+        isLoading = false;
+
+    }
+    private bool ContainsRequiredColumns(DataTable dataTable)
+    {
+        return RequiredColumns.All(column => dataTable.Columns.Contains(column));
+    }
+    private DataTable ReadExcelFile(string filePath)
+    {
+        using var package = new ExcelPackage(new FileInfo(filePath));
+
+        if (package.Workbook.Worksheets.Count == 0)
+        {
+            throw new InvalidOperationException("The Excel file does not contain any worksheets.");
+        }
+
+        var worksheet = package.Workbook.Worksheets[0];
+
+        var dt = new DataTable();
+
+        for (int col = worksheet.Dimension.Start.Column; col <= worksheet.Dimension.End.Column; col++)
+        {
+            dt.Columns.Add(worksheet.Cells[1, col].Text);
+        }
+
+        for (int row = worksheet.Dimension.Start.Row + 1; row <= worksheet.Dimension.End.Row; row++)
+        {
+            var dataRow = dt.NewRow();
+            for (int col = worksheet.Dimension.Start.Column; col <= worksheet.Dimension.End.Column; col++)
+            {
+                dataRow[col - 1] = worksheet.Cells[row, col].Text;
+            }
+            dt.Rows.Add(dataRow);
+        }
+
+        return dt;
+    }
+
+    private DataTable ReadCsvFile(string filePath)
+    {
+        var dt = new DataTable();
+        using var reader = new StreamReader(filePath);
+        using var csv = new CsvReader(reader, CultureInfo.InvariantCulture);
+
+        using var dr = new CsvDataReader(csv);
+        dt.Load(dr);
+
+        return dt;
+    }
+
+    private IEnumerable<DataRow>
+    GetCurrentPageData()
+    {
+        return DataTable?.AsEnumerable()
+        .Skip((CurrentPage - 1) * PageSize)
+        .Take(PageSize)
+        .ToList() ?? Enumerable.Empty<DataRow>
+            ();
+    }
+
+    private void SetPage(int pageNumber)
+    {
+        if (pageNumber >= 1 && pageNumber <= TotalPages)
+        {
+            CurrentPage = pageNumber;
+        }
+    }
+
+    private void PreviousPage()
+    {
+        if (CurrentPage > 1)
+        {
+            CurrentPage--;
+        }
+    }
+    private void GoToFirstPage()
+    {
+        if (CurrentPage != 1)
+        {
+            CurrentPage = 1;
+
+        }
+    }
+    private void GoToLastPage()
+    {
+        if (CurrentPage != TotalPages)
+        {
+            CurrentPage = TotalPages;
+
+        }
+    }
+    private void NextPage()
+    {
+        if (CurrentPage < TotalPages)
+        {
+            CurrentPage++;
+        }
+    }
+}

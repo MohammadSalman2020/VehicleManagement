@@ -36,7 +36,7 @@
                                     <!-- Slider Panel -->
                                     <div class="filter-slider-panel" style="@PanelStyle">
                                         <div class="filter-header">
-                                            <h4>Filters</h4>
+                                            <h4>Export</h4>
                                             <button class="close-btn" @onclick="ToggleFilterPanel">X</button>
                                         </div>
                                         <!-- Filter Options -->
@@ -129,6 +129,12 @@
                                                     style="position: sticky; top: 0; background-color: #ffffff; z-index: 1; border: #cccccc 1px solid;">
                                                     STO No
                                                     <input type="text" class="filter-input" placeholder="Filter by STO No..." @bind="filters.stono" />
+                                                </th>
+                                               
+                                                <th class="text-center font-colors text-uppercase text-xxs font-weight-bolder opacity-7"
+                                                    style="position: sticky; top: 0; background-color: #ffffff; z-index: 1; border: #cccccc 1px solid;">
+                                                    Primary Reference
+                                                    <input type="text" class="filter-input" placeholder="Filter by Primary Reference..." @bind="filters.primaryreference" />
                                                 </th>
                                                 <th class="text-center font-colors text-uppercase text-xxs font-weight-bolder opacity-7"
                                                     style="position: sticky; top: 0; background-color: #ffffff; z-index: 1; border: #cccccc 1px solid;">
@@ -223,6 +229,10 @@
 
                                                             <td class="align-middle text-center" style="border: #cccccc 1px solid;">
                                                                 <span class="text-secondary text-xs font-weight-bold">@item.stono</span>
+                                                            </td>
+                                                            
+                                                            <td class="align-middle text-center" style="border: #cccccc 1px solid;">
+                                                                <span class="text-secondary text-xs font-weight-bold">@item.primaryreference</span>
                                                             </td>
 
                                                             <td class="align-middle text-center" style="border: #cccccc 1px solid;">
@@ -452,6 +462,7 @@
                   && (string.IsNullOrEmpty(filters.DriverID2) || i.DriverID2.Contains(filters.DriverID2, StringComparison.OrdinalIgnoreCase))
                   && (string.IsNullOrEmpty(filters.DriverName1) || i.DriverName1.Contains(filters.DriverName1, StringComparison.OrdinalIgnoreCase))
                   && (string.IsNullOrEmpty(filters.DriverName2) || i.DriverName2.Contains(filters.DriverName2, StringComparison.OrdinalIgnoreCase))
+                  && (string.IsNullOrEmpty(filters.primaryreference) || i.primaryreference.Contains(filters.primaryreference, StringComparison.OrdinalIgnoreCase))
                   // Handling numeric filters correctly by checking parsed value
                   // && filters.Primary==0 || i.Primary == filters.Primary
                   // && filters.Secondary == 0 || i.Secondary == filters.Secondary
@@ -849,4 +860,8 @@ ORDER BY
 
         }
     }
+
+
+
+
 }

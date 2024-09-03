@@ -9,6 +9,7 @@
 @using VehicleManagement.Pages.Redirects
 @inject IToastService toastService
 @inject IApiService API
+@inject IJSRuntime js
 @inject AuthenticationStateProvider _authenticationStateProvider
 <AuthorizeView>
     <Authorized>
@@ -789,7 +790,14 @@
         <Loader isLoading="@IsLoading" IsMessage=true />
     </Authorized>
     <NotAuthorized>
-        <_403 />
+        @if (_isJsReady)
+        {
+            <_403 />
+        }
+        else
+        {
+            <Loader isLoading="true" />
+        }
     </NotAuthorized>
 </AuthorizeView>
 
@@ -799,6 +807,28 @@
     private string? User { get; set; } = string.Empty;
     public bool IsLoading { get; set; } = false;
     private Invoicing? Invoices { get; set; }
+    private bool _isJsReady = false;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            try
+            {
+                await js.InvokeVoidAsync("console.log", "");
+                _isJsReady = true; // JS is ready, so set a flag or take action
+                StateHasChanged();
+
+            }
+            catch (Exception ex)
+            {
+                _isJsReady = false; // JavaScript is not yet ready
+                string e = ex.Message;
+            }
+
+        }
+
+    }
     protected override async void OnInitialized()
     {
         try
@@ -825,8 +855,8 @@
                 // Deserialize the JSON string back into the Invoices object
                 Invoices = JsonSerializer.Deserialize<Invoicing>(jsonString);
                 IsView = Invoices.IsView;
-                
-               
+
+
             }
             else if (encodedJson.Contains("InvoiceID="))
             {
@@ -888,7 +918,7 @@
         }
         catch (Exception ex)
         {
-            IsLoading = false;  
+            IsLoading = false;
             toastService.ShowError($"Error while adding invoice");
         }
 
@@ -950,6 +980,8 @@
 
             // Navigate to the destination page with the encoded JSON string as a query parameter
             NavigationManager.NavigateTo($"/invoice?Edit={encodedJson}");
+
+
         }
         catch (Exception ex)
         {

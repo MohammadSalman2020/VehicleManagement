@@ -1,0 +1,487 @@
+﻿@page "/file-upload"
+@using System.Data
+@using System.Globalization
+@using System.IO
+@using Microsoft.Data.SqlClient
+@using OfficeOpenXml
+@using CsvHelper
+@using VehicleManagement.Models.General
+@inject IWebHostEnvironment Environment
+  @inject IConfiguration _configuration
+  @inject IToastService toastService
+<Nav PageName="Upload Primary" />
+
+<div class="container-fluid py-4">
+    <div class="row">
+
+        <div class="col-md-12">
+            <div class="card">
+
+                <div class="card-body">
+
+                    <div class="row">
+
+                        <div class="row col-md-6">
+                            <div class="col-md-8">
+                                <div class="filter-controls">
+                                    <div class="form-group">
+                                        <a href="ExcelSample/ExcelSample.xlsx">Download Sample</a>
+
+                                    </div>
+                                    <div class="form-group">
+                                        <InputFile type="file" class="form-control" OnChange="@OnInputFileChange" />
+
+                                    </div>
+
+
+
+                                </div>
+                            </div>
+                            @if (DataTable != null)
+                            {
+                                <div class="col-md-4">
+                                    <div class="filter-controls">
+
+
+                                        <div class="form-group">
+                                            <button class="btn btn-danger btn-sm ms-auto" disabled="@showProgressBar" @onclick="AddToDB">Save</button>
+                                        </div>
+
+
+                                    </div>
+                                </div>
+                            }
+
+                        </div>
+                        <div class="col-md-8">
+                            @if (DataTable != null)
+                            {
+                                <p>Total Records: @TotalRecords</p>
+
+                            }
+                            <div class="col-md-3">
+                                <div class="filter-controls">
+
+                                    <div class="form-group">
+                                        @if (showProgressBar)
+                                        {
+                                            <div class="progress" style="height: 35px;">
+                                                <div class="progress-bar" role="progressbar" style="width: @progress%;" aria-valuenow="@progress" aria-valuemin="0" aria-valuemax="100">@progress%</div>
+                                            </div>
+
+                                            <p>Please don't leave the page while database insert is in process.</p>
+                                        }
+                                    </div>
+
+                                </div>
+                            </div>
+                        </div>
+
+
+                    </div>
+
+                </div>
+            </div>
+        </div>
+
+
+
+        @if (DataTable != null)
+        {
+
+
+            <!-- Responsive table wrapper -->
+            <!-- Responsive table wrapper -->
+            <div class="card-body px-0 pt-0 pb-2" style="overflow-x: auto;height: 500px;">
+                <div class="table-responsive p-0">
+                    <table class="table align-items-center mb-0 table-test">
+                        <thead>
+                            <tr>
+                                @foreach (DataColumn column in DataTable.Columns)
+                                {
+                                    <th class="text-center font-colors text-uppercase  text-xxs font-weight-bolder opacity-7">@column.ColumnName</th>
+                                }
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (DataRow row in GetCurrentPageData())
+                            {
+                                <tr>
+                                    @foreach (var item in row.ItemArray)
+                                    {
+                                        <td class="align-middle text-center">
+                                            <span class="text-secondary text-xs font-weight-bold"> @item</span>
+                                        </td>
+                                    }
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            @if (!showProgressBar)
+            {
+                <div class="col-md-12">
+                    <div class="">
+                        <div class="pagination">
+                            <button class="btn btn-primary @(CurrentPage == 1 ? "disabled" : "")" @onclick="GoToFirstPage"><i style="font-size:24px" class="fa fa-angle-double-left"></i></button>
+                            <button class="btn btn-primary  @(CurrentPage == 1 ? "disabled" : "")" @onclick="PreviousPage"><i style="font-size:24px" class="fa fa-angle-left"></i></button>
+                            <span>Page @CurrentPage of @TotalPages</span>
+                            <button class="btn btn-primary @(CurrentPage == TotalPages ? "disabled" : "")" @onclick="NextPage"><i style="font-size:24px" class="fa fa-angle-right"></i></button>
+                            <button class="btn btn-primary @(CurrentPage == TotalPages ? "disabled" : "")" @onclick="GoToLastPage"><i style="font-size:24px" class="fa fa-angle-double-right"></i></button>
+                        </div>
+
+                    </div>
+                </div>
+            }
+        }
+        else if (isLoading)
+        {
+            <DataLoaderComponent IsLoading="@isLoading" LoadingText="Loading..." />
+        }
+    </div>
+</div>
+@code {
+    private DataTable DataTable;
+    private int TotalRecords => DataTable?.Rows.Count ?? 0;
+    private int CurrentPage { get; set; } = 1;
+    private int PageSize { get; set; } = 10; // Number of records per page
+    private int TotalPages => (int)Math.Ceiling((double)TotalRecords / PageSize);
+    private bool showProgressBar = false;
+    private bool isLoading = false;
+    private int progress = 0;
+
+    private readonly string[] RequiredColumns = new[]
+    {
+    "Ex Depot Price",
+    "Exemption (Ltrs)",
+    "Lorry No",
+    "Month",
+    "Primary Freight",
+    "Primary Freight Value",
+    "Primary Shortage (Ltrs)",
+    "P-Shortage Charge to Carriage",
+    "Receipt Point",
+    "Stock Transfer Advice #",
+    "Product Name",
+    "Stock Transfer Advice Quantity",
+    "Supply Point",
+    "Value of Primary Shortage",
+    "Value of Shortage Charged to Carriage",
+    "Value of Shortage Exempted on Terperature",
+    "Vendor Name",
+    "Transaction Date"
+};
+    public async Task InsertBulkRecordsAsync(DataTable dataTable)
+    {
+        var connectionString = _configuration.GetConnectionString("Con");
+        using (SqlConnection connection = new SqlConnection(connectionString))
+        {
+            await connection.OpenAsync();
+
+            using (SqlBulkCopy bulkCopy = new SqlBulkCopy(connection))
+            {
+                // Set the destination table
+                bulkCopy.DestinationTableName = "StockTransferRecords";
+
+                // Map the columns from DataTable to the destination table
+                bulkCopy.ColumnMappings.Add("TransactionDate", "TransactionDate");
+                bulkCopy.ColumnMappings.Add("Month", "Month");
+                bulkCopy.ColumnMappings.Add("LorryNo", "LorryNo");
+                bulkCopy.ColumnMappings.Add("VendorName", "VendorName");
+                bulkCopy.ColumnMappings.Add("ProductName", "ProductName");
+                bulkCopy.ColumnMappings.Add("StockTransferAdviceNumber", "StockTransferAdviceNumber");
+                bulkCopy.ColumnMappings.Add("StockTransferAdviceQuantity", "StockTransferAdviceQuantity");
+                bulkCopy.ColumnMappings.Add("SupplyPoint", "SupplyPoint");
+                bulkCopy.ColumnMappings.Add("ReceiptPoint", "ReceiptPoint");
+                bulkCopy.ColumnMappings.Add("PrimaryFreight", "PrimaryFreight");
+                bulkCopy.ColumnMappings.Add("PrimaryFreightValue", "PrimaryFreightValue");
+                bulkCopy.ColumnMappings.Add("PrimaryShortageLiters", "PrimaryShortageLiters");
+                bulkCopy.ColumnMappings.Add("PShortageChargeToCarriage", "PShortageChargeToCarriage");
+                bulkCopy.ColumnMappings.Add("ExemptionLiters", "ExemptionLiters");
+                bulkCopy.ColumnMappings.Add("ExDepotPrice", "ExDepotPrice");
+                bulkCopy.ColumnMappings.Add("ValueOfPrimaryShortage", "ValueOfPrimaryShortage");
+                bulkCopy.ColumnMappings.Add("ValueOfShortageExemptedOnTemperature", "ValueOfShortageExemptedOnTemperature");
+                bulkCopy.ColumnMappings.Add("ValueOfShortageChargedToCarriage", "ValueOfShortageChargedToCarriage");
+
+                // Write from the DataTable to the database.
+                await bulkCopy.WriteToServerAsync(dataTable);
+            }
+
+            // Call the stored procedure to delete first duplicate entries
+            using (SqlCommand cmd = new SqlCommand("sp_DeleteFirstDuplicateEntries", connection))
+            {
+                cmd.CommandType = CommandType.StoredProcedure;
+                await cmd.ExecuteNonQueryAsync();
+            }
+        }
+    }
+
+    public DataTable GetDataTableFromRows(IEnumerable<DataRow> rows)
+    {
+        // Define the structure of the DataTable based on your database schema
+        DataTable dataTable = new DataTable();
+        dataTable.Columns.Add("TransactionDate", typeof(DateTime));
+        dataTable.Columns.Add("Month", typeof(string));
+        dataTable.Columns.Add("LorryNo", typeof(string));
+        dataTable.Columns.Add("VendorName", typeof(string));
+        dataTable.Columns.Add("ProductName", typeof(string));
+        dataTable.Columns.Add("StockTransferAdviceNumber", typeof(string));
+        dataTable.Columns.Add("StockTransferAdviceQuantity", typeof(int));
+        dataTable.Columns.Add("SupplyPoint", typeof(string));
+        dataTable.Columns.Add("ReceiptPoint", typeof(string));
+        dataTable.Columns.Add("PrimaryFreight", typeof(double));
+        dataTable.Columns.Add("PrimaryFreightValue", typeof(double));
+        dataTable.Columns.Add("PrimaryShortageLiters", typeof(int));
+        dataTable.Columns.Add("PShortageChargeToCarriage", typeof(double));
+        dataTable.Columns.Add("ExemptionLiters", typeof(int));
+        dataTable.Columns.Add("ExDepotPrice", typeof(double));
+        dataTable.Columns.Add("ValueOfPrimaryShortage", typeof(double));
+        dataTable.Columns.Add("ValueOfShortageExemptedOnTemperature", typeof(double));
+        dataTable.Columns.Add("ValueOfShortageChargedToCarriage", typeof(double));
+        int processedRows = 0;
+        int totalRows = DataTable.Rows.Count;
+        // Populate the DataTable with data from rows
+        foreach (var row in rows)
+        {
+            var newRow = dataTable.NewRow();
+            newRow["TransactionDate"] = TryParseDateTime(row["Transaction Date"].ToString(), DateTime.MinValue);
+            newRow["Month"] = row["Month"].ToString() ?? "";
+            newRow["LorryNo"] = row["Lorry No"].ToString() ?? "";
+            newRow["VendorName"] = row["Vendor Name"].ToString() ?? "";
+            newRow["ProductName"] = row["Product Name"].ToString() ?? "";
+            newRow["StockTransferAdviceNumber"] = row["Stock Transfer Advice #"].ToString() ?? "";
+            newRow["StockTransferAdviceQuantity"] = TryParseInt(row["Stock Transfer Advice Quantity"].ToString(), 0);
+            newRow["SupplyPoint"] = row["Supply Point"].ToString();
+            newRow["ReceiptPoint"] = row["Receipt Point"].ToString() ?? "";
+            newRow["PrimaryFreight"] = TryParseDouble(row["Primary Freight"].ToString(), 0);
+            newRow["PrimaryFreightValue"] = TryParseDouble(row["Primary Freight Value"].ToString(), 0);
+            newRow["PrimaryShortageLiters"] = TryParseInt(row["Primary Shortage (Ltrs)"].ToString(), 0);
+            newRow["PShortageChargeToCarriage"] = TryParseDouble(row["P-Shortage Charge to Carriage"].ToString(), 0);
+            newRow["ExemptionLiters"] = TryParseInt(row["Exemption (Ltrs)"].ToString(), 0);
+            newRow["ExDepotPrice"] = TryParseDouble(row["Ex Depot Price"].ToString(), 0);
+            newRow["ValueOfPrimaryShortage"] = TryParseDouble(row["Value of Primary Shortage"].ToString(), 0);
+            newRow["ValueOfShortageExemptedOnTemperature"] = TryParseDouble(row["Value of Shortage Exempted on Terperature"].ToString(), 0);
+            newRow["ValueOfShortageChargedToCarriage"] = TryParseDouble(row["Value of Shortage Charged to Carriage"].ToString(), 0);
+
+            dataTable.Rows.Add(newRow);
+            processedRows++;
+            progress = (processedRows * 100) / totalRows;
+            StateHasChanged();
+        }
+
+        return dataTable;
+    }
+    private async Task AddToDB()
+    {
+        try
+        {
+
+            showProgressBar = true;
+
+
+
+
+
+
+            var dataTableToInsert = GetDataTableFromRows(DataTable.Rows.Cast<DataRow>());
+            await InsertBulkRecordsAsync(dataTableToInsert);
+
+
+
+
+            showProgressBar = false;
+            progress = 0;
+        }
+        catch (Exception ex)
+        {
+
+        }
+    }
+    private int TryParseInt(string value, int defaultValue)
+    {
+        // Remove commas and brackets from the string
+        value = value.Replace(",", "").Replace("(", "").Replace(")", "");
+
+        // Attempt to parse the cleaned string to an integer
+        return int.TryParse(value, out int result) ? result : defaultValue;
+    }
+
+    private double TryParseDouble(string value, double defaultValue)
+    {
+        // Remove commas and brackets from the string
+        value = value.Replace(",", "").Replace("(", "").Replace(")", "");
+
+        // Attempt to parse the cleaned string to a double
+        return double.TryParse(value, out double result) ? result : defaultValue;
+    }
+
+    private DateTime TryParseDateTime(string value, DateTime defaultValue)
+    {
+        return DateTime.TryParse(value, out DateTime result) ? result : defaultValue;
+    }
+
+    private async Task OnInputFileChange(InputFileChangeEventArgs e)
+    {
+        if (showProgressBar)
+        {
+            return;
+        }
+
+        isLoading = true;
+        var file = e.File;
+        var fileExtension = Path.GetExtension(e.File.Name);
+        var trustedFileNameForFileStorage = e.File.Name;
+        var folderPath = Path.Combine(Environment.ContentRootPath, "wwwroot\\css\\Media", "Reports");
+
+        // Create the directory if it doesn't exist
+        if (!Directory.Exists(folderPath))
+        {
+            Directory.CreateDirectory(folderPath);
+        }
+
+        var filePath = Path.Combine(folderPath, trustedFileNameForFileStorage);
+        try
+        {
+            //
+
+
+            await using FileStream fs = new(filePath, FileMode.Create);
+            await e.File.OpenReadStream().CopyToAsync(fs);
+
+            // Read the file content
+            DataTable dataTable = null;
+            if (file.Name.EndsWith(".xlsx"))
+            {
+                dataTable = ReadExcelFile(filePath);
+            }
+            else if (file.Name.EndsWith(".csv"))
+            {
+                dataTable = ReadCsvFile(filePath);
+            }
+            if (dataTable != null && ContainsRequiredColumns(dataTable))
+            {
+                DataTable = dataTable;
+            }
+            else
+            {
+                DataTable = null;
+                toastService.ShowError("Uploaded file does not contain the required columns.");
+
+            }
+
+        }
+        finally
+        {
+            // Ensure that the file is deleted after processing
+            try
+            {
+                if (File.Exists(filePath))
+                {
+                    File.Delete(filePath);
+                }
+            }
+            catch (Exception ex)
+            {
+                // Log or handle the exception as necessary
+                Console.WriteLine($"Error deleting file: {ex.Message}");
+            }
+        }
+        CurrentPage = 1;
+        isLoading = false;
+
+    }
+    private bool ContainsRequiredColumns(DataTable dataTable)
+    {
+        return RequiredColumns.All(column => dataTable.Columns.Contains(column));
+    }
+    private DataTable ReadExcelFile(string filePath)
+    {
+        using var package = new ExcelPackage(new FileInfo(filePath));
+
+        if (package.Workbook.Worksheets.Count == 0)
+        {
+            throw new InvalidOperationException("The Excel file does not contain any worksheets.");
+        }
+
+        var worksheet = package.Workbook.Worksheets[0];
+
+        var dt = new DataTable();
+
+        for (int col = worksheet.Dimension.Start.Column; col <= worksheet.Dimension.End.Column; col++)
+        {
+            dt.Columns.Add(worksheet.Cells[1, col].Text);
+        }
+
+        for (int row = worksheet.Dimension.Start.Row + 1; row <= worksheet.Dimension.End.Row; row++)
+        {
+            var dataRow = dt.NewRow();
+            for (int col = worksheet.Dimension.Start.Column; col <= worksheet.Dimension.End.Column; col++)
+            {
+                dataRow[col - 1] = worksheet.Cells[row, col].Text;
+            }
+            dt.Rows.Add(dataRow);
+        }
+
+        return dt;
+    }
+
+    private DataTable ReadCsvFile(string filePath)
+    {
+        var dt = new DataTable();
+        using var reader = new StreamReader(filePath);
+        using var csv = new CsvReader(reader, CultureInfo.InvariantCulture);
+
+        using var dr = new CsvDataReader(csv);
+        dt.Load(dr);
+
+        return dt;
+    }
+
+    private IEnumerable<DataRow> GetCurrentPageData()
+    {
+        return DataTable?.AsEnumerable()
+                         .Skip((CurrentPage - 1) * PageSize)
+                         .Take(PageSize)
+                         .ToList() ?? Enumerable.Empty<DataRow>();
+    }
+
+    private void SetPage(int pageNumber)
+    {
+        if (pageNumber >= 1 && pageNumber <= TotalPages)
+        {
+            CurrentPage = pageNumber;
+        }
+    }
+
+    private void PreviousPage()
+    {
+        if (CurrentPage > 1)
+        {
+            CurrentPage--;
+        }
+    }
+    private void GoToFirstPage()
+    {
+        if (CurrentPage != 1)
+        {
+            CurrentPage = 1;
+
+        }
+    }
+    private void GoToLastPage()
+    {
+        if (CurrentPage != TotalPages)
+        {
+            CurrentPage = TotalPages;
+
+        }
+    }
+    private void NextPage()
+    {
+        if (CurrentPage < TotalPages)
+        {
+            CurrentPage++;
+        }
+    }
+}
