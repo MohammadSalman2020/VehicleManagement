@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Components.Server.ProtectedBrowserStorage;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.JSInterop;
+using OfficeOpenXml;
 using Syncfusion.Blazor;
 using VehicleManagement.ApiService;
 using VehicleManagement.Authentication;
@@ -15,6 +16,7 @@ using VehicleManagement.Service;
 var builder = WebApplication.CreateBuilder(args);
 
 
+ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
 
 builder.Services.AddRazorPages();
 builder.Services.AddServerSideBlazor();
@@ -24,13 +26,17 @@ builder.Services.AddSession(options =>
     options.Cookie.HttpOnly = true;
     options.Cookie.IsEssential = true; // Ensure session cookie is always sent
 
-  
+
 });
 builder.Services.AddServerSideBlazor()
                .AddCircuitOptions(options =>
                {
                    options.DetailedErrors = true;
                });
+//builder.Services.AddRazorComponents(options =>
+//{
+//    options.MaxAllowedSize = 1024 * 1024 * 10; // 10 MB max file size
+//});
 builder.Services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
 builder.Services.AddSingleton<WeatherForecastService>();
 builder.Services.AddSingleton<UserAccountService>();

@@ -1,0 +1,869 @@
+﻿@page "/primarycomp"
+@using System.Text.Json
+@using System.Collections.Generic
+@using System.IO
+@using Microsoft.AspNetCore.Components
+@using System.Threading.Tasks
+@inject IJSRuntime JSRuntime
+@using System.Text
+@using System.Text.RegularExpressions
+@using Microsoft.Data.SqlClient
+@using System.Web
+@using VehicleManagement.ApiService
+@using VehicleManagement.Authentication
+@using VehicleManagement.Models.General
+@inject NavigationManager NavigationManager
+@using VehicleManagement.Models.DB
+@using VehicleManagement.Models.General.Fleet
+@inject IApiService API
+@inject IUserClaimsService UserClaimsService
+@inject IToastService toastService
+@inject IWebHostEnvironment Environment
+  @inject IConfiguration _configuration
+<div style="margin-top:10px;padding:0px;">
+    <div class="row">
+        <div class="col-12">
+            <div class="card mb-4">
+                <div class="row col-md-12">
+                    <div class="col-md-6">
+
+                        <div class="card-header d-flex">
+                            <span>Primary Charge Comparison</span>
+                        </div>
+
+                    </div>
+                    <div class="col-md-6">
+
+                        <div class="card-header d-flex" style="float:right;">
+                            <img style="cursor:pointer;" src="css/filter.png" @onclick="ToggleFilterPanel" />
+                        </div>
+                    </div>
+                    <div class="col-md-12">
+                        <div style="text-align:center;">
+                            <a class="btn btn-danger btn-sm ms-auto" @onclick="OpenPolicyModal">Client Invoices</a>
+                            <a class="btn btn-warning btn-sm ms-auto" @onclick="OpenSysModal">System Invoices</a>
+                        </div>
+                    </div>
+
+                </div>
+                <div class="row">
+
+                    <div class="col-md-2">
+                        <!-- Filter Button -->
+                        <!-- Slider Panel -->
+                        <div class="filter-slider-panel" style="@PanelStyle">
+                            <div class="filter-header">
+                                <h4>Export</h4>
+                                <button class="close-btn" @onclick="ToggleFilterPanel">X</button>
+                            </div>
+                            <!-- Filter Options -->
+                            <div class="filter-content">
+
+                                <!-- Date Filter -->
+                                <div class="row col-md-12">
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label for="startDate">Start Date:</label>
+                                            <input type="date" @bind="@startDate" class="form-control" id="startDate">
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label for="endDate">End Date:</label>
+                                            <input type="date" @bind="@endDate" class="form-control" id="endDate">
+                                        </div>
+                                    </div>
+                                    <div class="col-md-12" style="text-align:center;">
+                                        <div class="form-group">
+                                            <button style="border: white;" class="btn-primary" @onclick="FilterByDateRange">Search</button>
+                                            <button style="border: white;" class="btn-danger" @onclick="Reset">Reset</button>
+
+
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row col-md-12">
+                                    <div class="col-md-6" style="text-align:center;" title="Export All Data to Excel">
+                                        <div class="form-group">
+                                            <img style="cursor:pointer;" src="css/Excel Icon.png" onclick="exportTablessToExcel('invoiceTables','PrimaryShortageComparision')" />
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6" style="text-align:center;" title="Copy Shown Data">
+
+                                        <div class="form-group">
+                                            <img style="cursor:pointer;" src="css/clipboard.png" onclick="copyTableToClipboard()" />
+                                        </div>
+                                    </div>
+                                    <!-- Add more filter options as needed -->
+                                </div>
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <div style="overflow-x: scroll; max-width: 100%;">
+
+
+                            <!-- Your table code -->
+                            <table class="table-bordered" id="invoiceTables">
+                                <!-- Added 'table-bordered' class -->
+                                <thead style="background-color:#5e72e4;color:white">
+                                    <tr style="text-align:center;background-color:#5e72e4;color:white;">
+                                        <th>Transaction Date</th>
+                                        <th>Month</th>
+                                        <th>Lorry No</th>
+                                        <th>Product</th>
+                                        <th>Stock Transfer Number</th>
+                                        <th>Supply Point</th>
+                                        <th>Receipt Point</th>
+                                        <th>Ex Depot Price</th>
+                                        <th>System Charge ltr.</th>
+                                        <th>Shortage Charge (System)</th>
+                                        <th>Client Charge ltr.</th>
+                                        <th>Shortage Charge (Client)</th>
+                                        <th>Invoice Link</th>
+
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @if (FilteredItems.Count > 0)
+                                    {
+                                        @foreach (var item in FilteredItems.OrderBy(p => p.InvoiceDate))
+                                        {
+                                            <tr>
+                                                <td style="text-align:center">
+                                                    <p>@item.InvoiceDate.ToString("dd-MM-yyyy")</p>
+                                                </td>
+                                                <td style="text-align:center">
+                                                    <p>@item.InvoiceDate.ToString("MMMM")</p>
+                                                </td>
+                                                <td style="text-align:center">
+                                                    <p>@item.TankLorryNo</p>
+                                                </td>
+                                                <td style="text-align:center">
+                                                    <p>@item.Product</p>
+                                                </td>
+                                                <td style="text-align:center">
+                                                    <p>@item.InvoiceNumber</p>
+                                                </td>
+                                                <td style="text-align:center">
+                                                    <span>@item.SupplyPoint</span>
+                                                </td>
+                                                <td style="text-align:center">
+                                                    <span>@item.ReceiptPoint</span>
+                                                </td>
+                                                <td style="text-align:center">
+                                                    <span>@item.ExDepotPrice</span>
+                                                </td>
+
+                                                <td style="text-align:center">
+                                                    <span>@item.SystemCharge</span>
+                                                </td>
+
+                                                <td style="text-align:center">
+                                                    <span>@item.SystemShortageCharge</span>
+                                                </td>
+                                                <td style="text-align:center">
+                                                    <span>@item.ClientCharge</span>
+                                                </td>
+                                                <td style="text-align:center">
+                                                    <span>@item.ClientShortageCharge</span>
+                                                </td>
+                                                <td style="text-align:center">
+                                                    <a href="@GetInvoice(@item.InvoiceNumber)" target="_blank">
+                                                        View
+                                                    </a>
+                                                </td>
+
+
+                                            </tr>
+
+                                        }
+                                    }
+                                    else
+                                    {
+                                        @if (IsLoading)
+                                        {
+                                            <tr>
+                                                <td colspan="14">
+                                                    <DataLoaderComponent IsLoading="@IsLoading" LoadingText="Loading Report..." />
+                                                </td>
+
+                                            </tr>
+                                        }
+                                    }
+
+
+                                </tbody>
+                            </table>
+
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@*Policy Modal *@
+<CompModal @ref="PolicyModal" Title="Missing Client Invoices (In System)" Count="FilteredClientItems.Count">
+    <Body>
+        <div class="col-md-12">
+            <div class="card">
+
+                <div class="card-body">
+
+                    <div class="row">
+
+                        <div class="row col-md-12">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="example-text-input" class="font-weight-bolder mb-0" style="color:black;">Select Month</label>
+                                    <input type="month" class="form-group" @onchange="OnDateChange" />
+                                    @if (IsClientDate)
+                                    {
+                                        <label for="example-text-input" class="font-weight-bolder mb-0" style="color:blue;cursor:pointer;" @onclick="RsetClient">Reset</label>
+
+                                    }
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group" style="text-align:end;">
+
+                                    <img style="cursor:pointer;" src="css/Excel Icon.png" onclick="exportTablessToExcel('invoiceTablesdata','SystemMissingInvoices')" />
+
+
+                                </div>
+                            </div>
+
+                        </div>
+                        <div class="card-body px-0 pt-0 pb-2" style="overflow-y: auto; height: 350px;">
+                            <div class="table-responsive p-0">
+                                <table class="table align-items-center mb-0" id="invoiceTablesdata">
+                                    <thead style="position: sticky; top: 0; background-color: #5e72e4; color: white; z-index: 10;">
+                                        <tr style="text-align: center;">
+                                            <th>Transaction Date</th>
+
+                                            <th>Lorry No</th>
+                                            <th>Product</th>
+                                            <th>Stock Transfer Number</th>
+                                            <th>Supply Point</th>
+                                            <th>Receipt Point</th>
+                                            <th>Client Charge</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @if (FilteredClientItems.Count > 0)
+                                        {
+                                            @foreach (var item in FilteredClientItems.OrderBy(p => p.InvoiceDate))
+                                            {
+                                                <tr>
+                                                    <td style="text-align: center;">
+                                                        <p>@item.InvoiceDate.ToString("dd-MM-yyyy")</p>
+                                                    </td>
+
+                                                    <td style="text-align: center;">
+                                                        <p>@item.TankLorryNo</p>
+                                                    </td>
+                                                    <td style="text-align: center;">
+                                                        <p>@item.Product</p>
+                                                    </td>
+                                                    <td style="text-align: center;">
+                                                        <p>@item.InvoiceNumber</p>
+                                                    </td>
+                                                    <td style="text-align: center;">
+                                                        <span>@item.SupplyPoint</span>
+                                                    </td>
+                                                    <td style="text-align: center;">
+                                                        <span>@item.ReceiptPoint</span>
+                                                    </td>
+                                                    <td style="text-align: center;">
+                                                        <span>@item.ClientCharge</span>
+                                                    </td>
+                                                </tr>
+                                            }
+                                        }
+                                        else
+                                        {
+                                            @if (IsClientLoading)
+                                            {
+                                                <tr>
+                                                    <td colspan="8" style="text-align: center;">
+                                                        <DataLoaderComponent IsLoading="@IsClientLoading" LoadingText="Loading Report..." />
+                                                    </td>
+                                                </tr>
+                                            }
+                                        }
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </Body>
+</CompModal>
+
+@* End Policy Modal *@
+
+@*Policy Modal *@
+<CompModal @ref="SystemModal" Title="Missing System Invoices (From Client Data)" Count="FilteredSystemItems.Count">
+    <Body>
+        <div class="col-md-12">
+            <div class="card">
+
+                <div class="card-body">
+
+                    <div class="row">
+
+                        <div class="row col-md-12">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="example-text-input" class="font-weight-bolder mb-0" style="color:black;">Select Month</label>
+                                    <input type="month" class="form-group" @onchange="OnSystemDateChange" />
+                                    @if (IsSystemDate)
+                                    {
+                                        <label for="example-text-input" class="font-weight-bolder mb-0" style="color:blue;cursor:pointer;" @onclick="RsetSystem">Reset</label>
+
+                                    }
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group" style="text-align:end;">
+
+                                    <img style="cursor:pointer;" src="css/Excel Icon.png" onclick="exportTablessToExcel('invoiceTablesdataSystem','ClientMissingInvoices')" />
+
+
+                                </div>
+                            </div>
+
+                        </div>
+                    @*     <div class="col-md-12">
+                            <div class="form-group" style="text-align:end;">
+
+                                <img style="cursor:pointer;" src="css/Excel Icon.png" onclick="exportTablessToExcel('invoiceTablesdataSystem','ClientMissingInvoices')" />
+
+
+                            </div>
+                        </div>
+ *@
+
+
+
+                        <div class="card-body px-0 pt-0 pb-2" style="overflow-y: auto; height: 350px;">
+                            <div class="table-responsive p-0">
+                                <table class="table align-items-center mb-0" id="invoiceTablesdataSystem">
+                                    <thead style="position: sticky; top: 0; background-color: #5e72e4; color: white; z-index: 10;">
+                                        <tr style="text-align: center;">
+                                            <th>Transaction Date</th>
+                                            <th>Lorry No</th>
+                                            <th>Product</th>
+                                            <th>Stock Transfer Number</th>
+                                            <th>Supply Point</th>
+                                            <th>Receipt Point</th>
+                                            <th>Client Charge</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @if (FilteredSystemItems.Count > 0)
+                                        {
+                                            @foreach (var item in FilteredSystemItems.OrderBy(p => p.InvoiceDate))
+                                            {
+                                                <tr>
+                                                    <td style="text-align: center;">
+                                                        <p>@item.InvoiceDate.ToString("dd-MM-yyyy")</p>
+                                                    </td>
+
+                                                    <td style="text-align: center;">
+                                                        <p>@item.TankLorryNo</p>
+                                                    </td>
+                                                    <td style="text-align: center;">
+                                                        <p>@item.Product</p>
+                                                    </td>
+                                                    <td style="text-align: center;">
+                                                        <p>@item.InvoiceNumber</p>
+                                                    </td>
+                                                    <td style="text-align: center;">
+                                                        <span>@item.SupplyPoint</span>
+                                                    </td>
+                                                    <td style="text-align: center;">
+                                                        <span>@item.ReceiptPoint</span>
+                                                    </td>
+                                                    <td style="text-align: center;">
+                                                        <span>@item.ClientCharge</span>
+                                                    </td>
+                                                </tr>
+                                            }
+                                        }
+                                        else
+                                        {
+                                            @if (IsSystemLoading)
+                                            {
+                                                <tr>
+                                                    <td colspan="8" style="text-align: center;">
+                                                        <DataLoaderComponent IsLoading="@IsSystemLoading" LoadingText="Loading Report..." />
+                                                    </td>
+                                                </tr>
+                                            }
+                                        }
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </Body>
+</CompModal>
+
+@* End Policy Modal *@
+
+
+@code {
+    private CompModal PolicyModal;
+    private CompModal SystemModal;
+
+    private bool isPanelVisible = false;
+    private string selectedCategory;
+    public List<PrimaryComp> obj = new List<PrimaryComp>();
+    public List<PrimaryComp> obj2 = new List<PrimaryComp>();
+    public List<PrimaryComp> obj3 = new List<PrimaryComp>();
+    public List<PrimaryComp> FilteredItems = new List<PrimaryComp>();
+    public List<PrimaryComp> FilteredClientItems = new List<PrimaryComp>();
+    public List<PrimaryComp> FilteredSystemItems = new List<PrimaryComp>();
+    private bool _isJsReady = false;
+    public bool IsClientDate { get; set; }
+    public bool IsLoading { get; set; }
+    public bool IsClientLoading { get; set; }
+    public bool IsSystemDate{ get; set; }
+    public bool IsSystemLoading { get; set; }
+    public List<Invoicing> Invoicing = new List<Invoicing>();
+    private DateTime? startDate;
+    private DateTime? endDate;
+    private DateTime? SelectedMonthYear { get; set; }
+    private DateTime? SelectedMonthYearSystem { get; set; }
+    private void FilterByDateRange()
+    {
+        DateTime startDateTime;
+        DateTime endDateTime;
+        bool isStartDateValid = DateTime.TryParse(startDate?.ToString(), out startDateTime);
+        bool isEndDateValid = DateTime.TryParse(endDate?.ToString(), out endDateTime);
+        if (!isEndDateValid || !isStartDateValid)
+        {
+            toastService.ShowError("Please Select Valid Date");
+            return;
+        }
+        FilteredItems = obj.Where(item =>
+        {
+            DateTime itemDate;
+            bool isItemDateValid = DateTime.TryParse(item.InvoiceDate.ToString("MM-dd-yyyy"), out itemDate);
+
+            if (!isItemDateValid)
+            {
+                return false; // Skip items with invalid date formats
+            }
+
+            bool isAfterStartDate = !isStartDateValid || itemDate >= startDateTime;
+            bool isBeforeEndDate = !isEndDateValid || itemDate <= endDateTime;
+
+            return isAfterStartDate && isBeforeEndDate;
+        }).ToList();
+
+        // CurrentPage = 1;
+        //  await LoadData();
+
+    }
+    private async Task Reset()
+    {
+        startDate = null;
+        endDate = null;
+        FilteredItems = obj;
+
+        //  CurrentPage = 1;
+        //  await LoadData();
+
+    }
+
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            try
+            {
+                // Attempt a simple JavaScript call to check if JS is ready
+                await JSRuntime.InvokeVoidAsync("addKeyboardShortcut");
+
+                _isJsReady = true; // JS is ready, so set a flag or take action
+                StateHasChanged();
+            }
+            catch
+            {
+                // If JS isn't ready, handle it gracefully
+                _isJsReady = false; // JavaScript is not yet ready
+            }
+        }
+    }
+    private void OnDateChange(ChangeEventArgs e)
+    {
+        if (DateTime.TryParse(e.Value.ToString(), out DateTime parsedDate))
+        {
+            SelectedMonthYear = parsedDate;
+            DateTime startDateTime;
+
+            bool isStartDateValid = DateTime.TryParse(SelectedMonthYear?.ToString(), out startDateTime);
+
+            if (!isStartDateValid)
+            {
+                toastService.ShowError("Please Select Valid Date");
+                return;
+            }
+            FilteredClientItems = obj2.Where(p => p.InvoiceDate.ToString("MM-yyyy") == SelectedMonthYear?.ToString("MM-yyyy")).ToList();
+            IsClientDate = true;
+        }
+    }
+    private void OnSystemDateChange(ChangeEventArgs e)
+    {
+        if (DateTime.TryParse(e.Value.ToString(), out DateTime parsedDate))
+        {
+            SelectedMonthYearSystem = parsedDate;
+            DateTime startDateTime;
+
+            bool isStartDateValid = DateTime.TryParse(SelectedMonthYearSystem?.ToString(), out startDateTime);
+
+            if (!isStartDateValid)
+            {
+                toastService.ShowError("Please Select Valid Date");
+                return;
+            }
+            FilteredSystemItems = obj3.Where(p => p.InvoiceDate.ToString("MM-yyyy") == SelectedMonthYearSystem?.ToString("MM-yyyy")).ToList();
+            IsSystemDate = true;
+        }
+    }
+    private void RsetClient()
+    {
+
+        FilteredClientItems = obj2;
+        IsClientDate = false;
+
+    }
+
+    private void RsetSystem()
+    {
+
+        FilteredSystemItems = obj3;
+        IsSystemDate = false;
+
+    }
+    private async Task OpenPolicyModal()
+    {
+        IsClientLoading = true;
+        PolicyModal.Show();
+        await LoadClientMissing();
+        RsetClient();
+        IsClientLoading = false;
+    }
+
+    private async Task OpenSysModal()
+    {
+        IsSystemLoading = true;
+        SystemModal.Show();
+        await LoadSystemMissing();
+        RsetSystem();
+        IsSystemLoading = false;
+    }
+    public async Task GetAllInvoices()
+    {
+        try
+        {
+            var AvailDrafts = await API.GetRequest($"Invoice/GetInvoicesList");
+            if (AvailDrafts != "")
+            {
+                Invoicing = Newtonsoft.Json.JsonConvert.DeserializeObject<List<Invoicing>>(AvailDrafts);
+            }
+            else
+            {
+
+            }
+
+        }
+        catch (Exception ex)
+        {
+
+        }
+    }
+    public string GetInvoice(string STONo)
+    {
+        try
+        {
+            var Invoice = Invoicing.FirstOrDefault(p => p.Details.STONo == STONo);
+            if (Invoice != null)
+            {
+                string jsonString = JsonSerializer.Serialize(Invoice);
+                string base64EncodedJson = Convert.ToBase64String(Encoding.UTF8.GetBytes(jsonString));
+                string encodedJson = HttpUtility.UrlEncode(base64EncodedJson);
+                return $"{NavigationManager.BaseUri}invoicedisplay?InvoiceID={encodedJson}";
+                //await JSRuntime.InvokeVoidAsync("openInNewTab2", $"/invoicedisplay?InvoiceID={encodedJson}");
+            }
+            else
+            {
+                return "Link Not Found";
+
+            }
+        }
+        catch (Exception ex)
+        {
+            return "Link Not Found";
+        }
+
+    }
+    protected override async Task OnInitializedAsync()
+    {
+
+        IsLoading = true;
+        try
+        {
+
+
+            await GetAllInvoices();
+            await LoadShortagereport();
+            FilteredItems = obj;
+            //  await LoadData();
+
+        }
+        catch (Exception ex)
+        {
+            IsLoading = false;
+        }
+        IsLoading = false;
+    }
+    // Toggle the filter panel visibility
+    private void ToggleFilterPanel()
+    {
+        isPanelVisible = !isPanelVisible;
+    }
+
+    // CSS style based on panel visibility
+    private string PanelStyle => isPanelVisible ? "transform: translateX(0);" : "transform: translateX(100%);";
+
+    public async Task LoadShortagereport()
+    {
+        obj = new List<PrimaryComp>();
+        try
+        {
+            string query = $@"
+SELECT
+    inv.STONo as InvoiceNumber,
+
+	   CAST(str.TransactionDate AS DATE) AS InvoiceDate,
+	str.LorryNo,
+	str.ProductName,
+	str.SupplyPoint,
+	str.ReceiptPoint,
+	str.ExDepotPrice,
+	str.PShortageChargeToCarriage as ClientCharge,
+	str.ValueOfShortageChargedToCarriage as ClientShortageCharge,
+		iis.ShortageCharge as SystemCharge,
+	iis.ShortageCharge * str.ExDepotPrice as SystemShortageCharge
+FROM
+    tblInvoices inv
+INNER JOIN
+    StockTransferRecords str ON inv.STONo = str.StockTransferAdviceNumber
+	Inner join tblInvoiceCalculation iis on
+	iis.InvoiceID = inv.InvoiceID
+	where str.PShortageChargeToCarriage>iis.ShortageCharge;";
+
+            var connectionString = _configuration.GetConnectionString("Con");
+
+            using (var connection = new SqlConnection(connectionString))
+            {
+                await connection.OpenAsync();
+
+                using (var command = new SqlCommand(query, connection))
+                using (var reader = await command.ExecuteReaderAsync())
+                {
+                    while (await reader.ReadAsync())
+                    {
+                        PrimaryComp dv = new PrimaryComp();
+                        dv = new PrimaryComp
+                            {
+                                InvoiceDate = reader.GetDateTime(reader.GetOrdinal("InvoiceDate")),
+                                InvoiceNumber = reader.IsDBNull(reader.GetOrdinal("InvoiceNumber")) ? "" : reader.GetString(reader.GetOrdinal("InvoiceNumber")),
+                                TankLorryNo = reader.IsDBNull(reader.GetOrdinal("LorryNo")) ? "" : reader.GetString(reader.GetOrdinal("LorryNo")),
+                                Product = reader.IsDBNull(reader.GetOrdinal("ProductName")) ? "" : reader.GetString(reader.GetOrdinal("ProductName")),
+                                SupplyPoint = reader.IsDBNull(reader.GetOrdinal("SupplyPoint")) ? "" : reader.GetString(reader.GetOrdinal("SupplyPoint")),
+                                ReceiptPoint = reader.IsDBNull(reader.GetOrdinal("ReceiptPoint")) ? "" : reader.GetString(reader.GetOrdinal("ReceiptPoint")),
+                                SystemCharge = reader.IsDBNull(reader.GetOrdinal("SystemCharge")) ? 0 : reader.GetDouble(reader.GetOrdinal("SystemCharge")),
+                                ClientCharge = reader.IsDBNull(reader.GetOrdinal("ClientCharge")) ? 0 : reader.GetDouble(reader.GetOrdinal("ClientCharge")),
+                                ClientShortageCharge = reader.IsDBNull(reader.GetOrdinal("ClientShortageCharge")) ? 0 : reader.GetDouble(reader.GetOrdinal("ClientShortageCharge")),
+                                ExDepotPrice = reader.IsDBNull(reader.GetOrdinal("ExDepotPrice")) ? 0 : reader.GetDouble(reader.GetOrdinal("ExDepotPrice")),
+                                SystemShortageCharge = reader.IsDBNull(reader.GetOrdinal("SystemShortageCharge")) ? 0 : reader.GetDouble(reader.GetOrdinal("SystemShortageCharge")),
+
+
+                            };
+                        obj.Add(dv);
+
+
+
+
+                    }
+                }
+            }
+
+
+
+        }
+        catch (Exception ex)
+        {
+
+        }
+    }
+    public async Task LoadClientMissing()
+    {
+        obj2 = new List<PrimaryComp>();
+        try
+        {
+            string query = $@"
+
+SELECT
+    str.StockTransferAdviceNumber,
+	str.PShortageChargeToCarriage as ClientCharge,
+	   CAST(str.TransactionDate AS DATE) AS InvoiceDate,
+	str.LorryNo,
+	str.ProductName,
+	str.SupplyPoint,
+	str.ReceiptPoint
+FROM
+    StockTransferRecords str
+WHERE
+    NOT EXISTS (
+        SELECT 1
+        FROM tblInvoices inv
+        WHERE inv.STONo = str.StockTransferAdviceNumber
+    );
+";
+
+            var connectionString = _configuration.GetConnectionString("Con");
+
+            using (var connection = new SqlConnection(connectionString))
+            {
+                await connection.OpenAsync();
+
+                using (var command = new SqlCommand(query, connection))
+                using (var reader = await command.ExecuteReaderAsync())
+                {
+                    while (await reader.ReadAsync())
+                    {
+                        PrimaryComp dv = new PrimaryComp();
+                        dv = new PrimaryComp
+                            {
+                                InvoiceDate = reader.GetDateTime(reader.GetOrdinal("InvoiceDate")),
+
+                                InvoiceNumber = reader.IsDBNull(reader.GetOrdinal("StockTransferAdviceNumber")) ? "" : reader.GetString(reader.GetOrdinal("StockTransferAdviceNumber")),
+                                TankLorryNo = reader.IsDBNull(reader.GetOrdinal("LorryNo")) ? "" : reader.GetString(reader.GetOrdinal("LorryNo")),
+                                Product = reader.IsDBNull(reader.GetOrdinal("ProductName")) ? "" : reader.GetString(reader.GetOrdinal("ProductName")),
+                                SupplyPoint = reader.IsDBNull(reader.GetOrdinal("SupplyPoint")) ? "" : reader.GetString(reader.GetOrdinal("SupplyPoint")),
+                                ReceiptPoint = reader.IsDBNull(reader.GetOrdinal("ReceiptPoint")) ? "" : reader.GetString(reader.GetOrdinal("ReceiptPoint")),
+                                ClientCharge = reader.IsDBNull(reader.GetOrdinal("ClientCharge")) ? 0 : reader.GetDouble(reader.GetOrdinal("ClientCharge")),
+
+
+                            };
+                        obj2.Add(dv);
+
+
+
+
+                    }
+                }
+            }
+
+
+
+        }
+        catch (Exception ex)
+        {
+
+        }
+    }
+    public async Task LoadSystemMissing()
+    {
+        obj3 = new List<PrimaryComp>();
+        try
+        {
+            string query = $@"
+	SELECT
+     str.STONo,
+	inv.ShortageCharge ,
+ CAST(str._Date AS DATE) AS InvoiceDate,
+	str.TankLorryNo,
+	str.Product,
+	str.SupplyPoint,
+	str.ReceivingLocation
+FROM
+    tblInvoices str
+	inner join tblInvoiceCalculation inv
+	on str.InvoiceID = inv.InvoiceID
+WHERE
+    NOT EXISTS (
+        SELECT 1
+        FROM StockTransferRecords inv
+        WHERE inv.StockTransferAdviceNumber = str.STONo
+    ) and str.type='pk' and str.STONo!='';
+";
+
+            var connectionString = _configuration.GetConnectionString("Con");
+
+            using (var connection = new SqlConnection(connectionString))
+            {
+                await connection.OpenAsync();
+
+                using (var command = new SqlCommand(query, connection))
+                using (var reader = await command.ExecuteReaderAsync())
+                {
+                    while (await reader.ReadAsync())
+                    {
+                        PrimaryComp dv = new PrimaryComp();
+                        dv = new PrimaryComp
+                            {
+                                InvoiceDate = reader.GetDateTime(reader.GetOrdinal("InvoiceDate")),
+
+                                InvoiceNumber = reader.IsDBNull(reader.GetOrdinal("STONo")) ? "" : reader.GetString(reader.GetOrdinal("STONo")),
+                                TankLorryNo = reader.IsDBNull(reader.GetOrdinal("TankLorryNo")) ? "" : reader.GetString(reader.GetOrdinal("TankLorryNo")),
+                                Product = reader.IsDBNull(reader.GetOrdinal("Product")) ? "" : reader.GetString(reader.GetOrdinal("Product")),
+                                SupplyPoint = reader.IsDBNull(reader.GetOrdinal("SupplyPoint")) ? "" : reader.GetString(reader.GetOrdinal("SupplyPoint")),
+                                ReceiptPoint = reader.IsDBNull(reader.GetOrdinal("ReceivingLocation")) ? "" : reader.GetString(reader.GetOrdinal("ReceivingLocation")),
+                                ClientCharge = reader.IsDBNull(reader.GetOrdinal("ShortageCharge")) ? 0 : reader.GetDouble(reader.GetOrdinal("ShortageCharge")),
+
+
+                            };
+                        obj3.Add(dv);
+
+
+
+
+                    }
+                }
+            }
+
+
+
+        }
+        catch (Exception ex)
+        {
+
+        }
+    }
+
+
+
+
+}

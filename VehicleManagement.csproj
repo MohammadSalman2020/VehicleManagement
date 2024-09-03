@@ -20,6 +20,8 @@
 
   <ItemGroup>
     <PackageReference Include="Blazored.Toast" Version="4.1.0" />
+    <PackageReference Include="CsvHelper" Version="33.0.1" />
+    <PackageReference Include="EPPlus" Version="7.3.0" />
     <PackageReference Include="FirebaseAdmin" Version="2.4.1" />
     <PackageReference Include="Google.Apis.Auth" Version="1.68.0" />
     <PackageReference Include="Majorsoft.Blazor.Components.Tabs" Version="1.5.0" />
@@ -51,6 +53,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Folder Include="wwwroot\css\Media\Reports\" />
     <Folder Include="wwwroot\Reports\" />
   </ItemGroup>
 

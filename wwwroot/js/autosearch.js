@@ -272,3 +272,134 @@ window.addKeyboardShortcut = () => {
     });
 };
 
+
+
+function openInNewTab2(url) {
+    window.open(url, '_blank');
+}
+
+function exportTablessToExcel(tableId, filenames) {
+    var table = document.getElementById(tableId);
+    if (!table) {
+        console.error(`Table with ID ${tableId} not found.`);
+        return;
+    }
+
+    var workbook = XLSX.utils.table_to_book(table, { sheet: "Sheet1" });
+    var worksheet = workbook.Sheets['Sheet1'];
+
+    // Optional: Adding styles to the workbook
+    worksheet['!cols'] = [
+        { wpx: 150 }, // Adjust column width if needed
+        { wpx: 100 },
+        { wpx: 120 },
+        { wpx: 200 }  // Assuming the last column needs more width for the link
+    ];
+
+    // Add styling to the cells
+    var range = XLSX.utils.decode_range(worksheet['!ref']);
+    for (var R = range.s.r; R <= range.e.r; ++R) {
+        for (var C = range.s.c; C <= range.e.c; ++C) {
+            var cell_address = { c: C, r: R };
+            var cell_ref = XLSX.utils.encode_cell(cell_address);
+            if (!worksheet[cell_ref]) continue;
+
+            worksheet[cell_ref].s = {
+                alignment: {
+                    vertical: 'center',
+                    horizontal: 'center'
+                }
+            };
+        }
+    }
+
+    // Add links to the last column
+    for (var i = 1; i < table.rows.length; i++) {  // Start from 1 to skip the header
+        var row = table.rows[i];
+        var lastCell = row.cells[row.cells.length - 1]; // Get last cell (assuming this is where the link is)
+        var link = lastCell.querySelector('a'); // Find <a> tag
+
+        if (link) {
+            var linkUrl = link.href; // Get href attribute
+            var cellAddress = XLSX.utils.encode_cell({ c: row.cells.length - 1, r: i }); // Excel cell reference
+            worksheet[cellAddress] = { t: 's', v: linkUrl }; // Set the cell value as plain text
+        }
+    }
+
+    var wbout = XLSX.write(workbook, { bookType: 'xlsx', type: 'binary' });
+
+    function s2ab(s) {
+        var buf = new ArrayBuffer(s.length);
+        var view = new Uint8Array(buf);
+        for (var i = 0; i < s.length; i++) view[i] = s.charCodeAt(i) & 0xFF;
+        return buf;
+    }
+
+    var today = new Date();
+    var formattedDate = today.toISOString().split('T')[0]; // Format as YYYY-MM-DD
+
+    var filename = filenames + formattedDate + '.xlsx';
+    var blob = new Blob([s2ab(wbout)], { type: 'application/octet-stream' });
+    var link = document.createElement('a');
+    link.href = URL.createObjectURL(blob);
+    link.download = filename;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+}
+
+//function exportTablessToExcel(tableId,filenames) {
+//    var table = document.getElementById(tableId);
+//    if (!table) {
+//        console.error(`Table with ID ${tableId} not found.`);
+//        return;
+//    }
+
+//    var workbook = XLSX.utils.table_to_book(table, { sheet: "Sheet1" });
+//    var worksheet = workbook.Sheets['Sheet1'];
+
+//    // Optional: Adding styles to the workbook
+//    worksheet['!cols'] = [
+//        { wpx: 150 }, // Adjust column width if needed
+//        { wpx: 100 },
+//        { wpx: 120 }
+//    ];
+
+//    // Add styling to the cells
+//    var range = XLSX.utils.decode_range(worksheet['!ref']);
+//    for (var R = range.s.r; R <= range.e.r; ++R) {
+//        for (var C = range.s.c; C <= range.e.c; ++C) {
+//            var cell_address = { c: C, r: R };
+//            var cell_ref = XLSX.utils.encode_cell(cell_address);
+//            if (!worksheet[cell_ref]) continue;
+
+//            worksheet[cell_ref].s = {
+//                alignment: {
+//                    vertical: 'center',
+//                    horizontal: 'center'
+//                }
+//            };
+//        }
+//    }
+
+//    var wbout = XLSX.write(workbook, { bookType: 'xlsx', type: 'binary' });
+
+//    function s2ab(s) {
+//        var buf = new ArrayBuffer(s.length);
+//        var view = new Uint8Array(buf);
+//        for (var i = 0; i < s.length; i++) view[i] = s.charCodeAt(i) & 0xFF;
+//        return buf;
+//    }
+
+//    var today = new Date();
+//    var formattedDate = today.toISOString().split('T')[0]; // Format as YYYY-MM-DD
+
+//    var filename = filenames + formattedDate + '.xlsx';
+//    var blob = new Blob([s2ab(wbout)], { type: 'application/octet-stream' });
+//    var link = document.createElement('a');
+//    link.href = URL.createObjectURL(blob);
+//    link.download = filename;
+//    document.body.appendChild(link);
+//    link.click();
+//    document.body.removeChild(link);
+//}

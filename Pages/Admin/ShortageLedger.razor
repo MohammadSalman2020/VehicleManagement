@@ -581,8 +581,8 @@
                 string base64EncodedJson = Convert.ToBase64String(Encoding.UTF8.GetBytes(jsonString));
                 string encodedJson = HttpUtility.UrlEncode(base64EncodedJson);
 
-                NavigationManager.NavigateTo($"/Invoice?Edit={encodedJson}");
-
+               // NavigationManager.NavigateTo($"/Invoice?Edit={encodedJson}");
+                await JSRuntime.InvokeVoidAsync("openInNewTab2", $"/invoice?Edit={encodedJson}");
                 //  var url = $"/invoicepanel?Edit={encodedJson}";
                 // await JSRuntime.InvokeVoidAsync("openInNewTab", url);
             }
@@ -609,7 +609,8 @@
                 string base64EncodedJson = Convert.ToBase64String(Encoding.UTF8.GetBytes(jsonString));
                 string encodedJson = HttpUtility.UrlEncode(base64EncodedJson);
 
-                NavigationManager.NavigateTo($"/invoicedisplay?InvoiceID={encodedJson}");
+              //  NavigationManager.NavigateTo($"/invoicedisplay?InvoiceID={encodedJson}");
+                await JSRuntime.InvokeVoidAsync("openInNewTab2", $"/invoicedisplay?InvoiceID={encodedJson}");
 
                 // var url = $"/invoicedisplay?InvoiceID={encodedJson}";
                 // JSRuntime.InvokeVoidAsync("openInNewTab", url);
@@ -634,8 +635,8 @@
                 string base64EncodedJson = Convert.ToBase64String(Encoding.UTF8.GetBytes(jsonString));
                 string encodedJson = HttpUtility.UrlEncode(base64EncodedJson);
 
-                NavigationManager.NavigateTo($"/scinvdisplay?InvoiceID={encodedJson}");
-
+               // NavigationManager.NavigateTo($"/scinvdisplay?InvoiceID={encodedJson}");
+                await JSRuntime.InvokeVoidAsync("openInNewTab2", $"/scinvdisplay?InvoiceID={encodedJson}");
                 // var url = $"/scinvdisplay?InvoiceID={encodedJson}";
                 // await JSRuntime.InvokeVoidAsync("openInNewTab", url);
             }
