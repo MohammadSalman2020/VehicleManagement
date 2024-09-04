@@ -14,8 +14,8 @@
 
 <div class="container-fluid py-4">
     <div class="row">
-       @*  <div class="col-6">
-            <button class="btn btn-primary btn-sm">Print</button>
+        @*  <div class="col-6">
+        <button class="btn btn-primary btn-sm">Print</button>
         </div> *@
         <div class="col-12 text-end">
             <button @onclick="Next" class="btn btn-primary btn-sm">NEXT</button>
@@ -84,7 +84,7 @@
                             </div>
                             <div class="col-md-6">
 
-                              
+
                                 <div class="form-group">
                                     <label for="textBoxId">Vehicle Capacity</label>
                                     <input type="text" required class="form-control mb-2" id="txtcapicity" @bind="txtcapicity" />
@@ -155,7 +155,7 @@
 
                                 <div class="form-check">
                                     <input class="form-check-input" type="checkbox" id="fittness" @bind="fittness" />
-                                    <label class="form-check-label"  for="fittness">
+                                    <label class="form-check-label" for="fittness">
                                         Fitness Cert
                                     </label>
                                 </div>
@@ -197,70 +197,86 @@
     private bool dipchart = false;
     private bool explosives = false;
     private bool fittness = false;
-    private DateTime txtdate=DateTime.Now;
+    private DateTime txtdate = DateTime.Now;
     private string? txttank;
     private string? txtrailer;
     private int busid;
-    int insID=0;
-    async void Next()
+    int insID = 0;
+    private async Task Next()
     {
-       await  getvehiclebusiness();
-
-        tblInspection ins = new tblInspection();
-        ins.destination = txtdestination;
-        ins.company = txtcompany;
-        ins.origian = txtorigin;
-        ins.driver1_Name = txtd1name;
-        ins.driver1_Code = txtd1code;
-        ins.driver2_Code = txtd2code;
-        ins.driver2_Name = txtd2_name;
-        ins.product = txtproduct;
-        ins.vehicleID = txtvehicle;
-        ins.capacity = txtcapicity;
-        ins.celphoneKnowledge = cellphone;
-        ins.hydroTest = hydrotest;
-        ins.d1_Licance = d1_licence;
-        ins.d2_Licance = d2_licence;
-        ins.d1_D2_Mentaly_Alert = D1_D2_Mentally_alert;
-        ins.termCard = Term_Card;
-        ins.validDipChart = dipchart;
-        ins.validExplosiveCert = explosives;
-        ins.fittnessCert = fittness;
-        ins.date_Time = txtdate;
-        ins.tankNo = txttank;
-        ins.trailerNo = txtrailer;
-        ins.busid = busid;
-
-        JsonSerializerOptions options = new JsonSerializerOptions
-            {
-                WriteIndented = true,
-                ReferenceHandler = null
-            };
-        string jsonData = JsonSerializer.Serialize(ins, options);
-        var addtemplate = await API.PostRequest("Inspection/AddInspection", jsonData);
-        string Result = JsonSerializer.Deserialize<string>(addtemplate);
-        if (Result != "404")
+        try
         {
-           
-            toastService.ShowSuccess($"Checklist ID: {Result} Added Success");
-            navmanager.NavigateTo($"/Chk_Details?Vehicle={txtvehicle}&tempid={tempid}&InspectionID={Result}");
+            await getvehiclebusiness();
+
+            tblInspection ins = new tblInspection();
+            ins.destination = txtdestination ?? "";
+            ins.company = txtcompany ?? "";
+            ins.origian = txtorigin ?? "";
+            ins.driver1_Name = txtd1name ?? "";
+            ins.driver1_Code = txtd1code ?? "";
+            ins.driver2_Code = txtd2code ?? "";
+            ins.driver2_Name = txtd2_name ?? "";
+            ins.product = txtproduct ?? "";
+            ins.vehicleID = txtvehicle ?? "";
+            ins.capacity = txtcapicity ?? "";
+            ins.celphoneKnowledge = cellphone;
+            ins.hydroTest = hydrotest;
+            ins.d1_Licance = d1_licence;
+            ins.d2_Licance = d2_licence;
+            ins.d1_D2_Mentaly_Alert = D1_D2_Mentally_alert;
+            ins.termCard = Term_Card;
+            ins.validDipChart = dipchart;
+            ins.validExplosiveCert = explosives;
+            ins.fittnessCert = fittness;
+            ins.date_Time = txtdate;
+            ins.tankNo = txttank ?? "";
+            ins.trailerNo = txtrailer ?? "";
+            ins.busid = busid;
+
+            JsonSerializerOptions options = new JsonSerializerOptions
+                {
+                    WriteIndented = true,
+                    ReferenceHandler = null
+                };
+            string jsonData = JsonSerializer.Serialize(ins, options);
+            var addtemplate = await API.PostRequest("Inspection/AddInspection", jsonData);
+            string Result = JsonSerializer.Deserialize<string>(addtemplate);
+            if (Result != "404")
+            {
+
+                toastService.ShowSuccess($"Checklist ID: {Result} Added Success");
+                navmanager.NavigateTo($"/Chk_Details?Vehicle={txtvehicle}&tempid={tempid}&InspectionID={Result}");
+            }
         }
+        catch (Exception ex)
+        {
+
+        }
+
 
     }
     private async Task getvehiclebusiness()
     {
-        var rec = await API.GetRequest($"Fleet/GetVehicleBus/{txtvehicle}");
-
-        if (rec != null)
+        try
         {
-            busid = int.Parse(JsonSerializer.Deserialize<string>(rec));
+            var rec = await API.GetRequest($"Inspection/GetVehicleBus/{txtvehicle}");
+
+            if (rec != null && !rec.Contains("Javascript"))
+            {
+                busid = int.Parse(JsonSerializer.Deserialize<string>(rec));
+            }
         }
-       
+        catch (Exception ex)
+        {
+
+        }
+
+
     }
     string tempid;
     protected override async Task OnInitializedAsync()
     {
-        
+
         var uri = new Uri(NavigationManager.Uri);
         var queryStrings = QueryHelpers.ParseQuery(uri.Query);
         if (queryStrings.TryGetValue("vehicle", out var name))
@@ -275,7 +291,7 @@
         await getvehiclebusiness();
     }
 
-   
+
 
 }
 
