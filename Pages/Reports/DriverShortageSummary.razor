@@ -663,147 +663,149 @@
         try
         {
             string query = $@"
-WITH DriverShortage AS (
-    SELECT
-        inv.stono,
-        inv.TankLorryNo AS [VehicleNo],
-        CONCAT(inv.SupplyPoint, '-', inv.ReceivingLocation) AS [Location],
-        FORMAT(inv._Date, 'dd-MMM-yy') AS [Date],
-        inv.primaryreference,
-        inv.type AS invoiceType,
-        drv.driverid AS DriverID1,
-        drv.Fullname AS DriverName1,
-        drv2.driverid AS DriverID2,
-        drv2.Fullname AS DriverName2,
-        dvm.businessID,
-        bus.busdesc,
-        dsl.ShortageLtr * 2 AS [Primary],
-        dsl.ShortageLtr * 2 AS [Secondary],
-        dsl.ShortageLtr * 2 AS [Total]
-    FROM
-        tblDriverShortageLedger dsl
-    JOIN
-        tblinvoices inv ON dsl.InvoiceNumber = inv.STONo
-    JOIN
-        tbldriver drv ON dsl.DriverID = drv.DriverID
-    LEFT JOIN
-        tbldriver drv2 ON dsl.Driver2ID = drv2.DriverID
-    JOIN
-        tbldrivervehiclemap dvm ON inv.TankLorryNo = dvm.vehicleid
-    JOIN
-        tblbusiness bus ON dvm.businessID = bus.busid
-    GROUP BY
-        inv.stono,
-        inv.TankLorryNo,
-        CONCAT(inv.SupplyPoint, '-', inv.ReceivingLocation),
-        FORMAT(inv._Date, 'dd-MMM-yy'),
-        drv.Fullname,
-        drv.driverid,
-        drv2.Fullname,
-        drv2.driverid,
-        inv.primaryreference,
-        inv.type,
-        dvm.businessID,
-        bus.busdesc,
-        dsl.ShortageLtr
-)
+SELECT * FROM vw_DriverShortage ORDER BY primaryreference, type, Date, stono;";
+//             string query = $@"
+// WITH DriverShortage AS (
+//     SELECT
+//         inv.stono,
+//         inv.TankLorryNo AS [VehicleNo],
+//         CONCAT(inv.SupplyPoint, '-', inv.ReceivingLocation) AS [Location],
+//         FORMAT(inv._Date, 'dd-MMM-yy') AS [Date],
+//         inv.primaryreference,
+//         inv.type AS invoiceType,
+//         drv.driverid AS DriverID1,
+//         drv.Fullname AS DriverName1,
+//         drv2.driverid AS DriverID2,
+//         drv2.Fullname AS DriverName2,
+//         dvm.businessID,
+//         bus.busdesc,
+//         dsl.ShortageLtr * 2 AS [Primary],
+//         dsl.ShortageLtr * 2 AS [Secondary],
+//         dsl.ShortageLtr * 2 AS [Total]
+//     FROM
+//         tblDriverShortageLedger dsl
+//     JOIN
+//         tblinvoices inv ON dsl.InvoiceNumber = inv.STONo
+//     JOIN
+//         tbldriver drv ON dsl.DriverID = drv.DriverID
+//     LEFT JOIN
+//         tbldriver drv2 ON dsl.Driver2ID = drv2.DriverID
+//     JOIN
+//         tbldrivervehiclemap dvm ON inv.TankLorryNo = dvm.vehicleid
+//     JOIN
+//         tblbusiness bus ON dvm.businessID = bus.busid
+//     GROUP BY
+//         inv.stono,
+//         inv.TankLorryNo,
+//         CONCAT(inv.SupplyPoint, '-', inv.ReceivingLocation),
+//         FORMAT(inv._Date, 'dd-MMM-yy'),
+//         drv.Fullname,
+//         drv.driverid,
+//         drv2.Fullname,
+//         drv2.driverid,
+//         inv.primaryreference,
+//         inv.type,
+//         dvm.businessID,
+//         bus.busdesc,
+//         dsl.ShortageLtr
+// )
 
-, Aggregated AS (
-    SELECT
-        primaryreference,
-        invoiceType AS type,
-        SUM(Secondary) AS AggregatedSecondary,
-        COUNT(*) AS scCount
-    FROM
-        DriverShortage
-    WHERE
-        invoiceType = 'sc'
-    GROUP BY
-        primaryreference,
-        invoiceType
-)
+// , Aggregated AS (
+//     SELECT
+//         primaryreference,
+//         invoiceType AS type,
+//         SUM(Secondary) AS AggregatedSecondary,
+//         COUNT(*) AS scCount
+//     FROM
+//         DriverShortage
+//     WHERE
+//         invoiceType = 'sc'
+//     GROUP BY
+//         primaryreference,
+//         invoiceType
+// )
 
-SELECT
-    ds.stono,
-    ds.VehicleNo,
-    ds.Location,
-    ds.Date,
-    ds.primaryreference,
-    ds.invoiceType AS type,
-    ds.DriverID1,
-    ds.DriverName1,
-    ds.DriverID2,
-    ds.DriverName2,
-    ds.businessID,
-    ds.busdesc,
-    ds.[Primary] AS Primary1,
-    CASE
-        WHEN ds.primaryreference = 'none' THEN ds.[Secondary]
-        ELSE COALESCE(
-            CASE
-                WHEN ds.invoiceType = 'sc' THEN agg.AggregatedSecondary
-                ELSE ds.[Secondary]
-            END,
-            ds.[Secondary]
-        )
-    END AS Secondary1,
-    CASE
-        WHEN ds.primaryreference = 'none' THEN ds.[Total]
-        ELSE COALESCE(
-            CASE
-                WHEN ds.invoiceType = 'sc' THEN agg.AggregatedSecondary
-                ELSE ds.[Total]
-            END,
-            ds.[Total]
-        )
-    END AS Total1,
-    CASE
-        WHEN ds.primaryreference = 'none' THEN
-            CASE
-                WHEN ds.invoiceType = 'pk' THEN 100
-                ELSE 50
-            END
-        ELSE
-            CASE
-                WHEN ds.invoiceType = 'pk' THEN 100
-                ELSE 50
-            END
-    END AS Exempted,
-    CASE
-        WHEN ds.primaryreference = 'none' THEN
-		CASE
-                WHEN ds.[Total] < 50 THEN 0
-                ELSE ds.[Total] - 50
-            END
-        WHEN ds.invoiceType = 'sc' THEN
-            CASE
-                WHEN agg.AggregatedSecondary < 50 THEN 0
-                ELSE agg.AggregatedSecondary - 50
-            END
-        ELSE
-            CASE
-                WHEN ds.invoiceType = 'sc' AND agg.AggregatedSecondary < 50 THEN 0
-                WHEN ds.invoiceType = 'pk' AND ds.[Total] < 100 THEN 0
-                WHEN ds.invoiceType = 'sc' THEN ds.[Total] - 50
-                ELSE ds.[Total] - 100
-            END
-    END AS ShortageDeduction,
-    CASE
-        WHEN ds.primaryreference = 'none' THEN NULL
-        WHEN ds.invoiceType = 'sc' THEN agg.scCount
-        ELSE NULL
-    END AS scCount
-FROM
-    DriverShortage ds
-LEFT JOIN
-    Aggregated agg ON ds.primaryreference = agg.primaryreference AND ds.invoiceType = agg.type
-ORDER BY
-    ds.primaryreference,
-    ds.invoiceType,
-    ds.Date,
-    ds.stono;
+// SELECT
+//     ds.stono,
+//     ds.VehicleNo,
+//     ds.Location,
+//     ds.Date,
+//     ds.primaryreference,
+//     ds.invoiceType AS type,
+//     ds.DriverID1,
+//     ds.DriverName1,
+//     ds.DriverID2,
+//     ds.DriverName2,
+//     ds.businessID,
+//     ds.busdesc,
+//     ds.[Primary] AS Primary1,
+//     CASE
+//         WHEN ds.primaryreference = 'none' THEN ds.[Secondary]
+//         ELSE COALESCE(
+//             CASE
+//                 WHEN ds.invoiceType = 'sc' THEN agg.AggregatedSecondary
+//                 ELSE ds.[Secondary]
+//             END,
+//             ds.[Secondary]
+//         )
+//     END AS Secondary1,
+//     CASE
+//         WHEN ds.primaryreference = 'none' THEN ds.[Total]
+//         ELSE COALESCE(
+//             CASE
+//                 WHEN ds.invoiceType = 'sc' THEN agg.AggregatedSecondary
+//                 ELSE ds.[Total]
+//             END,
+//             ds.[Total]
+//         )
+//     END AS Total1,
+//     CASE
+//         WHEN ds.primaryreference = 'none' THEN
+//             CASE
+//                 WHEN ds.invoiceType = 'pk' THEN 100
+//                 ELSE 50
+//             END
+//         ELSE
+//             CASE
+//                 WHEN ds.invoiceType = 'pk' THEN 100
+//                 ELSE 50
+//             END
+//     END AS Exempted,
+//     CASE
+//         WHEN ds.primaryreference = 'none' THEN
+// 		CASE
+//                 WHEN ds.[Total] < 50 THEN 0
+//                 ELSE ds.[Total] - 50
+//             END
+//         WHEN ds.invoiceType = 'sc' THEN
+//             CASE
+//                 WHEN agg.AggregatedSecondary < 50 THEN 0
+//                 ELSE agg.AggregatedSecondary - 50
+//             END
+//         ELSE
+//             CASE
+//                 WHEN ds.invoiceType = 'sc' AND agg.AggregatedSecondary < 50 THEN 0
+//                 WHEN ds.invoiceType = 'pk' AND ds.[Total] < 100 THEN 0
+//                 WHEN ds.invoiceType = 'sc' THEN ds.[Total] - 50
+//                 ELSE ds.[Total] - 100
+//             END
+//     END AS ShortageDeduction,
+//     CASE
+//         WHEN ds.primaryreference = 'none' THEN NULL
+//         WHEN ds.invoiceType = 'sc' THEN agg.scCount
+//         ELSE NULL
+//     END AS scCount
+// FROM
+//     DriverShortage ds
+// LEFT JOIN
+//     Aggregated agg ON ds.primaryreference = agg.primaryreference AND ds.invoiceType = agg.type
+// ORDER BY
+//     ds.primaryreference,
+//     ds.invoiceType,
+//     ds.Date,
+//     ds.stono;
 
-";
+// ";
             var connectionString = _configuration.GetConnectionString("Con");
 
             using (var connection = new SqlConnection(connectionString))
