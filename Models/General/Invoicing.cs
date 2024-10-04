@@ -36,6 +36,12 @@ namespace VehicleManagement.Models.General
         [JsonProperty("user")]
 
         public string? User { get; set; }
+        [JsonProperty("IsOCR")]
+
+        public bool IsOCR { get; set; } = false;
+        [JsonProperty("ExtarctedID")]
+
+        public int ExtarctedID { get; set; } = 0;
     }
 
     public class ReceivingDetail

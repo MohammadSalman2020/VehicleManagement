@@ -1,0 +1,451 @@
+﻿  @page "/OCRExtracted"
+@using Microsoft.Data.SqlClient
+@using System.Web
+@using System.Text
+@using System.Text.Json
+@using VehicleManagement.Authentication
+@using VehicleManagement.Models.General
+@inject IUserClaimsService UserClaimsService
+@inject IToastService toastService
+
+  @inject IJSRuntime js
+  @inject IConfiguration _configuration
+<div class="container-fluid py-4">
+    <div class="row">
+        <AuthorizeView Roles="admin,FleetManager,SafetySupervisor">
+            <Authorized Context="access">
+
+                <div class="col-md-12">
+                    <div class="">
+
+                        <div class="">
+                            <div class="row col-md-12">
+                                <!-- Filter Button -->
+                                <div class="col-md-6">
+                                    <h4>OCR Extarcted Data</h4>
+                                </div>
+
+                            </div>
+                        </div>
+                    </div>
+                    <br />
+
+                    <div class="row" style="margin-top:10px;">
+
+                        <div class="col-md-12 ">
+
+                            <div class="">
+                                <div class="table-responsive p-0">
+
+
+                                    <table class="" id="invoiceTables" style="width:100%">
+                                        <thead style="    background: black;">
+                                            <tr>
+
+                                                <th class="text-center font-colors text-uppercase text-xxs font-weight-bolder opacity-7"
+                                                    style="position: sticky; top: 0; background-color: #ffffff; z-index: 1; border: #cccccc 1px solid;">
+                                                    STO No
+                                                </th>
+
+                                                <th class="text-center font-colors text-uppercase text-xxs font-weight-bolder opacity-7"
+                                                    style="position: sticky; top: 0; background-color: #ffffff; z-index: 1; border: #cccccc 1px solid;">
+                                                    Vehicle No
+                                                </th>
+                                                <th class="text-center font-colors text-uppercase text-xxs font-weight-bolder opacity-7"
+                                                    style="position: sticky; top: 0; background-color: #ffffff; z-index: 1; border: #cccccc 1px solid;">
+                                                    Business
+                                                </th>
+                                                <th class="text-center font-colors text-uppercase text-xxs font-weight-bolder opacity-7"
+                                                    style="position: sticky; top: 0; background-color: #ffffff; z-index: 1; border: #cccccc 1px solid;">
+                                                    Invoice Date
+                                                </th>
+                                                <th class="text-center font-colors text-uppercase text-xxs font-weight-bolder opacity-7"
+                                                    style="position: sticky; top: 0; background-color: #ffffff; z-index: 1; border: #cccccc 1px solid;">
+                                                    Shipping Location
+                                                </th>
+                                                <th class="text-center font-colors text-uppercase text-xxs font-weight-bolder opacity-7"
+                                                    style="position: sticky; top: 0; background-color: #ffffff; z-index: 1; border: #cccccc 1px solid;">
+                                                    Receiving Location
+                                                </th>
+                                                <th class="text-center font-colors text-uppercase text-xxs font-weight-bolder opacity-7"
+                                                    style="position: sticky; top: 0; background-color: #ffffff; z-index: 1; border: #cccccc 1px solid;">
+                                                    Invoice Type
+                                                </th>
+                                                <th class="text-center font-colors text-uppercase text-xxs font-weight-bolder opacity-7"
+                                                    style="position: sticky; top: 0; background-color: #ffffff; z-index: 1; border: #cccccc 1px solid;">
+                                                    Product
+                                                </th>
+                                                <th class="text-center font-colors text-uppercase text-xxs font-weight-bolder opacity-7"
+                                                    style="position: sticky; top: 0; background-color: #ffffff; z-index: 1; border: #cccccc 1px solid;">
+                                                    Image
+                                                </th>
+
+
+
+
+                                            </tr>
+                                        </thead>
+                                        <tbody style="    background: white;">
+                                            @if (!IsLoading)
+                                            {
+                                                @if (FilteredItems.Count > 0)
+                                                {
+                                                    foreach (var item in FilteredItems.OrderByDescending(p => p.InvoiceDate))
+                                                    {
+
+                                                        <tr class="tbl-accordion-header">
+
+
+                                                            <td class="align-middle text-center" style="border: #cccccc 1px solid;">
+                                                                <span class="text-secondary text-xs font-weight-bold">@item.STO</span>
+                                                            </td>
+
+                                                            <td class="align-middle text-center" style="border: #cccccc 1px solid;">
+                                                                <span class="text-secondary text-xs font-weight-bold">@item.Vehicle</span>
+                                                            </td>
+
+                                                            <td class="align-middle text-center" style="border: #cccccc 1px solid;">
+                                                                <span class="text-secondary text-xs font-weight-bold">@item.BusinessName?.ToUpper()</span>
+                                                            </td>
+                                                            <td class="align-middle text-center" style="border: #cccccc 1px solid;">
+                                                                <span class="text-secondary text-xs font-weight-bold">@item.InvoiceDate?.ToString("dd-MMMM-yy")</span>
+                                                            </td>
+                                                            <td class="align-middle text-center" style="border: #cccccc 1px solid;">
+                                                                <span class="text-secondary text-xs font-weight-bold">
+                                                                    @TruncateString(@item.ShippingLocation)
+                                                                </span>
+                                                            </td>
+
+                                                            <td class="align-middle text-center" style="border: #cccccc 1px solid;">
+                                                                <span class="text-secondary text-xs font-weight-bold">
+                                                                    @TruncateString(@item.ReceivingLocation)
+                                                                </span>
+                                                            </td>
+                                                            <td class="align-middle text-center text-sm" style="border: #cccccc 1px solid;">
+                                                                <span class="text-secondary text-xs font-weight-bold">@(item.InvoiceType == "pk" ? "Primary" : "Secondary")</span>
+                                                            </td>
+
+                                                            <td class="align-middle text-center text-sm" style="border: #cccccc 1px solid;">
+                                                                <span class="text-secondary text-xs font-weight-bold">@item.Product</span>
+                                                            </td>
+                                                            <td class="align-middle text-center text-sm" style="border: #cccccc 1px solid;">
+                                                                <a class="text-secondary text-xs font-weight-bold" style="cursor:pointer" @onclick="@(()=>ShowMessage2(item))">View</a>
+                                                            </td>
+
+
+
+
+
+                                                        </tr>
+
+                                                    }
+                                                }
+                                            }
+                                            else if (IsLoading)
+                                            {
+                                                <tr>
+                                                    <td colspan="18">
+                                                        <DataLoaderComponent IsLoading="@IsLoading" LoadingText="Loading Data..." />
+                                                    </td>
+                                                </tr>
+                                            }
+                                        </tbody>
+                                    </table>
+
+
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+
+          @*           <div class="col-md-12">
+                        <div class="">
+                            <div class="pagination">
+                                <button class="btn btn-primary" @onclick="GoToFirstPage" disabled="@(!CanGoToPreviousPage)"><i style="font-size:24px" class="fa fa-angle-double-left"></i></button>
+                                <button class="btn btn-primary" @onclick="PreviousPage" disabled="@(!CanGoToPreviousPage)"><i style="font-size:24px" class="fa fa-angle-left"></i></button>
+                                <span>Page @CurrentPage of @TotalPages</span>
+                                <button class="btn btn-primary" @onclick="NextPage" disabled="@(!CanGoToNextPage)"><i style="font-size:24px" class="fa fa-angle-right"></i></button>
+                                <button class="btn btn-primary" @onclick="GoToLastPage" disabled="@(!CanGoToNextPage)"><i style="font-size:24px" class="fa fa-angle-double-right"></i></button>
+                            </div>
+
+                        </div>
+                    </div> *@
+
+
+                </div>
+
+            </Authorized>
+            <NotAuthorized>
+                @if (_isJsReady)
+                {
+                    <_403 />
+
+                }
+            </NotAuthorized>
+        </AuthorizeView>
+    </div>
+</div>
+@code {
+    private bool _isJsReady = false;
+    public bool IsLoading { get; set; }
+    // private int TotalItems;
+    // private int CurrentPage = 1;
+    // private int PageSize = 15; // Number of items per page
+    // private bool CanGoToPreviousPage => CurrentPage > 1;
+    // private bool CanGoToNextPage => CurrentPage < TotalPages;
+
+    public List<int> BusinessID = new List<int>();
+    private string searchTerm;
+    private DateTime? startDate;
+    private DateTime? endDate;
+    private bool isPanelVisible = false;
+    private string selectedCategory;
+
+
+
+
+
+    public List<OCRData> obj = new List<OCRData>();
+
+    public async Task ShowMessage2(OCRData objs)
+    {
+        try
+        {
+            string urlPrefix = "https://191.96.196.61/";      // URL to replace the local path
+            string newLocation = objs.FileLocation.Replace(@"C:\ScannedDocs\", urlPrefix);
+            if (objs.InvoiceType=="pk")
+            {
+              
+                Invoicing Invoice = new Invoicing();
+                Invoice.Details.STONo = objs.STO;
+                Invoice.Details.Product = objs.Product;
+                Invoice.InvoiceFilePath =newLocation;
+                Invoice.Details.TankLorryNO = objs.Vehicle;
+                Invoice.Details.Date = objs.InvoiceDate??DateTime.Now;
+                Invoice.Details.ReceivingLocation =TruncateString(objs.ReceivingLocation);
+                Invoice.Details.SupplyPoint =TruncateString(objs.ShippingLocation);
+                Invoice.Details.Contractor = "Shakoor & Co.";
+                Invoice.IsOCR = true;
+                Invoice.ExtarctedID = objs.OCRID;
+
+                if (Invoice.Details != null)
+                {
+                    string jsonString = JsonSerializer.Serialize(Invoice);
+                    string base64EncodedJson = Convert.ToBase64String(Encoding.UTF8.GetBytes(jsonString));
+                    string encodedJson = HttpUtility.UrlEncode(base64EncodedJson);
+
+                    // NavigationManager.NavigateTo($"/Invoice?Edit={encodedJson}");
+                    await js.InvokeVoidAsync("openInNewTab2", $"/invoice?OCR={encodedJson}");
+                    //  var url = $"/invoicepanel?Edit={encodedJson}";
+                    // await JSRuntime.InvokeVoidAsync("openInNewTab", url);
+                }
+            }
+            else if (objs.InvoiceType=="sc")
+            {
+                await js.InvokeVoidAsync("openInNewTab2", $"{newLocation}");
+            }
+
+        }
+        catch (Exception ex)
+        {
+            toastService.ShowError($"Error: {ex.Message}");
+        }
+
+    }
+
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            try
+            {
+                // Attempt a simple JavaScript call to check if JS is ready
+                await js.InvokeVoidAsync("addKeyboardShortcut");
+
+                _isJsReady = true; // JS is ready, so set a flag or take action
+                StateHasChanged();
+            }
+            catch
+            {
+                // If JS isn't ready, handle it gracefully
+                _isJsReady = false; // JavaScript is not yet ready
+            }
+        }
+    }
+    private List<OCRData> FilteredItems;
+
+    // private async void SearchRecords(string searchCriteria)
+    // {
+    //     searchCriteria = searchCriteria.Replace(" ", string.Empty).Trim();
+    //     if (string.IsNullOrEmpty(searchCriteria))
+    //     {
+    //         // If no search criteria, reset to all items
+    //         FilteredItems = obj;
+
+    //     }
+    //     else
+    //     {
+    //         // Example search logic based on `primaryreference` and `VehicleNo` fields
+    //         FilteredItems = obj.Where(item =>
+    //             (item.stono != null && item.stono.Contains(searchCriteria, StringComparison.OrdinalIgnoreCase)) ||
+    //             (item.VehicleNo != null && item.VehicleNo.Contains(searchCriteria, StringComparison.OrdinalIgnoreCase))
+    //             || (item.DriverID1 != null && item.DriverID1.Contains(searchCriteria, StringComparison.OrdinalIgnoreCase))
+    //             || (item.DriverID2 != null && item.DriverID2.Contains(searchCriteria, StringComparison.OrdinalIgnoreCase))
+    //               || (item.DriverName1 != null && item.DriverName1.Contains(searchCriteria, StringComparison.OrdinalIgnoreCase))
+    //                 || (item.DriverName2 != null && item.DriverName2.Contains(searchCriteria, StringComparison.OrdinalIgnoreCase))
+    //                  || (item.primaryreference != null && item.primaryreference.Contains(searchCriteria, StringComparison.OrdinalIgnoreCase))
+    //                  || (item.busdesc != null && item.busdesc.Contains(searchCriteria, StringComparison.OrdinalIgnoreCase))
+    //         ).ToList();
+    //     }
+
+    //     // After filtering, reset the pagination
+    //     // CurrentPage = 1;
+    //     //   await LoadData();
+    // }
+    // private async Task Reset()
+    // {
+    //     startDate = null;
+    //     endDate = null;
+    //     FilteredItems = obj;
+
+    //     CurrentPage = 1;
+    //     await LoadData();
+
+    // }
+
+    protected override async Task OnInitializedAsync()
+    {
+
+        IsLoading = true;
+        try
+        {
+
+            BusinessID = await UserClaimsService.GetBusinessIdsAsync();
+
+            await LoadShortagereport();
+            FilteredItems = obj;
+
+           // await LoadData();
+
+        }
+        catch (Exception ex)
+        {
+            IsLoading = false;
+        }
+        IsLoading = false;
+    }
+    // private async Task LoadData()
+    // {
+    //     TotalItems = await GetTotalItemCountAsync();
+    //     TotalPages = (int)Math.Ceiling((double)TotalItems / PageSize);
+    //     FilteredItems = await GetItemsAsync(CurrentPage, PageSize);
+
+    // }
+    // private async Task PreviousPage()
+    // {
+    //     if (CanGoToPreviousPage)
+    //     {
+    //         CurrentPage--;
+    //         await LoadData();
+    //     }
+    // }
+    // public async Task<List<OCRData>> GetItemsAsync(int page, int pageSize)
+    // {
+    //     return obj.Skip((page - 1) * pageSize).Take(pageSize).ToList();
+    // }
+
+    // public async Task<int> GetTotalItemCountAsync()
+    // {
+    //     return obj.Count();
+    // }
+    // private async Task NextPage()
+    // {
+    //     if (CanGoToNextPage)
+    //     {
+    //         CurrentPage++;
+    //         await LoadData();
+    //     }
+    // }
+    // private async Task GoToFirstPage()
+    // {
+    //     if (CurrentPage != 1)
+    //     {
+    //         CurrentPage = 1;
+    //         await LoadData();
+    //     }
+    // }
+    // private async Task GoToLastPage()
+    // {
+    //     if (CurrentPage != TotalPages)
+    //     {
+    //         CurrentPage = TotalPages;
+    //         await LoadData();
+    //     }
+    // }
+    public string TruncateString(string input, int maxLength = 40)
+    {
+        if (string.IsNullOrEmpty(input)) return input;
+        return input.Length > maxLength ? input.Substring(0, maxLength) : input;
+    }
+    private int TotalPages;
+    public async Task LoadShortagereport()
+    {
+        try
+        {
+            string query = $@"
+SELECT * FROM vwGetExtractedData";
+            var connectionString = _configuration.GetConnectionString("Con");
+
+            using (var connection = new SqlConnection(connectionString))
+            {
+                await connection.OpenAsync();
+
+                using (var command = new SqlCommand(query, connection))
+                using (var reader = await command.ExecuteReaderAsync())
+                {
+                    while (await reader.ReadAsync())
+                    {
+                        OCRData dv = new OCRData();
+                        dv = new OCRData
+                            {
+                                InvoiceDate = reader.IsDBNull(reader.GetOrdinal("FillingDate"))
+                                              ? (DateTime?)null
+                                                  : reader.GetDateTime(reader.GetOrdinal("FillingDate")),
+
+                                STO = reader.IsDBNull(reader.GetOrdinal("STONO")) ? "" : reader.GetString(reader.GetOrdinal("STONO")),
+                                BusinessName = reader.IsDBNull(reader.GetOrdinal("busdesc")) ? "" : reader.GetString(reader.GetOrdinal("busdesc")),
+                                Vehicle = reader.IsDBNull(reader.GetOrdinal("VehicleNo")) ? "" : reader.GetString(reader.GetOrdinal("VehicleNo")),
+                                BusinessID = reader.IsDBNull(reader.GetOrdinal("BusinessID")) ? 0 : reader.GetInt32(reader.GetOrdinal("BusinessID")),
+                                OCRID = reader.IsDBNull(reader.GetOrdinal("ExtractedID")) ? 0 : reader.GetInt32(reader.GetOrdinal("ExtractedID")),
+
+                                ShippingLocation = reader.IsDBNull(reader.GetOrdinal("ShippingLocation")) ? "" : reader.GetString(reader.GetOrdinal("ShippingLocation")),
+                                ReceivingLocation = reader.IsDBNull(reader.GetOrdinal("RecievingLocation")) ? "" : reader.GetString(reader.GetOrdinal("RecievingLocation")),
+                                InvoiceType = reader.IsDBNull(reader.GetOrdinal("InvoiceType")) ? "" : reader.GetString(reader.GetOrdinal("InvoiceType")),
+                                Product = reader.IsDBNull(reader.GetOrdinal("ProductName")) ? "" : reader.GetString(reader.GetOrdinal("ProductName")),
+                                FileLocation = reader.IsDBNull(reader.GetOrdinal("FileLocation")) ? "" : reader.GetString(reader.GetOrdinal("FileLocation")),
+
+                            };
+                        obj.Add(dv);
+
+
+
+
+                    }
+                }
+            }
+
+            obj = obj.Where(p => BusinessID.Contains(p.BusinessID)).OrderByDescending(p => p.InvoiceDate).ToList();
+
+        }
+        catch (Exception ex)
+        {
+
+        }
+    }
+
+
+
+
+}

@@ -4,6 +4,7 @@
 @using System.Web
 @using System.Text.Json
 @using System.Text
+@using Microsoft.Data.SqlClient
 @using VehicleManagement.ApiService
 @using VehicleManagement.Models.General
 @using VehicleManagement.Pages.Redirects
@@ -11,319 +12,320 @@
 @inject IApiService API
 @inject IJSRuntime js
 
+  @inject IConfiguration _configuration
 @inject AuthenticationStateProvider _authenticationStateProvider
 
-        <style>
-            body {
-                font-family: Arial, sans-serif;
-            }
+<style>
+    body {
+        font-family: Arial, sans-serif;
+    }
 
-            .container {
-                width: 100%;
-                max-width: 800px;
-                margin: 0 auto;
-              /*   padding: 10px; */
-            }
+    .container {
+        width: 100%;
+        max-width: 800px;
+        margin: 0 auto;
+        /*   padding: 10px; */
+    }
 
-            .title {
-                text-align: center;
-                font-size: 24px;
-                font-weight: bold;
-                margin-bottom: 10px;
-            }
+    .title {
+        text-align: center;
+        font-size: 24px;
+        font-weight: bold;
+        margin-bottom: 10px;
+    }
 
-            .details, .shipping, .receiving {
-                font-weight: bold;
-                font-size: x-small;
-                color: black;
-                width: 100%;
-                border-collapse: collapse;
-            }
+    .details, .shipping, .receiving {
+        font-weight: bold;
+        font-size: x-small;
+        color: black;
+        width: 100%;
+        border-collapse: collapse;
+    }
 
-                .details td, .shipping td, .receiving td {
-                    border: 1px solid black;
-                    padding: 4px;
-                    text-align: center;
-                }
-
-                .details td {
-                    width: 25%;
-                }
-
-                .details .header, .shipping .header, .receiving .header {
-                    color: white;
-                    font-weight: bold;
-                    background-color: #5e72e4;
-                }
-
-
-            .header-span {
-                display: block;
-                font-size: 16px;
-                font-weight: bold;
-                color: white;
-                background-color: #5e72e4;
-                text-align: center;
-                padding: 5px;
-                border: 1px solid black;
-            }
-
-            .footer {
-                font-weight: bold;
-                text-align: center;
-                background-color: #d9d9d9;
-            }
-
-            .row {
-                display: flex;
-                flex-wrap: wrap;
-            }
-
-            .col-lgg-6 {
-                width: 100%;
-                max-width: 50%;
-                box-sizing: border-box;
-                padding: 10px;
-            }
-
-            .table-responsive {
-                overflow-x: auto;
-            }
-
-        </style>
-
-        @if (Invoices != null)
-        {
-            <div class="row">
-                <div class="col-lgg-6">
-                    <div class="container">
-
-                        <table class="details">
-                            <tr>
-                                <td>Tank Lorry No</td>
-                                <td>@Invoices.Details.TankLorryNO</td>
-                                <td>Date</td>
-                                <td>@Invoices.Details.Date.ToString("d/MMM/yyyy")</td>
-                            </tr>
-                            <tr>
-                                <td>STO NO</td>
-                                <td>@Invoices.Details.STONo</td>
-                                <td>Prepared By</td>
-                                <td>@(Invoices.User ?? User)</td>
-                            </tr>
-                            <tr>
-                                <td>Supply Point</td>
-                                <td>@Invoices.Details.SupplyPoint</td>
-                                <td>Receiving Location</td>
-                                <td>@Invoices.Details.ReceivingLocation</td>
-                            </tr>
-                            <tr>
-                                <td>Product</td>
-                                <td>@Invoices.Details.Product</td>
-                                <td>Contractor</td>
-                                <td>@Invoices.Details.Contractor</td>
-                            </tr>
-                        </table>
-
-                        <table class="shipping" style="margin-top:7px;">
-                            <tr class="header">
-                                <td>Chamber (Shipping)</td>
-                                <td>1</td>
-                                <td>2</td>
-                                <td>3</td>
-                                <td>4</td>
-                                <td>5</td>
-                            </tr>
-                            <tr>
-                                <td>Temp F</td>
-                                <td colspan="5">@Invoices.ShippingDetail.TempF</td>
-                            </tr>
-                            <tr>
-                                <td>S.G</td>
-                                <td colspan="5">@Invoices.ShippingDetail.SG</td>
-                            </tr>
-                            <tr>
-                                <td>Chamber Quantity</td>
-                                <td>@Invoices.ShippingDetail.Chamber1.ChamberQuantity</td>
-                                <td>@Invoices.ShippingDetail.Chamber2.ChamberQuantity</td>
-                                <td>@Invoices.ShippingDetail.Chamber3.ChamberQuantity</td>
-                                <td>@Invoices.ShippingDetail.Chamber4.ChamberQuantity</td>
-                                <td>@Invoices.ShippingDetail.Chamber5.ChamberQuantity</td>
-                            </tr>
-                            <tr>
-                                <td>Tank Lorry Product Dips(MM)</td>
-                                <td>@Invoices.ShippingDetail.Chamber1.LorryDip</td>
-                                <td>@Invoices.ShippingDetail.Chamber2.LorryDip</td>
-                                <td>@Invoices.ShippingDetail.Chamber3.LorryDip</td>
-                                <td>@Invoices.ShippingDetail.Chamber4.LorryDip</td>
-                                <td>@Invoices.ShippingDetail.Chamber5.LorryDip</td>
-                            </tr>
-                            <tr>
-                                <td>Quantity  85F</td>
-                                <td>@Invoices.ShippingDetail.Chamber1.Quantity</td>
-                                <td>@Invoices.ShippingDetail.Chamber2.Quantity</td>
-                                <td>@Invoices.ShippingDetail.Chamber3.Quantity</td>
-                                <td>@Invoices.ShippingDetail.Chamber4.Quantity</td>
-                                <td>@Invoices.ShippingDetail.Chamber5.Quantity</td>
-                            </tr>
-                        </table>
-
-                        <table class="receiving">
-                            <tr class="header">
-                                <td>Chamber (Receiving)</td>
-                                <td>1</td>
-                                <td>2</td>
-                                <td>3</td>
-                                <td>4</td>
-                                <td>5</td>
-                            </tr>
-                            <tr>
-                                <td>Temp F</td>
-                                <td colspan="5">@Invoices.ReceivingDetail.TempF</td>
-                            </tr>
-                            <tr>
-                                <td>S.G</td>
-                                <td colspan="5">@Invoices.ReceivingDetail.SG</td>
-                            </tr>
-                            <tr>
-                                <td>Chamber Quantity</td>
-                                <td>@Invoices.ReceivingDetail.Chamber1.ChamberQuantity</td>
-                                <td>@Invoices.ReceivingDetail.Chamber2.ChamberQuantity</td>
-                                <td>@Invoices.ReceivingDetail.Chamber3.ChamberQuantity</td>
-                                <td>@Invoices.ReceivingDetail.Chamber4.ChamberQuantity</td>
-                                <td>@Invoices.ReceivingDetail.Chamber5.ChamberQuantity</td>
-                            </tr>
-                            <tr>
-                                <td>Tank Lorry Product Dips(MM)</td>
-                                <td>@Invoices.ReceivingDetail.Chamber1.LorryDip</td>
-                                <td>@Invoices.ReceivingDetail.Chamber2.LorryDip</td>
-                                <td>@Invoices.ReceivingDetail.Chamber3.LorryDip</td>
-                                <td>@Invoices.ReceivingDetail.Chamber4.LorryDip</td>
-                                <td>@Invoices.ReceivingDetail.Chamber5.LorryDip</td>
-                            </tr>
-                            <tr>
-                                <td>Quantity  85F</td>
-                                <td>@Invoices.ReceivingDetail.Chamber1.Quantity</td>
-                                <td>@Invoices.ReceivingDetail.Chamber2.Quantity</td>
-                                <td>@Invoices.ReceivingDetail.Chamber3.Quantity</td>
-                                <td>@Invoices.ReceivingDetail.Chamber4.Quantity</td>
-                                <td>@Invoices.ReceivingDetail.Chamber5.Quantity</td>
-                            </tr>
-                        </table>
-
-                        <table class="receiving" style="margin-top:7px;">
-                            <tr class="header">
-                                <td>Chamber (Summary)</td>
-                                <td>1</td>
-                                <td>2</td>
-                                <td>3</td>
-                                <td>4</td>
-                                <td>5</td>
-                            </tr>
-                            <tr>
-                                <td>Shortage in MM</td>
-                                <td>@Invoices.ShortageCalculation.Chamber1.ShortageMM</td>
-                                <td>@Invoices.ShortageCalculation.Chamber2.ShortageMM</td>
-                                <td>@Invoices.ShortageCalculation.Chamber3.ShortageMM</td>
-                                <td>@Invoices.ShortageCalculation.Chamber4.ShortageMM</td>
-                                <td>@Invoices.ShortageCalculation.Chamber5.ShortageMM</td>
-                            </tr>
-                            <tr>
-                                <td>Total Shortage in Liters</td>
-                                <td>@Invoices.ShortageCalculation.Chamber1.TotalShortageLtr</td>
-                                <td>@Invoices.ShortageCalculation.Chamber2.TotalShortageLtr</td>
-                                <td>@Invoices.ShortageCalculation.Chamber3.TotalShortageLtr</td>
-                                <td>@Invoices.ShortageCalculation.Chamber4.TotalShortageLtr</td>
-                                <td>@Invoices.ShortageCalculation.Chamber5.TotalShortageLtr</td>
-                            </tr>
-                        </table>
-                        <table class="receiving">
-                            <tr>
-                                <td>Temp. Difference (Desp. vs Rec.)</td>
-                                <td>@Invoices.CalculationDifference.TempDiff</td>
-                                <td>Shortage  1°F Temp</td>
-                                <td>@Invoices.CalculationDifference.Shortage1FTemp</td>
-                                <td>Qty Should be Received</td>
-                                <td>@Invoices.CalculationDifference.QtyShouldRecieved</td>
-                            </tr>
-                            <tr>
-                                <td>Total Shortage in Liters By Dip</td>
-                                <td>@Invoices.CalculationDifference.TotalShortageByDip</td>
-                                <td>Short On Temperature (Exempted)</td>
-                                <td>@Invoices.CalculationDifference.ShortOnTemp</td>
-                                @if (@Invoices.CalculationDifference.Status == "Short")
-                                {
-                                    <td>Shortage Charge to Contractor</td>
-                                    <td style="color:red;">@Invoices.CalculationDifference.ShortageCharge</td>
-                                }
-                                else if (@Invoices.CalculationDifference.Status == "Extra")
-                                {
-                                    <td>Shortage Charge to Contractor</td>
-                                    <td style="color:blue;">@Invoices.CalculationDifference.ShortageCharge</td>
-                                }
-                                else
-                                {
-                                    <td>Shortage Charge to Contractor</td>
-                                    <td>@Invoices.CalculationDifference.ShortageCharge</td>
-                                }
-
-                               
-                            </tr>
-                            <tr>
-                                <td colspan="3">Status</td>
-                                <td colspan="6" style="color:@(Invoices.CalculationDifference.Status=="Extra"?"blue":"red")">@Invoices.CalculationDifference.Status</td>
-                            </tr>
-                        </table>
-                        @if (IsView == "View")
-                        {
-                            <div class="col-md-12" style="margin-top: 7px;">
-                                <div class="row">
-
-
-                                    <div class="col-md-12">
-                                        <div class="form-group" style="text-align:center;">
-                                            <button class="btn btn-warning btn-sm ms-auto" @onclick="EditButton">Edit</button>
-                                            <button class="btn btn-primary btn-sm ms-auto" @onclick="Save">Submit</button>
-                                        </div>
-
-
-                                    </div>
-
-                                </div>
-                            </div>
-                        }
-                        else if (IsView == "Update")
-                        {
-                            <div class="col-md-12" style="margin-top: 7px;">
-                                <div class="row">
-
-
-                                    <div class="col-md-12">
-                                        <div class="form-group" style="text-align:center;">
-                                            <button class="btn btn-warning btn-sm ms-auto" @onclick="EditButton">Edit</button>
-                                            <button class="btn btn-primary btn-sm ms-auto" @onclick="Update">Update</button>
-                                        </div>
-
-
-                                    </div>
-
-                                </div>
-                            </div>
-                        }
-
-                    </div>
-                </div>
-                <div class="col-lgg-6">
-                    <div class="table-responsive inv-img">
-                        <img src="@Invoices.InvoiceFilePath" style="width:100%;" />
-                    </div>
-                </div>
-            </div>
-
+        .details td, .shipping td, .receiving td {
+            border: 1px solid black;
+            padding: 4px;
+            text-align: center;
         }
-        <Loader isLoading="@IsLoading" IsMessage=true />
 
-  
+        .details td {
+            width: 25%;
+        }
+
+        .details .header, .shipping .header, .receiving .header {
+            color: white;
+            font-weight: bold;
+            background-color: #5e72e4;
+        }
+
+
+    .header-span {
+        display: block;
+        font-size: 16px;
+        font-weight: bold;
+        color: white;
+        background-color: #5e72e4;
+        text-align: center;
+        padding: 5px;
+        border: 1px solid black;
+    }
+
+    .footer {
+        font-weight: bold;
+        text-align: center;
+        background-color: #d9d9d9;
+    }
+
+    .row {
+        display: flex;
+        flex-wrap: wrap;
+    }
+
+    .col-lgg-6 {
+        width: 100%;
+        max-width: 50%;
+        box-sizing: border-box;
+        padding: 10px;
+    }
+
+    .table-responsive {
+        overflow-x: auto;
+    }
+
+</style>
+
+@if (Invoices != null)
+{
+    <div class="row">
+        <div class="col-lgg-6">
+            <div class="container">
+
+                <table class="details">
+                    <tr>
+                        <td>Tank Lorry No</td>
+                        <td>@Invoices.Details.TankLorryNO</td>
+                        <td>Date</td>
+                        <td>@Invoices.Details.Date.ToString("d/MMM/yyyy")</td>
+                    </tr>
+                    <tr>
+                        <td>STO NO</td>
+                        <td>@Invoices.Details.STONo</td>
+                        <td>Prepared By</td>
+                        <td>@(Invoices.User ?? User)</td>
+                    </tr>
+                    <tr>
+                        <td>Supply Point</td>
+                        <td>@Invoices.Details.SupplyPoint</td>
+                        <td>Receiving Location</td>
+                        <td>@Invoices.Details.ReceivingLocation</td>
+                    </tr>
+                    <tr>
+                        <td>Product</td>
+                        <td>@Invoices.Details.Product</td>
+                        <td>Contractor</td>
+                        <td>@Invoices.Details.Contractor</td>
+                    </tr>
+                </table>
+
+                <table class="shipping" style="margin-top:7px;">
+                    <tr class="header">
+                        <td>Chamber (Shipping)</td>
+                        <td>1</td>
+                        <td>2</td>
+                        <td>3</td>
+                        <td>4</td>
+                        <td>5</td>
+                    </tr>
+                    <tr>
+                        <td>Temp F</td>
+                        <td colspan="5">@Invoices.ShippingDetail.TempF</td>
+                    </tr>
+                    <tr>
+                        <td>S.G</td>
+                        <td colspan="5">@Invoices.ShippingDetail.SG</td>
+                    </tr>
+                    <tr>
+                        <td>Chamber Quantity</td>
+                        <td>@Invoices.ShippingDetail.Chamber1.ChamberQuantity</td>
+                        <td>@Invoices.ShippingDetail.Chamber2.ChamberQuantity</td>
+                        <td>@Invoices.ShippingDetail.Chamber3.ChamberQuantity</td>
+                        <td>@Invoices.ShippingDetail.Chamber4.ChamberQuantity</td>
+                        <td>@Invoices.ShippingDetail.Chamber5.ChamberQuantity</td>
+                    </tr>
+                    <tr>
+                        <td>Tank Lorry Product Dips(MM)</td>
+                        <td>@Invoices.ShippingDetail.Chamber1.LorryDip</td>
+                        <td>@Invoices.ShippingDetail.Chamber2.LorryDip</td>
+                        <td>@Invoices.ShippingDetail.Chamber3.LorryDip</td>
+                        <td>@Invoices.ShippingDetail.Chamber4.LorryDip</td>
+                        <td>@Invoices.ShippingDetail.Chamber5.LorryDip</td>
+                    </tr>
+                    <tr>
+                        <td>Quantity  85F</td>
+                        <td>@Invoices.ShippingDetail.Chamber1.Quantity</td>
+                        <td>@Invoices.ShippingDetail.Chamber2.Quantity</td>
+                        <td>@Invoices.ShippingDetail.Chamber3.Quantity</td>
+                        <td>@Invoices.ShippingDetail.Chamber4.Quantity</td>
+                        <td>@Invoices.ShippingDetail.Chamber5.Quantity</td>
+                    </tr>
+                </table>
+
+                <table class="receiving">
+                    <tr class="header">
+                        <td>Chamber (Receiving)</td>
+                        <td>1</td>
+                        <td>2</td>
+                        <td>3</td>
+                        <td>4</td>
+                        <td>5</td>
+                    </tr>
+                    <tr>
+                        <td>Temp F</td>
+                        <td colspan="5">@Invoices.ReceivingDetail.TempF</td>
+                    </tr>
+                    <tr>
+                        <td>S.G</td>
+                        <td colspan="5">@Invoices.ReceivingDetail.SG</td>
+                    </tr>
+                    <tr>
+                        <td>Chamber Quantity</td>
+                        <td>@Invoices.ReceivingDetail.Chamber1.ChamberQuantity</td>
+                        <td>@Invoices.ReceivingDetail.Chamber2.ChamberQuantity</td>
+                        <td>@Invoices.ReceivingDetail.Chamber3.ChamberQuantity</td>
+                        <td>@Invoices.ReceivingDetail.Chamber4.ChamberQuantity</td>
+                        <td>@Invoices.ReceivingDetail.Chamber5.ChamberQuantity</td>
+                    </tr>
+                    <tr>
+                        <td>Tank Lorry Product Dips(MM)</td>
+                        <td>@Invoices.ReceivingDetail.Chamber1.LorryDip</td>
+                        <td>@Invoices.ReceivingDetail.Chamber2.LorryDip</td>
+                        <td>@Invoices.ReceivingDetail.Chamber3.LorryDip</td>
+                        <td>@Invoices.ReceivingDetail.Chamber4.LorryDip</td>
+                        <td>@Invoices.ReceivingDetail.Chamber5.LorryDip</td>
+                    </tr>
+                    <tr>
+                        <td>Quantity  85F</td>
+                        <td>@Invoices.ReceivingDetail.Chamber1.Quantity</td>
+                        <td>@Invoices.ReceivingDetail.Chamber2.Quantity</td>
+                        <td>@Invoices.ReceivingDetail.Chamber3.Quantity</td>
+                        <td>@Invoices.ReceivingDetail.Chamber4.Quantity</td>
+                        <td>@Invoices.ReceivingDetail.Chamber5.Quantity</td>
+                    </tr>
+                </table>
+
+                <table class="receiving" style="margin-top:7px;">
+                    <tr class="header">
+                        <td>Chamber (Summary)</td>
+                        <td>1</td>
+                        <td>2</td>
+                        <td>3</td>
+                        <td>4</td>
+                        <td>5</td>
+                    </tr>
+                    <tr>
+                        <td>Shortage in MM</td>
+                        <td>@Invoices.ShortageCalculation.Chamber1.ShortageMM</td>
+                        <td>@Invoices.ShortageCalculation.Chamber2.ShortageMM</td>
+                        <td>@Invoices.ShortageCalculation.Chamber3.ShortageMM</td>
+                        <td>@Invoices.ShortageCalculation.Chamber4.ShortageMM</td>
+                        <td>@Invoices.ShortageCalculation.Chamber5.ShortageMM</td>
+                    </tr>
+                    <tr>
+                        <td>Total Shortage in Liters</td>
+                        <td>@Invoices.ShortageCalculation.Chamber1.TotalShortageLtr</td>
+                        <td>@Invoices.ShortageCalculation.Chamber2.TotalShortageLtr</td>
+                        <td>@Invoices.ShortageCalculation.Chamber3.TotalShortageLtr</td>
+                        <td>@Invoices.ShortageCalculation.Chamber4.TotalShortageLtr</td>
+                        <td>@Invoices.ShortageCalculation.Chamber5.TotalShortageLtr</td>
+                    </tr>
+                </table>
+                <table class="receiving">
+                    <tr>
+                        <td>Temp. Difference (Desp. vs Rec.)</td>
+                        <td>@Invoices.CalculationDifference.TempDiff</td>
+                        <td>Shortage  1°F Temp</td>
+                        <td>@Invoices.CalculationDifference.Shortage1FTemp</td>
+                        <td>Qty Should be Received</td>
+                        <td>@Invoices.CalculationDifference.QtyShouldRecieved</td>
+                    </tr>
+                    <tr>
+                        <td>Total Shortage in Liters By Dip</td>
+                        <td>@Invoices.CalculationDifference.TotalShortageByDip</td>
+                        <td>Short On Temperature (Exempted)</td>
+                        <td>@Invoices.CalculationDifference.ShortOnTemp</td>
+                        @if (@Invoices.CalculationDifference.Status == "Short")
+                        {
+                            <td>Shortage Charge to Contractor</td>
+                            <td style="color:red;">@Invoices.CalculationDifference.ShortageCharge</td>
+                        }
+                        else if (@Invoices.CalculationDifference.Status == "Extra")
+                        {
+                            <td>Shortage Charge to Contractor</td>
+                            <td style="color:blue;">@Invoices.CalculationDifference.ShortageCharge</td>
+                        }
+                        else
+                        {
+                            <td>Shortage Charge to Contractor</td>
+                            <td>@Invoices.CalculationDifference.ShortageCharge</td>
+                        }
+
+
+                    </tr>
+                    <tr>
+                        <td colspan="3">Status</td>
+                        <td colspan="6" style="color:@(Invoices.CalculationDifference.Status=="Extra"?"blue":"red")">@Invoices.CalculationDifference.Status</td>
+                    </tr>
+                </table>
+                @if (IsView == "View")
+                {
+                    <div class="col-md-12" style="margin-top: 7px;">
+                        <div class="row">
+
+
+                            <div class="col-md-12">
+                                <div class="form-group" style="text-align:center;">
+                                    <button class="btn btn-warning btn-sm ms-auto" @onclick="EditButton">Edit</button>
+                                    <button class="btn btn-primary btn-sm ms-auto" @onclick="Save">Submit</button>
+                                </div>
+
+
+                            </div>
+
+                        </div>
+                    </div>
+                }
+                else if (IsView == "Update")
+                {
+                    <div class="col-md-12" style="margin-top: 7px;">
+                        <div class="row">
+
+
+                            <div class="col-md-12">
+                                <div class="form-group" style="text-align:center;">
+                                    <button class="btn btn-warning btn-sm ms-auto" @onclick="EditButton">Edit</button>
+                                    <button class="btn btn-primary btn-sm ms-auto" @onclick="Update">Update</button>
+                                </div>
+
+
+                            </div>
+
+                        </div>
+                    </div>
+                }
+
+            </div>
+        </div>
+        <div class="col-lgg-6">
+            <div class="table-responsive inv-img">
+                <img src="@Invoices.InvoiceFilePath" style="width:100%;" />
+            </div>
+        </div>
+    </div>
+
+}
+<Loader isLoading="@IsLoading" IsMessage=true />
+
+
 @code {
     private string? IsView { get; set; } = string.Empty;
     private string? User { get; set; } = string.Empty;
@@ -399,7 +401,7 @@
                 var authState = await _authenticationStateProvider.GetAuthenticationStateAsync();
                 User = authState.User.Identity.Name;
             }
-          
+
 
         }
         catch (Exception ex)
@@ -418,6 +420,25 @@
             string Result = JsonSerializer.Deserialize<string>(AddUser);
             if (Result == "200")
             {
+                if (Invoices.IsOCR)
+                {
+                    // SQL operations (as before) to update the record and retrieve the file location
+                    string connectionString = _configuration.GetConnectionString("Con");
+                    string updateQuery = "UPDATE tblExtracted_Data SET IsInvoiceGenerated = 1,STONO =@STO WHERE ExtractedID = @ExtractedID";
+
+                    using (SqlConnection connection = new SqlConnection(connectionString))
+                    {
+                        connection.Open();
+
+                        // Update the record
+                        using (SqlCommand updateCommand = new SqlCommand(updateQuery, connection))
+                        {
+                            updateCommand.Parameters.AddWithValue("@ExtractedID", Invoices.ExtarctedID);
+                            updateCommand.Parameters.AddWithValue("@STO", Invoices.Details.STONo);
+                            updateCommand.ExecuteNonQuery(); // Execute the update query
+                        }
+                    }
+                }
                 toastService.ShowSuccess("Invoice Added Success");
                 IsLoading = false;
                 NavigationManager.NavigateTo("/addinvoice");
@@ -438,6 +459,9 @@
             {
                 toastService.ShowError("Error while adding invoice");
             }
+
+          
+
             IsLoading = false;
         }
         catch (Exception ex)

@@ -528,9 +528,39 @@
                     await JS.InvokeVoidAsync("showImageFromPath", Invoices.InvoiceFilePath);
                 }
             }
+            // Check if the "json" query parameter exists
+            else if (encodedJson.Contains("OCR="))
+            {
+                // Extract the value of the "json" query parameter
+                encodedJson = encodedJson.Split("OCR=")[1];
+
+                // Decode the URL-safe Base64 string
+                string base64EncodedJson = HttpUtility.UrlDecode(encodedJson);
+
+                // Convert the Base64 string back to UTF-8 encoded bytes
+                byte[] base64EncodedBytes = Convert.FromBase64String(base64EncodedJson);
+
+                // Decode the UTF-8 bytes back to the original JSON string
+                string jsonString = Encoding.UTF8.GetString(base64EncodedBytes);
+
+                // Deserialize the JSON string back into the Invoices object
+                Invoices = JsonSerializer.Deserialize<Invoicing>(jsonString);
+
+                // Display the image if the path is already set
+                if (!string.IsNullOrEmpty(Invoices.InvoiceFilePath))
+                {
+                    await JS.InvokeVoidAsync("showImageFromPath", Invoices.InvoiceFilePath);
+                }
+                if (Invoices.Details.TankLorryNO!=null || Invoices.Details.TankLorryNO!=string.Empty|| Invoices.Details.TankLorryNO!="")
+                {
+                    Invoices.Details.TankLorryNO = Invoices.Details.TankLorryNO;
+                    int ChamberStatus = await GetShippingChamberDetails(Invoices.Details.TankLorryNO);
+                }
+            }
 
             var authState = await _authenticationStateProvider.GetAuthenticationStateAsync();
             Invoices.User = authState.User.Identity.Name;
+            StateHasChanged();
 
 
 
@@ -678,6 +708,58 @@
     {
         try
         {
+            if (Invoices.IsOCR)
+            {
+                IsLoading = true;
+                HttpClientHandler handler = new HttpClientHandler
+                    {
+                        // Disable SSL certificate validation
+                        ServerCertificateCustomValidationCallback = (HttpRequestMessage, cert, chain, sslPolicyErrors) => true
+                    };
+
+                using (HttpClient client = new HttpClient(handler))
+                {
+                    string imageUrl = Invoices.InvoiceFilePath; // Assuming this is your image URL like "https://191.96.196.61/1044112.jpg"
+                    HttpResponseMessage response = await client.GetAsync(imageUrl);
+
+                    if (response.IsSuccessStatusCode)
+                    {
+                        var content = await response.Content.ReadAsStreamAsync();
+
+                        // Create the file on your local file system
+                        var fileExtension = ".jpg"; // Assuming it's a jpg image
+                        var trustedFileNameForFileStorage = Invoices.Details.STONo.ToString().Trim() + fileExtension;
+                        var destinationFolderPath = Path.Combine(Environment.ContentRootPath, "wwwroot\\css\\Development", "HTL_Reports");
+
+                        // Create the destination folder if it does not exist
+                        if (!Directory.Exists(destinationFolderPath))
+                        {
+                            Directory.CreateDirectory(destinationFolderPath);
+                        }
+
+                        // Define destination file path
+                        var destinationFilePath = Path.Combine(destinationFolderPath, trustedFileNameForFileStorage);
+
+                        // Save the file
+                        using (var fileStream = new FileStream(destinationFilePath, FileMode.Create, FileAccess.Write, FileShare.None, 4096, true))
+                        {
+                            await content.CopyToAsync(fileStream);
+                        }
+
+                        // Update the file path
+                        string correctedFilePath = Path.Combine("css/Development", "HTL_Reports", trustedFileNameForFileStorage);
+                        Invoices.InvoiceFilePath = correctedFilePath.Replace("\\", "/");
+
+                        toastService.ShowSuccess($"Image {trustedFileNameForFileStorage} downloaded and saved successfully.");
+                    }
+                    else
+                    {
+                        toastService.ShowError($"Failed to download image from {imageUrl}.");
+                    }
+                }
+                IsLoading = false;
+            }
+
             TrimStringProperties(Invoices);
             Invoices.InvoiceFilePath = Invoices.InvoiceFilePath == null ? "" : Invoices.InvoiceFilePath;
 
