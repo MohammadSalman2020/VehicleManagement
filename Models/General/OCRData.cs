@@ -13,5 +13,6 @@
         public string? BusinessName { get; set; }
         public string? Product { get; set; }
         public string? FileLocation { get; set; }
+        public bool isInvoiceGenerated { get; set; }
     }
 }

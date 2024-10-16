@@ -96,3 +96,17 @@ a, .btn-link {
         font-weight: bold;
         font-size: 16px;
     }
+
+
+.img-magnifier-container {
+    position: relative;
+}
+
+.img-magnifier-glass {
+    position: absolute;
+    border: 3px solid #000;
+    cursor: none;
+    width: 100px;
+    height: 100px;
+    border-radius: 0; /* Square magnifier */
+}
