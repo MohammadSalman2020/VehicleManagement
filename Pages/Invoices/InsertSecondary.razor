@@ -1,0 +1,304 @@
+﻿@page "/insertSec"
+@using Majorsoft.Blazor.Components.Tabs
+@using System.Linq;
+@using System.Text.Json
+@using System.Web
+@using System.Text
+@using Microsoft.AspNetCore.Components.Server.ProtectedBrowserStorage
+@using System.Reflection
+@using VehicleManagement.ApiService
+@using VehicleManagement.Models.General
+@using VehicleManagement.Models.General.Login
+@using VehicleManagement.Pages.Redirects;
+@inject IWebHostEnvironment Environment
+@inject IToastService toastService
+@inject NavigationManager NavigationManager
+@inject IApiService API
+@inject IJSRuntime JS
+@inject AuthenticationStateProvider _authenticationStateProvider
+<style>
+    body {
+        font-family: Arial, sans-serif;
+    }
+
+    .container {
+        width: 100%;
+        max-width: 800px;
+        margin: 0 auto;
+        /*   padding: 10px; */
+    }
+
+    .title {
+        text-align: center;
+        font-size: 24px;
+        font-weight: bold;
+        margin-bottom: 10px;
+    }
+
+    .details, .shipping, .receiving {
+        font-weight: bold;
+        font-size: x-small;
+        color: black;
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+        .details td, .shipping td, .receiving td {
+            border: 1px solid black;
+            padding: 4px;
+            text-align: center;
+        }
+
+        .details td {
+            width: 25%;
+        }
+
+        .details .header, .shipping .header, .receiving .header {
+            color: white;
+            font-weight: bold;
+            background-color: #5e72e4;
+        }
+
+
+    .header-span {
+        display: block;
+        font-size: 16px;
+        font-weight: bold;
+        color: white;
+        background-color: #5e72e4;
+        text-align: center;
+        padding: 5px;
+        border: 1px solid black;
+    }
+
+    .footer {
+        font-weight: bold;
+        text-align: center;
+        background-color: #d9d9d9;
+    }
+
+    .row {
+        display: flex;
+        flex-wrap: wrap;
+    }
+
+    .col-lgg-6 {
+        width: 100%;
+        max-width: 50%;
+        box-sizing: border-box;
+        padding: 10px;
+    }
+
+    .table-responsive {
+        overflow-x: auto;
+    }
+
+    .dropzone {
+        max-width: 600px;
+        height: 600px;
+        border: 2px dashed #3498db;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        margin-bottom: 20px;
+        border-radius: 10px;
+        color: #3498db;
+        cursor: pointer;
+        position: relative;
+        overflow: hidden;
+    }
+
+        .dropzone p {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            margin: 0;
+            pointer-events: none;
+        }
+
+        .dropzone.hovered {
+            border-color: #2ecc71;
+            background-color: #ecf0f1;
+        }
+
+    .file-input {
+        display: none;
+    }
+
+    .preview {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        width: 100%;
+        height: 100%;
+        position: absolute;
+        top: 0;
+        left: 0;
+    }
+
+        .preview img {
+            max-width: 100%;
+            max-height: 100%;
+            display: none;
+            border-radius: 10px;
+        }
+
+
+
+    .text-size {
+        font-size: x-small;
+        text-align: center;
+    }
+</style>
+<AuthorizeView>
+    <Authorized>
+        <Nav PageName="Add Invoice" />
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col-12">
+                    <div class="card mb-4">
+                        <div class="card-body px-0 pt-0 pb-2">
+
+
+                            <div class="row">
+                                <div class="col-lgg-6">
+                                    <div class="container">
+
+                                        <table class="details">
+                                            <tr>
+                                                <td>Vehicle ID</td>
+                                                <td> <input type="text" tabindex="1" id="vehicleID" required placeholder="Vehicle ID" value="@Invoices.Details.TankLorryNO"  class="form-control"></td>
+                                                <td>Date</td>
+                                                <td>  <input type="date" tabindex="2" placeholder="Date" @bind="Invoices.Details.Date" class="form-control"></td>
+                                            </tr>
+                                            <tr>
+                                                <td>Invoice Number</td>
+                                                <td>   <input type="text" tabindex="3" placeholder="STO No" @bind="Invoices.Details.STONo" class="form-control"></td>
+                                                <td>Shipping Points</td>
+                                                <td>  <input type="text" tabindex="4" placeholder="Shipping Point" @bind="Invoices.Details.SupplyPoint" class="form-control"></td>
+                                            </tr>
+                                            <tr>
+                                                <td>User</td>
+                                                <td> @Invoices.User</td>
+                                                <td>Receiving Points</td>
+                                                <td>   <input type="text" tabindex="5" placeholder="Receiving Location" @bind="Invoices.Details.ReceivingLocation" class="form-control"></td>
+                                            </tr>
+                                            <tr>
+                                         
+                                                <td>Contractor</td>
+                                                <td>  <input type="text" tabindex="7" placeholder="Contractor" @bind="Invoices.Details.Contractor" class="form-control"></td>
+                                            </tr>
+                                        </table>
+
+                                        <table class="shipping" style="margin-top:7px;">
+                                            <tr class="header">
+                                                <td colspan="6">Select Loaded Chambers</td>
+                                               
+                                            </tr>
+                                            <tr>
+                                              
+                                                <td colspan="3">  <input type="checkbox"  id="STemp" ></td>
+                                                <td colspan="3">Chamber 1</td>
+                                            </tr>
+                                            <tr>
+
+                                                <td colspan="3">  <input type="checkbox" id="STemp"></td>
+                                                <td colspan="3">Chamber 2</td>
+                                            </tr>
+                                            <tr>
+
+                                                <td colspan="3">  <input type="checkbox" id="STemp"></td>
+                                                <td colspan="3">Chamber 3</td>
+                                            </tr>
+                                            <tr>
+
+                                                <td colspan="3">  <input type="checkbox" id="STemp"></td>
+                                                <td colspan="3">Chamber 4</td>
+                                            </tr>
+                                            <tr>
+
+                                                <td colspan="3">  <input type="checkbox" id="STemp"></td>
+                                                <td colspan="3">Chamber 5</td>
+                                            </tr>
+
+
+
+                                        </table>
+
+                                 
+                                   
+                                            <div class="col-md-12" style="margin-top: 7px;">
+                                                <div class="row">
+
+
+                                                    <div class="col-md-12">
+                                                        <div class="form-group" style="text-align:center;">
+                                                            <button class="btn btn-danger btn-sm ms-auto" >Save</button>
+                                                        </div>
+                                                    </div>
+
+                                                </div>
+                                            </div>
+                                        
+
+
+
+                                    </div>
+                                </div>
+
+                                <div class="col-lgg-6">
+                                    <div class="table-responsive inv-img">
+                                        <div id="dropzone" class="dropzone">
+                                            <p>Click to add Image</p>
+                                            <InputFile type="file" id="fileInput"  class="file-input" />
+                                            <div id="preview" class="preview"></div>
+                                        </div>
+                                    </div>
+                                </div>
+
+
+                            </div>
+
+
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+        <Loader isLoading="@IsLoading" />
+    </Authorized>
+    <NotAuthorized>
+        @if (_isJsReady)
+        {
+            <_403 />
+        }
+        else
+        {
+            <Loader isLoading="true" />
+        }
+
+    </NotAuthorized>
+</AuthorizeView>
+
+@code {
+    private bool _isJsReady = false;
+    private Invoicing Invoices { get; set; } = new Invoicing();
+    private GetChamberDetails Shipping { get; set; } = new GetChamberDetails();
+    public List<VehicleDTO> VehicleList = new List<VehicleDTO>();
+    public List<string> Vehicle = new List<string>();
+    private bool IsLoading = false;
+
+
+
+//     SELECT DISTINCT i.STONo, i.TankLorryNo, i.ReceivingLocation, d.Chamber, d.ChamberQuantity, d.LorryDip, dv.BusinessID
+//     FROM tblInvoices i
+// LEFT JOIN tblInvoiceDetails d ON i.InvoiceID = d.InvoiceID AND d.PointType = 'R'
+// LEFT JOIN tblDriverVehicleMap dv ON dv.VehicleID = i.TankLorryNo
+// WHERE i.STONo = '1042886'
+// ORDER BY d.Chamber;
+
+}

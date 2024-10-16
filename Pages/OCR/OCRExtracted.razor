@@ -3,11 +3,12 @@
 @using System.Web
 @using System.Text
 @using System.Text.Json
+@using VehicleManagement.ApiService
 @using VehicleManagement.Authentication
 @using VehicleManagement.Models.General
 @inject IUserClaimsService UserClaimsService
 @inject IToastService toastService
-
+@inject IApiService API
   @inject IJSRuntime js
   @inject IConfiguration _configuration
 <div class="container-fluid py-4">
@@ -23,6 +24,88 @@
                                 <!-- Filter Button -->
                                 <div class="col-md-6">
                                     <h4>OCR Extarcted Data</h4>
+                                </div>
+                                <div class="col-md-6" style="text-align:end;">
+                                    <img style="cursor:pointer;" src="css/filter.png" @onclick="ToggleFilterPanel" />
+                                </div>
+                            </div>
+                            <div class="row">
+
+                                <div class="col-md-2">
+                                    <!-- Filter Button -->
+                                    <!-- Slider Panel -->
+                                    <div class="filter-slider-panel" style="@PanelStyle">
+                                        <div class="filter-header">
+                                            <h4>Export</h4>
+                                            <button class="close-btn" @onclick="ToggleFilterPanel">X</button>
+                                        </div>
+                                        <!-- Filter Options -->
+                                        <div class="filter-content">
+                                            <!-- Add your filter controls here -->
+                                            <div class="row col-md-12">
+
+                                                <div class="row filter-controls">
+                                                    <div class="col-md-12">
+                                                        <div class="form-group">
+                                                            <input type="text" @bind="@searchTerm" class="form-control" id="searchInput" placeholder="STO/Vehicle/Business...">
+
+                                                        </div>
+                                                    </div>
+
+
+                                                 @*    <div class="col-md-2" style="align-content: space-evenly;" title="Business/STO/Driver Name/Driver ID/Vehicle/Primary Reference">
+                                                        <div class="form-group">
+                                                            <img style="cursor:pointer;" src="css/search.png" @onclick="@(e => SearchRecords(searchTerm))">
+                                                        </div>
+                                                    </div> *@
+
+
+
+                                                </div>
+
+
+                                            </div>
+                                            <!-- Date Filter -->
+                                            <div class="row col-md-12">
+                                                <div class="col-md-12">
+                                                    <div class="form-group">
+                                                        <label for="startDate">Select Month:</label>
+                                                        <input type="month" @bind="@startDate" class="form-control" id="startDate">
+                                                    </div>
+                                                </div>
+                                         @*        <div class="col-md-6">
+                                                    <div class="form-group">
+                                                        <label for="endDate">End Date:</label>
+                                                        <input type="date" @bind="@endDate" class="form-control" id="endDate">
+                                                    </div>
+                                                </div> *@
+                                                <div class="col-md-12" style="text-align:center;">
+                                                    <div class="form-group">
+                                                        <button style="border: white;" class="btn-primary" @onclick="@(e => SearchRecords(searchTerm))">Search</button>
+                                                        <button style="border: white;" class="btn-danger" @onclick="Reset">Reset</button>
+
+
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="row col-md-12">
+                                                <div class="col-md-6" style="text-align:center;" title="Export All Data to Excel">
+                                                    <div class="form-group">
+                                                        <img style="cursor:pointer;" src="css/Excel Icon.png" @onclick="ExportToExcel" />
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-6" style="text-align:center;" title="Copy Shown Data">
+
+                                                    <div class="form-group">
+                                                        <img style="cursor:pointer;" src="css/clipboard.png" onclick="copyTableToClipboard()" />
+                                                    </div>
+                                                </div>
+                                                <!-- Add more filter options as needed -->
+                                            </div>
+                                        </div>
+
+                                    </div>
+
                                 </div>
 
                             </div>
@@ -93,43 +176,43 @@
                                                     foreach (var item in FilteredItems.OrderByDescending(p => p.InvoiceDate))
                                                     {
 
-                                                        <tr class="tbl-accordion-header">
+                                                        <tr class="tbl-accordion-header" style="@(item.isInvoiceGenerated?"background:#DCDCDC":"")">
 
 
                                                             <td class="align-middle text-center" style="border: #cccccc 1px solid;">
-                                                                <span class="text-secondary text-xs font-weight-bold">@item.STO</span>
+                                                                <span style="@(item.isInvoiceGenerated?"color:black !important":"")" class="text-secondary text-xs font-weight-bold">@item.STO</span>
                                                             </td>
 
                                                             <td class="align-middle text-center" style="border: #cccccc 1px solid;">
-                                                                <span class="text-secondary text-xs font-weight-bold">@item.Vehicle</span>
+                                                                <span style="@(item.isInvoiceGenerated?"color:black !important":"")" class="text-secondary text-xs font-weight-bold">@item.Vehicle</span>
                                                             </td>
 
                                                             <td class="align-middle text-center" style="border: #cccccc 1px solid;">
-                                                                <span class="text-secondary text-xs font-weight-bold">@item.BusinessName?.ToUpper()</span>
+                                                                <span style="@(item.isInvoiceGenerated?"color:black !important":"")" class="text-secondary text-xs font-weight-bold">@item.BusinessName?.ToUpper()</span>
                                                             </td>
                                                             <td class="align-middle text-center" style="border: #cccccc 1px solid;">
-                                                                <span class="text-secondary text-xs font-weight-bold">@item.InvoiceDate?.ToString("dd-MMMM-yy")</span>
+                                                                <span style="@(item.isInvoiceGenerated?"color:black !important":"")" class="text-secondary text-xs font-weight-bold">@item.InvoiceDate?.ToString("dd-MMMM-yy")</span>
                                                             </td>
                                                             <td class="align-middle text-center" style="border: #cccccc 1px solid;">
-                                                                <span class="text-secondary text-xs font-weight-bold">
+                                                                <span style="@(item.isInvoiceGenerated?"color:black !important":"")" class="text-secondary text-xs font-weight-bold">
                                                                     @TruncateString(@item.ShippingLocation)
                                                                 </span>
                                                             </td>
 
                                                             <td class="align-middle text-center" style="border: #cccccc 1px solid;">
-                                                                <span class="text-secondary text-xs font-weight-bold">
+                                                                <span style="@(item.isInvoiceGenerated?"color:black !important":"")" class="text-secondary text-xs font-weight-bold">
                                                                     @TruncateString(@item.ReceivingLocation)
                                                                 </span>
                                                             </td>
                                                             <td class="align-middle text-center text-sm" style="border: #cccccc 1px solid;">
-                                                                <span class="text-secondary text-xs font-weight-bold">@(item.InvoiceType == "pk" ? "Primary" : "Secondary")</span>
+                                                                <span style="@(item.isInvoiceGenerated?"color:black !important":"")" class="text-secondary text-xs font-weight-bold">@(item.InvoiceType == "pk" ? "Primary" : item.InvoiceType=="Not Defined" ? "Unidentified" : "Secondary")</span>
                                                             </td>
 
                                                             <td class="align-middle text-center text-sm" style="border: #cccccc 1px solid;">
-                                                                <span class="text-secondary text-xs font-weight-bold">@item.Product</span>
+                                                                <span style="@(item.isInvoiceGenerated?"color:black !important":"")" class="text-secondary text-xs font-weight-bold">@item.Product</span>
                                                             </td>
                                                             <td class="align-middle text-center text-sm" style="border: #cccccc 1px solid;">
-                                                                <a class="text-secondary text-xs font-weight-bold" style="cursor:pointer" @onclick="@(()=>ShowMessage2(item))">View</a>
+                                                                <a class="text-secondary text-xs font-weight-bold" style="@(item.isInvoiceGenerated?"color:blue !important":"") ;cursor:pointer" @onclick="@(()=>ShowMessage2(item))">View</a>
                                                             </td>
 
 
@@ -159,17 +242,17 @@
 
                     </div>
 
-          @*           <div class="col-md-12">
-                        <div class="">
-                            <div class="pagination">
-                                <button class="btn btn-primary" @onclick="GoToFirstPage" disabled="@(!CanGoToPreviousPage)"><i style="font-size:24px" class="fa fa-angle-double-left"></i></button>
-                                <button class="btn btn-primary" @onclick="PreviousPage" disabled="@(!CanGoToPreviousPage)"><i style="font-size:24px" class="fa fa-angle-left"></i></button>
-                                <span>Page @CurrentPage of @TotalPages</span>
-                                <button class="btn btn-primary" @onclick="NextPage" disabled="@(!CanGoToNextPage)"><i style="font-size:24px" class="fa fa-angle-right"></i></button>
-                                <button class="btn btn-primary" @onclick="GoToLastPage" disabled="@(!CanGoToNextPage)"><i style="font-size:24px" class="fa fa-angle-double-right"></i></button>
-                            </div>
+                    @*           <div class="col-md-12">
+                    <div class="">
+                    <div class="pagination">
+                    <button class="btn btn-primary" @onclick="GoToFirstPage" disabled="@(!CanGoToPreviousPage)"><i style="font-size:24px" class="fa fa-angle-double-left"></i></button>
+                    <button class="btn btn-primary" @onclick="PreviousPage" disabled="@(!CanGoToPreviousPage)"><i style="font-size:24px" class="fa fa-angle-left"></i></button>
+                    <span>Page @CurrentPage of @TotalPages</span>
+                    <button class="btn btn-primary" @onclick="NextPage" disabled="@(!CanGoToNextPage)"><i style="font-size:24px" class="fa fa-angle-right"></i></button>
+                    <button class="btn btn-primary" @onclick="GoToLastPage" disabled="@(!CanGoToNextPage)"><i style="font-size:24px" class="fa fa-angle-double-right"></i></button>
+                    </div>
 
-                        </div>
+                    </div>
                     </div> *@
 
 
@@ -201,22 +284,76 @@
     private DateTime? endDate;
     private bool isPanelVisible = false;
     private string selectedCategory;
+    public Invoicing Invoicing = new Invoicing();
+    private string PanelStyle => isPanelVisible ? "transform: translateX(0);" : "transform: translateX(100%);";
 
 
+    private void ToggleFilterPanel()
+    {
+        isPanelVisible = !isPanelVisible;
+    }
+    private async Task ExportToExcel()
+    {
+        // Convert the list to JSON
+        var jsonData = System.Text.Json.JsonSerializer.Serialize(FilteredItems);
 
+        // Call the JavaScript function
+        await js.InvokeVoidAsync("exportTableToExcel", jsonData);
+    }
+    public async Task<Invoicing> GetAllInvoices(string InvoiceID)
+    {
 
+        try
+        {
 
+            var AvailDrafts = await API.GetRequest($"Invoice/GetInvoiceByID/{InvoiceID}");
+            if (AvailDrafts != "")
+            {
+                return Invoicing = Newtonsoft.Json.JsonConvert.DeserializeObject<Invoicing>(AvailDrafts);
+            }
+            else
+            {
+                return null;
+            }
+
+        }
+        catch (Exception ex)
+        {
+            return null;
+        }
+    }
     public List<OCRData> obj = new List<OCRData>();
 
     public async Task ShowMessage2(OCRData objs)
     {
         try
         {
+            if(objs.isInvoiceGenerated)
+            {
+                var Invoice = await GetAllInvoices(objs.STO);
+                if (Invoice != null)
+                {
+                    Invoice.IsFromDisplay = true;
+                    Invoice.IsView = "Update";
+                    string jsonString = JsonSerializer.Serialize(Invoice);
+                    string base64EncodedJson = Convert.ToBase64String(Encoding.UTF8.GetBytes(jsonString));
+                    string encodedJson = HttpUtility.UrlEncode(base64EncodedJson);
+
+                    // NavigationManager.NavigateTo($"/Invoice?Edit={encodedJson}");
+                    await js.InvokeVoidAsync("openInNewTab2", $"/invoice?Edit={encodedJson}");
+                    //  var url = $"/invoicepanel?Edit={encodedJson}";
+                    // await JSRuntime.InvokeVoidAsync("openInNewTab", url);
+                }
+
+                return;
+            }
+
+
             string urlPrefix = "https://191.96.196.61/";      // URL to replace the local path
             string newLocation = objs.FileLocation.Replace(@"C:\ScannedDocs\", urlPrefix);
             if (objs.InvoiceType=="pk")
             {
-              
+
                 Invoicing Invoice = new Invoicing();
                 Invoice.Details.STONo = objs.STO;
                 Invoice.Details.Product = objs.Product;
@@ -241,7 +378,7 @@
                     // await JSRuntime.InvokeVoidAsync("openInNewTab", url);
                 }
             }
-            else if (objs.InvoiceType=="sc")
+            else /* if (objs.InvoiceType=="sc") */
             {
                 await js.InvokeVoidAsync("openInNewTab2", $"{newLocation}");
             }
@@ -276,44 +413,72 @@
     }
     private List<OCRData> FilteredItems;
 
-    // private async void SearchRecords(string searchCriteria)
-    // {
-    //     searchCriteria = searchCriteria.Replace(" ", string.Empty).Trim();
-    //     if (string.IsNullOrEmpty(searchCriteria))
-    //     {
-    //         // If no search criteria, reset to all items
-    //         FilteredItems = obj;
+    private async void SearchRecords(string searchCriteria)
+    {
 
-    //     }
-    //     else
-    //     {
-    //         // Example search logic based on `primaryreference` and `VehicleNo` fields
-    //         FilteredItems = obj.Where(item =>
-    //             (item.stono != null && item.stono.Contains(searchCriteria, StringComparison.OrdinalIgnoreCase)) ||
-    //             (item.VehicleNo != null && item.VehicleNo.Contains(searchCriteria, StringComparison.OrdinalIgnoreCase))
-    //             || (item.DriverID1 != null && item.DriverID1.Contains(searchCriteria, StringComparison.OrdinalIgnoreCase))
-    //             || (item.DriverID2 != null && item.DriverID2.Contains(searchCriteria, StringComparison.OrdinalIgnoreCase))
-    //               || (item.DriverName1 != null && item.DriverName1.Contains(searchCriteria, StringComparison.OrdinalIgnoreCase))
-    //                 || (item.DriverName2 != null && item.DriverName2.Contains(searchCriteria, StringComparison.OrdinalIgnoreCase))
-    //                  || (item.primaryreference != null && item.primaryreference.Contains(searchCriteria, StringComparison.OrdinalIgnoreCase))
-    //                  || (item.busdesc != null && item.busdesc.Contains(searchCriteria, StringComparison.OrdinalIgnoreCase))
-    //         ).ToList();
-    //     }
+        if(searchCriteria==null)
+        {
+            if (startDate.HasValue)
+            {
+                // Get the year and month from the selected date
+                var selectedYear = startDate.Value.Year;
+                var selectedMonth = startDate.Value.Month;
 
-    //     // After filtering, reset the pagination
-    //     // CurrentPage = 1;
-    //     //   await LoadData();
-    // }
-    // private async Task Reset()
-    // {
-    //     startDate = null;
-    //     endDate = null;
-    //     FilteredItems = obj;
+                FilteredItems = obj.Where(item =>
+                    item.InvoiceDate.HasValue &&
+                    item.InvoiceDate.Value.Year == selectedYear &&
+                    item.InvoiceDate.Value.Month == selectedMonth
+                ).ToList();
+            }
+            return;
+        }
 
-    //     CurrentPage = 1;
-    //     await LoadData();
 
-    // }
+        searchCriteria = searchCriteria.Replace(" ", string.Empty).Trim();
+        if (string.IsNullOrEmpty(searchCriteria))
+        {
+            // If no search criteria, reset to all items
+            FilteredItems = obj;
+
+        }
+        else
+        {
+            // Example search logic based on `primaryreference` and `VehicleNo` fields
+            FilteredItems = obj.Where(item =>
+                (item.Vehicle != null && item.Vehicle.Contains(searchCriteria, StringComparison.OrdinalIgnoreCase)) ||
+                (item.InvoiceType != null && item.InvoiceType.Contains(searchCriteria, StringComparison.OrdinalIgnoreCase))
+                || (item.BusinessName != null && item.BusinessName.Contains(searchCriteria, StringComparison.OrdinalIgnoreCase))
+                || (item.Product != null && item.Product.Contains(searchCriteria, StringComparison.OrdinalIgnoreCase))
+                  || (item.ReceivingLocation != null && item.ReceivingLocation.Contains(searchCriteria, StringComparison.OrdinalIgnoreCase))
+                    || (item.ShippingLocation != null && item.ShippingLocation.Contains(searchCriteria, StringComparison.OrdinalIgnoreCase))
+                    || (item.STO != null && item.STO.Contains(searchCriteria, StringComparison.OrdinalIgnoreCase))
+            ).ToList();
+
+        }
+        if (startDate.HasValue)
+        {
+            // Get the year and month from the selected date
+            var selectedYear = startDate.Value.Year;
+            var selectedMonth = startDate.Value.Month;
+
+            FilteredItems = FilteredItems.Where(item =>
+                item.InvoiceDate.HasValue &&
+                item.InvoiceDate.Value.Year == selectedYear &&
+                item.InvoiceDate.Value.Month == selectedMonth
+            ).ToList();
+        }
+
+        // After filtering, reset the pagination
+        // CurrentPage = 1;
+        //   await LoadData();
+    }
+    private void Reset()
+    {
+        startDate = null;
+        endDate = null;
+        searchTerm = null;
+        FilteredItems = obj;
+    }
 
     protected override async Task OnInitializedAsync()
     {
@@ -327,7 +492,7 @@
             await LoadShortagereport();
             FilteredItems = obj;
 
-           // await LoadData();
+            // await LoadData();
 
         }
         catch (Exception ex)
@@ -411,8 +576,8 @@ SELECT * FROM vwGetExtractedData";
                         dv = new OCRData
                             {
                                 InvoiceDate = reader.IsDBNull(reader.GetOrdinal("FillingDate"))
-                                              ? (DateTime?)null
-                                                  : reader.GetDateTime(reader.GetOrdinal("FillingDate")),
+                                                      ? (DateTime?)null
+                                                          : reader.GetDateTime(reader.GetOrdinal("FillingDate")),
 
                                 STO = reader.IsDBNull(reader.GetOrdinal("STONO")) ? "" : reader.GetString(reader.GetOrdinal("STONO")),
                                 BusinessName = reader.IsDBNull(reader.GetOrdinal("busdesc")) ? "" : reader.GetString(reader.GetOrdinal("busdesc")),
@@ -425,6 +590,7 @@ SELECT * FROM vwGetExtractedData";
                                 InvoiceType = reader.IsDBNull(reader.GetOrdinal("InvoiceType")) ? "" : reader.GetString(reader.GetOrdinal("InvoiceType")),
                                 Product = reader.IsDBNull(reader.GetOrdinal("ProductName")) ? "" : reader.GetString(reader.GetOrdinal("ProductName")),
                                 FileLocation = reader.IsDBNull(reader.GetOrdinal("FileLocation")) ? "" : reader.GetString(reader.GetOrdinal("FileLocation")),
+                                isInvoiceGenerated = reader.IsDBNull(reader.GetOrdinal("isInvoiceGenerated")) ? false : reader.GetBoolean(reader.GetOrdinal("isInvoiceGenerated")),
 
                             };
                         obj.Add(dv);

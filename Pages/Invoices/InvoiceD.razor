@@ -424,7 +424,7 @@
                 {
                     // SQL operations (as before) to update the record and retrieve the file location
                     string connectionString = _configuration.GetConnectionString("Con");
-                    string updateQuery = "UPDATE tblExtracted_Data SET IsInvoiceGenerated = 1,STONO =@STO WHERE ExtractedID = @ExtractedID";
+                    string updateQuery = "UPDATE tblExtracted_Data SET IsInvoiceGenerated = 1,STONO =@STO,RecievingLocation=@RecievingLocation,ShippingLocation=@Ship,VehicleNo=@Vehicle, FillingDate=@Filling,ProductName= @Product WHERE ExtractedID = @ExtractedID";
 
                     using (SqlConnection connection = new SqlConnection(connectionString))
                     {
@@ -435,6 +435,11 @@
                         {
                             updateCommand.Parameters.AddWithValue("@ExtractedID", Invoices.ExtarctedID);
                             updateCommand.Parameters.AddWithValue("@STO", Invoices.Details.STONo);
+                            updateCommand.Parameters.AddWithValue("@Product", Invoices.Details.Product);
+                            updateCommand.Parameters.AddWithValue("@Filling", Invoices.Details.Date);
+                            updateCommand.Parameters.AddWithValue("@Vehicle", Invoices.Details.TankLorryNO);
+                            updateCommand.Parameters.AddWithValue("@Ship", Invoices.Details.SupplyPoint);
+                            updateCommand.Parameters.AddWithValue("@RecievingLocation", Invoices.Details.ReceivingLocation);
                             updateCommand.ExecuteNonQuery(); // Execute the update query
                         }
                     }
@@ -501,14 +506,14 @@
             }
             else
             {
-                toastService.ShowError("Error while adding invoice");
+                toastService.ShowError("Error while Updating invoice");
             }
             IsLoading = false;
         }
         catch (Exception ex)
         {
             IsLoading = false;
-            toastService.ShowError($"Error while adding invoice");
+            toastService.ShowError($"Error while Updating invoice");
         }
 
         IsLoading = false;
