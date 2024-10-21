@@ -45,6 +45,7 @@ builder.Services.AddScoped<IUserClaimsService, UserClaimsService>();
 builder.Services.AddScoped<IApiService, ApiService>();
 builder.Services.AddScoped<ProtectedSessionStorage>();
 builder.Services.AddSingleton<IConfiguration>(builder.Configuration);
+
 //builder.Services.AddScoped<FirebaseNotificationService>();
 
 builder.Services.AddScoped<CustomPolicyProvider>();
@@ -76,6 +77,7 @@ if (!app.Environment.IsDevelopment())
 }
 app.UseRouting();
 app.UseSession();
+
 //app.Use(async delegate (HttpContext Context, Func<Task> Next)
 //{
 //    //this throwaway session variable will "prime" the SetString() method

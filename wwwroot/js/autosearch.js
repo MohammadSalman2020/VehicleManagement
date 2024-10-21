@@ -347,7 +347,9 @@ function exportTablessToExcel(tableId, filenames) {
     link.click();
     document.body.removeChild(link);
 }
-
+function closeCurrentTab() {
+    window.close();
+}
 //function exportTablessToExcel(tableId,filenames) {
 //    var table = document.getElementById(tableId);
 //    if (!table) {
