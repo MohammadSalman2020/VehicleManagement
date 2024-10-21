@@ -104,28 +104,35 @@ function magnify(imgID, zoom) {
 }
 // Show image from the provided path
 function showImageFromPath(imagePath) {
-
-
-
     const preview = document.getElementById('preview');
-    if (imagePath && !preview.querySelector('img')) {
-        const img = document.createElement('img');
-        img.src = imagePath;
-        img.style.display = 'block';
-        img.id = 'currentImage'; // Set a new ID for the current image
-        img.style.maxWidth = '600px'; // Set fixed width
-        img.style.height = '600px'; // Set fixed height
-        preview.appendChild(img);
-        // Call magnify function with the image element
-        setTimeout(() => {
-            applyMagnification(img, 3);
+    const existingImage = preview.querySelector('img');
+
+    if (imagePath) {
+        if (!existingImage) {
+            // If no image exists, create a new one
+            const img = document.createElement('img');
+            img.src = imagePath;
+            img.style.display = 'block';
+            img.id = 'currentImage'; // Set a new ID for the current image
+            img.style.maxWidth = '600px'; // Set fixed width
+            img.style.height = '600px'; // Set fixed height
+            preview.appendChild(img);
+
+            // Call magnify function with the image element
+            setTimeout(() => {
+                applyMagnification(img, 3);
             }, 3000);
-       /* });*/
-
-
-};
-
+        } else {
+            // If an image already exists, update its source instead
+            existingImage.src = imagePath;
+            // Call magnify function with the image element
+            setTimeout(() => {
+                applyMagnification(img, 3);
+            }, 3000);
+        }
+    }
 }
+
 // Magnify function implementation
 const applyMagnification = (imgElement, zoom) => {
     var glass, w, h, bw;
