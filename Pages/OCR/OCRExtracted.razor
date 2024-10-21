@@ -53,10 +53,10 @@
                                                     </div>
 
 
-                                                 @*    <div class="col-md-2" style="align-content: space-evenly;" title="Business/STO/Driver Name/Driver ID/Vehicle/Primary Reference">
-                                                        <div class="form-group">
-                                                            <img style="cursor:pointer;" src="css/search.png" @onclick="@(e => SearchRecords(searchTerm))">
-                                                        </div>
+                                                    @*    <div class="col-md-2" style="align-content: space-evenly;" title="Business/STO/Driver Name/Driver ID/Vehicle/Primary Reference">
+                                                    <div class="form-group">
+                                                    <img style="cursor:pointer;" src="css/search.png" @onclick="@(e => SearchRecords(searchTerm))">
+                                                    </div>
                                                     </div> *@
 
 
@@ -73,11 +73,11 @@
                                                         <input type="month" @bind="@startDate" class="form-control" id="startDate">
                                                     </div>
                                                 </div>
-                                         @*        <div class="col-md-6">
-                                                    <div class="form-group">
-                                                        <label for="endDate">End Date:</label>
-                                                        <input type="date" @bind="@endDate" class="form-control" id="endDate">
-                                                    </div>
+                                                @*        <div class="col-md-6">
+                                                <div class="form-group">
+                                                <label for="endDate">End Date:</label>
+                                                <input type="date" @bind="@endDate" class="form-control" id="endDate">
+                                                </div>
                                                 </div> *@
                                                 <div class="col-md-12" style="text-align:center;">
                                                     <div class="form-group">
@@ -163,6 +163,11 @@
                                                     Image
                                                 </th>
 
+                                                <th class="text-center font-colors text-uppercase text-xxs font-weight-bolder opacity-7"
+                                                    style="position: sticky; top: 0; background-color: #ffffff; z-index: 1; border: #cccccc 1px solid;">
+
+                                                </th>
+
 
 
 
@@ -214,6 +219,20 @@
                                                             <td class="align-middle text-center text-sm" style="border: #cccccc 1px solid;">
                                                                 <a class="text-secondary text-xs font-weight-bold" style="@(item.isInvoiceGenerated?"color:blue !important":"") ;cursor:pointer" @onclick="@(()=>ShowMessage2(item))">View</a>
                                                             </td>
+
+                                                            @if (item.InvoiceType=="pk")
+                                                            {
+                                                                <td class="align-middle text-center text-sm" style="border: #cccccc 1px solid;">
+                                                                    <a class="text-secondary text-xs font-weight-bold" style="@(item.isInvoiceGenerated?"color:blue !important":"") ;cursor:pointer" @onclick="@(()=>AddSecondary(item))">Add Secondary</a>
+                                                                </td>
+                                                            }
+                                                            else
+                                                            {
+                                                                <td class="align-middle text-center text-sm" style="border: #cccccc 1px solid;">
+                                                                </td>
+                                                            }
+
+
 
 
 
@@ -328,7 +347,7 @@
     {
         try
         {
-            if(objs.isInvoiceGenerated)
+            if (objs.isInvoiceGenerated)
             {
                 var Invoice = await GetAllInvoices(objs.STO);
                 if (Invoice != null)
@@ -390,6 +409,37 @@
         }
 
     }
+    public async Task AddSecondary(OCRData objs)
+    {
+        try
+        {
+            if (objs.STO!="Not Found" && objs.STO!=string.Empty&&objs.STO!=null&&
+            objs.Vehicle!="" && objs.Vehicle!=string.Empty&&objs.Vehicle!=null&&
+           objs.InvoiceDate!=null)
+            {
+
+
+                // NavigationManager.NavigateTo($"/Invoice?Edit={encodedJson}");
+                await js.InvokeVoidAsync("openInNewTab2", $"/insertSec?Edit={objs.STO}");
+                //  var url = $"/invoicepanel?Edit={encodedJson}";
+                // await JSRuntime.InvokeVoidAsync("openInNewTab", url);
+
+
+                return;
+            }
+
+            else /* if (objs.InvoiceType=="sc") */
+            {
+                toastService.ShowError($"Please fill this Primary Invoice first.");
+            }
+
+        }
+        catch (Exception ex)
+        {
+            toastService.ShowError($"Error: {ex.Message}");
+        }
+
+    }
 
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
@@ -416,7 +466,7 @@
     private async void SearchRecords(string searchCriteria)
     {
 
-        if(searchCriteria==null)
+        if (searchCriteria==null)
         {
             if (startDate.HasValue)
             {
@@ -576,8 +626,8 @@ SELECT * FROM vwGetExtractedData";
                         dv = new OCRData
                             {
                                 InvoiceDate = reader.IsDBNull(reader.GetOrdinal("FillingDate"))
-                                                      ? (DateTime?)null
-                                                          : reader.GetDateTime(reader.GetOrdinal("FillingDate")),
+                                                              ? (DateTime?)null
+                                                                  : reader.GetDateTime(reader.GetOrdinal("FillingDate")),
 
                                 STO = reader.IsDBNull(reader.GetOrdinal("STONO")) ? "" : reader.GetString(reader.GetOrdinal("STONO")),
                                 BusinessName = reader.IsDBNull(reader.GetOrdinal("busdesc")) ? "" : reader.GetString(reader.GetOrdinal("busdesc")),
