@@ -397,6 +397,10 @@
                     // await JSRuntime.InvokeVoidAsync("openInNewTab", url);
                 }
             }
+            else if (objs.InvoiceType=="sc")
+            {
+                await js.InvokeVoidAsync("openInNewTab2", $"/insertSec?View={objs.OCRID}");
+            }
             else /* if (objs.InvoiceType=="sc") */
             {
                 await js.InvokeVoidAsync("openInNewTab2", $"{newLocation}");

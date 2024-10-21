@@ -14,6 +14,15 @@
         public int ChamberDip { get; set; }
         public int ChamberNo { get; set; }
         public string User{ get; set; }
+        public bool isView{ get; set; }
+        public List<ChambersDetailsSec> Chambers { get; set; }  = new List<ChambersDetailsSec>();
+    }
+
+    public class ChambersDetailsSec
+    {
+        public int ChamberQty { get; set; }
+        public int ChamberDip { get; set; }
+        public int ChamberNo { get; set; }
     }
 
  

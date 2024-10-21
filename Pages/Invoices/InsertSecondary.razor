@@ -6,8 +6,10 @@
 @using System.Text
 @using Microsoft.AspNetCore.Components.Server.ProtectedBrowserStorage
 @using System.Reflection
+@using Microsoft.AspNetCore.SignalR
 @using Microsoft.Data.SqlClient
 @using VehicleManagement.ApiService
+@using VehicleManagement.Authentication
 @using VehicleManagement.Models.General
 @using VehicleManagement.Models.General.Login
 @using VehicleManagement.Pages.Redirects;
@@ -166,76 +168,153 @@
                                 <div class="col-lgg-6">
 
                                     <div class="container">
-                                        <div class="col-md-12" style="margin-top: 7px;">
-                                            <div class="row">
-
-
-                                                <div class="col-md-12">
-                                                    <div class="form-group" style="text-align:center;">
-                                                        <button class="btn btn-warning btn-sm ms-auto">Add More Secondary</button>
-                                                    </div>
-                                                </div>
-
-                                            </div>
-                                        </div>
-                                        @if (Invoices.Count>0)
+                                        @*   @if (!isView)
                                         {
+                                        <div class="col-md-12" style="margin-top: 7px;">
+                                        <div class="row">
+
+
+                                        <div class="col-md-12">
+                                        <div class="form-group" style="text-align:center;">
+                                        <button class="btn btn-warning btn-sm ms-auto">Add More Secondary</button>
+                                        </div>
+                                        </div>
+
+                                        </div>
+                                        </div>
+                                        } *@
+
+                                        @if (Invoices.Count > 0)
+                                        {
+
+
                                             @foreach (var item in Invoices)
                                             {
-                                                <br />
-                                                <h3>Chamber: @item.ChamberNo</h3>
-                                                <br />
-                                                <table class="details">
+
+                                                @if (item.isView)
+                                                {
+                                                    <table class="details">
+
+                                                        <tr>
+                                                            <td>Vehicle ID</td>
+                                                            <td> <input type="text" tabindex="1" id="vehicleID" required placeholder="Vehicle ID" @bind="@item.VehicleNo" class="form-control"></td>
+                                                            <td>Date</td>
+                                                            <td><input type="date" tabindex="2" placeholder="Date" @bind="item.FillingDate" class="form-control"></td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td>Invoice Number</td>
+                                                            <td>   <input type="text" tabindex="3" placeholder="STO No" @bind="item.StoNo" class="form-control"></td>
+                                                            <td>Shipping Points</td>
+                                                            <td>  <input type="text" tabindex="4" placeholder="Shipping Point" @bind="item.ShippingLocation" class="form-control"></td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td>User</td>
+                                                            <td> @item.User</td>
+                                                            <td>Receiving Points</td>
+                                                            <td>   <input type="text" tabindex="5" placeholder="Receiving Location" @bind="item.RecievingLocation" class="form-control"></td>
+                                                        </tr>
+                                                        <tr>
+
+                                                            <td>Contractor</td>
+                                                            <td>  <input type="text" tabindex="7" placeholder="Contractor" value="Shakoor & Co." class="form-control"></td>
+
+                                                            <td>Primary Reference</td>
+                                                            <td>  <input type="text" tabindex="7" placeholder="Primary Invoice No" @bind="@PrimaryReference" class="form-control"></td>
+                                                        </tr>
+
+
+                                                    </table>
+                                                    <table class="shipping" style="margin-top:7px;">
+                                                        <tr class="header">
+                                                            <td colspan="6"> Loaded Chambers</td>
+
+                                                        </tr>
+                                                        <tr>
+                                                            <td colspan="1" style="cursor:pointer; color:blue;" @onclick="@(()=>ShowImages(item))">View Image</td>
+
+                                                        </tr>
+
+                                                        @if (item.Chambers.Count <= 0)
+                                                        {
+                                                            <tr>
+                                                                <td colspan="1">
+                                                                    <button class="btn btn-danger btn-sm ms-auto" @onclick="@(()=>ShowModal(item.VehicleNo))">Add Loading Chambers</button>
+                                                                </td>
+
+                                                            </tr>
+                                                        }
+
+
+                                                        @foreach (var item2 in item.Chambers)
+                                                        {
+                                                            <tr>
+                                                                <td colspan="5">Chamber no: @item2.ChamberNo - @item2.ChamberQty (@item2.ChamberDip)</td>
+                                                                @*   <td colspan="1" style="cursor:pointer;" @onclick="@(()=>ShowImages(item))">View Image</td> *@
+                                                            </tr>
+                                                        }
+
+
+
+                                                    </table>
+                                                }
+                                                else
+                                                {
+
+                                                    <br />
+                                                    <h3>Chamber: @item.ChamberNo</h3>
+                                                    <br />
+                                                    <table class="details">
 
 
 
 
 
-                                                    <tr>
-                                                        <td>Vehicle ID</td>
-                                                        <td> <input type="text" tabindex="1" id="vehicleID" required placeholder="Vehicle ID" value="@item.VehicleNo" class="form-control"></td>
-                                                        <td>Date</td>
-                                                        <td><input type="date" tabindex="2" placeholder="Date" @bind="item.FillingDate" class="form-control"></td>
-                                                    </tr>
-                                                    <tr>
-                                                        <td>Invoice Number</td>
-                                                        <td>   <input type="text" tabindex="3" placeholder="STO No" @bind="item.StoNo" class="form-control"></td>
-                                                        <td>Shipping Points</td>
-                                                        <td>  <input type="text" tabindex="4" placeholder="Shipping Point" @bind="item.ShippingLocation" class="form-control"></td>
-                                                    </tr>
-                                                    <tr>
-                                                        <td>User</td>
-                                                        <td> @item.User</td>
-                                                        <td>Receiving Points</td>
-                                                        <td>   <input type="text" tabindex="5" placeholder="Receiving Location" @bind="item.RecievingLocation" class="form-control"></td>
-                                                    </tr>
-                                                    <tr>
+                                                        <tr>
+                                                            <td>Vehicle ID</td>
+                                                            <td> <input type="text" tabindex="1" id="vehicleID" required placeholder="Vehicle ID" value="@item.VehicleNo" class="form-control"></td>
+                                                            <td>Date</td>
+                                                            <td><input type="date" tabindex="2" placeholder="Date" @bind="item.FillingDate" class="form-control"></td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td>Invoice Number</td>
+                                                            <td>   <input type="text" tabindex="3" placeholder="STO No" @bind="item.StoNo" class="form-control"></td>
+                                                            <td>Shipping Points</td>
+                                                            <td>  <input type="text" tabindex="4" placeholder="Shipping Point" @bind="item.ShippingLocation" class="form-control"></td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td>User</td>
+                                                            <td> @item.User</td>
+                                                            <td>Receiving Points</td>
+                                                            <td>   <input type="text" tabindex="5" placeholder="Receiving Location" @bind="item.RecievingLocation" class="form-control"></td>
+                                                        </tr>
+                                                        <tr>
 
-                                                        <td>Contractor</td>
-                                                        <td>  <input type="text" tabindex="7" placeholder="Contractor" value="Shakoor & Co." class="form-control"></td>
+                                                            <td>Contractor</td>
+                                                            <td>  <input type="text" tabindex="7" placeholder="Contractor" value="Shakoor & Co." class="form-control"></td>
 
-                                                        <td>Primary Reference</td>
-                                                        <td>  <input type="text" tabindex="7" placeholder="Primary Invoice No" @bind="@PrimaryReference" class="form-control"></td>
-                                                    </tr>
-
-
-                                                </table>
-
-                                                <table class="shipping" style="margin-top:7px;">
-                                                    <tr class="header">
-                                                        <td colspan="6"> Loaded Chambers</td>
-
-                                                    </tr>
-
-                                                    <tr>
-
-                                                        <td colspan="1">  <input type="checkbox" id="STemp"></td>
-                                                        <td colspan="4">@item.ChamberQty (@item.ChamberDip)</td>
-                                                        <td colspan="1" style="cursor:pointer;" @onclick="@(()=>ShowImages(item))">View Image</td>
-                                                    </tr>
+                                                            <td>Primary Reference</td>
+                                                            <td>  <input type="text" tabindex="7" placeholder="Primary Invoice No" @bind="@PrimaryReference" class="form-control"></td>
+                                                        </tr>
 
 
-                                                </table>
+                                                    </table>
+
+                                                    <table class="shipping" style="margin-top:7px;">
+                                                        <tr class="header">
+                                                            <td colspan="6"> Loaded Chambers</td>
+
+                                                        </tr>
+
+                                                        <tr>
+
+                                                            <td colspan="1">  <input type="checkbox" id="STemp"></td>
+                                                            <td colspan="4">@item.ChamberQty (@item.ChamberDip)</td>
+                                                            <td colspan="1" style="cursor:pointer;" @onclick="@(()=>ShowImages(item))">View Image</td>
+                                                        </tr>
+
+
+                                                    </table>
+                                                }
                                             }
                                         }
 
@@ -246,7 +325,7 @@
 
                                                 <div class="col-md-12">
                                                     <div class="form-group" style="text-align:center;">
-                                                        <button class="btn btn-danger btn-sm ms-auto">Save</button>
+                                                        <button class="btn btn-danger btn-sm ms-auto" @onclick="Save">Save</button>
                                                     </div>
                                                 </div>
 
@@ -281,6 +360,96 @@
             </div>
         </div>
 
+        @*Policy Modal *@
+        <Modal @ref="PolicyModal" Title="Select Chambers">
+            <Body>
+                <div class="col-md-12">
+                    <div class="card">
+
+                        <div class="card-body">
+
+                            <div class="row">
+                                <div class="card-body px-0 pt-0 pb-2" style="overflow-x: auto;height: 140px;">
+                                    <div class="table-responsive p-0">
+                                        <table class="table align-items-center mb-0">
+                                            @if (Vehicles.Count > 0)
+                                            {
+                                                <thead>
+                                                    <tr>
+                                                        <th class="text-uppercase font-colors  text-xxs font-weight-bolder opacity-7">Vehicle ID</th>
+                                                        <th class="text-uppercase font-colors  text-xxs font-weight-bolder opacity-7 text-center">Chamber No</th>
+                                                        <th class="text-uppercase font-colors  text-xxs font-weight-bolder opacity-7 text-center">Quantity</th>
+                                                        <th class="text-uppercase font-colors  text-xxs font-weight-bolder opacity-7 text-center">Dip</th>
+                                                        <th class="text-uppercase font-colors  text-xxs font-weight-bolder opacity-7 text-center">Dip</th>
+                                                        <th class="text-uppercase font-colors  text-xxs font-weight-bolder opacity-7 text-center"></th>
+
+                                                    </tr>
+                                                </thead>
+
+
+                                                <tbody>
+                                                    @foreach (var item in Vehicles)
+                                                    {
+                                                        <tr>
+                                                            <td class="align-middle text-center">
+                                                                <div class="d-flex px-2 py-1">
+
+                                                                    <div class="d-flex flex-column justify-content-center">
+                                                                        <h6 class="mb-0 text-sm">@item.VehicleID</h6>
+
+                                                                    </div>
+                                                                </div>
+                                                            </td>
+                                                            <td class="align-middle text-center" style="text-align:center;">
+                                                                <p class="text-xs font-weight-bold mb-0  text-center">@item.ChamberNo</p>
+
+                                                            </td>
+
+                                                            <td class="align-middle text-center" style="text-align:center;">
+                                                                <p class="text-xs font-weight-bold mb-0  text-center">@item.ChamberQty</p>
+
+                                                            </td>
+
+                                                            <td class="align-middle text-center" style="text-align:center;">
+                                                                <p class="text-xs font-weight-bold mb-0  text-center">@item.ChamberDip</p>
+
+                                                            </td>
+
+                                                            <td class="align-middle text-center" style="text-align:center;">
+                                                                <p class="text-xs font-weight-bold mb-0  text-center" @onclick=@(()=>SelectChamber(item))>Select</p>
+
+                                                            </td>
+
+
+
+
+
+                                                        </tr>
+
+                                                    }
+                                                </tbody>
+                                            }
+                                            else
+                                            {
+
+                                                <DataLoaderComponent IsLoading="@IsLoading" LoadingText="Loading Vehicle Data..." />
+
+
+                                            }
+
+
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+            </Body>
+        </Modal>
+
+        @* End Policy Modal *@
 
         <Loader isLoading="@IsLoading" />
     </Authorized>
@@ -298,38 +467,81 @@
 </AuthorizeView>
 
 @code {
+    private Modal PolicyModal;
     private bool _isJsReady = false;
     public List<VehicleDTO> VehicleList = new List<VehicleDTO>();
-    public List<string> Vehicle = new List<string>();
     private bool IsLoading = false;
+    private bool isView = false;
     public List<OCRSecData> Invoices = new List<OCRSecData>();
+    public List<VehiclesChamber> Vehicles = new List<VehiclesChamber>();
     public string PrimaryReference;
-    public async Task GetAllVehicleID()
+
+    private void OpenPolicyModal()
     {
-
-        try
+        PolicyModal.Show();
+    }
+    public void SelectChamber(VehiclesChamber obj)
+    {
+        if (Invoices.Count <= 0)
         {
+            return;
+        }
+        // Check if a chamber with the same ChamberNo already exists
+        var existingChamber = Invoices[0].Chambers.FirstOrDefault(c => c.ChamberNo == obj.ChamberNo);
 
-            var Vehicles = await API.GetRequest($"Vehicle/GetAllVehicleID");
-            if (Vehicles != "")
+        if (existingChamber == null)
+        {
+            // Only add the chamber if it doesn't already exist
+            Invoices[0].Chambers.Add(new ChambersDetailsSec
+                {
+                    ChamberNo = obj.ChamberNo,
+                    ChamberDip = obj.ChamberDip,
+                    ChamberQty = obj.ChamberQty
+                });
+        }
+
+    }
+    public void ShowModal(string VehicleID)
+    {
+        if (VehicleID == null || VehicleID == string.Empty || VehicleID == "")
+        {
+            toastService.ShowInfo("Please enter VehicleID first");
+            return;
+        }
+
+        Vehicles = GetVehicleChambers(VehicleID);
+        PolicyModal.Show();
+    }
+    public async Task Save()
+    {
+        if (isView)
+        {
+            if (Invoices.Count > 0)
             {
+                bool Update = UpdateExtractedData(Invoices[0]);
+                if (Update)
+                {
+                    toastService.ShowSuccess("Update Invoice Success");
+                    await JS.InvokeVoidAsync("closeCurrentTab");
+                }
+                else
+                {
+                    toastService.ShowError("Error While Updating");
 
-                Vehicle = JsonSerializer.Deserialize<List<string>>(Vehicles);
-
+                }
             }
         }
-        catch (Exception ex)
+        else
         {
-            Console.WriteLine(ex.Message);
+
         }
     }
+
     protected override async void OnInitialized()
     {
 
         try
         {
-
-            await GetAllVehicleID();
 
             // Retrieve the encoded JSON string from the query parameters if it exists
             string encodedJson = NavigationManager.ToAbsoluteUri(NavigationManager.Uri).Query;
@@ -340,9 +552,9 @@
                 // Extract the value of the "Edit=" query parameter
                 encodedJson = encodedJson.Split("Edit=")[1];
                 PrimaryReference = encodedJson;
-                Invoices= GetChamberData(PrimaryReference);
+                Invoices = GetChamberData(PrimaryReference);
                 StateHasChanged();
-                if (Invoices.Count>0)
+                if (Invoices.Count > 0)
                 {
                     if (!string.IsNullOrEmpty(Invoices[0].FileLocation))
                     {
@@ -351,6 +563,31 @@
                         await JS.InvokeVoidAsync("showImageFromPath", newLocation);
                     }
                 }
+
+
+                // Display the image if the path is already set
+
+            }
+            // Check if the "Edit=" query parameter exists
+            if (encodedJson.Contains("View="))
+            {
+                isView = true;
+                // Extract the value of the "Edit=" query parameter
+                encodedJson = encodedJson.Split("View=")[1];
+                int ExtID = int.Parse(encodedJson ?? "0");
+                Invoices = GetSecInvoice(ExtID);
+                StateHasChanged();
+                if (Invoices.Count > 0)
+                {
+                    if (!string.IsNullOrEmpty(Invoices[0].FileLocation))
+                    {
+                        string urlPrefix = "https://191.96.196.61/";      // URL to replace the local path
+                        string newLocation = Invoices[0].FileLocation.Replace(@"C:\ScannedDocs\", urlPrefix);
+                        await JS.InvokeVoidAsync("showImageFromPath", newLocation);
+                    }
+                }
+
+
                 // Display the image if the path is already set
 
             }
@@ -459,7 +696,8 @@ ORDER BY FillingDate, ChamberNo;";
                                 ShippingLocation = reader.GetString(9),
                                 ChamberQty = reader.GetInt32(4),
                                 ChamberDip = reader.GetInt32(5),
-                                ChamberNo = reader.GetInt32(6)
+                                ChamberNo = reader.GetInt32(6),
+                                isView = false,
                             };
 
 
@@ -471,11 +709,338 @@ ORDER BY FillingDate, ChamberNo;";
 
         return chamberDataList;
     }
-    //     SELECT DISTINCT i.STONo, i.TankLorryNo, i.ReceivingLocation, d.Chamber, d.ChamberQuantity, d.LorryDip, dv.BusinessID
-    //     FROM tblInvoices i
-    // LEFT JOIN tblInvoiceDetails d ON i.InvoiceID = d.InvoiceID AND d.PointType = 'R'
-    // LEFT JOIN tblDriverVehicleMap dv ON dv.VehicleID = i.TankLorryNo
-    // WHERE i.STONo = '1042886'
-    // ORDER BY d.Chamber;
+
+    public List<OCRSecData> GetSecInvoice(int stono)
+    {
+        var invoiceDataList = new List<OCRSecData>();
+
+        // First query for main invoice data
+        string sqlQuery1 = @"
+        SELECT
+            a.ExtractedID,
+            a.STONO,
+            a.RecievingLocation,
+            a.ShippingLocation,
+            a.VehicleNo,
+            a.BusinessID,
+            a.InvoiceType,
+            a.FillingDate,
+            a.ProductName,
+            a.FileLocation,
+            a.IsInvoiceGenerated
+        FROM tblExtracted_Data a
+        WHERE a.ExtractedID = @STONO";
+
+        // Second query for chamber details
+        string sqlQuery2 = @"
+        SELECT
+            b.Chamber1Quantity AS Quantity,
+            b.Chamber1Dip AS Dip,
+            1 AS ChamberNo
+        FROM tblExtracted_Data a
+        LEFT JOIN tblExtracted_Chambers b
+            ON a.ExtractedID = b.ExtractedID
+        WHERE a.ExtractedID = @STONO
+            AND b.Chamber1Quantity IS NOT NULL
+            AND b.Chamber1Dip IS NOT NULL
+
+        UNION ALL
+
+        SELECT
+            b.Chamber2Quantity AS Quantity,
+            b.Chamber2Dip AS Dip,
+            2 AS ChamberNo
+        FROM tblExtracted_Data a
+        LEFT JOIN tblExtracted_Chambers b
+            ON a.ExtractedID = b.ExtractedID
+        WHERE a.ExtractedID = @STONO
+            AND b.Chamber2Quantity IS NOT NULL
+            AND b.Chamber2Dip IS NOT NULL
+
+        UNION ALL
+
+        SELECT
+            b.Chamber3Quantity AS Quantity,
+            b.Chamber3Dip AS Dip,
+            3 AS ChamberNo
+        FROM tblExtracted_Data a
+        LEFT JOIN tblExtracted_Chambers b
+            ON a.ExtractedID = b.ExtractedID
+        WHERE a.ExtractedID = @STONO
+            AND b.Chamber3Quantity IS NOT NULL
+            AND b.Chamber3Dip IS NOT NULL
+
+        UNION ALL
+
+        SELECT
+            b.Chamber4Quantity AS Quantity,
+            b.Chamber4Dip AS Dip,
+            4 AS ChamberNo
+        FROM tblExtracted_Data a
+        LEFT JOIN tblExtracted_Chambers b
+            ON a.ExtractedID = b.ExtractedID
+        WHERE a.ExtractedID = @STONO
+            AND b.Chamber4Quantity IS NOT NULL
+            AND b.Chamber4Dip IS NOT NULL
+
+        UNION ALL
+
+        SELECT
+            b.Chamber5Quantity AS Quantity,
+            b.Chamber5Dip AS Dip,
+            5 AS ChamberNo
+        FROM tblExtracted_Data a
+        LEFT JOIN tblExtracted_Chambers b
+            ON a.ExtractedID = b.ExtractedID
+        WHERE a.ExtractedID = @STONO
+            AND b.Chamber5Quantity IS NOT NULL
+            AND b.Chamber5Dip IS NOT NULL;";
+
+        using (SqlConnection connection = new SqlConnection(_configuration.GetConnectionString("Con")))
+        {
+            // Execute the first query for main invoice data
+            using (SqlCommand command1 = new SqlCommand(sqlQuery1, connection))
+            {
+                command1.Parameters.AddWithValue("@STONO", stono);
+                connection.Open();
+
+                using (SqlDataReader reader = command1.ExecuteReader())
+                {
+                    if (reader.Read())
+                    {
+                        var invoiceData = new OCRSecData
+                            {
+                                ExtractedID = reader.GetInt32(0),
+                                StoNo = reader.GetString(1) ?? "",
+                                RecievingLocation = reader.GetString(2) ?? "",
+                                ShippingLocation = reader.GetString(3) ?? "",
+                                VehicleNo = reader.GetString(4) ?? "",
+                                FillingDate = reader.IsDBNull(7) ? DateTime.MinValue : reader.GetDateTime(7),
+                                FileLocation = reader.GetString(9) ?? "",
+                                isView = true
+                            };
+                        invoiceDataList.Add(invoiceData);
+                    }
+                }
+            }
+
+            // Execute the second query for chamber details
+            using (SqlCommand command2 = new SqlCommand(sqlQuery2, connection))
+            {
+                command2.Parameters.AddWithValue("@STONO", stono);
+
+                foreach (var invoiceData in invoiceDataList)
+                {
+                    using (SqlDataReader reader = command2.ExecuteReader())
+                    {
+                        while (reader.Read())
+                        {
+                            var chamberDetails = new ChambersDetailsSec
+                                {
+                                    ChamberQty = reader.GetInt32(0),
+                                    ChamberDip = reader.GetInt32(1),
+                                    ChamberNo = reader.GetInt32(2)
+                                };
+
+                            // Add the chamber details to the list inside the invoice data
+                            invoiceData.Chambers.Add(chamberDetails);
+                        }
+                    }
+                }
+            }
+        }
+
+        return invoiceDataList;
+    }
+
+
+    public List<VehiclesChamber> GetVehicleChambers(string Vehicle)
+    {
+
+        Vehicles = new List<VehiclesChamber>();
+        // First query for main invoice data
+        string sqlQuery1 = @"SELECT
+    VehicleID,
+    1 AS ChamberNo,
+    Chamber1Qty AS ChamberQty,
+    Chamber1Dip AS ChamberDip
+FROM
+    tblvehicles
+WHERE
+    VehicleID = @VehicleID
+
+UNION ALL
+
+SELECT
+    VehicleID,
+    2 AS ChamberNo,
+    Chamber2Qty AS ChamberQty,
+    Chamber2Dip AS ChamberDip
+FROM
+    tblvehicles
+WHERE
+    VehicleID = @VehicleID
+
+UNION ALL
+
+SELECT
+    VehicleID,
+    3 AS ChamberNo,
+    Chamber3Qty AS ChamberQty,
+    Chamber3Dip AS ChamberDip
+FROM
+    tblvehicles
+WHERE
+    VehicleID = @VehicleID
+
+UNION ALL
+
+SELECT
+    VehicleID,
+    4 AS ChamberNo,
+    Chamber4Qty AS ChamberQty,
+    Chamber4Dip AS ChamberDip
+FROM
+    tblvehicles
+WHERE
+    VehicleID = @VehicleID
+
+UNION ALL
+
+SELECT
+    VehicleID,
+    5 AS ChamberNo,
+    Chamber5Qty AS ChamberQty,
+    Chamber5Dip AS ChamberDip
+FROM
+    tblvehicles
+WHERE
+    VehicleID = @VehicleID;
+";
+
+
+
+        using (SqlConnection connection = new SqlConnection(_configuration.GetConnectionString("Con")))
+        {
+            // Execute the first query for main invoice data
+            using (SqlCommand command1 = new SqlCommand(sqlQuery1, connection))
+            {
+                command1.Parameters.AddWithValue("@VehicleID", Vehicle);
+                connection.Open();
+
+                using (SqlDataReader reader = command1.ExecuteReader())
+                {
+                    while (reader.Read())
+                    {
+                        var invoiceData = new VehiclesChamber
+                            {
+                                ChamberDip = reader.GetInt32(3),
+                                ChamberNo = reader.GetInt32(1),
+                                ChamberQty = reader.GetInt32(2),
+                                VehicleID = reader.GetString(0),
+
+                            };
+                        Vehicles.Add(invoiceData);
+                    }
+                }
+            }
+        }
+
+        return Vehicles;
+    }
+
+
+    public bool UpdateExtractedData(OCRSecData invoiceData)
+    {
+        try
+        {
+            // SQL update query for tblExtracted_Data
+            string sqlUpdateQuery = @"
+        UPDATE tblExtracted_Data
+        SET
+            STONO = @STONO,
+            RecievingLocation = @RecievingLocation,
+            ShippingLocation = @ShippingLocation,
+            VehicleNo = @VehicleNo,
+            FillingDate = @FillingDate
+        WHERE ExtractedID = @ExtractedID";
+
+            using (SqlConnection connection = new SqlConnection(_configuration.GetConnectionString("Con")))
+            {
+                connection.Open();
+
+                // Update tblExtracted_Data
+                using (SqlCommand command = new SqlCommand(sqlUpdateQuery, connection))
+                {
+                    command.Parameters.AddWithValue("@STONO", invoiceData.StoNo);
+                    command.Parameters.AddWithValue("@RecievingLocation", invoiceData.RecievingLocation);
+                    command.Parameters.AddWithValue("@ShippingLocation", invoiceData.ShippingLocation);
+                    command.Parameters.AddWithValue("@VehicleNo", invoiceData.VehicleNo);
+                    command.Parameters.AddWithValue("@FillingDate", invoiceData.FillingDate);
+                    command.Parameters.AddWithValue("@ExtractedID", invoiceData.ExtractedID);
+
+                    int rowsAffected = command.ExecuteNonQuery();
+                    if (rowsAffected <= 0)
+                    {
+                        return false; // No rows updated in tblExtracted_Data
+                    }
+                }
+
+                // First, delete existing rows in tblExtracted_Chambers for the given ExtractedID and VehicleNo
+                string sqlDeleteChambersQuery = "DELETE FROM tblExtracted_Chambers WHERE ExtractedID = @ExtractedID AND VehicleNo = @VehicleNo";
+                using (SqlCommand deleteCommand = new SqlCommand(sqlDeleteChambersQuery, connection))
+                {
+                    deleteCommand.Parameters.AddWithValue("@ExtractedID", invoiceData.ExtractedID);
+                    deleteCommand.Parameters.AddWithValue("@VehicleNo", invoiceData.VehicleNo);
+                    deleteCommand.ExecuteNonQuery();
+                }
+
+                // Now, insert new records for each chamber in the list
+                foreach (var chamber in invoiceData.Chambers)
+                {
+                    string sqlInsertChambersQuery = @"
+                INSERT INTO tblExtracted_Chambers (
+                    ExtractedID,
+                    Chamber1Quantity, Chamber1Dip,
+                    Chamber2Quantity, Chamber2Dip,
+                    Chamber3Quantity, Chamber3Dip,
+                    Chamber4Quantity, Chamber4Dip,
+                    Chamber5Quantity, Chamber5Dip,
+                    VehicleNo)
+                VALUES (
+                    @ExtractedID,
+                    CASE WHEN @ChamberNo = 1 THEN @ChamberQty ELSE NULL END,
+                    CASE WHEN @ChamberNo = 1 THEN @ChamberDip ELSE NULL END,
+                    CASE WHEN @ChamberNo = 2 THEN @ChamberQty ELSE NULL END,
+                    CASE WHEN @ChamberNo = 2 THEN @ChamberDip ELSE NULL END,
+                    CASE WHEN @ChamberNo = 3 THEN @ChamberQty ELSE NULL END,
+                    CASE WHEN @ChamberNo = 3 THEN @ChamberDip ELSE NULL END,
+                    CASE WHEN @ChamberNo = 4 THEN @ChamberQty ELSE NULL END,
+                    CASE WHEN @ChamberNo = 4 THEN @ChamberDip ELSE NULL END,
+                    CASE WHEN @ChamberNo = 5 THEN @ChamberQty ELSE NULL END,
+                    CASE WHEN @ChamberNo = 5 THEN @ChamberDip ELSE NULL END,
+                    @VehicleNo)";
+
+                    using (SqlCommand insertCommand = new SqlCommand(sqlInsertChambersQuery, connection))
+                    {
+                        insertCommand.Parameters.AddWithValue("@ExtractedID", invoiceData.ExtractedID);
+                        insertCommand.Parameters.AddWithValue("@ChamberNo", chamber.ChamberNo); // Use the ChamberNo value to determine which chamber to insert
+                        insertCommand.Parameters.AddWithValue("@ChamberQty", chamber.ChamberQty);
+                        insertCommand.Parameters.AddWithValue("@ChamberDip", chamber.ChamberDip);
+                        insertCommand.Parameters.AddWithValue("@VehicleNo", invoiceData.VehicleNo);
+
+                        insertCommand.ExecuteNonQuery();
+                    }
+                }
+            }
+
+            return true; // Update and insert successful
+        }
+        catch (Exception ex)
+        {
+            // Handle or log the exception as necessary
+            return false;
+        }
+    }
 
 }
