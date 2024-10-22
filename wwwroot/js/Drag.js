@@ -107,40 +107,39 @@ function showImageFromPath(imagePath) {
     const preview = document.getElementById('preview');
     const existingImage = preview.querySelector('img');
 
-    if (imagePath) {
-        if (!existingImage) {
-            // If no image exists, create a new one
-            const img = document.createElement('img');
-            img.src = imagePath;
-            img.style.display = 'block';
-            img.id = 'currentImage'; // Set a new ID for the current image
-            img.style.maxWidth = '600px'; // Set fixed width
-            img.style.height = '600px'; // Set fixed height
-            preview.appendChild(img);
+    // Remove the existing image if it exists
+    if (existingImage) {
+        preview.removeChild(existingImage);
+    }
 
-            // Call magnify function with the image element
-            setTimeout(() => {
-                applyMagnification(img, 3);
-            }, 3000);
-        } else {
-            // If an image already exists, update its source instead
-            existingImage.src = imagePath;
-            // Call magnify function with the image element
-            setTimeout(() => {
-                applyMagnification(img, 3);
-            }, 3000);
-        }
+    if (imagePath) {
+        const img = document.createElement('img');
+        img.src = imagePath;
+        img.style.display = 'block';
+        img.id = 'currentImage'; // Set a new ID for the current image
+        img.style.maxWidth = '600px'; // Set fixed width
+        img.style.height = '600px'; // Set fixed height
+        preview.appendChild(img);
+
+        // Call magnify function with the image element
+        setTimeout(() => {
+            applyMagnification(img, 3);
+        }, 3000);
     }
 }
 
 // Magnify function implementation
 const applyMagnification = (imgElement, zoom) => {
-    var glass, w, h, bw;
-    // Create magnifier glass
-    glass = document.createElement("DIV");
-    glass.setAttribute("class", "img-magnifier-glass");
-    // Insert magnifier glass
-    imgElement.parentElement.insertBefore(glass, imgElement);
+    var glass = document.querySelector('.img-magnifier-glass'); // Check if magnifier already exists
+
+    // If no magnifier exists, create one
+    if (!glass) {
+        glass = document.createElement("DIV");
+        glass.setAttribute("class", "img-magnifier-glass");
+        imgElement.parentElement.insertBefore(glass, imgElement);
+    }
+
+    var w, h, bw;
     // Set background properties for the magnifier glass
     glass.style.backgroundImage = "url('" + imgElement.src + "')";
     glass.style.backgroundRepeat = "no-repeat";
@@ -151,37 +150,27 @@ const applyMagnification = (imgElement, zoom) => {
 
     // Event listeners for moving the magnifier glass over the image
     glass.addEventListener("mousemove", (e) => {
+        moveMagnifierGlass(e);
+    });
+    glass.addEventListener("touchmove", (e) => {
+        e.preventDefault();
+        moveMagnifierGlass(e);
+    });
+    imgElement.addEventListener("mousemove", (e) => {
+        moveMagnifierGlass(e);
+    });
+    imgElement.addEventListener("touchmove", (e) => {
+        e.preventDefault();
+        moveMagnifierGlass(e);
+    });
+
+    const moveMagnifierGlass = (e) => {
         var pos, x, y;
         e.preventDefault();
         pos = getCursorPosition(e);
         x = pos.x;
         y = pos.y;
-        if (x > imgElement.width - (w / zoom)) { x = imgElement.width - (w / zoom); }
-        if (x < w / zoom) { x = w / zoom; }
-        if (y > imgElement.height - (h / zoom)) { y = imgElement.height - (h / zoom); }
-        if (y < h / zoom) { y = h / zoom; }
-        glass.style.left = (x - w) + "px";
-        glass.style.top = (y - h) + "px";
-        glass.style.backgroundPosition = "-" + ((x * zoom) - w + bw) + "px -" + ((y * zoom) - h + bw) + "px";
-    });
-    glass.addEventListener("touchmove", (e) => {
-        e.preventDefault();
-        var pos = getCursorPosition(e);
-        moveMagnifierGlass(pos);
-    });
-    imgElement.addEventListener("mousemove", (e) => {
-        var pos = getCursorPosition(e);
-        moveMagnifierGlass(pos);
-    });
-    imgElement.addEventListener("touchmove", (e) => {
-        e.preventDefault();
-        var pos = getCursorPosition(e);
-        moveMagnifierGlass(pos);
-    });
 
-    const moveMagnifierGlass = (pos) => {
-        var x = pos.x;
-        var y = pos.y;
         if (x > imgElement.width - (w / zoom)) { x = imgElement.width - (w / zoom); }
         if (x < w / zoom) { x = w / zoom; }
         if (y > imgElement.height - (h / zoom)) { y = imgElement.height - (h / zoom); }
@@ -202,7 +191,6 @@ const applyMagnification = (imgElement, zoom) => {
         return { x: x, y: y };
     };
 };
-
 
 
 
