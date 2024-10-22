@@ -8,6 +8,7 @@
         public string FileLocation{ get; set; }
         public string RecievingLocation { get; set; }
         public string ShippingLocation { get; set; }
+        public string Product { get; set; }
         public DateTime FillingDate{ get; set; }
 
         public int ChamberQty { get; set; }

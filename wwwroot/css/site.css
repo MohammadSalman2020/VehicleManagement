@@ -106,7 +106,7 @@ a, .btn-link {
     position: absolute;
     border: 3px solid #000;
     cursor: none;
-    width: 100px;
-    height: 100px;
+    width: 200px;
+    height: 200px;
     border-radius: 0; /* Square magnifier */
 }

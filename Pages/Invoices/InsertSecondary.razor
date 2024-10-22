@@ -218,8 +218,8 @@
                                                             <td>Contractor</td>
                                                             <td>  <input type="text" tabindex="7" placeholder="Contractor" value="Shakoor & Co." class="form-control"></td>
 
-                                                            <td>Primary Reference</td>
-                                                            <td>  <input type="text" tabindex="7" placeholder="Primary Invoice No" @bind="@PrimaryReference" class="form-control"></td>
+                                                            <td>Product </td>
+                                                            <td>  <input type="text" tabindex="7" placeholder="Primary Invoice No" @bind="@item.Product" class="form-control"></td>
                                                         </tr>
 
 
@@ -624,7 +624,7 @@
         var chamberDataList = new List<OCRSecData>();
 
         string sqlQuery = @"
-         WITH CumulativeSum AS (
+       WITH CumulativeSum AS (
     SELECT
         sc_invoice.ExtractedID,
         sc_invoice.STONO,
@@ -633,6 +633,7 @@
         sc_invoice.FileLocation,
         sc_invoice.RecievingLocation,
         sc_invoice.ShippingLocation,
+        sc_invoice.ProductName,
         COALESCE(chamber.Chamber1Quantity, chamber.Chamber2Quantity, chamber.Chamber3Quantity, chamber.Chamber4Quantity, chamber.Chamber5Quantity) AS ChamberQuantity,
         COALESCE(chamber.Chamber1Dip, chamber.Chamber2Dip, chamber.Chamber3Dip, chamber.Chamber4Dip, chamber.Chamber5Dip) AS ChamberDip,
         CASE
@@ -661,6 +662,7 @@
       AND sc_invoice.FillingDate >= pk_invoice.FillingDate
       AND sc_invoice.FillingDate <= DATEADD(DAY, 5, pk_invoice.FillingDate) -- Include records within 5 days
       AND sc_invoice.VehicleNo = pk_invoice.VehicleNo
+      AND sc_invoice.ProductName = pk_invoice.ProductName -- Check if the products are the same
 ),
 FilteredCumulative AS (
     SELECT *,
@@ -668,7 +670,7 @@ FilteredCumulative AS (
     FROM CumulativeSum
 )
 
-SELECT ExtractedID, STONO, VehicleNo, FillingDate, ChamberQuantity, ChamberDip, ChamberNo, FileLocation, RecievingLocation,
+SELECT ExtractedID, STONO, VehicleNo, FillingDate, ChamberQuantity, ChamberDip, ChamberNo, FileLocation, ProductName, RecievingLocation,
        ShippingLocation, CumulativeChamberQuantity, TotalVehicleChamberQuantity
 FROM FilteredCumulative
 WHERE RunningTotal <= TotalVehicleChamberQuantity
@@ -692,8 +694,9 @@ ORDER BY FillingDate, ChamberNo;";
                                 VehicleNo = reader.GetString(2),
                                 FillingDate = reader.GetDateTime(3),
                                 FileLocation = reader.GetString(7),
-                                RecievingLocation = reader.GetString(8),
-                                ShippingLocation = reader.GetString(9),
+                                Product = reader.GetString(8),
+                                RecievingLocation = reader.GetString(9),
+                                ShippingLocation = reader.GetString(10),
                                 ChamberQty = reader.GetInt32(4),
                                 ChamberDip = reader.GetInt32(5),
                                 ChamberNo = reader.GetInt32(6),
