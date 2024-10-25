@@ -184,14 +184,12 @@
                                         </div>
                                         } *@
 
-                                        @if (Invoices.Count > 0)
+                                        @if (isView)
                                         {
-
-
-                                            @foreach (var item in Invoices)
+                                            @if (Invoices.Count > 0)
                                             {
 
-                                                @if (item.isView)
+                                                @foreach (var item in Invoices)
                                                 {
                                                     <table class="details">
 
@@ -209,7 +207,7 @@
                                                         </tr>
                                                         <tr>
                                                             <td>User</td>
-                                                            <td> @item.User</td>
+                                                            <td> @User</td>
                                                             <td>Receiving Points</td>
                                                             <td>   <input type="text" tabindex="5" placeholder="Receiving Location" @bind="item.RecievingLocation" class="form-control"></td>
                                                         </tr>
@@ -230,19 +228,14 @@
 
                                                         </tr>
                                                         <tr>
+                                                            <td colspan="1">
+                                                                <button class="btn-success" @onclick="@(()=>ShowModal(item.VehicleNo))">Add Loading Chambers</button>
+                                                            </td>
                                                             <td colspan="1" style="cursor:pointer; color:blue;" @onclick="@(()=>ShowImages(item))">View Image</td>
-
+                                                           
                                                         </tr>
 
-                                                        @if (item.Chambers.Count <= 0)
-                                                        {
-                                                            <tr>
-                                                                <td colspan="1">
-                                                                    <button class="btn btn-danger btn-sm ms-auto" @onclick="@(()=>ShowModal(item.VehicleNo))">Add Loading Chambers</button>
-                                                                </td>
 
-                                                            </tr>
-                                                        }
 
 
                                                         @foreach (var item2 in item.Chambers)
@@ -256,13 +249,18 @@
 
 
                                                     </table>
+
+
                                                 }
-                                                else
+                                            }
+                                        }
+                                        else
+                                        {
+                                            @if (generalDetailsList.Count>0)
+                                            {
+                                                @foreach (var item in generalDetailsList)
                                                 {
 
-                                                    <br />
-                                                    <h3>Chamber: @item.ChamberNo</h3>
-                                                    <br />
                                                     <table class="details">
 
 
@@ -277,13 +275,13 @@
                                                         </tr>
                                                         <tr>
                                                             <td>Invoice Number</td>
-                                                            <td>   <input type="text" tabindex="3" placeholder="STO No" @bind="item.StoNo" class="form-control"></td>
+                                                            <td>   <input type="text" tabindex="3" placeholder="STO No" @bind="item.STONO" class="form-control"></td>
                                                             <td>Shipping Points</td>
                                                             <td>  <input type="text" tabindex="4" placeholder="Shipping Point" @bind="item.ShippingLocation" class="form-control"></td>
                                                         </tr>
                                                         <tr>
                                                             <td>User</td>
-                                                            <td> @item.User</td>
+                                                            <td> @User</td>
                                                             <td>Receiving Points</td>
                                                             <td>   <input type="text" tabindex="5" placeholder="Receiving Location" @bind="item.RecievingLocation" class="form-control"></td>
                                                         </tr>
@@ -301,22 +299,35 @@
 
                                                     <table class="shipping" style="margin-top:7px;">
                                                         <tr class="header">
-                                                            <td colspan="6"> Loaded Chambers</td>
+                                                            <td colspan="6"> Loaded Chambers ( <a @onclick="@(()=>ShowImagesGeneral(item.FileLocation))" style="color:black;cursor:pointer;">View Image</a> )</td>
 
                                                         </tr>
 
-                                                        <tr>
+                                                        @foreach (var item2 in item.ChamberDetails)
+                                                        {
+                                                            <tr>
+                                                                <td colspan="4">
+                                                                    Chamber No: @item2.ChamberNo -
+                                                                    @(item2.InvoiceChamberQuantity == 0 ? item2.ChamberQuantity : item2.InvoiceChamberQuantity)
+                                                                    (@(item2.InvoiceLorryDip == 0 ? item2.ChamberDip : item2.InvoiceLorryDip))
+                                                                </td>
 
-                                                            <td colspan="1">  <input type="checkbox" id="STemp"></td>
-                                                            <td colspan="4">@item.ChamberQty (@item.ChamberDip)</td>
-                                                            <td colspan="1" style="cursor:pointer;" @onclick="@(()=>ShowImages(item))">View Image</td>
-                                                        </tr>
+                                                                <td colspan="1"> <input type="text" tabindex="4" placeholder="Quantity" class="form-control"></td>
+                                                                <td colspan="1"> <input type="text" tabindex="4" placeholder="Dip" class="form-control"></td>
+                                                            </tr>
+                                                        }
+
+
 
 
                                                     </table>
                                                 }
                                             }
+
+
                                         }
+
+
 
 
                                         <div class="col-md-12" style="margin-top: 7px;">
@@ -342,9 +353,9 @@
                                     <div class="table-responsive inv-img">
 
                                         <div id="dropzone" class="dropzone">
-                                            <p>Click to add Image</p>
-                                            <InputFile type="file" id="fileInput" class="file-input" />
-                                            <div id="preview" class="preview"></div>
+                                           @*  <p>Click to add Image</p> *@
+@*                                             <InputFile type="file" id="fileInput" class="file-input" />
+ *@                                            <div id="preview" class="preview"></div>
                                         </div>
                                     </div>
                                 </div>
@@ -376,8 +387,8 @@
                                             {
                                                 <thead>
                                                     <tr>
-                                                        <th class="text-uppercase font-colors  text-xxs font-weight-bolder opacity-7">Vehicle ID</th>
-                                                        <th class="text-uppercase font-colors  text-xxs font-weight-bolder opacity-7 text-center">Chamber No</th>
+@*                                                         <th class="text-uppercase font-colors  text-xxs font-weight-bolder opacity-7">Vehicle ID</th>
+ *@                                                        <th class="text-uppercase font-colors  text-xxs font-weight-bolder opacity-7 text-center">Chamber No</th>
                                                         <th class="text-uppercase font-colors  text-xxs font-weight-bolder opacity-7 text-center">Quantity</th>
                                                         <th class="text-uppercase font-colors  text-xxs font-weight-bolder opacity-7 text-center">Dip</th>
                                                         <th class="text-uppercase font-colors  text-xxs font-weight-bolder opacity-7 text-center">Dip</th>
@@ -390,8 +401,9 @@
                                                 <tbody>
                                                     @foreach (var item in Vehicles)
                                                     {
-                                                        <tr>
-                                                            <td class="align-middle text-center">
+
+                                                        <tr style="@(IsChamberAlreadyExisits(item)?"background: orangered;color: white;":"")">
+                                         @*                    <td class="align-middle text-center">
                                                                 <div class="d-flex px-2 py-1">
 
                                                                     <div class="d-flex flex-column justify-content-center">
@@ -399,7 +411,7 @@
 
                                                                     </div>
                                                                 </div>
-                                                            </td>
+                                                            </td> *@
                                                             <td class="align-middle text-center" style="text-align:center;">
                                                                 <p class="text-xs font-weight-bold mb-0  text-center">@item.ChamberNo</p>
 
@@ -416,7 +428,16 @@
                                                             </td>
 
                                                             <td class="align-middle text-center" style="text-align:center;">
-                                                                <p class="text-xs font-weight-bold mb-0  text-center" @onclick=@(()=>SelectChamber(item))>Select</p>
+                                                                @if(IsChamberAlreadyExisits(item))
+                                                                {
+                                                                    <p class="text-xs font-weight-bold mb-0  text-center" style="cursor:pointer;color:black;" @onclick=@(()=>RemoveChamber(item))>Remove</p>
+
+                                                                }
+                                                                else
+                                                                {
+                                                                    <p class="text-xs font-weight-bold mb-0  text-center" style="cursor:pointer;color:blue;" @onclick=@(()=>SelectChamber(item))>Select</p>
+
+                                                                }
 
                                                             </td>
 
@@ -474,7 +495,22 @@
     private bool isView = false;
     public List<OCRSecData> Invoices = new List<OCRSecData>();
     public List<VehiclesChamber> Vehicles = new List<VehiclesChamber>();
+    public List<OCRSecDTO> generalDetailsList = new List<OCRSecDTO>();
     public string PrimaryReference;
+    public string? User;
+
+
+    public bool IsChamberAlreadyExisits(VehiclesChamber item)
+    {
+        if (Invoices[0].Chambers.Any(p => p.ChamberNo==item.ChamberNo))
+        {
+            return true;
+        }
+        else
+        {
+            return false;
+        }
+    }
 
     private void OpenPolicyModal()
     {
@@ -498,6 +534,21 @@
                     ChamberDip = obj.ChamberDip,
                     ChamberQty = obj.ChamberQty
                 });
+        }
+
+    }
+    public void RemoveChamber(VehiclesChamber obj)
+    {
+        if (Invoices.Count <= 0)
+        {
+            return;
+        }
+        // Check if a chamber with the same ChamberNo already exists
+        var existingChamber = Invoices[0].Chambers.FirstOrDefault(c => c.ChamberNo == obj.ChamberNo);
+
+        if (existingChamber != null)
+        {
+            Invoices[0].Chambers.Remove(existingChamber);
         }
 
     }
@@ -543,6 +594,8 @@
         try
         {
 
+            var authState = await _authenticationStateProvider.GetAuthenticationStateAsync();
+            User = authState.User.Identity.Name;
             // Retrieve the encoded JSON string from the query parameters if it exists
             string encodedJson = NavigationManager.ToAbsoluteUri(NavigationManager.Uri).Query;
 
@@ -552,14 +605,15 @@
                 // Extract the value of the "Edit=" query parameter
                 encodedJson = encodedJson.Split("Edit=")[1];
                 PrimaryReference = encodedJson;
-                Invoices = GetChamberData(PrimaryReference);
-                StateHasChanged();
-                if (Invoices.Count > 0)
+                generalDetailsList=GetInvoicesWithChamberDetails(PrimaryReference);
+                //   Invoices = GetChamberData(PrimaryReference);
+
+                if (generalDetailsList.Count > 0)
                 {
-                    if (!string.IsNullOrEmpty(Invoices[0].FileLocation))
+                    if (!string.IsNullOrEmpty(generalDetailsList[0].FileLocation))
                     {
                         string urlPrefix = "https://191.96.196.61/";      // URL to replace the local path
-                        string newLocation = Invoices[0].FileLocation.Replace(@"C:\ScannedDocs\", urlPrefix);
+                        string newLocation = generalDetailsList[0].FileLocation.Replace(@"C:\ScannedDocs\", urlPrefix);
                         await JS.InvokeVoidAsync("showImageFromPath", newLocation);
                     }
                 }
@@ -576,7 +630,7 @@
                 encodedJson = encodedJson.Split("View=")[1];
                 int ExtID = int.Parse(encodedJson ?? "0");
                 Invoices = GetSecInvoice(ExtID);
-                StateHasChanged();
+
                 if (Invoices.Count > 0)
                 {
                     if (!string.IsNullOrEmpty(Invoices[0].FileLocation))
@@ -594,9 +648,7 @@
 
 
 
-            // var authState = await _authenticationStateProvider.GetAuthenticationStateAsync();
-            // Invoices.User = authState.User.Identity.Name;
-            // StateHasChanged();
+            StateHasChanged();
 
 
 
@@ -608,6 +660,15 @@
 
     }
 
+    public async Task ShowImagesGeneral(string File)
+    {
+        if (!string.IsNullOrEmpty(File))
+        {
+            string urlPrefix = "https://191.96.196.61/";      // URL to replace the local path
+            string newLocation = File.Replace(@"C:\ScannedDocs\", urlPrefix);
+            await JS.InvokeVoidAsync("showImageFromPath", newLocation);
+        }
+    }
     public async Task ShowImages(OCRSecData obj)
     {
         if (!string.IsNullOrEmpty(obj.FileLocation))
@@ -819,6 +880,7 @@ ORDER BY FillingDate, ChamberNo;";
                                 ShippingLocation = reader.GetString(3) ?? "",
                                 VehicleNo = reader.GetString(4) ?? "",
                                 FillingDate = reader.IsDBNull(7) ? DateTime.MinValue : reader.GetDateTime(7),
+                                Product=reader.GetString(8)??"",
                                 FileLocation = reader.GetString(9) ?? "",
                                 isView = true
                             };
@@ -965,7 +1027,8 @@ WHERE
             RecievingLocation = @RecievingLocation,
             ShippingLocation = @ShippingLocation,
             VehicleNo = @VehicleNo,
-            FillingDate = @FillingDate
+            FillingDate = @FillingDate,
+IsInvoiceGenerated='True'
         WHERE ExtractedID = @ExtractedID";
 
             using (SqlConnection connection = new SqlConnection(_configuration.GetConnectionString("Con")))
@@ -990,7 +1053,7 @@ WHERE
                 }
 
                 // First, delete existing rows in tblExtracted_Chambers for the given ExtractedID and VehicleNo
-                string sqlDeleteChambersQuery = "DELETE FROM tblExtracted_Chambers WHERE ExtractedID = @ExtractedID AND VehicleNo = @VehicleNo";
+                string sqlDeleteChambersQuery = "DELETE FROM tblExtracted_Chambers WHERE ExtractedID = @ExtractedID";
                 using (SqlCommand deleteCommand = new SqlCommand(sqlDeleteChambersQuery, connection))
                 {
                     deleteCommand.Parameters.AddWithValue("@ExtractedID", invoiceData.ExtractedID);
@@ -1044,6 +1107,186 @@ WHERE
             // Handle or log the exception as necessary
             return false;
         }
+    }
+    public List<OCRSecDTO> GetInvoicesWithChamberDetails(string STONo)
+    {
+        generalDetailsList = new List<OCRSecDTO>();
+        Dictionary<int, OCRSecDTO> generalDetailsMap = new Dictionary<int, OCRSecDTO>();
+
+        using (SqlConnection connection = new SqlConnection(_configuration.GetConnectionString("Con")))
+        {
+            connection.Open();
+
+            // Query 1: General Details
+            string generalQuery = $@"
+             WITH CumulativeSum AS (
+    SELECT
+        sc_invoice.ExtractedID,
+        sc_invoice.STONO,
+        sc_invoice.VehicleNo,
+        sc_invoice.FillingDate,
+        sc_invoice.FileLocation,
+        sc_invoice.RecievingLocation,
+        sc_invoice.ShippingLocation,
+        sc_invoice.ProductName,
+        COALESCE(chamber.Chamber1Quantity, chamber.Chamber2Quantity, chamber.Chamber3Quantity, chamber.Chamber4Quantity, chamber.Chamber5Quantity) AS ChamberQuantity,
+        COALESCE(chamber.Chamber1Dip, chamber.Chamber2Dip, chamber.Chamber3Dip, chamber.Chamber4Dip, chamber.Chamber5Dip) AS ChamberDip,
+        CASE
+            WHEN chamber.Chamber1Quantity IS NOT NULL AND chamber.Chamber1Dip IS NOT NULL THEN 1
+            WHEN chamber.Chamber2Quantity IS NOT NULL AND chamber.Chamber2Dip IS NOT NULL THEN 2
+            WHEN chamber.Chamber3Quantity IS NOT NULL AND chamber.Chamber3Dip IS NOT NULL THEN 3
+            WHEN chamber.Chamber4Quantity IS NOT NULL AND chamber.Chamber4Dip IS NOT NULL THEN 4
+            WHEN chamber.Chamber5Quantity IS NOT NULL AND chamber.Chamber5Dip IS NOT NULL THEN 5
+        END AS ChamberNo,
+        COALESCE(chamber.Chamber1Quantity, 0) + COALESCE(chamber.Chamber2Quantity, 0) +
+        COALESCE(chamber.Chamber3Quantity, 0) + COALESCE(chamber.Chamber4Quantity, 0) +
+        COALESCE(chamber.Chamber5Quantity, 0) AS ChamberQuantityTotal,
+        SUM(COALESCE(chamber.Chamber1Quantity, 0) + COALESCE(chamber.Chamber2Quantity, 0) +
+            COALESCE(chamber.Chamber3Quantity, 0) + COALESCE(chamber.Chamber4Quantity, 0) +
+            COALESCE(chamber.Chamber5Quantity, 0)) OVER (PARTITION BY sc_invoice.ExtractedID ORDER BY sc_invoice.FillingDate) AS CumulativeChamberQuantity,
+        -- Calculate the total quantity from the tblvehicles for the corresponding VehicleNo
+        (COALESCE(v.Chamber1Qty, 0) + COALESCE(v.Chamber2Qty, 0) + COALESCE(v.Chamber3Qty, 0) +
+         COALESCE(v.Chamber4Qty, 0) + COALESCE(v.Chamber5Qty, 0)) AS TotalVehicleChamberQuantity
+    FROM tblextracted_data sc_invoice
+    LEFT JOIN tblextracted_chambers chamber ON sc_invoice.ExtractedID = chamber.ExtractedID
+    LEFT JOIN tblextracted_data pk_invoice ON pk_invoice.VehicleNo = sc_invoice.VehicleNo
+        AND pk_invoice.InvoiceType = 'pk'
+        AND pk_invoice.STONO = '{STONo}' -- Use parameter for STONO
+    LEFT JOIN tblvehicles v ON v.VehicleID = pk_invoice.VehicleNo -- Join to get vehicle details
+    WHERE sc_invoice.InvoiceType = 'sc'
+      AND sc_invoice.FillingDate >= pk_invoice.FillingDate
+      AND sc_invoice.FillingDate <= DATEADD(DAY, 5, pk_invoice.FillingDate) -- Include records within 5 days
+      AND sc_invoice.VehicleNo = pk_invoice.VehicleNo
+      AND sc_invoice.ProductName = pk_invoice.ProductName -- Check if the products are the same
+),
+FilteredCumulative AS (
+    SELECT DISTINCT
+        ExtractedID, STONO, VehicleNo, FillingDate, FileLocation, ProductName, RecievingLocation, ShippingLocation
+    FROM CumulativeSum
+)
+
+SELECT * FROM FilteredCumulative
+ORDER BY FillingDate;";
+
+            // Query 2: Chamber Details
+            string chamberQuery = $@"WITH CumulativeSum AS (
+    SELECT
+        sc_invoice.ExtractedID,
+        sc_invoice.STONO,
+        sc_invoice.VehicleNo,
+        sc_invoice.FillingDate,
+        COALESCE(chamber.Chamber1Quantity, chamber.Chamber2Quantity, chamber.Chamber3Quantity, chamber.Chamber4Quantity, chamber.Chamber5Quantity) AS ChamberQuantity,
+        COALESCE(chamber.Chamber1Dip, chamber.Chamber2Dip, chamber.Chamber3Dip, chamber.Chamber4Dip, chamber.Chamber5Dip) AS ChamberDip,
+        CASE
+            WHEN chamber.Chamber1Quantity IS NOT NULL AND chamber.Chamber1Dip IS NOT NULL THEN 1
+            WHEN chamber.Chamber2Quantity IS NOT NULL AND chamber.Chamber2Dip IS NOT NULL THEN 2
+            WHEN chamber.Chamber3Quantity IS NOT NULL AND chamber.Chamber3Dip IS NOT NULL THEN 3
+            WHEN chamber.Chamber4Quantity IS NOT NULL AND chamber.Chamber4Dip IS NOT NULL THEN 4
+            WHEN chamber.Chamber5Quantity IS NOT NULL AND chamber.Chamber5Dip IS NOT NULL THEN 5
+        END AS ChamberNo,
+        COALESCE(chamber.Chamber1Quantity, 0) + COALESCE(chamber.Chamber2Quantity, 0) +
+        COALESCE(chamber.Chamber3Quantity, 0) + COALESCE(chamber.Chamber4Quantity, 0) +
+        COALESCE(chamber.Chamber5Quantity, 0) AS ChamberQuantityTotal,
+        SUM(COALESCE(chamber.Chamber1Quantity, 0) + COALESCE(chamber.Chamber2Quantity, 0) +
+            COALESCE(chamber.Chamber3Quantity, 0) + COALESCE(chamber.Chamber4Quantity, 0) +
+            COALESCE(chamber.Chamber5Quantity, 0)) OVER (PARTITION BY sc_invoice.ExtractedID ORDER BY sc_invoice.FillingDate) AS CumulativeChamberQuantity,
+        -- Calculate the total quantity from the tblvehicles for the corresponding VehicleNo
+        (COALESCE(v.Chamber1Qty, 0) + COALESCE(v.Chamber2Qty, 0) + COALESCE(v.Chamber3Qty, 0) +
+         COALESCE(v.Chamber4Qty, 0) + COALESCE(v.Chamber5Qty, 0)) AS TotalVehicleChamberQuantity
+    FROM tblextracted_data sc_invoice
+    LEFT JOIN tblextracted_chambers chamber ON sc_invoice.ExtractedID = chamber.ExtractedID
+    LEFT JOIN tblextracted_data pk_invoice ON pk_invoice.VehicleNo = sc_invoice.VehicleNo
+        AND pk_invoice.InvoiceType = 'pk'
+        AND pk_invoice.STONO = '{STONo}' -- Use correct parameter for STONO
+    LEFT JOIN tblvehicles v ON v.VehicleID = pk_invoice.VehicleNo -- Join to get vehicle details
+    WHERE sc_invoice.InvoiceType = 'sc'
+      AND sc_invoice.FillingDate >= pk_invoice.FillingDate
+      AND sc_invoice.FillingDate <= DATEADD(DAY, 5, pk_invoice.FillingDate) -- Include records within 5 days
+      AND sc_invoice.VehicleNo = pk_invoice.VehicleNo
+      AND sc_invoice.ProductName = pk_invoice.ProductName -- Check if the products are the same
+),
+InvoiceDetails AS (
+    SELECT
+        inv.InvoiceID,
+        invDetails.Chamber,
+        invDetails.ChamberQuantity AS InvoiceChamberQuantity,
+        invDetails.LorryDip AS InvoiceLorryDip
+    FROM tblInvoices inv
+    JOIN tblInvoiceDetails invDetails ON inv.InvoiceID = invDetails.InvoiceID
+    WHERE inv.STONo = '{STONo}' -- Use correct STONO
+      AND invDetails.PointType = 'R'
+)
+SELECT
+    C.ExtractedID,
+    C.STONO,
+    C.ChamberQuantity,
+    C.ChamberDip,
+    C.ChamberNo,
+    C.CumulativeChamberQuantity,
+    C.TotalVehicleChamberQuantity,
+    ID.InvoiceChamberQuantity, -- ChamberQuantity from tblInvoiceDetails
+    ID.InvoiceLorryDip -- LorryDip from tblInvoiceDetails
+FROM CumulativeSum C
+LEFT JOIN InvoiceDetails ID ON C.ChamberNo = ID.Chamber
+ORDER BY C.FillingDate, C.ChamberNo;";
+
+            // Execute the first query to get general details
+            using (SqlCommand command = new SqlCommand(generalQuery, connection))
+            {
+                using (SqlDataReader reader = command.ExecuteReader())
+                {
+                    while (reader.Read())
+                    {
+                        var generalDetails = new OCRSecDTO
+                            {
+                                ExtractedID = reader.GetInt32(0),
+                                STONO = reader.GetString(1),
+                                VehicleNo = reader.GetString(2),
+                                FillingDate = reader.GetDateTime(3),
+                                FileLocation = reader.GetString(4),
+                                ProductName = reader.GetString(5),
+                                RecievingLocation = reader.GetString(6),
+                                ShippingLocation = reader.GetString(7),
+                                ChamberDetails = new List<ChamberDetailsDTO>()
+                            };
+
+                        generalDetailsList.Add(generalDetails);
+                        generalDetailsMap[generalDetails.ExtractedID] = generalDetails; // Add to the map for later use
+                    }
+                }
+            }
+
+            // Execute the second query to get chamber details
+            using (SqlCommand command = new SqlCommand(chamberQuery, connection))
+            {
+                using (SqlDataReader reader = command.ExecuteReader())
+                {
+                    while (reader.Read())
+                    {
+                        var chamberDetails = new ChamberDetailsDTO
+                            {
+                                ExtractedID = reader.GetInt32(0),
+                                STONO = reader.GetString(1),
+                                ChamberQuantity = reader.GetInt32(2),
+                                ChamberDip = reader.GetInt32(3),
+                                ChamberNo = reader.GetInt32(4),
+                                CumulativeChamberQuantity = reader.GetInt32(5),
+                                TotalVehicleChamberQuantity = reader.GetInt32(6),
+                                InvoiceChamberQuantity = reader.GetInt32(7),
+                                InvoiceLorryDip = reader.GetInt32(8)
+                            };
+
+                        // Find the matching general details using ExtractedID
+                        if (generalDetailsMap.TryGetValue(chamberDetails.ExtractedID, out OCRSecDTO generalDetails))
+                        {
+                            generalDetails.ChamberDetails.Add(chamberDetails);
+                        }
+                    }
+                }
+            }
+        }
+
+        return generalDetailsList;
     }
 
 }
