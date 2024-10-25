@@ -110,3 +110,22 @@ a, .btn-link {
     height: 200px;
     border-radius: 0; /* Square magnifier */
 }
+
+
+/* Style the spinner */
+.spinner-border {
+    width: 1rem;
+    height: 1rem;
+    border-width: 0.15em;
+}
+
+/* Position spinner next to text */
+button .spinner-border {
+    margin-right: 0.5rem; /* Adds space between spinner and text */
+    vertical-align: middle;
+}
+
+/* Optional: Add a custom color to the spinner */
+.spinner-border.text-danger {
+    color: #dc3545; /* Matches the 'btn-danger' button color */
+}

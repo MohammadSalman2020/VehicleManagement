@@ -11,6 +11,7 @@
 @inject IApiService API
   @inject IJSRuntime js
   @inject IConfiguration _configuration
+
 <div class="container-fluid py-4">
     <div class="row">
         <AuthorizeView Roles="admin,FleetManager,SafetySupervisor">
@@ -22,10 +23,46 @@
                         <div class="">
                             <div class="row col-md-12">
                                 <!-- Filter Button -->
-                                <div class="col-md-6">
-                                    <h4>OCR Extarcted Data</h4>
+                                <div class="row col-md-8">
+                                    <div class="col-md-4">
+                                        <h4>OCR @FilteredItems.Count -Records</h4>
+                                    </div>
+
+                                    @if (isEdited)
+                                    {
+                                        <div class="col-md-4">
+                                            <button style="border: white;" class="btn-danger" @onclick="Refresh">
+
+                                                @if (RefreshLoader)
+                                                {
+                                                    <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+                                                }
+                                                @(RefreshLoader ? "Refreshing Data..." : "Refresh Data")
+
+                                            </button>
+
+                                        </div>
+                                    }
+                                    @if (ShowCheckbox)
+                                    {
+                                        <div class="col-md-4">
+                                            <button style="border: white;" class="btn-success" @onclick="UpdateInvoiceGenerated">
+
+                                                @if (MarkLoader)
+                                                {
+                                                    <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+                                                }
+
+                                                @(MarkLoader ? MarkingText : " Mark as accurate")
+                                            </button>
+
+                                        </div>
+                                    }
+
                                 </div>
-                                <div class="col-md-6" style="text-align:end;">
+
+
+                                <div class="col-md-4" style="text-align:end;">
                                     <img style="cursor:pointer;" src="css/filter.png" @onclick="ToggleFilterPanel" />
                                 </div>
                             </div>
@@ -42,6 +79,11 @@
                                         <!-- Filter Options -->
                                         <div class="filter-content">
                                             <!-- Add your filter controls here -->
+                                            <div class="col-md-12" style="text-align:center;">
+                                                <div class="form-group">
+                                                    <button style="border: white;" class="btn-danger" @onclick="Reset">Reset</button>
+                                                </div>
+                                            </div>
                                             <div class="row col-md-12">
 
                                                 <div class="row filter-controls">
@@ -51,16 +93,6 @@
 
                                                         </div>
                                                     </div>
-
-
-                                                    @*    <div class="col-md-2" style="align-content: space-evenly;" title="Business/STO/Driver Name/Driver ID/Vehicle/Primary Reference">
-                                                    <div class="form-group">
-                                                    <img style="cursor:pointer;" src="css/search.png" @onclick="@(e => SearchRecords(searchTerm))">
-                                                    </div>
-                                                    </div> *@
-
-
-
                                                 </div>
 
 
@@ -73,20 +105,25 @@
                                                         <input type="month" @bind="@startDate" class="form-control" id="startDate">
                                                     </div>
                                                 </div>
-                                                @*        <div class="col-md-6">
-                                                <div class="form-group">
-                                                <label for="endDate">End Date:</label>
-                                                <input type="date" @bind="@endDate" class="form-control" id="endDate">
-                                                </div>
-                                                </div> *@
                                                 <div class="col-md-12" style="text-align:center;">
                                                     <div class="form-group">
                                                         <button style="border: white;" class="btn-primary" @onclick="@(e => SearchRecords(searchTerm))">Search</button>
-                                                        <button style="border: white;" class="btn-danger" @onclick="Reset">Reset</button>
 
 
                                                     </div>
                                                 </div>
+
+                                            </div>
+                                            <div class="row col-md-12">
+                                                <div class="col-md-12" style="text-align:center;">
+                                                    <div class="form-group">
+                                                        <button style="border: white;" class="btn-primary" @onclick="@(()=>SearchInComplete(true))">Primary</button>
+                                                        <button style="border: white;" class="btn-primary" @onclick="@(()=>SearchInComplete(false))">Secondary</button>
+
+
+                                                    </div>
+                                                </div>
+                                                <!-- Add more filter options as needed -->
                                             </div>
                                             <div class="row col-md-12">
                                                 <div class="col-md-6" style="text-align:center;" title="Export All Data to Excel">
@@ -102,6 +139,7 @@
                                                 </div>
                                                 <!-- Add more filter options as needed -->
                                             </div>
+
                                         </div>
 
                                     </div>
@@ -125,6 +163,9 @@
                                         <thead style="    background: black;">
                                             <tr>
 
+                                                <th class="text-center font-colors text-uppercase text-xxs font-weight-bolder opacity-7"
+                                                    style="position: sticky; top: 0; background-color: #ffffff; z-index: 1; border: #cccccc 1px solid;">
+                                                </th>
                                                 <th class="text-center font-colors text-uppercase text-xxs font-weight-bolder opacity-7"
                                                     style="position: sticky; top: 0; background-color: #ffffff; z-index: 1; border: #cccccc 1px solid;">
                                                     STO No
@@ -181,8 +222,13 @@
                                                     foreach (var item in FilteredItems.OrderByDescending(p => p.InvoiceDate))
                                                     {
 
-                                                        <tr class="tbl-accordion-header" style="@(item.isInvoiceGenerated?"background:#DCDCDC":"")">
-
+                                                        <tr class="tbl-accordion-header" ondblclick="@(() => ToggleCheckboxDisplay())" style=@GetColorCode(item.isInvoiceGenerated,item.InvoiceType)>
+                                                            <td class="align-middle text-center" style="border: #cccccc 1px solid;">
+                                                                @if (item.InvoiceType == "sc" && ShowCheckbox && !item.isInvoiceGenerated)
+                                                                {
+                                                                    <input type="checkbox" @onchange="@(e => OnCheckboxChanged(item, e))" />
+                                                                }
+                                                            </td>
 
                                                             <td class="align-middle text-center" style="border: #cccccc 1px solid;">
                                                                 <span style="@(item.isInvoiceGenerated?"color:black !important":"")" class="text-secondary text-xs font-weight-bold">@item.STO</span>
@@ -277,6 +323,7 @@
 
                 </div>
 
+
             </Authorized>
             <NotAuthorized>
                 @if (_isJsReady)
@@ -299,14 +346,71 @@
 
     public List<int> BusinessID = new List<int>();
     private string searchTerm;
+    private string? InvoiceNumber;
     private DateTime? startDate;
     private DateTime? endDate;
     private bool isPanelVisible = false;
+    private bool isEdited = false;
+    private bool RefreshLoader = false;
+    private bool MarkLoader = false;
+    private bool ShowCheckbox = false;
     private string selectedCategory;
+    private string MarkingText;
     public Invoicing Invoicing = new Invoicing();
     private string PanelStyle => isPanelVisible ? "transform: translateX(0);" : "transform: translateX(100%);";
+    private List<OCRData> selectedItems = new List<OCRData>(); // Replace ItemType with your item type
 
+    private void ToggleCheckboxDisplay()
+    {
+        ShowCheckbox = !ShowCheckbox; // Assuming 'ShowCheckbox' is a property in your model to track checkbox visibility
+        if (!ShowCheckbox) selectedItems = new List<OCRData>();
+    }
 
+    private void OnCheckboxChanged(OCRData item, ChangeEventArgs e)
+    {
+        if ((bool)e.Value)
+        {
+            selectedItems.Add(item); // Add item to list when checkbox is checked
+        }
+        else
+        {
+            selectedItems.Remove(item); // Remove item if checkbox is unchecked
+        }
+    }
+    public async void UpdateInvoiceGenerated()
+    {
+        MarkLoader = true;
+        MarkingText = "Marking Data...";
+        string connectionString = _configuration.GetConnectionString("Con");
+        string query = "UPDATE tblExtracted_Data SET isInvoiceGenerated = @IsInvoiceGenerated WHERE ExtractedID = @ExtractedID";
+
+        using (SqlConnection connection = new SqlConnection(connectionString))
+        {
+            connection.Open();
+
+            using (SqlCommand command = new SqlCommand(query, connection))
+            {
+                command.Parameters.Add("@IsInvoiceGenerated", System.Data.SqlDbType.Bit).Value = true;
+                command.Parameters.Add("@ExtractedID", System.Data.SqlDbType.Int);
+
+                foreach (var id in selectedItems)
+                {
+                    command.Parameters["@ExtractedID"].Value = id.OCRID;
+                    command.ExecuteNonQuery();
+                }
+            }
+        }
+
+        MarkingText = "Data Marked Refreshing list...";
+        await LoadShortagereport();
+        FilteredItems = new List<OCRData>();
+        FilteredItems = obj;
+        MarkLoader = false;
+        ShowCheckbox = false;
+        selectedItems = new List<OCRData>();
+        StateHasChanged();
+
+    }
     private void ToggleFilterPanel()
     {
         isPanelVisible = !isPanelVisible;
@@ -343,42 +447,63 @@
     }
     public List<OCRData> obj = new List<OCRData>();
 
+
+    public string GetColorCode(bool isInvoiceGenerated, string Type)
+    {
+        string Color = "";
+
+        if (isInvoiceGenerated && Type=="pk")
+        {
+            Color = "background:#DCDCDC";
+        }
+        else
+        if (isInvoiceGenerated && Type=="sc")
+        {
+            Color = "background:#caf588;";
+        }
+
+        return Color;
+    }
+
+
+
     public async Task ShowMessage2(OCRData objs)
     {
         try
         {
-            if (objs.isInvoiceGenerated)
-            {
-                var Invoice = await GetAllInvoices(objs.STO);
-                if (Invoice != null)
-                {
-                    Invoice.IsFromDisplay = true;
-                    Invoice.IsView = "Update";
-                    string jsonString = JsonSerializer.Serialize(Invoice);
-                    string base64EncodedJson = Convert.ToBase64String(Encoding.UTF8.GetBytes(jsonString));
-                    string encodedJson = HttpUtility.UrlEncode(base64EncodedJson);
 
-                    // NavigationManager.NavigateTo($"/Invoice?Edit={encodedJson}");
-                    await js.InvokeVoidAsync("openInNewTab2", $"/invoice?Edit={encodedJson}");
-                    //  var url = $"/invoicepanel?Edit={encodedJson}";
-                    // await JSRuntime.InvokeVoidAsync("openInNewTab", url);
-                }
-
-                return;
-            }
 
 
             string urlPrefix = "https://191.96.196.61/";      // URL to replace the local path
             string newLocation = objs.FileLocation.Replace(@"C:\ScannedDocs\", urlPrefix);
             if (objs.InvoiceType=="pk")
             {
+                if (objs.isInvoiceGenerated)
+                {
+                    var Invoices = await GetAllInvoices(objs.STO);
+                    if (Invoices != null)
+                    {
+                        Invoices.IsFromDisplay = true;
+                        Invoices.IsView = "Update";
+                        string jsonString = JsonSerializer.Serialize(Invoices);
+                        string base64EncodedJson = Convert.ToBase64String(Encoding.UTF8.GetBytes(jsonString));
+                        string encodedJson = HttpUtility.UrlEncode(base64EncodedJson);
+
+                        // NavigationManager.NavigateTo($"/Invoice?Edit={encodedJson}");
+                        await js.InvokeVoidAsync("openInNewTab2", $"/invoice?Edit={encodedJson}");
+                        //  var url = $"/invoicepanel?Edit={encodedJson}";
+                        // await JSRuntime.InvokeVoidAsync("openInNewTab", url);
+                    }
+
+                    return;
+                }
 
                 Invoicing Invoice = new Invoicing();
                 Invoice.Details.STONo = objs.STO;
                 Invoice.Details.Product = objs.Product;
                 Invoice.InvoiceFilePath =newLocation;
                 Invoice.Details.TankLorryNO = objs.Vehicle;
-                Invoice.Details.Date = objs.InvoiceDate??DateTime.Now;
+                Invoice.Details.Date = objs.InvoiceDate??DateTime.MinValue;
                 Invoice.Details.ReceivingLocation =TruncateString(objs.ReceivingLocation);
                 Invoice.Details.SupplyPoint =TruncateString(objs.ShippingLocation);
                 Invoice.Details.Contractor = "Shakoor & Co.";
@@ -406,11 +531,14 @@
                 await js.InvokeVoidAsync("openInNewTab2", $"{newLocation}");
             }
 
+
+            isEdited = true;
         }
         catch (Exception ex)
         {
             toastService.ShowError($"Error: {ex.Message}");
         }
+
 
     }
     public async Task AddSecondary(OCRData objs)
@@ -422,14 +550,21 @@
            objs.InvoiceDate!=null)
             {
 
+                if (DoesStonoExistAsync(objs.STO))
+                {
+                    // NavigationManager.NavigateTo($"/Invoice?Edit={encodedJson}");
+                    await js.InvokeVoidAsync("openInNewTab2", $"/insertSec?Edit={objs.STO}");
+                    //  var url = $"/invoicepanel?Edit={encodedJson}";
+                    // await JSRuntime.InvokeVoidAsync("openInNewTab", url);
 
-                // NavigationManager.NavigateTo($"/Invoice?Edit={encodedJson}");
-                await js.InvokeVoidAsync("openInNewTab2", $"/insertSec?Edit={objs.STO}");
-                //  var url = $"/invoicepanel?Edit={encodedJson}";
-                // await JSRuntime.InvokeVoidAsync("openInNewTab", url);
 
+                    return;
+                }
+                else
+                {
+                    toastService.ShowError("Please generated the primary invoice first");
+                }
 
-                return;
             }
 
             else /* if (objs.InvoiceType=="sc") */
@@ -466,6 +601,34 @@
         }
     }
     private List<OCRData> FilteredItems;
+
+    private void SearchInComplete(bool isPrimary)
+    {
+        var rec = obj.Where(item =>
+           (string.IsNullOrEmpty(item.Vehicle) || item.Vehicle.Length < 5 || item.Vehicle.Contains("Not Found")) ||  // Show if Vehicle is null, length < 5, or contains "Not Found"
+           string.IsNullOrEmpty(item.BusinessName) || item.BusinessName.Contains("Not Found")||  // Show if BusinessName is null, empty, or "Not Found"
+           string.IsNullOrEmpty(item.Product) || item.Product.Contains("Not Found") ||  // Show if Product is null, empty, or "Not Found"
+           string.IsNullOrEmpty(item.ReceivingLocation) || item.ReceivingLocation.Contains("Not Found") ||  // Show if ReceivingLocation is null, empty, or "Not Found"
+           string.IsNullOrEmpty(item.ShippingLocation) || item.ShippingLocation.Contains("Not Found") ||  // Show if ShippingLocation is null, empty, or "Not Found"
+           (string.IsNullOrEmpty(item.STO) || item.STO.Contains("Not Found") || item.STO.Contains("NOT_FOUND"))   ||
+           item.InvoiceDate==null ||item.InvoiceDate==DateTime.MinValue
+       ).ToList();
+
+        if (isPrimary)
+        {
+            FilteredItems = rec.Where(p => p.InvoiceType == "pk").ToList();
+
+        }
+        else
+        {
+            FilteredItems = rec.Where(p => p.InvoiceType == "sc").ToList();
+
+        }
+
+
+    }
+
+
 
     private async void SearchRecords(string searchCriteria)
     {
@@ -532,6 +695,14 @@
         endDate = null;
         searchTerm = null;
         FilteredItems = obj;
+    }
+    private async Task Refresh()
+    {
+        RefreshLoader=true;
+        await LoadShortagereport();
+        FilteredItems = obj;
+        RefreshLoader = false;
+        isEdited = false;
     }
 
     protected override async Task OnInitializedAsync()
@@ -608,13 +779,44 @@
         if (string.IsNullOrEmpty(input)) return input;
         return input.Length > maxLength ? input.Substring(0, maxLength) : input;
     }
+
+
+    public bool DoesStonoExistAsync(string stono)
+    {
+        // SQL query to check if STONO exists
+        string query = "SELECT COUNT(1) FROM tblinvoices WHERE STONO = @stono";
+
+        using (var connection = new SqlConnection(_configuration.GetConnectionString("Con")))
+        {
+            connection.Open();
+
+            using (var command = new SqlCommand(query, connection))
+            {
+                // Add the parameter to the query
+                command.Parameters.AddWithValue("@stono", stono);
+
+                // Execute the query and get the result
+                int count = (int)command.ExecuteScalar();
+
+                // If the count is greater than 0, the STONO exists
+                return count > 0;
+            }
+        }
+    }
+
+
+
     private int TotalPages;
     public async Task LoadShortagereport()
     {
         try
         {
+            obj = new List<OCRData>();
             string query = $@"
-SELECT * FROM vwGetExtractedData";
+SELECT *
+FROM vwGetExtractedData
+ORDER BY FillingDate DESC, VehicleNo, CASE WHEN InvoiceType = 'pk' THEN 1 ELSE 2 END;
+";
             var connectionString = _configuration.GetConnectionString("Con");
 
             using (var connection = new SqlConnection(connectionString))
@@ -630,8 +832,8 @@ SELECT * FROM vwGetExtractedData";
                         dv = new OCRData
                             {
                                 InvoiceDate = reader.IsDBNull(reader.GetOrdinal("FillingDate"))
-                                                              ? (DateTime?)null
-                                                                  : reader.GetDateTime(reader.GetOrdinal("FillingDate")),
+                                                                                                          ? (DateTime?)null
+                                                                                                              : reader.GetDateTime(reader.GetOrdinal("FillingDate")),
 
                                 STO = reader.IsDBNull(reader.GetOrdinal("STONO")) ? "" : reader.GetString(reader.GetOrdinal("STONO")),
                                 BusinessName = reader.IsDBNull(reader.GetOrdinal("busdesc")) ? "" : reader.GetString(reader.GetOrdinal("busdesc")),

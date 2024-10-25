@@ -106,7 +106,11 @@ function magnify(imgID, zoom) {
 function showImageFromPath(imagePath) {
     const preview = document.getElementById('preview');
     const existingImage = preview.querySelector('img');
-
+    // Check if the preview element exists before proceeding
+    if (!preview) {
+        console.error("Element with ID 'preview' not found.");
+        return; // Exit the function if preview is null
+    }
     // Remove the existing image if it exists
     if (existingImage) {
         preview.removeChild(existingImage);
