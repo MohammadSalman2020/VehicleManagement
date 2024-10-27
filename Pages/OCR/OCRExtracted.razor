@@ -3,6 +3,7 @@
 @using System.Web
 @using System.Text
 @using System.Text.Json
+@using System.Data
 @using VehicleManagement.ApiService
 @using VehicleManagement.Authentication
 @using VehicleManagement.Models.General
@@ -24,47 +25,57 @@
                             <div class="row col-md-12">
                                 <!-- Filter Button -->
                                 <div class="row col-md-8">
-                                    <div class="col-md-4">
-                                        <h4>OCR Records</h4>
+                                    <div class="row col-md-12">
+                                        <div class="col-md-3">
+                                            <h4>OCR Records</h4>
+                                        </div>
+
+                                        <div class="col-md-3">
+                                            <button style="border: white;" class="btn-danger" @onclick="LoadData">
+                                                @if (IsLoading)
+                                                {
+                                                    <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+                                                }
+
+                                                @(IsLoading ? "Loading Data.." : "Load Data")
+                                            </button>
+
+                                        </div>
+                                        @if (FilteredItems != null)
+                                        {
+                                            <div class="col-md-3">
+                                                <h6>@FilteredItems.Count.ToString() -Records</h6>
+                                            </div>
+                                        }
+                                        @if (ShowCheckbox)
+                                        {
+                                            <div class="col-md-3">
+                                                <button style="position: fixed;top: 77px;z-index: 9999;border: white;" class="btn-success" @onclick="UpdateInvoiceGenerated">
+
+                                                    @if (MarkLoader)
+                                                    {
+                                                        <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+                                                    }
+
+                                                    @(MarkLoader ? MarkingText : " Mark as accurate")
+                                                </button>
+
+                                            </div>
+                                        }
                                     </div>
 
-                                    @if (isEdited)
-                                    {
-                                        <div class="col-md-4">
-                                            <button style="border: white;" class="btn-danger" @onclick="Refresh">
 
-                                                @if (RefreshLoader)
-                                                {
-                                                    <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
-                                                }
-                                                @(RefreshLoader ? "Refreshing Data..." : "Refresh Data")
 
-                                            </button>
-
-                                        </div>
-                                    }
-                                    @if (ShowCheckbox)
-                                    {
-                                        <div class="col-md-4">
-                                            <button style="border: white;" class="btn-success" @onclick="UpdateInvoiceGenerated">
-
-                                                @if (MarkLoader)
-                                                {
-                                                    <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
-                                                }
-
-                                                @(MarkLoader ? MarkingText : " Mark as accurate")
-                                            </button>
-
-                                        </div>
-                                    }
 
                                 </div>
 
+                                @if (FilteredItems != null)
+                                {
+                                    <div class="col-md-4" style="text-align:end;">
+                                        <img style="cursor:pointer;" src="css/filter.png" @onclick="ToggleFilterPanel" />
+                                    </div>
+                                }
 
-                                <div class="col-md-4" style="text-align:end;">
-                                    <img style="cursor:pointer;" src="css/filter.png" @onclick="ToggleFilterPanel" />
-                                </div>
                             </div>
                             <div class="row">
 
@@ -107,7 +118,7 @@
                                                 </div>
                                                 <div class="col-md-12" style="text-align:center;">
                                                     <div class="form-group">
-                                                        <button style="border: white;" class="btn-primary" @onclick="@(e => SearchRecords(searchTerm))">Search</button>
+                                                        <button style="border: white;" class="btn-primary" @onclick="@(() => SearchRecords(searchTerm))">Search</button>
 
 
                                                     </div>
@@ -214,8 +225,8 @@
 
                                             </tr>
                                         </thead>
-                                        <tbody style="    background: white;">
-                                            @if (!IsLoading)
+                                        <tbody style="   background: white;">
+                                            @if (FilteredItems != null)
                                             {
                                                 @if (FilteredItems.Count > 0)
                                                 {
@@ -256,20 +267,24 @@
                                                                 </span>
                                                             </td>
                                                             <td class="align-middle text-center text-sm" style="border: #cccccc 1px solid;">
-                                                                <span style="@(item.isInvoiceGenerated?"color:black !important":"")" class="text-secondary text-xs font-weight-bold">@(item.InvoiceType == "pk" ? "Primary" : item.InvoiceType=="Not Defined" ? "Unidentified" : "Secondary")</span>
+                                                                <span style="@(item.isInvoiceGenerated?"color:black !important":"")" class="text-secondary text-xs font-weight-bold">@(item.InvoiceType == "pk" ? "Primary" : item.InvoiceType == "Not Defined" ? "Unidentified" : "Secondary")</span>
                                                             </td>
 
                                                             <td class="align-middle text-center text-sm" style="border: #cccccc 1px solid;">
                                                                 <span style="@(item.isInvoiceGenerated?"color:black !important":"")" class="text-secondary text-xs font-weight-bold">@item.Product</span>
                                                             </td>
                                                             <td class="align-middle text-center text-sm" style="border: #cccccc 1px solid;">
-                                                                <a class="text-secondary text-xs font-weight-bold" style="@(item.isInvoiceGenerated?"color:blue !important":"") ;cursor:pointer" @onclick="@(()=>ShowMessage2(item))">View</a>
+                                                                <a class="text-secondary text-xs font-weight-bold" style="@(item.isInvoiceGenerated?"color:blue !important;":"") ;cursor:pointer" @onclick="@(()=>ShowMessage2(item))">View</a>
                                                             </td>
 
-                                                            @if (item.InvoiceType=="pk")
+                                                            @if (item.InvoiceType == "pk")
                                                             {
                                                                 <td class="align-middle text-center text-sm" style="border: #cccccc 1px solid;">
-                                                                    <a class="text-secondary text-xs font-weight-bold" style="@(item.isInvoiceGenerated?"color:blue !important":"") ;cursor:pointer" @onclick="@(()=>AddSecondary(item))">Add Secondary</a>
+                                                                    <a class="text-secondary text-xs font-weight-bold" style="@(item.isInvoiceGenerated?"color:blue !important;":"") ;cursor:pointer;" @onclick="@(()=>AddSecondary(item))">
+                                                                      Add Secondary
+                                                                       
+                                                                        
+                                                                    </a>
                                                                 </td>
                                                             }
                                                             else
@@ -289,14 +304,92 @@
                                                     }
                                                 }
                                             }
-                                            else if (IsLoading)
+
+                                            @*    @if (!IsLoading)
                                             {
-                                                <tr>
-                                                    <td colspan="18">
-                                                        <DataLoaderComponent IsLoading="@IsLoading" LoadingText="Loading Data..." />
-                                                    </td>
-                                                </tr>
+                                            @if (FilteredItems != null)
+                                            {
+                                            @if (FilteredItems.Count > 0)
+                                            {
+                                            foreach (var item in FilteredItems.OrderByDescending(p => p.InvoiceDate))
+                                            {
+
+                                            <tr class="tbl-accordion-header" ondblclick="@(() => ToggleCheckboxDisplay())" style=@GetColorCode(item.isInvoiceGenerated,item.InvoiceType)>
+                                            <td class="align-middle text-center" style="border: #cccccc 1px solid;">
+                                            @if (item.InvoiceType == "sc" && ShowCheckbox && !item.isInvoiceGenerated)
+                                            {
+                                            <input type="checkbox" @onchange="@(e => OnCheckboxChanged(item, e))" />
                                             }
+                                            </td>
+
+                                            <td class="align-middle text-center" style="border: #cccccc 1px solid;">
+                                            <span style="@(item.isInvoiceGenerated?"color:black !important":"")" class="text-secondary text-xs font-weight-bold">@item.STO</span>
+                                            </td>
+
+                                            <td class="align-middle text-center" style="border: #cccccc 1px solid;">
+                                            <span style="@(item.isInvoiceGenerated?"color:black !important":"")" class="text-secondary text-xs font-weight-bold">@item.Vehicle</span>
+                                            </td>
+
+                                            <td class="align-middle text-center" style="border: #cccccc 1px solid;">
+                                            <span style="@(item.isInvoiceGenerated?"color:black !important":"")" class="text-secondary text-xs font-weight-bold">@item.BusinessName?.ToUpper()</span>
+                                            </td>
+                                            <td class="align-middle text-center" style="border: #cccccc 1px solid;">
+                                            <span style="@(item.isInvoiceGenerated?"color:black !important":"")" class="text-secondary text-xs font-weight-bold">@item.InvoiceDate?.ToString("dd-MMMM-yy")</span>
+                                            </td>
+                                            <td class="align-middle text-center" style="border: #cccccc 1px solid;">
+                                            <span style="@(item.isInvoiceGenerated?"color:black !important":"")" class="text-secondary text-xs font-weight-bold">
+                                            @TruncateString(@item.ShippingLocation)
+                                            </span>
+                                            </td>
+
+                                            <td class="align-middle text-center" style="border: #cccccc 1px solid;">
+                                            <span style="@(item.isInvoiceGenerated?"color:black !important":"")" class="text-secondary text-xs font-weight-bold">
+                                            @TruncateString(@item.ReceivingLocation)
+                                            </span>
+                                            </td>
+                                            <td class="align-middle text-center text-sm" style="border: #cccccc 1px solid;">
+                                            <span style="@(item.isInvoiceGenerated?"color:black !important":"")" class="text-secondary text-xs font-weight-bold">@(item.InvoiceType == "pk" ? "Primary" : item.InvoiceType == "Not Defined" ? "Unidentified" : "Secondary")</span>
+                                            </td>
+
+                                            <td class="align-middle text-center text-sm" style="border: #cccccc 1px solid;">
+                                            <span style="@(item.isInvoiceGenerated?"color:black !important":"")" class="text-secondary text-xs font-weight-bold">@item.Product</span>
+                                            </td>
+                                            <td class="align-middle text-center text-sm" style="border: #cccccc 1px solid;">
+                                            <a class="text-secondary text-xs font-weight-bold" style="@(item.isInvoiceGenerated?"color:blue !important":"") ;cursor:pointer" @onclick="@(()=>ShowMessage2(item))">View</a>
+                                            </td>
+
+                                            @if (item.InvoiceType == "pk")
+                                            {
+                                            <td class="align-middle text-center text-sm" style="border: #cccccc 1px solid;">
+                                            <a class="text-secondary text-xs font-weight-bold" style="@(item.isInvoiceGenerated?"color:blue !important":"") ;cursor:pointer" @onclick="@(()=>AddSecondary(item))">Add Secondary</a>
+                                            </td>
+                                            }
+                                            else
+                                            {
+                                            <td class="align-middle text-center text-sm" style="border: #cccccc 1px solid;">
+                                            </td>
+                                            }
+
+
+
+
+
+
+
+                                            </tr>
+
+                                            }
+                                            }
+                                            }
+                                            } *@
+                                            @*  else if (IsLoading)
+                                            {
+                                            <tr>
+                                            <td colspan="18">
+                                            <DataLoaderComponent IsLoading="@IsLoading" LoadingText="Loading Data..." />
+                                            </td>
+                                            </tr>
+                                            } *@
                                         </tbody>
                                     </table>
 
@@ -402,7 +495,7 @@
         }
 
         MarkingText = "Data Marked Refreshing list...";
-        await LoadShortagereport();
+        await LoadData();
         FilteredItems = new List<OCRData>();
         FilteredItems = obj;
         MarkLoader = false;
@@ -452,12 +545,12 @@
     {
         string Color = "";
 
-        if (isInvoiceGenerated && Type=="pk")
+        if (isInvoiceGenerated && Type == "pk")
         {
             Color = "background:#DCDCDC";
         }
         else
-        if (isInvoiceGenerated && Type=="sc")
+        if (isInvoiceGenerated && Type == "sc")
         {
             Color = "background:#caf588;";
         }
@@ -476,7 +569,7 @@
 
             string urlPrefix = "https://191.96.196.61/";      // URL to replace the local path
             string newLocation = objs.FileLocation.Replace(@"C:\ScannedDocs\", urlPrefix);
-            if (objs.InvoiceType=="pk")
+            if (objs.InvoiceType == "pk")
             {
                 if (objs.isInvoiceGenerated)
                 {
@@ -501,11 +594,11 @@
                 Invoicing Invoice = new Invoicing();
                 Invoice.Details.STONo = objs.STO;
                 Invoice.Details.Product = objs.Product;
-                Invoice.InvoiceFilePath =newLocation;
+                Invoice.InvoiceFilePath = newLocation;
                 Invoice.Details.TankLorryNO = objs.Vehicle;
-                Invoice.Details.Date = objs.InvoiceDate??DateTime.MinValue;
-                Invoice.Details.ReceivingLocation =TruncateString(objs.ReceivingLocation);
-                Invoice.Details.SupplyPoint =TruncateString(objs.ShippingLocation);
+                Invoice.Details.Date = objs.InvoiceDate ?? DateTime.MinValue;
+                Invoice.Details.ReceivingLocation = TruncateString(objs.ReceivingLocation);
+                Invoice.Details.SupplyPoint = TruncateString(objs.ShippingLocation);
                 Invoice.Details.Contractor = "Shakoor & Co.";
                 Invoice.IsOCR = true;
                 Invoice.ExtarctedID = objs.OCRID;
@@ -522,7 +615,7 @@
                     // await JSRuntime.InvokeVoidAsync("openInNewTab", url);
                 }
             }
-            else if (objs.InvoiceType=="sc")
+            else if (objs.InvoiceType == "sc")
             {
                 await js.InvokeVoidAsync("openInNewTab2", $"/insertSec?View={objs.OCRID}");
             }
@@ -541,19 +634,195 @@
 
 
     }
+    public async Task<int> GetTotalChamberQtyAsync(string vehicleID)
+    {
+        int totalChamberQty = 0;
+        string connectionString = _configuration.GetConnectionString("Con"); // Replace with your actual connection string
+
+        using (SqlConnection connection = new SqlConnection(connectionString))
+        {
+            await connection.OpenAsync();
+
+            using (SqlCommand command = new SqlCommand("GetTotalChamberQtyByVehicleID", connection))
+            {
+                command.CommandType = CommandType.StoredProcedure;
+
+                // Add the VehicleID parameter
+                command.Parameters.AddWithValue("@VehicleID", vehicleID);
+
+                // Define the output parameter
+                SqlParameter outputParameter = new SqlParameter
+                    {
+                        ParameterName = "@TotalChamberQty",
+                        SqlDbType = SqlDbType.Int,
+                        Direction = ParameterDirection.Output
+                    };
+                command.Parameters.Add(outputParameter);
+
+                // Execute the stored procedure
+                await command.ExecuteNonQueryAsync();
+
+                // Retrieve the output value
+                totalChamberQty = (int)outputParameter.Value;
+            }
+        }
+
+        return totalChamberQty;
+    }
+    public async Task<List<ChamberDto>> GetChambersByExtractedId(int extractedId, string STO)
+    {
+        var chambers = new List<ChamberDto>();
+        string connectionString = _configuration.GetConnectionString("Con");
+
+        using (var connection = new SqlConnection(connectionString))
+        {
+            await connection.OpenAsync();
+
+            using (var command = new SqlCommand("usp_GetChambersByExtractedIdAndSTO", connection))
+            {
+                command.CommandType = CommandType.StoredProcedure;
+                command.Parameters.AddWithValue("@ExtractedID", extractedId);
+                command.Parameters.AddWithValue("@STONo", STO);
+
+                using (var reader = await command.ExecuteReaderAsync())
+                {
+                    while (await reader.ReadAsync())
+                    {
+                        var chamber = new ChamberDto
+                            {
+                                ExtractedID = extractedId,
+                                ChamberNo = reader.IsDBNull(0) ? 0 : reader.GetInt32(0),
+                                ChamberQty = reader.IsDBNull(1) ? 0 : reader.GetInt32(1),
+                                ChamberDip = reader.IsDBNull(2) ? 0 : reader.GetInt32(2)
+                            };
+                        chambers.Add(chamber);
+                    }
+                }
+            }
+        }
+
+        return chambers;
+    }
+
+
+
+    public class ChamberDto
+    {
+        public int ExtractedID { get; set; }
+        public int ChamberQty { get; set; }
+        public int ChamberDip { get; set; }
+        public int ChamberNo { get; set; }
+    }
+
     public async Task AddSecondary(OCRData objs)
     {
         try
         {
-            if (objs.STO!="Not Found" && objs.STO!=string.Empty&&objs.STO!=null&&
-            objs.Vehicle!="" && objs.Vehicle!=string.Empty&&objs.Vehicle!=null&&
-           objs.InvoiceDate!=null)
+            
+            if (objs.STO != "Not Found" && objs.STO != string.Empty && objs.STO != null &&
+            objs.Vehicle != "" && objs.Vehicle != string.Empty && objs.Vehicle != null &&
+           objs.InvoiceDate != null)
             {
 
                 if (DoesStonoExistAsync(objs.STO))
                 {
+                    List<OCRSecDTO> secondaryInvoices = new List<OCRSecDTO>();
+
+                    // Get total chamber quantity for the vehicle
+                    var totalVehicleQuantity = await GetTotalChamberQtyAsync(objs.Vehicle);
+
+                    // Get secondary records where InvoiceType is "sc" and filter by InvoiceDate and Vehicle
+                    var validSecondaries = FilteredItems
+                        .Where(p => p.InvoiceType == "sc" && p.Vehicle == objs.Vehicle && p.InvoiceDate >= objs.InvoiceDate)
+                        .OrderBy(p => p.InvoiceDate) // Sort by InvoiceDate for finding min date
+                        .GroupBy(p => p.InvoiceDate)
+                        .FirstOrDefault(group => !FilteredItems
+                            .Any(pk => pk.InvoiceType == "pk" && pk.Vehicle == objs.Vehicle
+                                       && pk.InvoiceDate > objs.InvoiceDate && pk.InvoiceDate < group.Key)
+                        )?.ToList();
+
+                    // Check if there are valid secondary records and process them
+                    if (validSecondaries != null)
+                    {
+                        int totalChamberQty = 0;
+
+                        foreach (var item in validSecondaries)
+                        {
+                            // Initialize a new SecondaryInvoices instance
+                            var secondaryInvoice = new OCRSecDTO
+                                {
+                                    ExtractedID = item.OCRID,
+                                    FileLocation = item.FileLocation,
+                                    FillingDate = item.InvoiceDate,
+                                    ProductName = item.Product,
+                                    RecievingLocation = item.ReceivingLocation,
+                                    ShippingLocation = item.ShippingLocation,
+                                    STONO = item.STO,
+                                    VehicleNo = item.Vehicle,
+                                    PrimaryInvoiceNumber = objs.STO,
+                                    ChamberDetails = new List<ChamberDetailsDTO>(),
+                                };
+
+                            // Fetch chambers associated with the current OCRID
+                            var chambers = await GetChambersByExtractedId(item.OCRID, objs.STO);
+
+                            int currentChamberQty = 0; // Track the ChamberQty for the current secondary invoice
+
+                            // Add chambers to the secondary invoice and accumulate ChamberQty sum
+                            foreach (var chamber in chambers)
+                            {
+                                // Only add chamber if there's at least one value in ChamberQty or ChamberDip
+                                if (chamber.ChamberQty != 0 || chamber.ChamberDip != 0)
+                                {
+                                    secondaryInvoice.ChamberDetails.Add(new ChamberDetailsDTO
+                                        {
+                                            ChamberDip = chamber.ChamberDip,
+                                            ChamberNo = chamber.ChamberNo,
+                                            ChamberQuantity = chamber.ChamberQty,
+                                            ExtractedID = chamber.ExtractedID,
+                                            STONO = item.STO,
+                                            InvoiceLorryDip = chamber.ChamberDip,
+                                            InvoiceChamberQuantity = chamber.ChamberQty,
+                                            CumulativeChamberQuantity = 0,
+                                            TotalVehicleChamberQuantity = 0
+                                        });
+
+                                    // Sum the ChamberQty if it has a value for the current item
+                                    if (chamber.ChamberQty != 0)
+                                        currentChamberQty += chamber.ChamberQty;
+                                }
+                            }
+
+                            // Check if the total chamber quantity of this item is within the allowed limit
+                            if (totalChamberQty + currentChamberQty <= totalVehicleQuantity)
+                            {
+                                // Add currentChamberQty to totalChamberQty since it's being added to the list
+                                totalChamberQty += currentChamberQty;
+                                // Add the populated secondary invoice to the list
+                                secondaryInvoices.Add(secondaryInvoice);
+                            }
+                        }
+
+                    }
+
+
+                    // Now totalChamberQty contains the sum of all ChamberQty from valid secondaries
+
+
+
+
+                    if (secondaryInvoices.Count <= 0)
+                    {
+                        toastService.ShowError("Not Secondaries found for this invoice");
+                        return;
+                    }
+
+                    string jsonString = JsonSerializer.Serialize(secondaryInvoices);
+                    string base64EncodedJson = Convert.ToBase64String(Encoding.UTF8.GetBytes(jsonString));
+                    string encodedJson = HttpUtility.UrlEncode(base64EncodedJson);
+
                     // NavigationManager.NavigateTo($"/Invoice?Edit={encodedJson}");
-                    await js.InvokeVoidAsync("openInNewTab2", $"/insertSec?Edit={objs.STO}");
+                    await js.InvokeVoidAsync("openInNewTab2", $"/insertSec?Edit={encodedJson}");
                     //  var url = $"/invoicepanel?Edit={encodedJson}";
                     // await JSRuntime.InvokeVoidAsync("openInNewTab", url);
 
@@ -577,7 +846,7 @@
         {
             toastService.ShowError($"Error: {ex.Message}");
         }
-
+       
     }
 
 
@@ -588,8 +857,8 @@
             try
             {
                 // Attempt a simple JavaScript call to check if JS is ready
-                await js.InvokeVoidAsync("addKeyboardShortcut");
-
+                await js.InvokeVoidAsync("console.log", "");
+                BusinessID = await UserClaimsService.GetBusinessIdsAsync();
                 _isJsReady = true; // JS is ready, so set a flag or take action
                 StateHasChanged();
             }
@@ -606,12 +875,12 @@
     {
         var rec = obj.Where(item =>
            (string.IsNullOrEmpty(item.Vehicle) || item.Vehicle.Length < 5 || item.Vehicle.Contains("Not Found")) ||  // Show if Vehicle is null, length < 5, or contains "Not Found"
-           string.IsNullOrEmpty(item.BusinessName) || item.BusinessName.Contains("Not Found")||  // Show if BusinessName is null, empty, or "Not Found"
+           string.IsNullOrEmpty(item.BusinessName) || item.BusinessName.Contains("Not Found") ||  // Show if BusinessName is null, empty, or "Not Found"
            string.IsNullOrEmpty(item.Product) || item.Product.Contains("Not Found") ||  // Show if Product is null, empty, or "Not Found"
            string.IsNullOrEmpty(item.ReceivingLocation) || item.ReceivingLocation.Contains("Not Found") ||  // Show if ReceivingLocation is null, empty, or "Not Found"
            string.IsNullOrEmpty(item.ShippingLocation) || item.ShippingLocation.Contains("Not Found") ||  // Show if ShippingLocation is null, empty, or "Not Found"
-           (string.IsNullOrEmpty(item.STO) || item.STO.Contains("Not Found") || item.STO.Contains("NOT_FOUND"))   ||
-           item.InvoiceDate==null ||item.InvoiceDate==DateTime.MinValue
+           (string.IsNullOrEmpty(item.STO) || item.STO.Contains("Not Found") || item.STO.Contains("NOT_FOUND")) ||
+           item.InvoiceDate == null || item.InvoiceDate == DateTime.MinValue
        ).ToList();
 
         if (isPrimary)
@@ -633,7 +902,7 @@
     private async void SearchRecords(string searchCriteria)
     {
 
-        if (searchCriteria==null)
+        if (searchCriteria == null)
         {
             if (startDate.HasValue)
             {
@@ -694,37 +963,51 @@
         startDate = null;
         endDate = null;
         searchTerm = null;
-        FilteredItems = obj;
+
+        // Clear the existing FilteredItems instead of creating a new list
+        FilteredItems.Clear();
+        FilteredItems.AddRange(obj); // If obj is already the source of data
     }
-    private async Task Refresh()
+    private async Task LoadData()
     {
-        RefreshLoader=true;
-        await LoadShortagereport();
-        FilteredItems = obj;
-        RefreshLoader = false;
-        isEdited = false;
+        IsLoading = true;
+        try
+        {
+            RefreshLoader = true;
+            FilteredItems = new List<OCRData>();
+            obj = new List<OCRData>();
+            // Process each item as it is read
+            await foreach (var item in LoadShortagereport())
+            {
+                FilteredItems.Add(item);
+                await InvokeAsync(StateHasChanged); // Trigger UI update for each item added
+                obj.Add(item);
+            }
+
+            // Filter the list after all items have been added
+            FilteredItems = FilteredItems
+                .Where(p => BusinessID.Contains(p.BusinessID))
+                .OrderByDescending(p => p.InvoiceDate)
+                .ToList();
+
+            RefreshLoader = false;
+            isEdited = false;
+        }
+        catch (Exception ex)
+        {
+            // Handle exceptions
+        }
+        finally
+        {
+            IsLoading = false;
+        }
     }
+
 
     protected override async Task OnInitializedAsync()
     {
 
-        IsLoading = true;
-        try
-        {
 
-            BusinessID = await UserClaimsService.GetBusinessIdsAsync();
-
-            await LoadShortagereport();
-            FilteredItems = obj;
-
-            // await LoadData();
-
-        }
-        catch (Exception ex)
-        {
-            IsLoading = false;
-        }
-        IsLoading = false;
     }
     // private async Task LoadData()
     // {
@@ -807,65 +1090,49 @@
 
 
     private int TotalPages;
-    public async Task LoadShortagereport()
+    public async IAsyncEnumerable<OCRData> LoadShortagereport()
     {
-        try
-        {
-            obj = new List<OCRData>();
-            string query = $@"
+        string query = $@"
 SELECT *
 FROM vwGetExtractedData
-ORDER BY FillingDate DESC, VehicleNo, CASE WHEN InvoiceType = 'pk' THEN 1 ELSE 2 END;
+ORDER BY BusinessID, FillingDate DESC, VehicleNo, CASE WHEN InvoiceType = 'pk' THEN 1 ELSE 2 END;
 ";
-            var connectionString = _configuration.GetConnectionString("Con");
 
-            using (var connection = new SqlConnection(connectionString))
+        var connectionString = _configuration.GetConnectionString("Con");
+
+        using (var connection = new SqlConnection(connectionString))
+        {
+            await connection.OpenAsync();
+
+            using (var command = new SqlCommand(query, connection))
+            using (var reader = await command.ExecuteReaderAsync())
             {
-                await connection.OpenAsync();
-
-                using (var command = new SqlCommand(query, connection))
-                using (var reader = await command.ExecuteReaderAsync())
+                while (await reader.ReadAsync())
                 {
-                    while (await reader.ReadAsync())
-                    {
-                        OCRData dv = new OCRData();
-                        dv = new OCRData
-                            {
-                                InvoiceDate = reader.IsDBNull(reader.GetOrdinal("FillingDate"))
-                                                                                                          ? (DateTime?)null
-                                                                                                              : reader.GetDateTime(reader.GetOrdinal("FillingDate")),
+                    OCRData dv = new OCRData
+                        {
+                            InvoiceDate = reader.IsDBNull(reader.GetOrdinal("FillingDate"))
+                                                                ? (DateTime?)null
+                                                                : reader.GetDateTime(reader.GetOrdinal("FillingDate")),
+                            STO = reader.IsDBNull(reader.GetOrdinal("STONO")) ? "" : reader.GetString(reader.GetOrdinal("STONO")),
+                            BusinessName = reader.IsDBNull(reader.GetOrdinal("busdesc")) ? "" : reader.GetString(reader.GetOrdinal("busdesc")),
+                            Vehicle = reader.IsDBNull(reader.GetOrdinal("VehicleNo")) ? "" : reader.GetString(reader.GetOrdinal("VehicleNo")),
+                            BusinessID = reader.IsDBNull(reader.GetOrdinal("BusinessID")) ? 0 : reader.GetInt32(reader.GetOrdinal("BusinessID")),
+                            OCRID = reader.IsDBNull(reader.GetOrdinal("ExtractedID")) ? 0 : reader.GetInt32(reader.GetOrdinal("ExtractedID")),
+                            ShippingLocation = reader.IsDBNull(reader.GetOrdinal("ShippingLocation")) ? "" : reader.GetString(reader.GetOrdinal("ShippingLocation")),
+                            ReceivingLocation = reader.IsDBNull(reader.GetOrdinal("RecievingLocation")) ? "" : reader.GetString(reader.GetOrdinal("RecievingLocation")),
+                            InvoiceType = reader.IsDBNull(reader.GetOrdinal("InvoiceType")) ? "" : reader.GetString(reader.GetOrdinal("InvoiceType")),
+                            Product = reader.IsDBNull(reader.GetOrdinal("ProductName")) ? "" : reader.GetString(reader.GetOrdinal("ProductName")),
+                            FileLocation = reader.IsDBNull(reader.GetOrdinal("FileLocation")) ? "" : reader.GetString(reader.GetOrdinal("FileLocation")),
+                            isInvoiceGenerated = reader.IsDBNull(reader.GetOrdinal("isInvoiceGenerated")) ? false : reader.GetBoolean(reader.GetOrdinal("isInvoiceGenerated")),
+                        };
 
-                                STO = reader.IsDBNull(reader.GetOrdinal("STONO")) ? "" : reader.GetString(reader.GetOrdinal("STONO")),
-                                BusinessName = reader.IsDBNull(reader.GetOrdinal("busdesc")) ? "" : reader.GetString(reader.GetOrdinal("busdesc")),
-                                Vehicle = reader.IsDBNull(reader.GetOrdinal("VehicleNo")) ? "" : reader.GetString(reader.GetOrdinal("VehicleNo")),
-                                BusinessID = reader.IsDBNull(reader.GetOrdinal("BusinessID")) ? 0 : reader.GetInt32(reader.GetOrdinal("BusinessID")),
-                                OCRID = reader.IsDBNull(reader.GetOrdinal("ExtractedID")) ? 0 : reader.GetInt32(reader.GetOrdinal("ExtractedID")),
-
-                                ShippingLocation = reader.IsDBNull(reader.GetOrdinal("ShippingLocation")) ? "" : reader.GetString(reader.GetOrdinal("ShippingLocation")),
-                                ReceivingLocation = reader.IsDBNull(reader.GetOrdinal("RecievingLocation")) ? "" : reader.GetString(reader.GetOrdinal("RecievingLocation")),
-                                InvoiceType = reader.IsDBNull(reader.GetOrdinal("InvoiceType")) ? "" : reader.GetString(reader.GetOrdinal("InvoiceType")),
-                                Product = reader.IsDBNull(reader.GetOrdinal("ProductName")) ? "" : reader.GetString(reader.GetOrdinal("ProductName")),
-                                FileLocation = reader.IsDBNull(reader.GetOrdinal("FileLocation")) ? "" : reader.GetString(reader.GetOrdinal("FileLocation")),
-                                isInvoiceGenerated = reader.IsDBNull(reader.GetOrdinal("isInvoiceGenerated")) ? false : reader.GetBoolean(reader.GetOrdinal("isInvoiceGenerated")),
-
-                            };
-                        obj.Add(dv);
-
-
-
-
-                    }
+                    yield return dv; // Yield each OCRData object
                 }
             }
-
-            obj = obj.Where(p => BusinessID.Contains(p.BusinessID)).OrderByDescending(p => p.InvoiceDate).ToList();
-
-        }
-        catch (Exception ex)
-        {
-
         }
     }
+
 
 
 
