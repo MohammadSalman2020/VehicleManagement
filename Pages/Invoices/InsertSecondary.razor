@@ -217,7 +217,7 @@
                                                             <td>  <input type="text" tabindex="7" placeholder="Contractor" value="Shakoor & Co." class="form-control"></td>
 
                                                             <td>Product </td>
-                                                            <td>  <input type="text" tabindex="7" placeholder="Primary Invoice No" @bind="@item.Product" class="form-control"></td>
+                                                            <td>  <input type="text" tabindex="7" placeholder="Product" @bind="@item.Product" class="form-control"></td>
                                                         </tr>
 
 
@@ -260,7 +260,9 @@
                                             {
                                                 @foreach (var item in generalDetailsList)
                                                 {
-
+                                                    <br />
+                                                    <h4>Invoice # @item.STONO</h4>
+                                                   
                                                     <table class="details">
 
 
@@ -291,7 +293,7 @@
                                                             <td>  <input type="text" tabindex="7" placeholder="Contractor" value="Shakoor & Co." class="form-control"></td>
 
                                                             <td>Primary Reference</td>
-                                                            <td>  <input type="text" tabindex="7" placeholder="Primary Invoice No" @bind="@PrimaryReference" class="form-control"></td>
+                                                            <td>  <input type="text" tabindex="7" placeholder="Primary Invoice No" @bind="@item.PrimaryInvoiceNumber" class="form-control"></td>
                                                         </tr>
 
 
@@ -307,9 +309,7 @@
                                                         {
                                                             <tr>
                                                                 <td colspan="4">
-                                                                    Chamber No: @item2.ChamberNo -
-                                                                    @(item2.InvoiceChamberQuantity == 0 ? item2.ChamberQuantity : item2.InvoiceChamberQuantity)
-                                                                    (@(item2.InvoiceLorryDip == 0 ? item2.ChamberDip : item2.InvoiceLorryDip))
+                                                                    Chamber No: @item2.ChamberNo - @item2.ChamberQuantity (@item2.ChamberDip)
                                                                 </td>
 
                                                                 <td colspan="1"> <input type="text" tabindex="4" placeholder="Quantity" class="form-control"></td>
@@ -321,6 +321,8 @@
 
 
                                                     </table>
+
+                                                    <br />
                                                 }
                                             }
 
@@ -602,10 +604,21 @@
             // Check if the "Edit=" query parameter exists
             if (encodedJson.Contains("Edit="))
             {
-                // Extract the value of the "Edit=" query parameter
+                // Extract the value of the "json" query parameter
                 encodedJson = encodedJson.Split("Edit=")[1];
-                PrimaryReference = encodedJson;
-                generalDetailsList=GetInvoicesWithChamberDetails(PrimaryReference);
+
+                // Decode the URL-safe Base64 string
+                string base64EncodedJson = HttpUtility.UrlDecode(encodedJson);
+
+                // Convert the Base64 string back to UTF-8 encoded bytes
+                byte[] base64EncodedBytes = Convert.FromBase64String(base64EncodedJson);
+
+                // Decode the UTF-8 bytes back to the original JSON string
+                string jsonString = Encoding.UTF8.GetString(base64EncodedBytes);
+
+                // Deserialize the JSON string back into the Invoices object
+                generalDetailsList = JsonSerializer.Deserialize<List<OCRSecDTO>>(jsonString);
+                StateHasChanged();
                 //   Invoices = GetChamberData(PrimaryReference);
 
                 if (generalDetailsList.Count > 0)
@@ -1028,7 +1041,8 @@ WHERE
             ShippingLocation = @ShippingLocation,
             VehicleNo = @VehicleNo,
             FillingDate = @FillingDate,
-IsInvoiceGenerated='True'
+IsInvoiceGenerated='True',
+ProductName=@ProductName
         WHERE ExtractedID = @ExtractedID";
 
             using (SqlConnection connection = new SqlConnection(_configuration.GetConnectionString("Con")))
@@ -1044,6 +1058,7 @@ IsInvoiceGenerated='True'
                     command.Parameters.AddWithValue("@VehicleNo", invoiceData.VehicleNo);
                     command.Parameters.AddWithValue("@FillingDate", invoiceData.FillingDate);
                     command.Parameters.AddWithValue("@ExtractedID", invoiceData.ExtractedID);
+                    command.Parameters.AddWithValue("@ProductName", invoiceData.Product);
 
                     int rowsAffected = command.ExecuteNonQuery();
                     if (rowsAffected <= 0)

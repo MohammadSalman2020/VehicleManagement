@@ -5,10 +5,11 @@
         public int ExtractedID { get; set; }
         public string STONO { get; set; }
         public string VehicleNo { get; set; }
-        public DateTime FillingDate { get; set; }
+        public DateTime? FillingDate { get; set; }
         public string FileLocation { get; set; }
         public string ProductName { get; set; }
         public string RecievingLocation { get; set; }
+        public string PrimaryInvoiceNumber { get; set; }
         public string ShippingLocation { get; set; }
 
         // List to hold related chamber details
