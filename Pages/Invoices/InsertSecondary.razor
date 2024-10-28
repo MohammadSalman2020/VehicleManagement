@@ -258,7 +258,7 @@
                                         }
                                         else
                                         {
-                                            @if (generalDetailsList.Count>0)
+                                            @if (generalDetailsList.Count > 0)
                                             {
                                                 @foreach (var item in generalDetailsList)
                                                 {
@@ -507,9 +507,64 @@
     public string? User;
 
 
+    public async Task<string> SaveImage(string FileName, string STO)
+    {
+        HttpClientHandler handler = new HttpClientHandler
+            {
+                // Disable SSL certificate validation
+                ServerCertificateCustomValidationCallback = (HttpRequestMessage, cert, chain, sslPolicyErrors) => true
+            };
+
+        using (HttpClient client = new HttpClient(handler))
+        {
+            string urlPrefix = "https://191.96.196.61/";      // URL to replace the local path
+            string newLocation = FileName.Replace(@"C:\ScannedDocs\", urlPrefix);
+            string imageUrl = newLocation; // Assuming this is your image URL like "https://191.96.196.61/1044112.jpg"
+            HttpResponseMessage response = await client.GetAsync(imageUrl);
+
+            if (response.IsSuccessStatusCode)
+            {
+                var content = await response.Content.ReadAsStreamAsync();
+
+                // Create the file on your local file system
+                var fileExtension = ".jpg"; // Assuming it's a jpg image
+                var trustedFileNameForFileStorage = STO.Trim() + fileExtension;
+                var destinationFolderPath = Path.Combine(Environment.ContentRootPath, "wwwroot\\css\\Development", "HTL_Reports");
+
+                // Create the destination folder if it does not exist
+                if (!Directory.Exists(destinationFolderPath))
+                {
+                    Directory.CreateDirectory(destinationFolderPath);
+                }
+
+                // Define destination file path
+                var destinationFilePath = Path.Combine(destinationFolderPath, trustedFileNameForFileStorage);
+
+                // Save the file
+                using (var fileStream = new FileStream(destinationFilePath, FileMode.Create, FileAccess.Write, FileShare.None, 4096, true))
+                {
+                    await content.CopyToAsync(fileStream);
+                }
+
+                // Update the file path
+                string correctedFilePath = Path.Combine("css/Development", "HTL_Reports", trustedFileNameForFileStorage);
+              return  FileName = correctedFilePath.Replace("\\", "/");
+
+
+            }
+            else
+            {
+                return "404";
+            }
+        }
+
+      
+    }
+
+
     public bool IsChamberAlreadyExisits(VehiclesChamber item)
     {
-        if (Invoices[0].Chambers.Any(p => p.ChamberNo==item.ChamberNo))
+        if (Invoices[0].Chambers.Any(p => p.ChamberNo == item.ChamberNo))
         {
             return true;
         }
@@ -518,7 +573,28 @@
             return false;
         }
     }
+    public int GetInvoiceID(string stono)
+    {
+        // SQL query to check if STONO exists
+        string query = "SELECT invoiceid FROM tblinvoices WHERE STONO = @stono";
 
+        using (var connection = new SqlConnection(_configuration.GetConnectionString("Con")))
+        {
+            connection.Open();
+
+            using (var command = new SqlCommand(query, connection))
+            {
+                // Add the parameter to the query
+                command.Parameters.AddWithValue("@stono", stono);
+
+                // Execute the query and get the result
+                int count = (int)command.ExecuteScalar();
+
+                // If the count is greater than 0, the STONO exists
+                return count;
+            }
+        }
+    }
     private void OpenPolicyModal()
     {
         PolicyModal.Show();
@@ -591,102 +667,115 @@
         }
         else
         {
-//             @foreach (var item in generalDetailsList)
-//             {
+            try
+            {
 
 
+                IsLoading = true;
+                @foreach (var item in generalDetailsList)
+                {
+                    if (item.ChamberDetails.Any(chamber => chamber.RecDip == 0))
+                    {
+                        toastService.ShowError("Dip cannot be zero in any chamber detail.");
+                        IsLoading = false;
+                        return; // Exit the method if validation fails
+                    }
 
-//                 List<string> chambers = new List<string>();
-//                 @foreach (var item2 in item.ChamberDetails)
-//                 {
-//                     if (item2.ChamberNo==1)
-//                     {
-//                         chambers.Add("chamber1");
-//                     }
-//                     if (item2.ChamberNo==2)
-//                     {
-//                         chambers.Add("chamber2");
-//                     }
-//                     if (item2.ChamberNo==3)
-//                     {
-//                         chambers.Add("chamber3");
-//                     }
-//                     if (item2.ChamberNo==4)
-//                     {
-//                         chambers.Add("chamber4");
-//                     }
-//                     if (item2.ChamberNo==5)
-//                     {
-//                         chambers.Add("chamber5");
-//                     }
-//                 }
+                    List<string> chambers = new List<string>();
+                    @foreach (var item2 in item.ChamberDetails)
+                    {
+                        if (item2.ChamberNo == 1)
+                        {
+                            chambers.Add("chamber1");
+                        }
+                        if (item2.ChamberNo == 2)
+                        {
+                            chambers.Add("chamber2");
+                        }
+                        if (item2.ChamberNo == 3)
+                        {
+                            chambers.Add("chamber3");
+                        }
+                        if (item2.ChamberNo == 4)
+                        {
+                            chambers.Add("chamber4");
+                        }
+                        if (item2.ChamberNo == 5)
+                        {
+                            chambers.Add("chamber5");
+                        }
+                    }
 
-//                 var obj = new SecondaryInvoice
-//                     {
-//                         primaryreference = item.PrimaryInvoiceNumber,
-//                         vehicle = item.VehicleNo,
-//                         scondaryinvoice = item.STONO,
-//                         _date = item.FillingDate.Value.Date,
-//                         supplypoint = item.ShippingLocation,
-//                         product = item.ProductName,
-//                         receiivingpoint = item.RecievingLocation,
-//                         contractor = "Shakoor & Co.",
-//                         chambers = chambers,
-//                         user = User
-//                     };
+                    var obj = new SecondaryInvoice
+                        {
+                            primaryreference = item.PrimaryInvoiceNumber,
+                            vehicle = item.VehicleNo,
+                            scondaryinvoice = item.STONO,
+                            _date = item.FillingDate.Value.Date,
+                            supplypoint = item.ShippingLocation,
+                            product = item.ProductName,
+                            receiivingpoint = item.RecievingLocation,
+                            contractor = "Shakoor & Co.",
+                            chambers = chambers,
+                            user = User
+                        };
 
-//                 JsonSerializerOptions options = new JsonSerializerOptions
-//                     {
-//                         WriteIndented = true,
-//                         ReferenceHandler = null
-//                     };
-//                 string jsonData = JsonSerializer.Serialize(obj, options);
+                    JsonSerializerOptions options = new JsonSerializerOptions
+                        {
+                            WriteIndented = true,
+                            ReferenceHandler = null
+                        };
+                    string jsonData = JsonSerializer.Serialize(obj, options);
 
-//                 var scinvoice = await API.PostRequest($"Invoice/SaveSecondaryInvoice", jsonData);
-//                 string Result = JsonSerializer.Deserialize<string>(scinvoice);
-//                 if (Result == "200")
-//                 {
-//                     List<RecInv> receivingChambers = new List<RecInv>();
-//                     foreach (var x in item.ChamberDetails)
-//                     {
-//                         receivingChambers.Add(new RecInv
-//                         {
-// ch_no=x.ChamberNo,
-// disp_dip=x.ChamberQuantity,
-// dis_liters=x.ChamberDip,
-// invoiceno=item.STONO,
-// InvoicePath=item.FileLocation,
-// primarySTO=item.PrimaryInvoiceNumber,
+                    var scinvoice = await API.PostRequest($"Invoice/SaveSecondaryInvoice", jsonData);
+                    string Result = JsonSerializer.Deserialize<string>(scinvoice);
+                    if (Result == "200")
+                    {
+                        int InvoiceID = GetInvoiceID(item.STONO);
+                       string ImageSaved= await SaveImage(item.FileLocation, item.STONO);
+                       
+                        List<RecInv> receivingChambers = new List<RecInv>();
+                        foreach (var x in item.ChamberDetails)
+                        {
+                            receivingChambers.Add(new RecInv
+                                {
+                                    ch_no = x.ChamberNo,
+                                    disp_dip = x.ChamberQuantity,
+                                    dis_liters = x.ChamberDip,
+                                    invoiceno = InvoiceID,
+                                    InvoicePath = ImageSaved,
+                                    primarySTO = item.PrimaryInvoiceNumber,
+                                    RecDip = x.RecDip,
+                                    RecLiters = x.RecLiters,
+                                    rec_dip = x.rec_dip,
+                                    ShortExcess = x.ShortExcess,
+                                    ogra = x.ogra,
+                                });
+                        }
 
-//                         });
-//                     }
+                        JsonSerializerOptions options2 = new JsonSerializerOptions
+                            {
+                                WriteIndented = true,
+                                ReferenceHandler = null
+                            };
+                        string jsonData2 = JsonSerializer.Serialize(receivingChambers, options2);
 
-//                     JsonSerializerOptions options = new JsonSerializerOptions
-//                         {
-//                             WriteIndented = true,
-//                             ReferenceHandler = null
-//                         };
-//                     string jsonData = JsonSerializer.Serialize(chambers, options);
+                        var scinvoice2 = await API.PostRequest($"Invoice/SaveSecondaryWithImage", jsonData2);
+                        string Result2 = JsonSerializer.Deserialize<string>(scinvoice);
+                        
+                    }
+                    
 
-//                     var scinvoice = await API.PostRequest($"Invoice/SaveSecondaryWithImage", jsonData);
-//                     string Result = JsonSerializer.Deserialize<string>(scinvoice);
-//                     if (Result == "200")
-//                     {
-//                         navmanager.NavigateTo($"/inv_selection");
-//                         toastService.ShowSuccess($"Secondary Invoice Added");
-//                     }
+                }
+                await JS.InvokeVoidAsync("closeCurrentTab");
 
-//                     toastService.ShowSuccess($"Secondary Invoice Added");
-//                 }
-//                 else if (Result == "504")
-//                 {
-//                     toastService.ShowWarning($"Mark Driver Attendance First");
-//                 }
+            }
+            catch (Exception ex)
+            {
+                toastService.ShowError("Error while adding secondary");
+            }
+            IsLoading = false;
 
-//             }
-       
-        
-        
         }
     }
 
@@ -993,7 +1082,7 @@ ORDER BY FillingDate, ChamberNo;";
                                 ShippingLocation = reader.GetString(3) ?? "",
                                 VehicleNo = reader.GetString(4) ?? "",
                                 FillingDate = reader.IsDBNull(7) ? DateTime.MinValue : reader.GetDateTime(7),
-                                Product=reader.GetString(8)??"",
+                                Product = reader.GetString(8) ?? "",
                                 FileLocation = reader.GetString(9) ?? "",
                                 isView = true
                             };

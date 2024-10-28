@@ -23,13 +23,15 @@
         public int ChamberDip { get; set; }
         public int ChamberNo { get; set; }
         public int rec_dip { get; set; }
+        public int ogra { get; set; }
         public int RecDip
         {
             get => rec_dip;
             set
             {
                 rec_dip = value;
-                if (rec_dip == ChamberQuantity) // ChamberQuantity should replace with the master data quantity of that chamber
+             
+                if (rec_dip == ogra) // ChamberQuantity should replace with the master data quantity of that chamber
                 {
                     RecLiters = 0;
                     ShortExcess = 0;
