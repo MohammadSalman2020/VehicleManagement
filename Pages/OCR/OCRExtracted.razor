@@ -281,9 +281,9 @@
                                                             {
                                                                 <td class="align-middle text-center text-sm" style="border: #cccccc 1px solid;">
                                                                     <a class="text-secondary text-xs font-weight-bold" style="@(item.isInvoiceGenerated?"color:blue !important;":"") ;cursor:pointer;" @onclick="@(()=>AddSecondary(item))">
-                                                                      Add Secondary
-                                                                       
-                                                                        
+                                                                        Add Secondary
+
+
                                                                     </a>
                                                                 </td>
                                                             }
@@ -692,8 +692,10 @@
                             {
                                 ExtractedID = extractedId,
                                 ChamberNo = reader.IsDBNull(0) ? 0 : reader.GetInt32(0),
-                                ChamberQty = reader.IsDBNull(1) ? 0 : reader.GetInt32(1),
-                                ChamberDip = reader.IsDBNull(2) ? 0 : reader.GetInt32(2)
+                                ChamberQtyR = reader.IsDBNull(1) ? 0 : reader.GetInt32(1),
+                                ChamberQtyS = reader.IsDBNull(2) ? 0 : reader.GetInt32(2),
+                                ChamberDipR = reader.IsDBNull(3) ? 0 : reader.GetInt32(3),
+                                ChamberDipS = reader.IsDBNull(4) ? 0 : reader.GetInt32(4)
                             };
                         chambers.Add(chamber);
                     }
@@ -709,8 +711,10 @@
     public class ChamberDto
     {
         public int ExtractedID { get; set; }
-        public int ChamberQty { get; set; }
-        public int ChamberDip { get; set; }
+        public int ChamberQtyR { get; set; }
+        public int ChamberQtyS { get; set; }
+        public int ChamberDipR { get; set; }
+        public int ChamberDipS { get; set; }
         public int ChamberNo { get; set; }
     }
 
@@ -718,7 +722,7 @@
     {
         try
         {
-            
+
             if (objs.STO != "Not Found" && objs.STO != string.Empty && objs.STO != null &&
             objs.Vehicle != "" && objs.Vehicle != string.Empty && objs.Vehicle != null &&
            objs.InvoiceDate != null)
@@ -772,24 +776,25 @@
                             foreach (var chamber in chambers)
                             {
                                 // Only add chamber if there's at least one value in ChamberQty or ChamberDip
-                                if (chamber.ChamberQty != 0 || chamber.ChamberDip != 0)
+                                if (chamber.ChamberQtyR != 0 || chamber.ChamberDipR != 0)
                                 {
                                     secondaryInvoice.ChamberDetails.Add(new ChamberDetailsDTO
                                         {
-                                            ChamberDip = chamber.ChamberDip,
+                                            ChamberDip = chamber.ChamberDipR,
                                             ChamberNo = chamber.ChamberNo,
-                                            ChamberQuantity = chamber.ChamberQty,
+                                            ChamberQuantity = chamber.ChamberQtyR,
                                             ExtractedID = chamber.ExtractedID,
                                             STONO = item.STO,
-                                            InvoiceLorryDip = chamber.ChamberDip,
-                                            InvoiceChamberQuantity = chamber.ChamberQty,
+                                            InvoiceLorryDip = chamber.ChamberDipR,
+                                            InvoiceChamberQuantity = chamber.ChamberQtyR,
+                                            ogra = chamber.ChamberDipS,
                                             CumulativeChamberQuantity = 0,
                                             TotalVehicleChamberQuantity = 0
                                         });
 
                                     // Sum the ChamberQty if it has a value for the current item
-                                    if (chamber.ChamberQty != 0)
-                                        currentChamberQty += chamber.ChamberQty;
+                                    if (chamber.ChamberQtyS != 0)
+                                        currentChamberQty += chamber.ChamberQtyS;
                                 }
                             }
 
@@ -813,7 +818,7 @@
 
                     if (secondaryInvoices.Count <= 0)
                     {
-                        toastService.ShowError("Not Secondaries found for this invoice");
+                        toastService.ShowError("No Secondaries found for this invoice");
                         return;
                     }
 
@@ -831,7 +836,7 @@
                 }
                 else
                 {
-                    toastService.ShowError("Please generated the primary invoice first");
+                    toastService.ShowError("Please generate the primary invoice first");
                 }
 
             }
@@ -846,7 +851,7 @@
         {
             toastService.ShowError($"Error: {ex.Message}");
         }
-       
+
     }
 
 
@@ -1112,8 +1117,8 @@ ORDER BY BusinessID, FillingDate DESC, VehicleNo, CASE WHEN InvoiceType = 'pk' T
                     OCRData dv = new OCRData
                         {
                             InvoiceDate = reader.IsDBNull(reader.GetOrdinal("FillingDate"))
-                                                                ? (DateTime?)null
-                                                                : reader.GetDateTime(reader.GetOrdinal("FillingDate")),
+                                                                            ? (DateTime?)null
+                                                                            : reader.GetDateTime(reader.GetOrdinal("FillingDate")),
                             STO = reader.IsDBNull(reader.GetOrdinal("STONO")) ? "" : reader.GetString(reader.GetOrdinal("STONO")),
                             BusinessName = reader.IsDBNull(reader.GetOrdinal("busdesc")) ? "" : reader.GetString(reader.GetOrdinal("busdesc")),
                             Vehicle = reader.IsDBNull(reader.GetOrdinal("VehicleNo")) ? "" : reader.GetString(reader.GetOrdinal("VehicleNo")),
