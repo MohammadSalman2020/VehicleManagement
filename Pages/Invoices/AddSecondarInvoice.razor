@@ -324,22 +324,6 @@
                     user = User
                 };
 
-            // JsonSerializerOptions options = new JsonSerializerOptions
-            //     {
-            //         WriteIndented = true,
-            //         ReferenceHandler = null
-            //     };
-            // string jsonData = JsonSerializer.Serialize(obj, options);
-
-            // var scinvoice = await API.PostRequest($"Invoice/SaveSecondaryInvoice", jsonData);
-            // string Result = JsonSerializer.Deserialize<string>(scinvoice);
-            // if (Result == "200")
-            // {
-
-            //     navmanager.NavigateTo($"/inv_selection");
-            //     toastService.ShowSuccess($"Secondary Invoice Added");
-            // }
-
             JsonSerializerOptions options = new JsonSerializerOptions
                 {
                     WriteIndented = true,

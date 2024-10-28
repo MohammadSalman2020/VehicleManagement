@@ -13,6 +13,8 @@
 @using VehicleManagement.Models.General
 @using VehicleManagement.Models.General.Login
 @using VehicleManagement.Pages.Redirects;
+@using static VehicleManagement.Pages.Invoices.ReceiveSecondary
+@using static VehicleManagement.Pages.Invoices.AddSecondarInvoice
 @inject IWebHostEnvironment Environment
 @inject IToastService toastService
 @inject NavigationManager NavigationManager
@@ -232,7 +234,7 @@
                                                                 <button class="btn-success" @onclick="@(()=>ShowModal(item.VehicleNo))">Add Loading Chambers</button>
                                                             </td>
                                                             <td colspan="1" style="cursor:pointer; color:blue;" @onclick="@(()=>ShowImages(item))">View Image</td>
-                                                           
+
                                                         </tr>
 
 
@@ -262,7 +264,7 @@
                                                 {
                                                     <br />
                                                     <h4>Invoice # @item.STONO</h4>
-                                                   
+
                                                     <table class="details">
 
 
@@ -308,12 +310,14 @@
                                                         @foreach (var item2 in item.ChamberDetails)
                                                         {
                                                             <tr>
-                                                                <td colspan="4">
+                                                                <td colspan="2">
                                                                     Chamber No: @item2.ChamberNo - @item2.ChamberQuantity (@item2.ChamberDip)
                                                                 </td>
 
-                                                                <td colspan="1"> <input type="text" tabindex="4" placeholder="Quantity" class="form-control"></td>
-                                                                <td colspan="1"> <input type="text" tabindex="4" placeholder="Dip" class="form-control"></td>
+                                                                <td colspan="1"> <input type="number" tabindex="4" placeholder="Dip" @bind="item2.RecDip" @bind:event="oninput" class="form-control"></td>
+                                                                <td colspan="1"><label>@item2.RecLiters</label></td>
+                                                                <td colspan="1"><label>@item2.ShortExcess</label></td>
+                                                                <td colspan="1"><label style="@(@item2.Status.Contains("Extra")?"color:blue;":"color:red;")">@item2.Status</label></td>
                                                             </tr>
                                                         }
 
@@ -355,9 +359,9 @@
                                     <div class="table-responsive inv-img">
 
                                         <div id="dropzone" class="dropzone">
-                                           @*  <p>Click to add Image</p> *@
-@*                                             <InputFile type="file" id="fileInput" class="file-input" />
- *@                                            <div id="preview" class="preview"></div>
+                                            @*  <p>Click to add Image</p> *@
+                                            @*                                             <InputFile type="file" id="fileInput" class="file-input" />
+                                            *@                                            <div id="preview" class="preview"></div>
                                         </div>
                                     </div>
                                 </div>
@@ -389,8 +393,9 @@
                                             {
                                                 <thead>
                                                     <tr>
-@*                                                         <th class="text-uppercase font-colors  text-xxs font-weight-bolder opacity-7">Vehicle ID</th>
- *@                                                        <th class="text-uppercase font-colors  text-xxs font-weight-bolder opacity-7 text-center">Chamber No</th>
+                                                        @*                                                         <th class="text-uppercase font-colors  text-xxs font-weight-bolder opacity-7">Vehicle ID</th>
+                                                    *@
+                                                        <th class="text-uppercase font-colors  text-xxs font-weight-bolder opacity-7 text-center">Chamber No</th>
                                                         <th class="text-uppercase font-colors  text-xxs font-weight-bolder opacity-7 text-center">Quantity</th>
                                                         <th class="text-uppercase font-colors  text-xxs font-weight-bolder opacity-7 text-center">Dip</th>
                                                         <th class="text-uppercase font-colors  text-xxs font-weight-bolder opacity-7 text-center">Dip</th>
@@ -405,15 +410,15 @@
                                                     {
 
                                                         <tr style="@(IsChamberAlreadyExisits(item)?"background: orangered;color: white;":"")">
-                                         @*                    <td class="align-middle text-center">
-                                                                <div class="d-flex px-2 py-1">
+                                                            @*                    <td class="align-middle text-center">
+                                                    <div class="d-flex px-2 py-1">
 
-                                                                    <div class="d-flex flex-column justify-content-center">
-                                                                        <h6 class="mb-0 text-sm">@item.VehicleID</h6>
+                                                    <div class="d-flex flex-column justify-content-center">
+                                                    <h6 class="mb-0 text-sm">@item.VehicleID</h6>
 
-                                                                    </div>
-                                                                </div>
-                                                            </td> *@
+                                                    </div>
+                                                    </div>
+                                                    </td> *@
                                                             <td class="align-middle text-center" style="text-align:center;">
                                                                 <p class="text-xs font-weight-bold mb-0  text-center">@item.ChamberNo</p>
 
@@ -430,7 +435,7 @@
                                                             </td>
 
                                                             <td class="align-middle text-center" style="text-align:center;">
-                                                                @if(IsChamberAlreadyExisits(item))
+                                                                @if (IsChamberAlreadyExisits(item))
                                                                 {
                                                                     <p class="text-xs font-weight-bold mb-0  text-center" style="cursor:pointer;color:black;" @onclick=@(()=>RemoveChamber(item))>Remove</p>
 
@@ -586,7 +591,102 @@
         }
         else
         {
+//             @foreach (var item in generalDetailsList)
+//             {
 
+
+
+//                 List<string> chambers = new List<string>();
+//                 @foreach (var item2 in item.ChamberDetails)
+//                 {
+//                     if (item2.ChamberNo==1)
+//                     {
+//                         chambers.Add("chamber1");
+//                     }
+//                     if (item2.ChamberNo==2)
+//                     {
+//                         chambers.Add("chamber2");
+//                     }
+//                     if (item2.ChamberNo==3)
+//                     {
+//                         chambers.Add("chamber3");
+//                     }
+//                     if (item2.ChamberNo==4)
+//                     {
+//                         chambers.Add("chamber4");
+//                     }
+//                     if (item2.ChamberNo==5)
+//                     {
+//                         chambers.Add("chamber5");
+//                     }
+//                 }
+
+//                 var obj = new SecondaryInvoice
+//                     {
+//                         primaryreference = item.PrimaryInvoiceNumber,
+//                         vehicle = item.VehicleNo,
+//                         scondaryinvoice = item.STONO,
+//                         _date = item.FillingDate.Value.Date,
+//                         supplypoint = item.ShippingLocation,
+//                         product = item.ProductName,
+//                         receiivingpoint = item.RecievingLocation,
+//                         contractor = "Shakoor & Co.",
+//                         chambers = chambers,
+//                         user = User
+//                     };
+
+//                 JsonSerializerOptions options = new JsonSerializerOptions
+//                     {
+//                         WriteIndented = true,
+//                         ReferenceHandler = null
+//                     };
+//                 string jsonData = JsonSerializer.Serialize(obj, options);
+
+//                 var scinvoice = await API.PostRequest($"Invoice/SaveSecondaryInvoice", jsonData);
+//                 string Result = JsonSerializer.Deserialize<string>(scinvoice);
+//                 if (Result == "200")
+//                 {
+//                     List<RecInv> receivingChambers = new List<RecInv>();
+//                     foreach (var x in item.ChamberDetails)
+//                     {
+//                         receivingChambers.Add(new RecInv
+//                         {
+// ch_no=x.ChamberNo,
+// disp_dip=x.ChamberQuantity,
+// dis_liters=x.ChamberDip,
+// invoiceno=item.STONO,
+// InvoicePath=item.FileLocation,
+// primarySTO=item.PrimaryInvoiceNumber,
+
+//                         });
+//                     }
+
+//                     JsonSerializerOptions options = new JsonSerializerOptions
+//                         {
+//                             WriteIndented = true,
+//                             ReferenceHandler = null
+//                         };
+//                     string jsonData = JsonSerializer.Serialize(chambers, options);
+
+//                     var scinvoice = await API.PostRequest($"Invoice/SaveSecondaryWithImage", jsonData);
+//                     string Result = JsonSerializer.Deserialize<string>(scinvoice);
+//                     if (Result == "200")
+//                     {
+//                         navmanager.NavigateTo($"/inv_selection");
+//                         toastService.ShowSuccess($"Secondary Invoice Added");
+//                     }
+
+//                     toastService.ShowSuccess($"Secondary Invoice Added");
+//                 }
+//                 else if (Result == "504")
+//                 {
+//                     toastService.ShowWarning($"Mark Driver Attendance First");
+//                 }
+
+//             }
+       
+        
+        
         }
     }
 
