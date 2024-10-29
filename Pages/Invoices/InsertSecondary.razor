@@ -506,7 +506,25 @@
     public string PrimaryReference;
     public string? User;
 
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            try
+            {
+                await JS.InvokeVoidAsync("console.log", "");
+                _isJsReady = true; // JS is ready, so set a flag or take action
+                StateHasChanged();
+            }
+            catch (Exception ex)
+            {
+                _isJsReady = false; // JavaScript is not yet ready
+                string e = ex.Message;
+                 StateHasChanged();
+            }
 
+        }
+    }
     public async Task<string> SaveImage(string FileName, string STO)
     {
         HttpClientHandler handler = new HttpClientHandler
@@ -810,15 +828,15 @@
                 StateHasChanged();
                 //   Invoices = GetChamberData(PrimaryReference);
 
-                if (generalDetailsList.Count > 0)
-                {
-                    if (!string.IsNullOrEmpty(generalDetailsList[0].FileLocation))
-                    {
-                        string urlPrefix = "https://191.96.196.61/";      // URL to replace the local path
-                        string newLocation = generalDetailsList[0].FileLocation.Replace(@"C:\ScannedDocs\", urlPrefix);
-                        await JS.InvokeVoidAsync("showImageFromPath", newLocation);
-                    }
-                }
+                // if (generalDetailsList.Count > 0)
+                // {
+                //     if (!string.IsNullOrEmpty(generalDetailsList[0].FileLocation))
+                //     {
+                //         string urlPrefix = "https://191.96.196.61/";      // URL to replace the local path
+                //         string newLocation = generalDetailsList[0].FileLocation.Replace(@"C:\ScannedDocs\", urlPrefix);
+                //         await JS.InvokeVoidAsync("showImageFromPath", newLocation);
+                //     }
+                // }
 
 
                 // Display the image if the path is already set
@@ -850,7 +868,7 @@
 
 
 
-            StateHasChanged();
+          
 
 
 
@@ -859,6 +877,8 @@
         {
             Console.WriteLine(ex.Message);
         }
+        IsLoading = false;
+        StateHasChanged();
 
     }
 
