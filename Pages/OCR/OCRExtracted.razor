@@ -233,7 +233,7 @@
                                                     foreach (var item in FilteredItems.OrderByDescending(p => p.InvoiceDate))
                                                     {
 
-                                                        <tr class="tbl-accordion-header" ondblclick="@(() => ToggleCheckboxDisplay())" style=@GetColorCode(item.isInvoiceGenerated,item.InvoiceType)>
+                                                        <tr class="tbl-accordion-header" ondblclick="@(() => ToggleCheckboxDisplay())" style=@GetColorCode(item.isInvoiceGenerated,item.isInvoiceAdded,item.InvoiceType)>
                                                             <td class="align-middle text-center" style="border: #cccccc 1px solid;">
                                                                 @if (item.InvoiceType == "sc" && ShowCheckbox && !item.isInvoiceGenerated)
                                                                 {
@@ -541,9 +541,16 @@
     public List<OCRData> obj = new List<OCRData>();
 
 
-    public string GetColorCode(bool isInvoiceGenerated, string Type)
+    public string GetColorCode(bool isInvoiceGenerated, bool isInvoiceAdded, string Type)
     {
         string Color = "";
+
+        if (isInvoiceAdded && Type=="sc")
+        {
+            return Color = "background:#00bcd4";
+
+        }
+
 
         if (isInvoiceGenerated && Type == "pk")
         {
@@ -1098,9 +1105,21 @@
     public async IAsyncEnumerable<OCRData> LoadShortagereport()
     {
         string query = $@"
-SELECT *
-FROM vwGetExtractedData
-ORDER BY BusinessID, FillingDate DESC, VehicleNo, CASE WHEN InvoiceType = 'pk' THEN 1 ELSE 2 END;
+SELECT
+    vw.*,
+    CAST(CASE
+        WHEN inv.STONO IS NOT NULL THEN 1
+        ELSE 0
+    END AS BIT) AS isInvoiceAdded
+FROM
+    vwGetExtractedData vw
+LEFT JOIN
+    tblinvoices inv ON vw.STONO = inv.STONO
+ORDER BY
+    vw.BusinessID,
+    vw.FillingDate DESC,
+    vw.VehicleNo,
+    CASE WHEN vw.InvoiceType = 'pk' THEN 1 ELSE 2 END;
 ";
 
         var connectionString = _configuration.GetConnectionString("Con");
@@ -1117,8 +1136,8 @@ ORDER BY BusinessID, FillingDate DESC, VehicleNo, CASE WHEN InvoiceType = 'pk' T
                     OCRData dv = new OCRData
                         {
                             InvoiceDate = reader.IsDBNull(reader.GetOrdinal("FillingDate"))
-                                                                            ? (DateTime?)null
-                                                                            : reader.GetDateTime(reader.GetOrdinal("FillingDate")),
+                                                                                ? (DateTime?)null
+                                                                                : reader.GetDateTime(reader.GetOrdinal("FillingDate")),
                             STO = reader.IsDBNull(reader.GetOrdinal("STONO")) ? "" : reader.GetString(reader.GetOrdinal("STONO")),
                             BusinessName = reader.IsDBNull(reader.GetOrdinal("busdesc")) ? "" : reader.GetString(reader.GetOrdinal("busdesc")),
                             Vehicle = reader.IsDBNull(reader.GetOrdinal("VehicleNo")) ? "" : reader.GetString(reader.GetOrdinal("VehicleNo")),
@@ -1130,6 +1149,7 @@ ORDER BY BusinessID, FillingDate DESC, VehicleNo, CASE WHEN InvoiceType = 'pk' T
                             Product = reader.IsDBNull(reader.GetOrdinal("ProductName")) ? "" : reader.GetString(reader.GetOrdinal("ProductName")),
                             FileLocation = reader.IsDBNull(reader.GetOrdinal("FileLocation")) ? "" : reader.GetString(reader.GetOrdinal("FileLocation")),
                             isInvoiceGenerated = reader.IsDBNull(reader.GetOrdinal("isInvoiceGenerated")) ? false : reader.GetBoolean(reader.GetOrdinal("isInvoiceGenerated")),
+                            isInvoiceAdded = reader.IsDBNull(reader.GetOrdinal("isInvoiceAdded")) ? false : reader.GetBoolean(reader.GetOrdinal("isInvoiceAdded")),
                         };
 
                     yield return dv; // Yield each OCRData object

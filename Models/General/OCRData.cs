@@ -14,5 +14,6 @@
         public string? Product { get; set; }
         public string? FileLocation { get; set; }
         public bool isInvoiceGenerated { get; set; }
+        public bool isInvoiceAdded { get; set; }
     }
 }
