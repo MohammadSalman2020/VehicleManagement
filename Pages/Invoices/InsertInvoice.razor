@@ -525,7 +525,9 @@
                 // Display the image if the path is already set
                 if (!string.IsNullOrEmpty(Invoices.InvoiceFilePath))
                 {
-                    await JS.InvokeVoidAsync("showImageFromPath", Invoices.InvoiceFilePath);
+                    string urlPrefix = "https://191.96.196.61/";      // URL to replace the local path
+                    string newLocation = Invoices.InvoiceFilePath.Replace(@"css/Development/HTL_Reports/", urlPrefix);
+                    await JS.InvokeVoidAsync("showImageFromPath", newLocation);
                 }
             }
             // Check if the "json" query parameter exists
@@ -546,13 +548,13 @@
                 // Deserialize the JSON string back into the Invoices object
                 Invoices = JsonSerializer.Deserialize<Invoicing>(jsonString);
 
-               
+
                 if (Invoices.Details.TankLorryNO!=null || Invoices.Details.TankLorryNO!=string.Empty|| Invoices.Details.TankLorryNO!="")
                 {
                     Invoices.Details.TankLorryNO = Invoices.Details.TankLorryNO;
                     int ChamberStatus = await GetShippingChamberDetails(Invoices.Details.TankLorryNO);
                 }
-                 // Display the image if the path is already set
+                // Display the image if the path is already set
                 if (!string.IsNullOrEmpty(Invoices.InvoiceFilePath))
                 {
                     await JS.InvokeVoidAsync("showImageFromPath", Invoices.InvoiceFilePath);
@@ -610,7 +612,7 @@
                 }
 
 
-             
+
                 var fileExtension = Path.GetExtension(file.Name);
                 var trustedFileNameForFileStorage = Invoices.Details.STONo.ToString().Trim() + fileExtension;
                 var folderPath = Path.Combine(Environment.ContentRootPath, "wwwroot\\css\\Development", "HTL_Reports");
