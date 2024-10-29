@@ -378,8 +378,12 @@
                 // Deserialize the JSON string back into the Invoices object
                 Invoices = JsonSerializer.Deserialize<Invoicing>(jsonString);
                 IsView = Invoices.IsView;
+             
                 var authState = await _authenticationStateProvider.GetAuthenticationStateAsync();
                 User = authState.User.Identity.Name;
+
+                string urlPrefix = "https://191.96.196.61/";      // URL to replace the local path
+                Invoices.InvoiceFilePath = Invoices.InvoiceFilePath.Replace(@"css/Development/HTL_Reports/", urlPrefix);
 
             }
             else if (encodedJson.Contains("InvoiceID="))
@@ -398,8 +402,12 @@
 
                 // Deserialize the JSON string back into the Invoices object
                 Invoices = JsonSerializer.Deserialize<Invoicing>(jsonString);
+                
                 var authState = await _authenticationStateProvider.GetAuthenticationStateAsync();
                 User = authState.User.Identity.Name;
+
+                string urlPrefix = "https://191.96.196.61/";      // URL to replace the local path
+                Invoices.InvoiceFilePath = Invoices.InvoiceFilePath.Replace(@"css/Development/HTL_Reports/", urlPrefix);
             }
 
 
@@ -465,7 +473,7 @@
                 toastService.ShowError("Error while adding invoice");
             }
 
-          
+
 
             IsLoading = false;
         }
