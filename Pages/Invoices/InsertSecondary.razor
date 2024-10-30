@@ -260,7 +260,7 @@
                                         {
                                             @if (generalDetailsList.Count > 0)
                                             {
-                                                @foreach (var item in generalDetailsList)
+                                                @foreach (var item in generalDetailsList.DistinctBy(p => p.STONO))
                                                 {
                                                     <br />
                                                     <h4>Invoice # @item.STONO</h4>
@@ -358,11 +358,10 @@
                                 <div class="col-lgg-6">
                                     <div class="table-responsive inv-img">
 
-                                        <div id="dropzone" class="dropzone">
-                                            @*  <p>Click to add Image</p> *@
-                                            @*                                             <InputFile type="file" id="fileInput" class="file-input" />
-                                            *@                                            <div id="preview" class="preview"></div>
-                                        </div>
+                                        @*     <div id="dropzone" class="dropzone">
+                                        <div id="preview" class="preview"></div>
+                                        </div> *@
+                                        <img src="@FileLocation" style="width:600px;" />
                                     </div>
                                 </div>
 
@@ -505,6 +504,7 @@
     public List<OCRSecDTO> generalDetailsList = new List<OCRSecDTO>();
     public string PrimaryReference;
     public string? User;
+    public string? FileLocation;
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
@@ -520,7 +520,7 @@
             {
                 _isJsReady = false; // JavaScript is not yet ready
                 string e = ex.Message;
-                 StateHasChanged();
+                StateHasChanged();
             }
 
         }
@@ -566,7 +566,7 @@
 
                 // Update the file path
                 string correctedFilePath = Path.Combine("css/Development", "HTL_Reports", trustedFileNameForFileStorage);
-              return  FileName = correctedFilePath.Replace("\\", "/");
+                return FileName = correctedFilePath.Replace("\\", "/");
 
 
             }
@@ -576,7 +576,7 @@
             }
         }
 
-      
+
     }
 
 
@@ -664,6 +664,50 @@
         Vehicles = GetVehicleChambers(VehicleID);
         PolicyModal.Show();
     }
+    public async Task DeleteInvoiceRecordsAsync(string secondaryInvoiceNo)
+    {
+        using (SqlConnection connection = new SqlConnection(_configuration.GetConnectionString("Con")))
+        {
+            await connection.OpenAsync();
+
+            string query = @"
+       DECLARE @SecondaryInvoiceNo NVARCHAR(50) = @InvoiceNo;
+DECLARE @InvoiceID INT;
+
+DECLARE InvoiceCursor CURSOR FOR
+SELECT InvoiceID FROM tblInvoices WHERE STONo = @SecondaryInvoiceNo;
+
+OPEN InvoiceCursor;
+
+FETCH NEXT FROM InvoiceCursor INTO @InvoiceID;
+
+WHILE @@FETCH_STATUS = 0
+BEGIN
+    -- Delete related records in other tables for the current InvoiceID
+    DELETE FROM tblSecondaryTrips WHERE PrimaryReference = @SecondaryInvoiceNo;
+    DELETE FROM tblInvoiceDetails WHERE InvoiceID = @InvoiceID;
+    DELETE FROM tblDriverShortageLedger WHERE InvoiceNumber = @SecondaryInvoiceNo;
+
+    -- Delete the record in tblInvoices for the current InvoiceID
+    DELETE FROM tblInvoices WHERE InvoiceID = @InvoiceID;
+
+    FETCH NEXT FROM InvoiceCursor INTO @InvoiceID;
+END
+
+CLOSE InvoiceCursor;
+DEALLOCATE InvoiceCursor;
+
+        ";
+
+            using (SqlCommand command = new SqlCommand(query, connection))
+            {
+                command.Parameters.AddWithValue("@InvoiceNo", secondaryInvoiceNo);
+
+                await command.ExecuteNonQueryAsync();
+            }
+        }
+    }
+
     public async Task Save()
     {
         if (isView)
@@ -692,13 +736,19 @@
                 IsLoading = true;
                 @foreach (var item in generalDetailsList)
                 {
-                    if (item.ChamberDetails.Any(chamber => chamber.RecDip == 0))
+
+                    // Check if any ChamberDetails in generalDetailsList have a RecDip of zero
+                    if (generalDetailsList.Any(item => item.ChamberDetails.Any(chamber => chamber.RecDip == 0)))
                     {
                         toastService.ShowError("Dip cannot be zero in any chamber detail.");
                         IsLoading = false;
                         return; // Exit the method if validation fails
                     }
 
+                    // Continue with further logic if no zero RecDip is found
+
+                    bool isRecordUpdated = UpdateExtractedAddSecData(item);
+                    await DeleteInvoiceRecordsAsync(item.STONO);
                     List<string> chambers = new List<string>();
                     @foreach (var item2 in item.ChamberDetails)
                     {
@@ -750,8 +800,8 @@
                     if (Result == "200")
                     {
                         int InvoiceID = GetInvoiceID(item.STONO);
-                       string ImageSaved= await SaveImage(item.FileLocation, item.STONO);
-                       
+                        string ImageSaved = await SaveImage(item.FileLocation, item.STONO);
+
                         List<RecInv> receivingChambers = new List<RecInv>();
                         foreach (var x in item.ChamberDetails)
                         {
@@ -780,11 +830,12 @@
 
                         var scinvoice2 = await API.PostRequest($"Invoice/SaveSecondaryWithImage", jsonData2);
                         string Result2 = JsonSerializer.Deserialize<string>(scinvoice);
-                        
+
                     }
-                    
+
 
                 }
+
                 await JS.InvokeVoidAsync("closeCurrentTab");
 
             }
@@ -823,8 +874,13 @@
                 // Decode the UTF-8 bytes back to the original JSON string
                 string jsonString = Encoding.UTF8.GetString(base64EncodedBytes);
 
-                // Deserialize the JSON string back into the Invoices object
-                generalDetailsList = JsonSerializer.Deserialize<List<OCRSecDTO>>(jsonString);
+                var rec = JsonSerializer.Deserialize<List<OCRSecDTO>>(jsonString);
+                if (rec!=null)
+                {
+                    generalDetailsList = rec.DistinctBy(p => p.STONO).ToList();
+
+                }
+
                 StateHasChanged();
                 //   Invoices = GetChamberData(PrimaryReference);
 
@@ -857,7 +913,7 @@
                     {
                         string urlPrefix = "https://191.96.196.61/";      // URL to replace the local path
                         string newLocation = Invoices[0].FileLocation.Replace(@"C:\ScannedDocs\", urlPrefix);
-                        await JS.InvokeVoidAsync("showImageFromPath", newLocation);
+                        FileLocation = newLocation;
                     }
                 }
 
@@ -868,7 +924,7 @@
 
 
 
-          
+
 
 
 
@@ -888,7 +944,7 @@
         {
             string urlPrefix = "https://191.96.196.61/";      // URL to replace the local path
             string newLocation = File.Replace(@"C:\ScannedDocs\", urlPrefix);
-            await JS.InvokeVoidAsync("showImageFromPath", newLocation);
+            FileLocation = newLocation;
         }
     }
     public async Task ShowImages(OCRSecData obj)
@@ -897,7 +953,8 @@
         {
             string urlPrefix = "https://191.96.196.61/";      // URL to replace the local path
             string newLocation = obj.FileLocation.Replace(@"C:\ScannedDocs\", urlPrefix);
-            await JS.InvokeVoidAsync("showImageFromPath", newLocation);
+            // await JS.InvokeVoidAsync("showImageFromPath", newLocation);
+            FileLocation = newLocation;
         }
     }
 
@@ -1332,6 +1389,109 @@ ProductName=@ProductName
             return false;
         }
     }
+
+
+
+    public bool UpdateExtractedAddSecData(OCRSecDTO invoiceData)
+    {
+        try
+        {
+            // SQL update query for tblExtracted_Data
+            string sqlUpdateQuery = @"
+        UPDATE tblExtracted_Data
+        SET
+            STONO = @STONO,
+            RecievingLocation = @RecievingLocation,
+            ShippingLocation = @ShippingLocation,
+            VehicleNo = @VehicleNo,
+            FillingDate = @FillingDate,
+IsInvoiceGenerated='True',
+ProductName=@ProductName
+        WHERE ExtractedID = @ExtractedID";
+
+            using (SqlConnection connection = new SqlConnection(_configuration.GetConnectionString("Con")))
+            {
+                connection.Open();
+
+                // Update tblExtracted_Data
+                using (SqlCommand command = new SqlCommand(sqlUpdateQuery, connection))
+                {
+                    command.Parameters.AddWithValue("@STONO", invoiceData.STONO);
+                    command.Parameters.AddWithValue("@RecievingLocation", invoiceData.RecievingLocation);
+                    command.Parameters.AddWithValue("@ShippingLocation", invoiceData.ShippingLocation);
+                    command.Parameters.AddWithValue("@VehicleNo", invoiceData.VehicleNo);
+                    command.Parameters.AddWithValue("@FillingDate", invoiceData.FillingDate);
+                    command.Parameters.AddWithValue("@ExtractedID", invoiceData.ExtractedID);
+                    command.Parameters.AddWithValue("@ProductName", invoiceData.ProductName);
+
+                    int rowsAffected = command.ExecuteNonQuery();
+                    if (rowsAffected <= 0)
+                    {
+                        return false; // No rows updated in tblExtracted_Data
+                    }
+                }
+
+                // First, delete existing rows in tblExtracted_Chambers for the given ExtractedID and VehicleNo
+                string sqlDeleteChambersQuery = "DELETE FROM tblExtracted_Chambers WHERE ExtractedID = @ExtractedID";
+                using (SqlCommand deleteCommand = new SqlCommand(sqlDeleteChambersQuery, connection))
+                {
+                    deleteCommand.Parameters.AddWithValue("@ExtractedID", invoiceData.ExtractedID);
+                    deleteCommand.Parameters.AddWithValue("@VehicleNo", invoiceData.VehicleNo);
+                    deleteCommand.ExecuteNonQuery();
+                }
+
+                // Now, insert new records for each chamber in the list
+                foreach (var chamber in invoiceData.ChamberDetails)
+                {
+                    string sqlInsertChambersQuery = @"
+                INSERT INTO tblExtracted_Chambers (
+                    ExtractedID,
+                    Chamber1Quantity, Chamber1Dip,
+                    Chamber2Quantity, Chamber2Dip,
+                    Chamber3Quantity, Chamber3Dip,
+                    Chamber4Quantity, Chamber4Dip,
+                    Chamber5Quantity, Chamber5Dip,
+                    VehicleNo)
+                VALUES (
+                    @ExtractedID,
+                    CASE WHEN @ChamberNo = 1 THEN @ChamberQty ELSE NULL END,
+                    CASE WHEN @ChamberNo = 1 THEN @ChamberDip ELSE NULL END,
+                    CASE WHEN @ChamberNo = 2 THEN @ChamberQty ELSE NULL END,
+                    CASE WHEN @ChamberNo = 2 THEN @ChamberDip ELSE NULL END,
+                    CASE WHEN @ChamberNo = 3 THEN @ChamberQty ELSE NULL END,
+                    CASE WHEN @ChamberNo = 3 THEN @ChamberDip ELSE NULL END,
+                    CASE WHEN @ChamberNo = 4 THEN @ChamberQty ELSE NULL END,
+                    CASE WHEN @ChamberNo = 4 THEN @ChamberDip ELSE NULL END,
+                    CASE WHEN @ChamberNo = 5 THEN @ChamberQty ELSE NULL END,
+                    CASE WHEN @ChamberNo = 5 THEN @ChamberDip ELSE NULL END,
+                    @VehicleNo)";
+
+                    using (SqlCommand insertCommand = new SqlCommand(sqlInsertChambersQuery, connection))
+                    {
+                        insertCommand.Parameters.AddWithValue("@ExtractedID", invoiceData.ExtractedID);
+                        insertCommand.Parameters.AddWithValue("@ChamberNo", chamber.ChamberNo); // Use the ChamberNo value to determine which chamber to insert
+                        insertCommand.Parameters.AddWithValue("@ChamberQty", chamber.ChamberQuantity);
+                        insertCommand.Parameters.AddWithValue("@ChamberDip", chamber.ChamberDip);
+                        insertCommand.Parameters.AddWithValue("@VehicleNo", invoiceData.VehicleNo);
+
+                        insertCommand.ExecuteNonQuery();
+                    }
+                }
+            }
+
+            return true; // Update and insert successful
+        }
+        catch (Exception ex)
+        {
+            // Handle or log the exception as necessary
+            return false;
+        }
+    }
+
+
+
+
+
     public List<OCRSecDTO> GetInvoicesWithChamberDetails(string STONo)
     {
         generalDetailsList = new List<OCRSecDTO>();

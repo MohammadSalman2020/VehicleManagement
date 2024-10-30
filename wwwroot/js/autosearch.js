@@ -275,8 +275,13 @@ window.addKeyboardShortcut = () => {
 
 
 function openInNewTab2(url) {
-    window.open(url, '_blank');
+    const newTab = window.open(url, '_blank');
+    if (newTab) {
+        newTab.blur();  // Move focus away from the new tab
+        window.focus(); // Refocus the current tab
+    }
 }
+
 
 function exportTablessToExcel(tableId, filenames) {
     var table = document.getElementById(tableId);

@@ -429,11 +429,20 @@
 
                                 <div class="col-lgg-6">
                                     <div class="table-responsive inv-img">
-                                        <div id="dropzone" class="dropzone">
-                                            <p>Click to add Image</p>
-                                            <InputFile type="file" id="fileInput" OnChange="LoadFiles" class="file-input" />
-                                            <div id="preview" class="preview"></div>
-                                        </div>
+                                        @if (IsOCR)
+                                        {
+                                            <img src="@FileLocation" style="width:600px;" />
+                                        }
+                                        else
+                                        {
+                                            <div id="dropzone" class="dropzone">
+                                                <p>Click to add Image</p>
+                                                <InputFile type="file" id="fileInput" OnChange="LoadFiles" class="file-input" />
+                                                <div id="preview" class="preview"></div>
+                                            </div>
+                                        }
+
+
                                     </div>
                                 </div>
 
@@ -475,6 +484,8 @@
     public List<VehicleDTO> VehicleList = new List<VehicleDTO>();
     public List<string> Vehicle = new List<string>();
     private bool IsLoading = false;
+    private bool IsOCR = false;
+    private string FileLocation;
 
 
 
@@ -533,6 +544,7 @@
             // Check if the "json" query parameter exists
             else if (encodedJson.Contains("OCR="))
             {
+                IsOCR = true;
                 // Extract the value of the "json" query parameter
                 encodedJson = encodedJson.Split("OCR=")[1];
 
@@ -557,7 +569,8 @@
                 // Display the image if the path is already set
                 if (!string.IsNullOrEmpty(Invoices.InvoiceFilePath))
                 {
-                    await JS.InvokeVoidAsync("showImageFromPath", Invoices.InvoiceFilePath);
+                    //await JS.InvokeVoidAsync("showImageFromPath", Invoices.InvoiceFilePath);
+                    FileLocation = Invoices.InvoiceFilePath;
                 }
             }
 
