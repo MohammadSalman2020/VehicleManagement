@@ -230,22 +230,43 @@
 
                                                         </tr>
                                                         <tr>
-                                                            <td colspan="1">
+                                                            <td colspan="3">
                                                                 <button class="btn-success" @onclick="@(()=>ShowModal(item.VehicleNo))">Add Loading Chambers</button>
                                                             </td>
-                                                            <td colspan="1" style="cursor:pointer; color:blue;" @onclick="@(()=>ShowImages(item))">View Image</td>
+                                                            <td colspan="6" style="cursor:pointer; color:blue;" @onclick="@(()=>ShowImages(item))">View Image</td>
+
+                                                        </tr>
+
+                                                        <tr>
+                                                            <td colspan="6"> <input type="checkbox" @onchange="@(e => OnCheckboxChanged(e))" />Add Indiviual</td>
 
                                                         </tr>
 
 
-
-
                                                         @foreach (var item2 in item.Chambers)
                                                         {
-                                                            <tr>
-                                                                <td colspan="5">Chamber no: @item2.ChamberNo - @item2.ChamberQty (@item2.ChamberDip)</td>
-                                                                @*   <td colspan="1" style="cursor:pointer;" @onclick="@(()=>ShowImages(item))">View Image</td> *@
-                                                            </tr>
+
+
+                                                            @if (IsInd)
+                                                            {
+                                                                <tr>
+                                                                    <td colspan="2">
+                                                                        Chamber No: @item2.ChamberNo - @item2.ChamberQty (@item2.ChamberDip)
+                                                                    </td>
+                                                                    <td colspan="1"> <input type="number" tabindex="4" placeholder="Dip" @bind="item2.RecDip" @bind:event="oninput" class="form-control"></td>
+                                                                    <td colspan="1"><label>@item2.RecLiters</label></td>
+                                                                    <td colspan="1"><label>@item2.ShortExcess</label></td>
+                                                                    @*                                                                     <td colspan="1"><label style="@(@item2.Status.Contains("Extra")?"color:blue;":"color:red;")">@item2.Status</label></td>
+                                                *@
+                                                                </tr>
+                                                            }
+                                                            else
+                                                            {
+                                                                <tr>
+                                                                    <td colspan="5">Chamber no: @item2.ChamberNo - @item2.ChamberQty (@item2.ChamberDip)</td>
+                                                                    @*   <td colspan="1" style="cursor:pointer;" @onclick="@(()=>ShowImages(item))">View Image</td> *@
+                                                                </tr>
+                                                            }
                                                         }
 
 
@@ -307,6 +328,8 @@
 
                                                         </tr>
 
+
+
                                                         @foreach (var item2 in item.ChamberDetails)
                                                         {
                                                             <tr>
@@ -341,9 +364,20 @@
 
 
                                                 <div class="col-md-12">
-                                                    <div class="form-group" style="text-align:center;">
-                                                        <button class="btn btn-danger btn-sm ms-auto" @onclick="Save">Save</button>
-                                                    </div>
+
+                                                    @if (IsInd)
+                                                    {
+                                                        <div class="form-group" style="text-align:center;">
+                                                            <button class="btn btn-warning btn-sm ms-auto" @onclick="AddInd">Add Indiviual</button>
+                                                        </div>
+                                                    }
+                                                    else
+                                                    {
+                                                        <div class="form-group" style="text-align:center;">
+                                                            <button class="btn btn-danger btn-sm ms-auto" @onclick="Save">Save</button>
+                                                        </div>
+                                                    }
+
                                                 </div>
 
                                             </div>
@@ -499,13 +533,17 @@
     public List<VehicleDTO> VehicleList = new List<VehicleDTO>();
     private bool IsLoading = false;
     private bool isView = false;
+    private bool IsInd = false;
     public List<OCRSecData> Invoices = new List<OCRSecData>();
     public List<VehiclesChamber> Vehicles = new List<VehiclesChamber>();
     public List<OCRSecDTO> generalDetailsList = new List<OCRSecDTO>();
     public string PrimaryReference;
     public string? User;
     public string? FileLocation;
-
+    private void OnCheckboxChanged(ChangeEventArgs e)
+    {
+        IsInd = !IsInd;
+    }
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         if (firstRender)
@@ -661,7 +699,7 @@
             return;
         }
 
-        Vehicles = GetVehicleChambers(VehicleID);
+        Vehicles = GetVehicleChambers(VehicleID.Trim());
         PolicyModal.Show();
     }
     public async Task DeleteInvoiceRecordsAsync(string secondaryInvoiceNo)
@@ -707,6 +745,137 @@ DEALLOCATE InvoiceCursor;
             }
         }
     }
+
+    public async Task AddInd()
+    {
+
+        OCRSecDTO objj = new OCRSecDTO();
+        objj.ProductName=Invoices[0].Product;
+        objj.PrimaryInvoiceNumber = "none";
+        objj.ShippingLocation=Invoices[0].ShippingLocation;
+        objj.RecievingLocation=Invoices[0].RecievingLocation;
+        objj.FileLocation=Invoices[0].FileLocation;
+        objj.STONO=Invoices[0].StoNo;
+        objj.VehicleNo = Invoices[0].VehicleNo;
+        objj.FillingDate = Invoices[0].FillingDate;
+        objj.ChamberDetails = new List<ChamberDetailsDTO>();
+        //  Invoices[0].Chambers = new List<ChambersDetailsSec>();
+        foreach (var chamber in Invoices[0].Chambers)
+        {
+            objj.ChamberDetails.Add(new ChamberDetailsDTO
+                {
+                    ChamberDip = chamber.ChamberDip,
+                    ChamberNo=chamber.ChamberNo,
+                    ChamberQuantity=chamber.ChamberQty,
+                    RecDip=chamber.rec_dip,
+                    ShortExcess=chamber.ShortExcess,
+                    RecLiters=chamber.RecLiters,
+                    ogra=chamber.ChamberQty,
+                    rec_dip=chamber.rec_dip,
+
+                });
+        }
+        generalDetailsList.Add(objj);
+
+
+        // Check if any ChamberDetails in generalDetailsList have a RecDip of zero
+        if (generalDetailsList.Any(item => item.ChamberDetails.Any(chamber => chamber.RecDip == 0)))
+        {
+            toastService.ShowError("Dip cannot be zero in any chamber detail.");
+            IsLoading = false;
+            return; // Exit the method if validation fails
+        }
+
+        // Continue with further logic if no zero RecDip is found
+
+        bool isRecordUpdated = UpdateExtractedAddSecData(generalDetailsList[0]);
+        await DeleteInvoiceRecordsAsync(generalDetailsList[0].STONO);
+        List<string> chambers = new List<string>();
+        @foreach (var item2 in generalDetailsList[0].ChamberDetails)
+        {
+            if (item2.ChamberNo == 1)
+            {
+                chambers.Add("chamber1");
+            }
+            if (item2.ChamberNo == 2)
+            {
+                chambers.Add("chamber2");
+            }
+            if (item2.ChamberNo == 3)
+            {
+                chambers.Add("chamber3");
+            }
+            if (item2.ChamberNo == 4)
+            {
+                chambers.Add("chamber4");
+            }
+            if (item2.ChamberNo == 5)
+            {
+                chambers.Add("chamber5");
+            }
+        }
+
+        var obj = new SecondaryInvoice
+            {
+                primaryreference = generalDetailsList[0].PrimaryInvoiceNumber,
+                vehicle = generalDetailsList[0].VehicleNo,
+                scondaryinvoice = generalDetailsList[0].STONO,
+                _date = generalDetailsList[0].FillingDate.Value.Date,
+                supplypoint = generalDetailsList[0].ShippingLocation,
+                product = generalDetailsList[0].ProductName,
+                receiivingpoint = generalDetailsList[0].RecievingLocation,
+                contractor = "Shakoor & Co.",
+                chambers = chambers,
+                user = User
+            };
+
+        JsonSerializerOptions options = new JsonSerializerOptions
+            {
+                WriteIndented = true,
+                ReferenceHandler = null
+            };
+        string jsonData = JsonSerializer.Serialize(obj, options);
+
+        var scinvoice = await API.PostRequest($"Invoice/SaveSecondaryInvoice", jsonData);
+        string Result = JsonSerializer.Deserialize<string>(scinvoice);
+        if (Result == "200")
+        {
+            int InvoiceID = GetInvoiceID(generalDetailsList[0].STONO);
+            string ImageSaved = await SaveImage(generalDetailsList[0].FileLocation, generalDetailsList[0].STONO);
+
+            List<RecInv> receivingChambers = new List<RecInv>();
+            foreach (var x in generalDetailsList[0].ChamberDetails)
+            {
+                receivingChambers.Add(new RecInv
+                    {
+                        ch_no = x.ChamberNo,
+                        disp_dip = x.ChamberQuantity,
+                        dis_liters = x.ChamberDip,
+                        invoiceno = InvoiceID,
+                        InvoicePath = ImageSaved,
+                        primarySTO = generalDetailsList[0].PrimaryInvoiceNumber,
+                        RecDip = x.RecDip,
+                        RecLiters = x.RecLiters,
+                        rec_dip = x.rec_dip,
+                        ShortExcess = x.ShortExcess,
+                        ogra = x.ogra,
+                    });
+            }
+
+            JsonSerializerOptions options2 = new JsonSerializerOptions
+                {
+                    WriteIndented = true,
+                    ReferenceHandler = null
+                };
+            string jsonData2 = JsonSerializer.Serialize(receivingChambers, options2);
+
+            var scinvoice2 = await API.PostRequest($"Invoice/SaveSecondaryWithImage", jsonData2);
+            string Result2 = JsonSerializer.Deserialize<string>(scinvoice);
+            await JS.InvokeVoidAsync("closeCurrentTab");
+        }
+
+    }
+
 
     public async Task Save()
     {
