@@ -287,6 +287,8 @@
             var Names = string.Join(",", ClaimBusiness.Select(p => p.busDesc));
 
             var ID = string.Join(",", ClaimBusiness.Select(p => p.busID));
+            var jsonUserSession = System.Text.Json.JsonSerializer.Serialize(ID);
+            await JSRuntime.InvokeVoidAsync("sessionStorage.setItem", "UserSessionJson", jsonUserSession);
             var customAuth = (CustomAuthenticationStateProvider)AuthStateProvider;
             await customAuth.UpdateAuthenticationState(new UserSession
                 {

@@ -545,7 +545,7 @@
     {
         string Color = "";
 
-        if (isInvoiceAdded && Type=="sc")
+        if (isInvoiceAdded)
         {
             return Color = "background:#00bcd4";
 
@@ -576,59 +576,78 @@
 
             string urlPrefix = "https://191.96.196.61/";      // URL to replace the local path
             string newLocation = objs.FileLocation.Replace(@"C:\ScannedDocs\", urlPrefix);
-            if (objs.InvoiceType == "pk")
+
+            if (objs.BusinessID==1) // HTL
             {
-                if (objs.isInvoiceGenerated)
+                if (objs.InvoiceType == "pk")
                 {
-                    var Invoices = await GetAllInvoices(objs.STO);
-                    if (Invoices != null)
+                    if (objs.isInvoiceGenerated)
                     {
-                        Invoices.IsFromDisplay = true;
-                        Invoices.IsView = "Update";
-                        string jsonString = JsonSerializer.Serialize(Invoices);
+                        var Invoices = await GetAllInvoices(objs.STO);
+                        if (Invoices != null)
+                        {
+                            Invoices.IsFromDisplay = true;
+                            Invoices.IsView = "Update";
+                            string jsonString = JsonSerializer.Serialize(Invoices);
+                            string base64EncodedJson = Convert.ToBase64String(Encoding.UTF8.GetBytes(jsonString));
+                            string encodedJson = HttpUtility.UrlEncode(base64EncodedJson);
+
+                            // NavigationManager.NavigateTo($"/Invoice?Edit={encodedJson}");
+                            await js.InvokeVoidAsync("openInNewTab2", $"/invoice?Edit={encodedJson}");
+                            //  var url = $"/invoicepanel?Edit={encodedJson}";
+                            // await JSRuntime.InvokeVoidAsync("openInNewTab", url);
+                        }
+
+                        return;
+                    }
+
+                    Invoicing Invoice = new Invoicing();
+                    Invoice.Details.STONo = objs.STO;
+                    Invoice.Details.Product = objs.Product;
+                    Invoice.InvoiceFilePath = newLocation;
+                    Invoice.Details.TankLorryNO = objs.Vehicle;
+                    Invoice.Details.Date = objs.InvoiceDate ?? DateTime.MinValue;
+                    Invoice.Details.ReceivingLocation = TruncateString(objs.ReceivingLocation);
+                    Invoice.Details.SupplyPoint = TruncateString(objs.ShippingLocation);
+                    Invoice.Details.Contractor = "Shakoor & Co.";
+                    Invoice.IsOCR = true;
+                    Invoice.ExtarctedID = objs.OCRID;
+
+                    if (Invoice.Details != null)
+                    {
+                        string jsonString = JsonSerializer.Serialize(Invoice);
                         string base64EncodedJson = Convert.ToBase64String(Encoding.UTF8.GetBytes(jsonString));
                         string encodedJson = HttpUtility.UrlEncode(base64EncodedJson);
 
                         // NavigationManager.NavigateTo($"/Invoice?Edit={encodedJson}");
-                        await js.InvokeVoidAsync("openInNewTab2", $"/invoice?Edit={encodedJson}");
+                        await js.InvokeVoidAsync("openInNewTab2", $"/invoice?OCR={encodedJson}");
                         //  var url = $"/invoicepanel?Edit={encodedJson}";
                         // await JSRuntime.InvokeVoidAsync("openInNewTab", url);
                     }
-
-                    return;
                 }
-
-                Invoicing Invoice = new Invoicing();
-                Invoice.Details.STONo = objs.STO;
-                Invoice.Details.Product = objs.Product;
-                Invoice.InvoiceFilePath = newLocation;
-                Invoice.Details.TankLorryNO = objs.Vehicle;
-                Invoice.Details.Date = objs.InvoiceDate ?? DateTime.MinValue;
-                Invoice.Details.ReceivingLocation = TruncateString(objs.ReceivingLocation);
-                Invoice.Details.SupplyPoint = TruncateString(objs.ShippingLocation);
-                Invoice.Details.Contractor = "Shakoor & Co.";
-                Invoice.IsOCR = true;
-                Invoice.ExtarctedID = objs.OCRID;
-
-                if (Invoice.Details != null)
+                else if (objs.InvoiceType == "sc")
                 {
-                    string jsonString = JsonSerializer.Serialize(Invoice);
-                    string base64EncodedJson = Convert.ToBase64String(Encoding.UTF8.GetBytes(jsonString));
-                    string encodedJson = HttpUtility.UrlEncode(base64EncodedJson);
-
-                    // NavigationManager.NavigateTo($"/Invoice?Edit={encodedJson}");
-                    await js.InvokeVoidAsync("openInNewTab2", $"/invoice?OCR={encodedJson}");
-                    //  var url = $"/invoicepanel?Edit={encodedJson}";
-                    // await JSRuntime.InvokeVoidAsync("openInNewTab", url);
+                    await js.InvokeVoidAsync("openInNewTab2", $"/insertSec?View={objs.OCRID}");
                 }
+                else /* if (objs.InvoiceType=="sc") */
+                {
+                    await js.InvokeVoidAsync("openInNewTab2", $"{newLocation}");
+                }
+
             }
-            else if (objs.InvoiceType == "sc")
+
+            else if (objs.BusinessID==13) // EURO
             {
-                await js.InvokeVoidAsync("openInNewTab2", $"/insertSec?View={objs.OCRID}");
+                objs.FileLocation = newLocation;
+                string jsonString = Newtonsoft.Json.JsonConvert.SerializeObject(objs);
+                string base64EncodedJson = Convert.ToBase64String(Encoding.UTF8.GetBytes(jsonString));
+                string encodedJson = HttpUtility.UrlEncode(base64EncodedJson);
+                await js.InvokeVoidAsync("openInNewTab2", $"/AddEuroInvoice?OCR={encodedJson}");
+
             }
-            else /* if (objs.InvoiceType=="sc") */
+            else if (objs.BusinessID==9) // Hascol
             {
-                await js.InvokeVoidAsync("openInNewTab2", $"{newLocation}");
+
             }
 
 
@@ -1105,16 +1124,37 @@
     public async IAsyncEnumerable<OCRData> LoadShortagereport()
     {
         string query = $@"
+WITH SecondaryCheck AS (
+    SELECT
+        primarys.STONO AS PrimarySTONO,
+        CASE
+            WHEN COUNT(secondary.STONO) > 0 THEN 1
+            ELSE 0
+        END AS HasSecondary
+    FROM
+        tblinvoices primarys
+    LEFT JOIN
+        tblinvoices secondary ON secondary.primaryreference = primarys.STONO
+        AND secondary.type = 'sc'
+    WHERE
+        primarys.type = 'pk'
+    GROUP BY
+        primarys.STONO
+)
+
 SELECT
     vw.*,
     CAST(CASE
-        WHEN inv.STONO IS NOT NULL THEN 1
+        WHEN vw.InvoiceType = 'pk' AND sc.HasSecondary = 1 THEN 1
+        WHEN vw.InvoiceType = 'sc' AND inv.STONO IS NOT NULL THEN 1
         ELSE 0
     END AS BIT) AS isInvoiceAdded
 FROM
     vwGetExtractedData vw
 LEFT JOIN
     tblinvoices inv ON vw.STONO = inv.STONO
+LEFT JOIN
+    SecondaryCheck sc ON vw.STONO = sc.PrimarySTONO
 ORDER BY
     vw.BusinessID,
     vw.FillingDate DESC,
@@ -1136,8 +1176,8 @@ ORDER BY
                     OCRData dv = new OCRData
                         {
                             InvoiceDate = reader.IsDBNull(reader.GetOrdinal("FillingDate"))
-                                                                                ? (DateTime?)null
-                                                                                : reader.GetDateTime(reader.GetOrdinal("FillingDate")),
+                                                                                    ? (DateTime?)null
+                                                                                    : reader.GetDateTime(reader.GetOrdinal("FillingDate")),
                             STO = reader.IsDBNull(reader.GetOrdinal("STONO")) ? "" : reader.GetString(reader.GetOrdinal("STONO")),
                             BusinessName = reader.IsDBNull(reader.GetOrdinal("busdesc")) ? "" : reader.GetString(reader.GetOrdinal("busdesc")),
                             Vehicle = reader.IsDBNull(reader.GetOrdinal("VehicleNo")) ? "" : reader.GetString(reader.GetOrdinal("VehicleNo")),

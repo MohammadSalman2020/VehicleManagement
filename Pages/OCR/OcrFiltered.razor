@@ -1,0 +1,542 @@
+﻿  @page "/OCRFiltered"
+@using Microsoft.Data.SqlClient
+@using System.Web
+@using System.Text
+@using System.Text.Json
+@using System.Data
+@using VehicleManagement.ApiService
+@using VehicleManagement.Authentication
+@using VehicleManagement.Models.General
+@inject IJSRuntime JS
+@inject IToastService toastService
+  @inject IConfiguration _configuration
+
+<div class="container-fluid py-4">
+    <div class="row">
+        <AuthorizeView Roles="admin,FleetManager,SafetySupervisor">
+            <Authorized Context="access">
+
+                <div class="col-md-12">
+                    <div class="">
+                        <div class="">
+                            <div class="row col-md-12">
+                                <!-- Filter Button -->
+                                <div class="row col-md-8">
+                                    <div class="row col-md-12">
+                                        <div class="col-md-3">
+                                            <h4>OCR Records</h4>
+                                        </div>
+
+                                        <div class="col-md-3">
+                                            <button id="loadDataButton" style="border: white;" class="btn-danger" onclick="loadShortageReports()">
+                                                Load Data
+                                            </button>
+
+                                        </div>
+
+                                        <div class="col-md-3">
+                                            <h6 id="totalRecords"></h6>
+                                        </div>
+
+
+
+                                    </div>
+
+
+
+
+                                </div>
+
+
+                                <div class="col-md-4" style="text-align:end;">
+                                    <img style="cursor:pointer;" src="css/filter.png" onclick="toggleFilterPanel()" />
+                                </div>
+
+
+                            </div>
+                            <div class="row">
+
+                                <div class="col-md-2">
+                                    <!-- Filter Button -->
+                                    <!-- Slider Panel -->
+                                    <div class="filter-slider-panel hidden-panel">
+                                        <div class="filter-header">
+                                            <h4>Export</h4>
+                                            <button class="close-btn" onclick="toggleFilterPanel()">X</button>
+                                        </div>
+                                        <!-- Filter Options -->
+                                        <div class="filter-content">
+                                            <!-- Add your filter controls here -->
+                                            <div class="col-md-12" style="text-align:center;">
+                                                <div class="form-group">
+                                                    <button style="border: white;" onclick="resetFilters()" class="btn-danger">Reset</button>
+                                                </div>
+                                            </div>
+                                            <div class="row col-md-12">
+
+                                                <div class="row filter-controls">
+                                                    <div class="col-md-12">
+                                                        <div class="form-group">
+                                                            <input type="text" class="form-control" id="searchInput" onkeyup="filterSearch()" placeholder="STO/Vehicle/Business...">
+
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+
+                                            </div>
+                                            <!-- Date Filter -->
+                                            <div class="row col-md-12">
+                                                <div class="col-md-12">
+                                                    <div class="form-group">
+                                                        <label for="startDate">Select Month:</label>
+                                                        <input type="month" class="form-control" onchange="searchByMonth()" id="startDate">
+                                                    </div>
+                                                </div>
+
+                                            </div>
+                                            <div class="row col-md-12">
+                                                <div class="col-md-12" style="text-align:center;">
+                                                    <div class="form-group">
+                                                        <button style="border: white;" onclick="filterInComplete(true)" class="btn-primary">Primary</button>
+                                                        <button style="border: white;" onclick="filterInComplete(false)" class="btn-primary">Secondary</button>
+
+
+                                                    </div>
+                                                </div>
+                                                <!-- Add more filter options as needed -->
+                                            </div>
+                                            <div class="row col-md-12">
+                                                <div class="col-md-6" style="text-align:center;" title="Export All Data to Excel">
+                                                    <div class="form-group">
+                                                        <img style="cursor:pointer;" onclick="exportTableToExcelCon()" src="css/Excel Icon.png" />
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-6" style="text-align:center;" title="Copy Shown Data">
+
+                                                    <div class="form-group">
+                                                        <img style="cursor:pointer;" src="css/clipboard.png" onclick="copyTableToClipboard()" />
+                                                    </div>
+                                                </div>
+                                                <!-- Add more filter options as needed -->
+                                            </div>
+
+                                        </div>
+
+                                    </div>
+
+                                </div>
+
+                            </div>
+                        </div>
+                    </div>
+                    <br />
+
+                    <div class="row" style="margin-top:10px;">
+
+                        <div class="col-md-12 ">
+
+                            <div class="">
+                                <div class="table-responsive p-0">
+
+
+                                    <table class="" id="dataContainer" style="width:100%">
+                                        <thead style="    background: black;">
+                                            <tr>
+
+
+                                                <th class="text-center font-colors text-uppercase text-xxs font-weight-bolder opacity-7"
+                                                    style="position: sticky; top: 0; background-color: #ffffff; z-index: 1; border: #cccccc 1px solid;">
+                                                    STO No
+                                                </th>
+
+                                                <th class="text-center font-colors text-uppercase text-xxs font-weight-bolder opacity-7"
+                                                    style="position: sticky; top: 0; background-color: #ffffff; z-index: 1; border: #cccccc 1px solid;">
+                                                    Vehicle No
+                                                </th>
+                                                <th class="text-center font-colors text-uppercase text-xxs font-weight-bolder opacity-7"
+                                                    style="position: sticky; top: 0; background-color: #ffffff; z-index: 1; border: #cccccc 1px solid;">
+                                                    Business
+                                                </th>
+                                                <th class="text-center font-colors text-uppercase text-xxs font-weight-bolder opacity-7"
+                                                    style="position: sticky; top: 0; background-color: #ffffff; z-index: 1; border: #cccccc 1px solid;">
+                                                    Invoice Date
+                                                </th>
+                                                <th class="text-center font-colors text-uppercase text-xxs font-weight-bolder opacity-7"
+                                                    style="position: sticky; top: 0; background-color: #ffffff; z-index: 1; border: #cccccc 1px solid;">
+                                                    Shipping Location
+                                                </th>
+                                                <th class="text-center font-colors text-uppercase text-xxs font-weight-bolder opacity-7"
+                                                    style="position: sticky; top: 0; background-color: #ffffff; z-index: 1; border: #cccccc 1px solid;">
+                                                    Receiving Location
+                                                </th>
+                                                <th class="text-center font-colors text-uppercase text-xxs font-weight-bolder opacity-7"
+                                                    style="position: sticky; top: 0; background-color: #ffffff; z-index: 1; border: #cccccc 1px solid;">
+                                                    Invoice Type
+                                                </th>
+                                                <th class="text-center font-colors text-uppercase text-xxs font-weight-bolder opacity-7"
+                                                    style="position: sticky; top: 0; background-color: #ffffff; z-index: 1; border: #cccccc 1px solid;">
+                                                    Product
+                                                </th>
+                                                <th class="text-center font-colors text-uppercase text-xxs font-weight-bolder opacity-7"
+                                                    style="position: sticky; top: 0; background-color: #ffffff; z-index: 1; border: #cccccc 1px solid;">
+                                                    Image
+                                                </th>
+
+                                                <th class="text-center font-colors text-uppercase text-xxs font-weight-bolder opacity-7"
+                                                    style="position: sticky; top: 0; background-color: #ffffff; z-index: 1; border: #cccccc 1px solid;">
+
+                                                </th>
+
+
+
+
+                                            </tr>
+                                        </thead>
+                                        <tbody style="background: white;">
+                                        </tbody>
+                                    </table>
+
+
+                                </div>
+
+                            </div>
+                        </div>
+
+                    </div>
+
+
+                </div>
+
+
+            </Authorized>
+            <NotAuthorized>
+                @if (_isJsReady)
+                {
+                    <_403 />
+
+                }
+            </NotAuthorized>
+        </AuthorizeView>
+    </div>
+</div>
+@code {
+
+    private bool _isJsReady = false;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            try
+            {
+                // Attempt a simple JavaScript call to check if JS is ready
+                await JS.InvokeVoidAsync("console.log", "");
+                await JS.InvokeVoidAsync("registerComponentInstance", DotNetObjectReference.Create(this));
+
+                StateHasChanged();
+            }
+            catch
+            {
+                // If JS isn't ready, handle it gracefully
+                _isJsReady = false; // JavaScript is not yet ready
+            }
+        }
+    }
+    // [JSInvokable]
+    // public async Task ShowMessage2()
+    // {
+    //     Console.WriteLine("ABC");
+    // }
+
+
+    // protected override async void OnInitialized()
+    // {
+
+    // }
+    public class ChamberDto
+    {
+        public int ExtractedID { get; set; }
+        public int ChamberQtyR { get; set; }
+        public int ChamberQtyS { get; set; }
+        public int ChamberDipR { get; set; }
+        public int ChamberDipS { get; set; }
+        public int ChamberNo { get; set; }
+    }
+
+    public async Task<List<ChamberDto>> GetChambersByExtractedId(int extractedId, string STO)
+    {
+        var chambers = new List<ChamberDto>();
+        string connectionString = _configuration.GetConnectionString("Con");
+
+        using (var connection = new SqlConnection(connectionString))
+        {
+            await connection.OpenAsync();
+
+            using (var command = new SqlCommand("usp_GetChambersByExtractedIdAndSTO", connection))
+            {
+                command.CommandType = CommandType.StoredProcedure;
+                command.Parameters.AddWithValue("@ExtractedID", extractedId);
+                command.Parameters.AddWithValue("@STONo", STO);
+
+                using (var reader = await command.ExecuteReaderAsync())
+                {
+                    while (await reader.ReadAsync())
+                    {
+                        var chamber = new ChamberDto
+                            {
+                                ExtractedID = extractedId,
+                                ChamberNo = reader.IsDBNull(0) ? 0 : reader.GetInt32(0),
+                                ChamberQtyR = reader.IsDBNull(1) ? 0 : reader.GetInt32(1),
+                                ChamberQtyS = reader.IsDBNull(2) ? 0 : reader.GetInt32(2),
+                                ChamberDipR = reader.IsDBNull(3) ? 0 : reader.GetInt32(3),
+                                ChamberDipS = reader.IsDBNull(4) ? 0 : reader.GetInt32(4)
+                            };
+                        chambers.Add(chamber);
+                    }
+                }
+            }
+        }
+
+        return chambers;
+    }
+
+    public async Task<List<OCRData>> GetValidSec(string vehicleID, DateTime? date)
+    {
+        string connectionString = _configuration.GetConnectionString("Con"); // Replace with your actual connection string
+        List<OCRData> result = new List<OCRData>();
+
+        using (SqlConnection connection = new SqlConnection(connectionString))
+        {
+            await connection.OpenAsync();
+
+            using (SqlCommand command = new SqlCommand("GetValidSecondaryRecords", connection))
+            {
+                command.CommandType = CommandType.StoredProcedure;
+
+                // Add the VehicleID parameter
+                command.Parameters.AddWithValue("@Vehicle", vehicleID);
+                command.Parameters.AddWithValue("@InvoiceDate", date?.Date);  // Fixed parameter name
+
+                // Execute the stored procedure and read the result
+                using (SqlDataReader reader = await command.ExecuteReaderAsync())
+                {
+                    while (await reader.ReadAsync())
+                    {
+                        OCRData data = new OCRData
+                            {
+                                InvoiceDate = reader.IsDBNull(reader.GetOrdinal("FillingDate"))
+                                                                                ? (DateTime?)null
+                                                                                : reader.GetDateTime(reader.GetOrdinal("FillingDate")),
+                                STO = reader.IsDBNull(reader.GetOrdinal("STONO")) ? "" : reader.GetString(reader.GetOrdinal("STONO")),
+                                BusinessName = reader.IsDBNull(reader.GetOrdinal("busdesc")) ? "" : reader.GetString(reader.GetOrdinal("busdesc")),
+                                Vehicle = reader.IsDBNull(reader.GetOrdinal("VehicleNo")) ? "" : reader.GetString(reader.GetOrdinal("VehicleNo")),
+                                BusinessID = reader.IsDBNull(reader.GetOrdinal("BusinessID")) ? 0 : reader.GetInt32(reader.GetOrdinal("BusinessID")),
+                                OCRID = reader.IsDBNull(reader.GetOrdinal("ExtractedID")) ? 0 : reader.GetInt32(reader.GetOrdinal("ExtractedID")),
+                                ShippingLocation = reader.IsDBNull(reader.GetOrdinal("ShippingLocation")) ? "" : reader.GetString(reader.GetOrdinal("ShippingLocation")),
+                                ReceivingLocation = reader.IsDBNull(reader.GetOrdinal("RecievingLocation")) ? "" : reader.GetString(reader.GetOrdinal("RecievingLocation")),
+                                InvoiceType = reader.IsDBNull(reader.GetOrdinal("InvoiceType")) ? "" : reader.GetString(reader.GetOrdinal("InvoiceType")),
+                                Product = reader.IsDBNull(reader.GetOrdinal("ProductName")) ? "" : reader.GetString(reader.GetOrdinal("ProductName")),
+                                FileLocation = reader.IsDBNull(reader.GetOrdinal("FileLocation")) ? "" : reader.GetString(reader.GetOrdinal("FileLocation")),
+                                isInvoiceGenerated = reader.IsDBNull(reader.GetOrdinal("isInvoiceGenerated")) ? false : reader.GetBoolean(reader.GetOrdinal("isInvoiceGenerated"))
+                            };
+
+                        result.Add(data);
+                    }
+                }
+            }
+        }
+
+        return result;
+    }
+
+    public async Task<int> GetTotalChamberQtyAsync(string vehicleID)
+    {
+        int totalChamberQty = 0;
+        string connectionString = _configuration.GetConnectionString("Con"); // Replace with your actual connection string
+
+        using (SqlConnection connection = new SqlConnection(connectionString))
+        {
+            await connection.OpenAsync();
+
+            using (SqlCommand command = new SqlCommand("GetTotalChamberQtyByVehicleID", connection))
+            {
+                command.CommandType = CommandType.StoredProcedure;
+
+                // Add the VehicleID parameter
+                command.Parameters.AddWithValue("@VehicleID", vehicleID);
+
+                // Define the output parameter
+                SqlParameter outputParameter = new SqlParameter
+                    {
+                        ParameterName = "@TotalChamberQty",
+                        SqlDbType = SqlDbType.Int,
+                        Direction = ParameterDirection.Output
+                    };
+                command.Parameters.Add(outputParameter);
+
+                // Execute the stored procedure
+                await command.ExecuteNonQueryAsync();
+
+                // Retrieve the output value
+                totalChamberQty = (int)outputParameter.Value;
+            }
+        }
+
+        return totalChamberQty;
+    }
+    public bool DoesStonoExistAsync(string stono)
+    {
+        // SQL query to check if STONO exists
+        string query = "SELECT COUNT(1) FROM tblinvoices WHERE STONO = @stono";
+
+        using (var connection = new SqlConnection(_configuration.GetConnectionString("Con")))
+        {
+            connection.Open();
+
+            using (var command = new SqlCommand(query, connection))
+            {
+                // Add the parameter to the query
+                command.Parameters.AddWithValue("@stono", stono);
+
+                // Execute the query and get the result
+                int count = (int)command.ExecuteScalar();
+
+                // If the count is greater than 0, the STONO exists
+                return count > 0;
+            }
+        }
+    }
+    [JSInvokable]
+    public async Task AddSecondary(OCRData objs)
+    {
+        try
+        {
+
+            if (objs.STO != "Not Found" && objs.STO != string.Empty && objs.STO != null &&
+            objs.Vehicle != "" && objs.Vehicle != string.Empty && objs.Vehicle != null &&
+           objs.InvoiceDate != null)
+            {
+
+                if (DoesStonoExistAsync(objs.STO))
+                {
+                    List<OCRSecDTO> secondaryInvoices = new List<OCRSecDTO>();
+
+                    // Get total chamber quantity for the vehicle
+                    var totalVehicleQuantity = await GetTotalChamberQtyAsync(objs.Vehicle);
+
+                    // Get secondary records where InvoiceType is "sc" and filter by InvoiceDate and Vehicle
+                    var validSecondaries = await GetValidSec(objs.Vehicle, objs.InvoiceDate);
+
+                    // Check if there are valid secondary records and process them
+                    if (validSecondaries != null)
+                    {
+                        int totalChamberQty = 0;
+
+                        foreach (var item in validSecondaries)
+                        {
+                            // Initialize a new SecondaryInvoices instance
+                            var secondaryInvoice = new OCRSecDTO
+                                {
+                                    ExtractedID = item.OCRID,
+                                    FileLocation = item.FileLocation,
+                                    FillingDate = item.InvoiceDate,
+                                    ProductName = item.Product,
+                                    RecievingLocation = item.ReceivingLocation,
+                                    ShippingLocation = item.ShippingLocation,
+                                    STONO = item.STO,
+                                    VehicleNo = item.Vehicle,
+                                    PrimaryInvoiceNumber = objs.STO,
+                                    ChamberDetails = new List<ChamberDetailsDTO>(),
+                                };
+
+                            // Fetch chambers associated with the current OCRID
+                            var chambers = await GetChambersByExtractedId(item.OCRID, objs.STO);
+
+                            int currentChamberQty = 0; // Track the ChamberQty for the current secondary invoice
+
+                            // Add chambers to the secondary invoice and accumulate ChamberQty sum
+                            foreach (var chamber in chambers)
+                            {
+                                // Only add chamber if there's at least one value in ChamberQty or ChamberDip
+                                if (chamber.ChamberQtyR != 0 || chamber.ChamberDipR != 0)
+                                {
+                                    secondaryInvoice.ChamberDetails.Add(new ChamberDetailsDTO
+                                        {
+                                            ChamberDip = chamber.ChamberDipR,
+                                            ChamberNo = chamber.ChamberNo,
+                                            ChamberQuantity = chamber.ChamberQtyR,
+                                            ExtractedID = chamber.ExtractedID,
+                                            STONO = item.STO,
+                                            InvoiceLorryDip = chamber.ChamberDipR,
+                                            InvoiceChamberQuantity = chamber.ChamberQtyR,
+                                            ogra = chamber.ChamberDipS,
+                                            CumulativeChamberQuantity = 0,
+                                            TotalVehicleChamberQuantity = 0
+                                        });
+
+                                    // Sum the ChamberQty if it has a value for the current item
+                                    if (chamber.ChamberQtyS != 0)
+                                        currentChamberQty += chamber.ChamberQtyS;
+                                }
+                            }
+
+                            // Check if the total chamber quantity of this item is within the allowed limit
+                            if (totalChamberQty + currentChamberQty <= totalVehicleQuantity)
+                            {
+                                // Add currentChamberQty to totalChamberQty since it's being added to the list
+                                totalChamberQty += currentChamberQty;
+                                // Add the populated secondary invoice to the list
+                                secondaryInvoices.Add(secondaryInvoice);
+                            }
+                        }
+
+                    }
+
+
+                    // Now totalChamberQty contains the sum of all ChamberQty from valid secondaries
+
+
+
+
+                    if (secondaryInvoices.Count <= 0)
+                    {
+                        toastService.ShowError("No Secondaries found for this invoice");
+                        return;
+                    }
+
+                    string jsonString = JsonSerializer.Serialize(secondaryInvoices);
+                    string base64EncodedJson = Convert.ToBase64String(Encoding.UTF8.GetBytes(jsonString));
+                    string encodedJson = HttpUtility.UrlEncode(base64EncodedJson);
+
+                    // NavigationManager.NavigateTo($"/Invoice?Edit={encodedJson}");
+                    await JS.InvokeVoidAsync("openInNewTab2", $"/insertSec?Edit={encodedJson}");
+                    //  var url = $"/invoicepanel?Edit={encodedJson}";
+                    // await JSRuntime.InvokeVoidAsync("openInNewTab", url);
+
+
+                    return;
+                }
+                else
+                {
+                    toastService.ShowError("Please generate the primary invoice first");
+                }
+
+            }
+
+            else /* if (objs.InvoiceType=="sc") */
+            {
+                toastService.ShowError($"Please fill this Primary Invoice first.");
+            }
+
+        }
+        catch (Exception ex)
+        {
+            toastService.ShowError($"Error: {ex.Message}");
+        }
+
+    }
+
+
+
+}
