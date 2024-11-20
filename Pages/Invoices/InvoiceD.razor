@@ -376,7 +376,7 @@
                 string jsonString = Encoding.UTF8.GetString(base64EncodedBytes);
 
                 // Deserialize the JSON string back into the Invoices object
-                Invoices = JsonSerializer.Deserialize<Invoicing>(jsonString);
+                Invoices = Newtonsoft.Json.JsonConvert.DeserializeObject<Invoicing>(jsonString);
                 IsView = Invoices.IsView;
              
                 var authState = await _authenticationStateProvider.GetAuthenticationStateAsync();

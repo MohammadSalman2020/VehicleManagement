@@ -1,4 +1,5 @@
 using Blazored.Toast;
+using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Components.Server.ProtectedBrowserStorage;
 using Microsoft.EntityFrameworkCore;
@@ -19,7 +20,11 @@ var builder = WebApplication.CreateBuilder(args);
 ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
 
 builder.Services.AddRazorPages();
-builder.Services.AddServerSideBlazor();
+builder.Services.AddServerSideBlazor()
+        .AddCircuitOptions(options =>
+        {
+            options.DisconnectedCircuitRetentionPeriod = TimeSpan.FromMinutes(10); // Increase as needed
+        }); 
 builder.Services.AddSession(options =>
 {
     options.IdleTimeout = TimeSpan.FromMinutes(20); // Adjust as needed
@@ -77,6 +82,13 @@ if (!app.Environment.IsDevelopment())
 }
 app.UseRouting();
 app.UseSession();
+
+//app.Use(async (context, next) =>
+//{
+//    context.Response.Headers.Add("Content-Security-Policy", "default-src https:; connect-src https: http://191.96.196.61; style-src 'unsafe-inline';");
+//    await next.Invoke();
+//});
+
 
 //app.Use(async delegate (HttpContext Context, Func<Task> Next)
 //{

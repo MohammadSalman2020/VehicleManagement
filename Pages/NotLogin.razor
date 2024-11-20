@@ -210,7 +210,8 @@
     private async Task HandleSuccessfulLogin(AuthenticationBearer userAccount)
     {
         await JSRuntime.InvokeVoidAsync("sessionStorage.setItem", "BearerToken", userAccount.bearer);
-    
+        var jsonUserSession = System.Text.Json.JsonSerializer.Serialize(userAccount.businessID);
+        await JSRuntime.InvokeVoidAsync("sessionStorage.setItem", "UserSessionJson", jsonUserSession);
 
         var customAuth = (CustomAuthenticationStateProvider)AuthStateProvider;
         await customAuth.UpdateAuthenticationState(new UserSession

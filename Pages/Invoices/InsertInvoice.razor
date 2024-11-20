@@ -6,6 +6,7 @@
 @using System.Text
 @using Microsoft.AspNetCore.Components.Server.ProtectedBrowserStorage
 @using System.Reflection
+@using Newtonsoft.Json
 @using VehicleManagement.ApiService
 @using VehicleManagement.Models.General
 @using VehicleManagement.Models.General.Login
@@ -431,7 +432,10 @@
                                     <div class="table-responsive inv-img">
                                         @if (IsOCR)
                                         {
-                                            <img src="@FileLocation" style="width:600px;" />
+                                            <div class="image-container">
+                                                <img id="mainImage2" src="@FileLocation" alt="Zoomable Image">
+                                              
+                                            </div>
                                         }
                                         else
                                         {
@@ -531,7 +535,7 @@
                 string jsonString = Encoding.UTF8.GetString(base64EncodedBytes);
 
                 // Deserialize the JSON string back into the Invoices object
-                Invoices = JsonSerializer.Deserialize<Invoicing>(jsonString);
+                Invoices = JsonConvert.DeserializeObject<Invoicing>(jsonString);
                 StateHasChanged();
                 // Display the image if the path is already set
                 if (!string.IsNullOrEmpty(Invoices.InvoiceFilePath))
@@ -558,7 +562,7 @@
                 string jsonString = Encoding.UTF8.GetString(base64EncodedBytes);
 
                 // Deserialize the JSON string back into the Invoices object
-                Invoices = JsonSerializer.Deserialize<Invoicing>(jsonString);
+                Invoices = JsonConvert.DeserializeObject<Invoicing>(jsonString);
 
 
                 if (Invoices.Details.TankLorryNO!=null || Invoices.Details.TankLorryNO!=string.Empty|| Invoices.Details.TankLorryNO!="")
@@ -597,7 +601,7 @@
             if (Vehicles != "")
             {
 
-                Vehicle = JsonSerializer.Deserialize<List<string>>(Vehicles);
+                Vehicle = JsonConvert.DeserializeObject<List<string>>(Vehicles);
 
             }
         }
@@ -786,7 +790,7 @@
 
 
             Invoices.IsView = Invoices.IsView == "Update" ? Invoices.IsView : "View";
-            string jsonString = JsonSerializer.Serialize(Invoices);
+            string jsonString = JsonConvert.SerializeObject(Invoices);
 
             // Encode the JSON string as Base64 to make it URL-safe
             string base64EncodedJson = Convert.ToBase64String(Encoding.UTF8.GetBytes(jsonString));
@@ -825,7 +829,7 @@
             if (VehicleIDs != "")
             {
 
-                Shipping = JsonSerializer.Deserialize<GetChamberDetails>(VehicleIDs);
+                Shipping = JsonConvert.DeserializeObject<GetChamberDetails>(VehicleIDs);
                 if (Shipping != null)
                 {
                     Invoices.ShippingDetail.Chamber1.ChamberQuantity = Shipping.chamber1Quantity;

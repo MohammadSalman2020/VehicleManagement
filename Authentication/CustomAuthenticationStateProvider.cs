@@ -109,6 +109,7 @@ namespace VehicleManagement.Authentication
             else
             {
                 await _sessionStorage.DeleteAsync("UserSession");
+                await _sessionStorage.DeleteAsync("UserSessionJson");
                 claimsPrincipal = _anonymous;
             }
             if(IsLogin)
