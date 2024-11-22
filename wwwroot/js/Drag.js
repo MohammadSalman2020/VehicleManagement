@@ -353,7 +353,7 @@ async function loadShortageReportbyMonth(selectedDate) {
         const tbody = document.getElementById('dataContainer').querySelector('tbody');
         tbody.innerHTML = ''; // Clear existing table rows
 
-        const response = await fetch(`https://localhost:7025/api/Invoice/LoadShortageReportByMonth?startDate=${selectedDate}`);
+        const response = await fetch(`https://www.shakoorfms.com/Fleetiva/api/Invoice/LoadShortageReportByMonth?startDate=${selectedDate}`);
         if (!response.ok) throw new Error('Network response was not ok');
 
         const reader = response.body.getReader();
@@ -427,7 +427,7 @@ async function loadShortageReports() {
         tbody.innerHTML = '';  // Clears the existing table rows
 
         const currentDate = new Date().toISOString().split('T')[0];
-        const response = await fetch(`https://localhost:7025/api/Invoice/loadShortageReport?startDate=${currentDate}`);
+        const response = await fetch(`https://www.shakoorfms.com/Fleetiva/api/Invoice/loadShortageReport?startDate=${currentDate}`);
 
         if (!response.ok) throw new Error('Network response was not ok');
 

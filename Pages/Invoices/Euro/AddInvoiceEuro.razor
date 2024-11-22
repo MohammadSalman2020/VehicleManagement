@@ -581,7 +581,7 @@ ProductName=@ProductName
         obj.Product=Invoices.Product;
         obj.StoNo = Invoices.STONo;
         obj.ShippingLocation=Invoices.ShippingLoc;
-        obj.FileLocation=Invoices.FileLocation;
+        obj.FileLocation=Invoices.FileLocation.Replace("191.96.196.61","www.shakoorfms.com/imgs");
         obj.FillingDate=Invoices.InvoiceDate;
         obj.RecievingLocation = Invoices.ReceivingLoc;
         obj.VehicleNo=Invoices.VehicleNo;
@@ -756,7 +756,7 @@ ProductName=@ProductName
             if (!string.IsNullOrEmpty(Invoices.FileLocation))
             {
                 //await JS.InvokeVoidAsync("showImageFromPath", Invoices.InvoiceFilePath);
-                FileLocation = Invoices.FileLocation;
+                FileLocation = Invoices.FileLocation.Replace("191.96.196.61","www.shakoorfms.com/imgs");
             }
         }
 
