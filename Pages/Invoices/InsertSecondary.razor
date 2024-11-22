@@ -577,7 +577,7 @@
 
         using (HttpClient client = new HttpClient(handler))
         {
-            string urlPrefix = "https://191.96.196.61/";      // URL to replace the local path
+            string urlPrefix = "https://www.shakoorfms.com/Imgs/";      // URL to replace the local path
             string newLocation = FileName.Replace(@"C:\ScannedDocs\", urlPrefix);
             string imageUrl = newLocation; // Assuming this is your image URL like "https://191.96.196.61/1044112.jpg"
             HttpResponseMessage response = await client.GetAsync(imageUrl);
@@ -1085,7 +1085,7 @@ DEALLOCATE InvoiceCursor;
                 {
                     if (!string.IsNullOrEmpty(Invoices[0].FileLocation))
                     {
-                        string urlPrefix = "https://191.96.196.61/";      // URL to replace the local path
+                        string urlPrefix = "https://www.shakoorfms.com/Imgs/";      // URL to replace the local path
                         string newLocation = Invoices[0].FileLocation.Replace(@"C:\ScannedDocs\", urlPrefix);
                         FileLocation = newLocation;
                     }
@@ -1116,7 +1116,7 @@ DEALLOCATE InvoiceCursor;
     {
         if (!string.IsNullOrEmpty(File))
         {
-            string urlPrefix = "https://191.96.196.61/";      // URL to replace the local path
+            string urlPrefix = "https://www.shakoorfms.com/Imgs/";      // URL to replace the local path
             string newLocation = File.Replace(@"C:\ScannedDocs\", urlPrefix);
             FileLocation = newLocation;
         }
@@ -1125,7 +1125,7 @@ DEALLOCATE InvoiceCursor;
     {
         if (!string.IsNullOrEmpty(obj.FileLocation))
         {
-            string urlPrefix = "https://191.96.196.61/";      // URL to replace the local path
+            string urlPrefix = "https://www.shakoorfms.com/Imgs/";      // URL to replace the local path
             string newLocation = obj.FileLocation.Replace(@"C:\ScannedDocs\", urlPrefix);
             // await JS.InvokeVoidAsync("showImageFromPath", newLocation);
             FileLocation = newLocation;

@@ -540,7 +540,7 @@
                 // Display the image if the path is already set
                 if (!string.IsNullOrEmpty(Invoices.InvoiceFilePath))
                 {
-                    string urlPrefix = "https://191.96.196.61/";      // URL to replace the local path
+                    string urlPrefix = "https://www.shakoorfms.com/Imgs/";      // URL to replace the local path
                     string newLocation = Invoices.InvoiceFilePath.Replace(@"css/Development/HTL_Reports/", urlPrefix);
                     await JS.InvokeVoidAsync("showImageFromPath", newLocation);
                 }
@@ -574,7 +574,9 @@
                 if (!string.IsNullOrEmpty(Invoices.InvoiceFilePath))
                 {
                     //await JS.InvokeVoidAsync("showImageFromPath", Invoices.InvoiceFilePath);
-                    FileLocation = Invoices.InvoiceFilePath;
+
+                   
+                    FileLocation = Invoices.InvoiceFilePath.Replace("https://191.96.196.61/", "https://www.shakoorfms.com/Imgs/");
                 }
             }
 
@@ -744,7 +746,7 @@
 
                 using (HttpClient client = new HttpClient(handler))
                 {
-                    string imageUrl = Invoices.InvoiceFilePath; // Assuming this is your image URL like "https://191.96.196.61/1044112.jpg"
+                    string imageUrl = Invoices.InvoiceFilePath.Replace("191.96.196.61","www.shakoorfms.com/Imgs"); // Assuming this is your image URL like "https://191.96.196.61/1044112.jpg"
                     HttpResponseMessage response = await client.GetAsync(imageUrl);
 
                     if (response.IsSuccessStatusCode)
