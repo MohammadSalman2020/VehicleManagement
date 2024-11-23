@@ -414,8 +414,16 @@
 
                                         <div class="col-md-12">
                                             <div class="form-group" style="text-align:center;">
+                                                @if (IsEdit)
+                                                {
+                                                    <button class="btn btn-danger btn-sm ms-auto" @onclick="Update">Update</button>
 
-                                                <button class="btn btn-danger btn-sm ms-auto" @onclick="Save">Save</button>
+                                                }
+                                                else
+                                                {
+                                                    <button class="btn btn-danger btn-sm ms-auto" @onclick="Save">Save</button>
+
+                                                }
                                                 <button class="btn btn-warning btn-sm ms-auto" @onclick="Cal">Refresh Calculation</button>
                                             </div>
                                         </div>
@@ -486,6 +494,7 @@
     private string FileLocation = string.Empty;
     private string InvoiceType = string.Empty;
     private bool AddChamber = false;
+    private bool IsEdit = false;
 
     public EuroCal Invoices { get; set; } = new EuroCal();
     private void AddNewChamber()
@@ -565,7 +574,129 @@ ProductName=@ProductName
             return false;
         }
     }
+    public async Task Update()
+    {
+        try
+        {
+            var rec = MapInvoicing();
 
+
+            string jsonData = Newtonsoft.Json.JsonConvert.SerializeObject(rec);
+            var AddUser = await API.PostRequest($"Invoice/EditInvoice", jsonData);
+            string Result = Newtonsoft.Json.JsonConvert.DeserializeObject<string>(AddUser);
+            if (Result == "200")
+            {
+                toastService.ShowSuccess("Invoice Update Success");
+                NavigationManager.NavigateTo("/addinvoice");
+            }
+            else if (Result == "404")
+            {
+                toastService.ShowError("STO No is null or it cannot be edit");
+            }
+            else if (Result == "504")
+            {
+                toastService.ShowError($"Invoice Already Exists: {Invoices.STONo}");
+            }
+            else if (Result == "204")
+            {
+                toastService.ShowWarning($"Please Mark the Driver Attendance for Date {Invoices.InvoiceDate.ToString("MM-dd-yyyy")}");
+            }
+            else
+            {
+                toastService.ShowError("Error while Updating invoice");
+            }
+        }
+        catch (Exception ex)
+        {
+            toastService.ShowError($"Error while Updating invoice");
+        }
+    }
+    private void MapChamberData(ChamberData source, ShippingDetails shippingDetails, ReceivingDetail receivingDetails, ShortageCalculation shortageCalculation, int chamberNumber)
+    {
+        // Access shipping chamber properties dynamically
+        var shippingChamber = shippingDetails.GetType().GetProperty($"Chamber{chamberNumber}");
+        var receivingChamber = receivingDetails.GetType().GetProperty($"Chamber{chamberNumber}");
+        var shortageChamber = shortageCalculation.GetType().GetProperty($"Chamber{chamberNumber}");
+
+        if (shippingChamber != null && receivingChamber != null && shortageChamber != null)
+        {
+            // Map shipping data
+            var shippingInstance = shippingChamber.GetValue(shippingDetails);
+            shippingInstance.GetType().GetProperty("ChamberQuantity")?.SetValue(shippingInstance, source.Capacity);
+            shippingInstance.GetType().GetProperty("LorryDip")?.SetValue(shippingInstance, source.DispatchDips);
+            shippingInstance.GetType().GetProperty("Quantity")?.SetValue(shippingInstance, 0);
+
+            // Map receiving data
+            var receivingInstance = receivingChamber.GetValue(receivingDetails);
+            receivingInstance.GetType().GetProperty("ChamberQuantity")?.SetValue(receivingInstance, (int)source.ReceivedQuantity);
+            receivingInstance.GetType().GetProperty("LorryDip")?.SetValue(receivingInstance, source.ReceivingDips);
+            receivingInstance.GetType().GetProperty("Quantity")?.SetValue(receivingInstance, 0);
+
+            // Map shortage data
+            var shortageInstance = shortageChamber.GetValue(shortageCalculation);
+            shortageInstance.GetType().GetProperty("ShortageMM")?.SetValue(shortageInstance, (int)source.DiffInDipsMm);
+            shortageInstance.GetType().GetProperty("TotalShortageLtr")?.SetValue(shortageInstance, (int)source.ShortByDipLiters);
+        }
+    }
+
+    public Invoicing MapInvoicing()
+    {
+        Invoicing objs = new Invoicing();
+
+        // Map GeneralDetails
+        objs.Details = new GeneralDetails
+            {
+                Product = Invoices.Product,
+                TankLorryNO = Invoices.VehicleNo,
+                Contractor = Invoices.Contractor,
+                Date = Invoices.InvoiceDate,
+                ReceivingLocation = Invoices.ReceivingLoc,
+                STONo = Invoices.STONo,
+                SupplyPoint = Invoices.ShippingLoc
+            };
+
+        // Map general properties
+        objs.User = Invoices.User;
+        objs.ExtarctedID = Invoices.ExtractedID;
+        objs.InvoiceFilePath = Invoices.FileLocation;
+
+        // Map Shipping and Receiving details
+        objs.ShippingDetail = new ShippingDetails
+            {
+                TempF = (float)Invoices.SummaryDetails.DispatchTemperature,
+                SG = (float)Invoices.SummaryDetails.DispatchSG
+            };
+        objs.ReceivingDetail = new ReceivingDetail
+            {
+                TempF = (float)Invoices.SummaryDetails.ReceivingTemperature,
+                SG = (float)Invoices.SummaryDetails.ReceivingSG
+            };
+
+        foreach (var chamber in Invoices.Chambers)
+        {
+            MapChamberData(chamber, objs.ShippingDetail, objs.ReceivingDetail, objs.ShortageCalculation, chamber.ChamberNumber);
+        }
+
+
+        // Map Summary Data
+        objs.CalculationDifference = new CalculationDiff
+            {
+                TempDiff = (float)Math.Round(Invoices.SummaryDetails.TempDifference),
+                Shortage1FTemp = (float)Math.Round(Invoices.SummaryDetails.Short1FTemp),
+                QtyShouldRecieved = (float)Math.Round(Invoices.TotalReceivedQty),
+                TotalShortageByDip = (float)Math.Round(Invoices.TotalShortByDipLiters),
+                ShortOnTemp = 0,
+                ShortageCharge = (float)Math.Abs(Math.Round(Invoices.SummaryDetails.CarriageShortage)),
+                Status = Invoices.SummaryDetails.Status
+            };
+
+        // Mark the object as not viewable
+        objs.IsView = "false";
+
+
+        return objs;
+
+    }
 
     public async Task Save()
     {
@@ -573,129 +704,10 @@ ProductName=@ProductName
         {
             if (Invoices.InvoiceType=="pk")
             {
-                // Assuming `Invoices` is of type `EuroCal`
-                Invoicing objs = new Invoicing();
 
-                // Map GeneralDetails
-                objs.Details.Product = Invoices.Product;
-                objs.Details.TankLorryNO = Invoices.VehicleNo;
-                objs.Details.Contractor = Invoices.Contractor;
-                objs.Details.Date = Invoices.InvoiceDate;
-                objs.Details.ReceivingLocation = Invoices.ReceivingLoc;
-                objs.Details.STONo = Invoices.STONo;
-                objs.Details.SupplyPoint = Invoices.ShippingLoc;
+                var rec = MapInvoicing();
 
-                // Map general properties
-                objs.User = Invoices.User;
-                objs.ExtarctedID = Invoices.ExtractedID;
-                objs.InvoiceFilePath = Invoices.FileLocation;
-
-                objs.ShippingDetail.TempF = (float)Invoices.SummaryDetails.DispatchTemperature;
-                objs.ShippingDetail.SG = (float)Invoices.SummaryDetails.DispatchSG;
-                objs.ReceivingDetail.TempF = (float)Invoices.SummaryDetails.ReceivingTemperature;
-                objs.ReceivingDetail.SG = (float)Invoices.SummaryDetails.ReceivingSG;
-
-                // Map Chambers to Shipping and Receiving details
-                foreach (var chamber in Invoices.Chambers)
-                {
-                    switch (chamber.ChamberNumber)
-                    {
-                        case 1:
-                            objs.ShippingDetail.Chamber1.ChamberQuantity = chamber.Capacity;
-                            objs.ShippingDetail.Chamber1.LorryDip = chamber.DispatchDips;
-                            objs.ShippingDetail.Chamber1.Quantity = 0;
-
-                            objs.ReceivingDetail.Chamber1.ChamberQuantity = (int)chamber.ReceivedQuantity;
-                            objs.ReceivingDetail.Chamber1.LorryDip = chamber.ReceivingDips;
-                            objs.ReceivingDetail.Chamber1.Quantity = 0;
-
-                            objs.ShortageCalculation.Chamber1.ShortageMM = (int)chamber.DiffInDipsMm;
-                            objs.ShortageCalculation.Chamber1.TotalShortageLtr = (int)chamber.ShortByDipLiters;
-
-
-                            break;
-
-                        case 2:
-                            objs.ShippingDetail.Chamber2.ChamberQuantity = chamber.Capacity;
-                            objs.ShippingDetail.Chamber2.LorryDip = chamber.DispatchDips;
-                            objs.ShippingDetail.Chamber2.Quantity = 0;
-
-                            objs.ReceivingDetail.Chamber2.ChamberQuantity = (int)chamber.ReceivedQuantity;
-                            objs.ReceivingDetail.Chamber2.LorryDip = chamber.ReceivingDips;
-                            objs.ReceivingDetail.Chamber2.Quantity = 0;
-
-
-                            objs.ShortageCalculation.Chamber2.ShortageMM = (int)chamber.DiffInDipsMm;
-                            objs.ShortageCalculation.Chamber2.TotalShortageLtr = (int)chamber.ShortByDipLiters;
-
-                            break;
-
-                        case 3:
-                            objs.ShippingDetail.Chamber3.ChamberQuantity = chamber.Capacity;
-                            objs.ShippingDetail.Chamber3.LorryDip = chamber.DispatchDips;
-                            objs.ShippingDetail.Chamber3.Quantity = 0;
-
-                            objs.ReceivingDetail.Chamber3.ChamberQuantity = (int)chamber.ReceivedQuantity;
-                            objs.ReceivingDetail.Chamber3.LorryDip = chamber.ReceivingDips;
-                            objs.ReceivingDetail.Chamber3.Quantity = 0;
-
-
-
-                            objs.ShortageCalculation.Chamber3.ShortageMM = (int)chamber.DiffInDipsMm;
-                            objs.ShortageCalculation.Chamber3.TotalShortageLtr = (int)chamber.ShortByDipLiters;
-
-
-                            break;
-
-                        case 4:
-                            objs.ShippingDetail.Chamber4.ChamberQuantity = chamber.Capacity;
-                            objs.ShippingDetail.Chamber4.LorryDip = chamber.DispatchDips;
-                            objs.ShippingDetail.Chamber4.Quantity = 0;
-
-                            objs.ReceivingDetail.Chamber4.ChamberQuantity = (int)chamber.ReceivedQuantity;
-                            objs.ReceivingDetail.Chamber4.LorryDip = chamber.ReceivingDips;
-                            objs.ReceivingDetail.Chamber4.Quantity =0;
-
-
-                            objs.ShortageCalculation.Chamber4.ShortageMM = (int)chamber.DiffInDipsMm;
-                            objs.ShortageCalculation.Chamber4.TotalShortageLtr = (int)chamber.ShortByDipLiters;
-
-
-                            break;
-
-                        case 5:
-                            objs.ShippingDetail.Chamber5.ChamberQuantity = chamber.Capacity;
-                            objs.ShippingDetail.Chamber5.LorryDip = chamber.DispatchDips;
-                            objs.ShippingDetail.Chamber5.Quantity = 0;
-
-                            objs.ReceivingDetail.Chamber5.ChamberQuantity = (int)chamber.ReceivedQuantity;
-                            objs.ReceivingDetail.Chamber5.LorryDip = chamber.ReceivingDips;
-                            objs.ReceivingDetail.Chamber5.Quantity = 0;
-
-
-                            objs.ShortageCalculation.Chamber5.ShortageMM = (int)chamber.DiffInDipsMm;
-                            objs.ShortageCalculation.Chamber5.TotalShortageLtr = (int)chamber.ShortByDipLiters;
-
-                            break;
-                    }
-
-
-                }
-
-                // Map Summary Data
-                objs.CalculationDifference.TempDiff = (float)Math.Round(Invoices.SummaryDetails.TempDifference);
-                objs.CalculationDifference.Shortage1FTemp = (float)Math.Round(Invoices.SummaryDetails.Short1FTemp);
-                objs.CalculationDifference.QtyShouldRecieved = (float)Math.Round(Invoices.TotalReceivedQty);
-                objs.CalculationDifference.TotalShortageByDip = (float)Math.Round(Invoices.TotalShortByDipLiters);
-                objs.CalculationDifference.ShortOnTemp = 0;
-                objs.CalculationDifference.ShortageCharge = (float)Math.Round(Invoices.SummaryDetails.CompanyShareOnShortage);
-                objs.CalculationDifference.Status = Invoices.SummaryDetails.Status;
-
-                // Now the `objs` instance is fully populated
-                objs.IsView = "false";
-
-
-                string jsonData = Newtonsoft.Json.JsonConvert.SerializeObject(objs);
+                string jsonData = Newtonsoft.Json.JsonConvert.SerializeObject(rec);
                 var AddUser = await API.PostRequest($"Invoice/AddInvoice", jsonData);
                 string Result = Newtonsoft.Json.JsonConvert.DeserializeObject<string>(AddUser);
                 if (Result == "200")
@@ -736,18 +748,18 @@ ProductName=@ProductName
                 }
                 else if (Result == "504")
                 {
-                    toastService.ShowError($"Invoice Already Exists: {objs.Details.STONo}");
+                    toastService.ShowError($"Invoice Already Exists: {Invoices.STONo}");
                 }
                 else if (Result == "204")
                 {
-                    toastService.ShowWarning($"Please Mark the Driver Attendance for Date {objs.Details.Date.ToString("MM-dd-yyyy")}");
+                    toastService.ShowWarning($"Please Mark the Driver Attendance for Date {Invoices.InvoiceDate.ToString("MM-dd-yyyy")}");
                 }
                 else
                 {
                     toastService.ShowError("Error while adding invoice");
                 }
             }
-            else if(Invoices.InvoiceType=="sc")
+            else if (Invoices.InvoiceType=="sc")
             {
                 OCRSecData obj = new OCRSecData();
 
@@ -784,41 +796,6 @@ ProductName=@ProductName
         {
 
         }
-
-
-
-
-        // OCRSecData obj = new OCRSecData();
-
-        // if(Invoices==null)
-        // {
-        //     toastService.ShowError("Data is null");
-        //     return;
-        // }
-
-        // obj.ExtractedID=Invoices.ExtractedID;
-        // obj.Product=Invoices.Product;
-        // obj.StoNo = Invoices.STONo;
-        // obj.ShippingLocation=Invoices.ShippingLoc;
-        // obj.FileLocation=Invoices.FileLocation.Replace("191.96.196.61","www.shakoorfms.com/imgs");
-        // obj.FillingDate=Invoices.InvoiceDate;
-        // obj.RecievingLocation = Invoices.ReceivingLoc;
-        // obj.VehicleNo=Invoices.VehicleNo;
-        // obj.User = Invoices.User;
-
-
-
-        // bool Update = UpdateExtractedData(obj);
-        // if (Update)
-        // {
-        //     toastService.ShowSuccess("Update Invoice Success");
-        //     await JS.InvokeVoidAsync("closeCurrentTab");
-        // }
-        // else
-        // {
-        //     toastService.ShowError("Error While Updating");
-
-        // }
 
     }
 
@@ -869,8 +846,8 @@ ProductName=@ProductName
         }
         else
         {
-            color = "blue";
-            return value.ToString();
+            color = "black";
+            return Math.Abs(value).ToString("0.00");
         }
     }
 
@@ -994,12 +971,153 @@ ProductName=@ProductName
                 FileLocation = Invoices.FileLocation.Replace("191.96.196.61", "www.shakoorfms.com/imgs");
             }
         }
+        else if (encodedJson.Contains("Edit="))
+        {
+            encodedJson = encodedJson.Split("Edit=")[1];
+
+            // Decode the URL-safe Base64 string
+            string base64EncodedJson = HttpUtility.UrlDecode(encodedJson);
+
+            // Convert the Base64 string back to UTF-8 encoded bytes
+            byte[] base64EncodedBytes = Convert.FromBase64String(base64EncodedJson);
+
+            // Decode the UTF-8 bytes back to the original JSON string
+            string jsonString = Encoding.UTF8.GetString(base64EncodedBytes);
+
+            // Deserialize the JSON string back into the Invoices object
+            var rec = JsonConvert.DeserializeObject<Invoicing>(jsonString);
+            if (rec!=null)
+            {
+                Invoices = MapInvoice(rec);
+                await Cal();
+            }
+            IsEdit = true;
+
+        }
 
         var authState = await _authenticationStateProvider.GetAuthenticationStateAsync();
         Invoices.User = authState.User.Identity.Name;
         InvoiceType = Invoices.InvoiceType == "pk" ? "Add Euro Primary Invoice" : "Add Euro Secondary Invoice";
         StateHasChanged();
     }
+    private int GetChamberCapacity(int chamberNumber, ShippingDetails shippingDetail)
+    {
+        switch (chamberNumber)
+        {
+            case 1: return shippingDetail.Chamber1?.ChamberQuantity ?? 0;
+            case 2: return shippingDetail.Chamber2?.ChamberQuantity ?? 0;
+            case 3: return shippingDetail.Chamber3?.ChamberQuantity ?? 0;
+            case 4: return shippingDetail.Chamber4?.ChamberQuantity ?? 0;
+            case 5: return shippingDetail.Chamber5?.ChamberQuantity ?? 0;
+            default: return 0;
+        }
+    }
+
+    private int GetChamberDispatchDips(int chamberNumber, ShippingDetails shippingDetail)
+    {
+        switch (chamberNumber)
+        {
+            case 1: return shippingDetail.Chamber1?.LorryDip ?? 0;
+            case 2: return shippingDetail.Chamber2?.LorryDip ?? 0;
+            case 3: return shippingDetail.Chamber3?.LorryDip ?? 0;
+            case 4: return shippingDetail.Chamber4?.LorryDip ?? 0;
+            case 5: return shippingDetail.Chamber5?.LorryDip ?? 0;
+            default: return 0;
+        }
+    }
+
+    private int GetChamberReceivingDips(int chamberNumber, ReceivingDetail receivingDetail)
+    {
+        switch (chamberNumber)
+        {
+            case 1: return receivingDetail.Chamber1?.LorryDip ?? 0;
+            case 2: return receivingDetail.Chamber2?.LorryDip ?? 0;
+            case 3: return receivingDetail.Chamber3?.LorryDip ?? 0;
+            case 4: return receivingDetail.Chamber4?.LorryDip ?? 0;
+            case 5: return receivingDetail.Chamber5?.LorryDip ?? 0;
+            default: return 0;
+        }
+    }
+
+    private ShortageChamber? GetChamberShortage(int chamberNumber, ShortageCalculation shortageCalculation)
+    {
+        switch (chamberNumber)
+        {
+            case 1: return shortageCalculation.Chamber1;
+            case 2: return shortageCalculation.Chamber2;
+            case 3: return shortageCalculation.Chamber3;
+            case 4: return shortageCalculation.Chamber4;
+            case 5: return shortageCalculation.Chamber5;
+            default: return null;
+        }
+    }
+
+    private double CalculatePercentage(double carriageShortage, double dispatchAt85F)
+    {
+        return (carriageShortage / dispatchAt85F) * 100;
+    }
+    public EuroCal MapInvoice(Invoicing rec)
+    {
+        EuroCal objs = new EuroCal();
+
+        // Map GeneralDetails
+        objs.Product = rec.Details.Product;
+        objs.VehicleNo = rec.Details.TankLorryNO;
+        objs.Contractor = rec.Details.Contractor;
+        objs.InvoiceDate = rec.Details.Date;
+        objs.ReceivingLoc = rec.Details.ReceivingLocation;
+        objs.STONo = rec.Details.STONo;
+        objs.ShippingLoc = rec.Details.SupplyPoint;
+        objs.FileLocation = rec.InvoiceFilePath;
+        objs.InvoiceType = rec.invoiceType;
+        objs.ExtractedID = rec.ExtarctedID;
+        // Map general properties
+        objs.User = rec.User;
+        objs.ExtractedID = rec.ExtarctedID;
+        objs.FileLocation = rec.InvoiceFilePath;
+        objs.SummaryDetails = new SummaryData();
+        // Map SummaryData (dispatch and receiving details)
+        objs.SummaryDetails.DispatchTemperature = (double)rec.ShippingDetail.TempF;
+        objs.SummaryDetails.DispatchSG = Math.Round(rec.ShippingDetail.SG, 3);
+        objs.SummaryDetails.ReceivingSG = Math.Round(rec.ReceivingDetail.SG, 3);
+        objs.SummaryDetails.ReceivingTemperature = (double)rec.ReceivingDetail.TempF;
+        FileLocation = objs.FileLocation;
+
+        // Populate the Chambers list by mapping each chamber from ShippingDetails, ReceivingDetail, and ShortageCalculation
+        objs.Chambers = new List<ChamberData>();
+
+        // Map each chamber's data from ShippingDetail, ReceivingDetail, and ShortageCalculation
+        for (int i = 1; i <= 5; i++)
+        {
+            var chamber = new ChamberData
+                {
+                    ChamberNumber = i,
+                    Capacity = GetChamberCapacity(i, rec.ShippingDetail),
+                    DispatchDips = GetChamberDispatchDips(i, rec.ShippingDetail),
+                    ReceivingDips = GetChamberReceivingDips(i, rec.ReceivingDetail),
+                };
+
+            // Shortage calculation
+            var shortageChamber = GetChamberShortage(i, rec.ShortageCalculation);
+
+            // Add chamber only if DispatchDips and ReceivingDips are non-zero
+            if (chamber.DispatchDips != 0 && chamber.ReceivingDips != 0)
+            {
+                objs.Chambers.Add(chamber);
+            }
+        }
+
+
+        // You may also need to add some additional calculations based on the calculated data
+        // For example, if there's any logic related to the CarriageShortage, or the final percentage.
+
+        objs.SummaryDetails.Percentage = CalculatePercentage(objs.SummaryDetails.CarriageShortage, objs.SummaryDetails.DispatchAt85F);
+
+
+        return objs;
+    }
+
+
     public async Task Navigate()
     {
         await JS.InvokeVoidAsync("openInNewTab2", $"/vehicles");

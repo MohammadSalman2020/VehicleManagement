@@ -712,28 +712,47 @@ async function handleInvoiceClick(invoices) {
             invoiceUrl = `/insertSec?View=${invoice.OCRID}`;
         }
         else if (invoice.BusinessID == 13) {
-            const Invoice = {
-                STONo: invoice.STO ?? "",
-                Product: invoice.Product ?? "",
-                VehicleNo: invoice.Vehicle ?? "",
-                InvoiceDate: invoice.InvoiceDate ? new Date(invoice.InvoiceDate).toISOString() : new Date(0).toISOString(),
-                ReceivingLoc: invoice.ReceivingLocation ?? "",
-                ShippingLoc: invoice.ShippingLocation ?? "",
-                Contractor: "Shakoor & Co.",
-                FileLocation: newLocation ?? "",
-                ExtractedID: invoice.OCRID ?? 0,
-                BusinessID: invoice.BusinessID ?? 0,
-                InvoiceType: invoice.InvoiceType ?? ""
-            };
+            if (invoice.isInvoiceGenerated) {
+                const InvoicesResponse = await fetch(`https://www.shakoorfms.com/Fleetiva/api/Invoice/GetInvoiceByID/${invoice.STO}`);
 
-            // Serialize, Base64 encode, and URL-encode
-            const base64EncodedJson = encodeToBase64Unicode(JSON.stringify(Invoice));
-            const encodedJson = encodeURIComponent(base64EncodedJson);
+                if (!InvoicesResponse.ok) throw new Error('Network response was not ok');
+                const Invoices = await InvoicesResponse.json(); // Parse the JSON response
+                Invoices.IsFromDisplay = true;
+                Invoices.IsView = "Update";
+                Invoices.invoiceType = invoice.InvoiceType;
+                Invoices.ExtarctedID = invoice.OCRID;
+                // Serialize, Base64 encode, and URL-encode
+                const base64EncodedJson = btoa(JSON.stringify(Invoices));
+                const encodedJson = encodeURIComponent(base64EncodedJson);
+
+                // Construct the URL
+                invoiceUrl = `/AddEuroInvoice?Edit=${encodedJson}`;
+            }
+            else {
+                const Invoice = {
+                    STONo: invoice.STO ?? "",
+                    Product: invoice.Product ?? "",
+                    VehicleNo: invoice.Vehicle ?? "",
+                    InvoiceDate: invoice.InvoiceDate ? new Date(invoice.InvoiceDate).toISOString() : new Date(0).toISOString(),
+                    ReceivingLoc: invoice.ReceivingLocation ?? "",
+                    ShippingLoc: invoice.ShippingLocation ?? "",
+                    Contractor: "Shakoor & Co.",
+                    FileLocation: newLocation ?? "",
+                    ExtractedID: invoice.OCRID ?? 0,
+                    BusinessID: invoice.BusinessID ?? 0,
+                    InvoiceType: invoice.InvoiceType ?? ""
+                };
+
+                // Serialize, Base64 encode, and URL-encode
+                const base64EncodedJson = encodeToBase64Unicode(JSON.stringify(Invoice));
+                const encodedJson = encodeURIComponent(base64EncodedJson);
 
 
 
-            // Construct the URL
-            invoiceUrl = `/AddEuroInvoice?OCR=${encodedJson}`;
+                // Construct the URL
+                invoiceUrl = `/AddEuroInvoice?OCR=${encodedJson}`;
+            }
+           
         }
 
         else {
