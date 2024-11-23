@@ -382,8 +382,9 @@
                 var authState = await _authenticationStateProvider.GetAuthenticationStateAsync();
                 User = authState.User.Identity.Name;
 
-                string urlPrefix = "https://191.96.196.61/";      // URL to replace the local path
-                Invoices.InvoiceFilePath = Invoices.InvoiceFilePath.Replace(@"css/Development/HTL_Reports/", urlPrefix);
+               // string urlPrefix = "https://191.96.196.61/";      // URL to replace the local path
+               // string urlPrefix = "https://www.shakoorfms.com/img/";      // URL to replace the local path
+                //Invoices.InvoiceFilePath = Invoices.InvoiceFilePath.Replace(@"css/Development/HTL_Reports/", urlPrefix);
 
             }
             else if (encodedJson.Contains("InvoiceID="))
@@ -406,8 +407,8 @@
                 var authState = await _authenticationStateProvider.GetAuthenticationStateAsync();
                 User = authState.User.Identity.Name;
 
-                string urlPrefix = "https://191.96.196.61/";      // URL to replace the local path
-                Invoices.InvoiceFilePath = Invoices.InvoiceFilePath.Replace(@"css/Development/HTL_Reports/", urlPrefix);
+                // string urlPrefix = "https://191.96.196.61/";      // URL to replace the local path
+                // Invoices.InvoiceFilePath = Invoices.InvoiceFilePath.Replace(@"css/Development/HTL_Reports/", urlPrefix);
             }
 
 

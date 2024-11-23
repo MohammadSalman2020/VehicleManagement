@@ -308,7 +308,7 @@ function initializeDotNetReference(dotNetHelper) {
 //        // Clear the table body before loading new data
 //        const tbody = document.getElementById('dataContainer').querySelector('tbody');
 //        tbody.innerHTML = '';  // This clears the existing table rows
-//        const response = await fetch(`https://localhost:7025/api/Invoice/LoadShortageReportByMonth?startDate=${selectedDate}`);
+//        const response = await fetch(`https://www.shakoorfms.com/Fleetiva/api/Invoice/LoadShortageReportByMonth?startDate=${selectedDate}`);
 //        if (!response.ok) throw new Error('Network response was not ok');
 
 //        const reader = response.body.getReader();
@@ -342,11 +342,80 @@ function initializeDotNetReference(dotNetHelper) {
 //        document.getElementById('totalRecords').textContent = '0 - Records';
 //    }
 //}
+//async function loadShortageReportbyMonth(selectedDate) {
+//    try {
+//        totalressss = 0;
+//        const Busid = getUserSessionFromStorage();
+
+//        let recordsFound = false; // Flag to check if any records were processed
+
+//        // Clear the table body before loading new data
+//        const tbody = document.getElementById('dataContainer').querySelector('tbody');
+//        tbody.innerHTML = ''; // Clear existing table rows
+
+//        const response = await fetch(`https://www.shakoorfms.com/Fleetiva/api/Invoice/LoadShortageReportByMonth?startDate=${selectedDate}`);
+//        if (!response.ok) throw new Error('Network response was not ok');
+
+//        const reader = response.body.getReader();
+//        const decoder = new TextDecoder("utf-8");
+//        let partialText = '';
+
+//        while (true) {
+//            const { done, value } = await reader.read();
+//            if (done) break;
+
+//            partialText += decoder.decode(value, { stream: true });
+
+//            // Handle boundaries between JSON objects
+//            let boundaryIndex;
+//            while ((boundaryIndex = partialText.indexOf('}{')) !== -1) {
+//                const jsonLine = partialText.slice(0, boundaryIndex + 1); // Extract complete JSON object
+//                partialText = partialText.slice(boundaryIndex + 1); // Update remaining text
+//                processRecord2(jsonLine, Busid); // Process each record
+//                recordsFound = true; // Flag that records were processed
+//            }
+//            // Process the final partial JSON object if any
+//            //if (partialText.trim()) {
+//            //    processRecord2(partialText.trim(), Busid);
+//            //    totalRecords++;
+//            //    recordsFound = true;
+//            //}
+
+
+//            // Update the total records count display
+//        }
+
+      
+
+//    } catch (error) {
+//        console.error('Failed to load data:', error);
+//        document.getElementById('totalRecords').textContent = '0 - Records';
+//    }
+//}
+
+let totalressss = 0;
+
+//function processRecord2(jsonLine, Busid) {
+//    try {
+       
+//        const item = JSON.parse(jsonLine);
+
+//        if (Busid.includes(String(item.BusinessID))) {
+//            total++;
+//            updateUI(item); // Update the UI with the filtered item
+//            document.getElementById('totalRecords').textContent = `${totalressss} - Records`;
+
+//        }
+//    } catch (error) {
+//    }
+//}
+
 async function loadShortageReportbyMonth(selectedDate) {
     try {
+        console.log(selectedDate);
+        totalressss = 0; // Reset total records count
         const Busid = getUserSessionFromStorage();
 
-        let totalRecords = 1; // Initialize totalRecords to 0 at the beginning
         let recordsFound = false; // Flag to check if any records were processed
 
         // Clear the table body before loading new data
@@ -372,41 +441,48 @@ async function loadShortageReportbyMonth(selectedDate) {
                 const jsonLine = partialText.slice(0, boundaryIndex + 1); // Extract complete JSON object
                 partialText = partialText.slice(boundaryIndex + 1); // Update remaining text
                 processRecord2(jsonLine, Busid); // Process each record
-                totalRecords++;
                 recordsFound = true; // Flag that records were processed
             }
-            // Process the final partial JSON object if any
-            if (partialText.trim()) {
-                processRecord2(partialText.trim(), Busid);
-                totalRecords++;
-                recordsFound = true;
-            }
-
-            // If no records found, set totalRecords to 0
-            if (!recordsFound) totalRecords = 0;
-
-            // Update the total records count display
-            document.getElementById('totalRecords').textContent = `${totalRecords} - Records`;
         }
 
-     
+        // Process any remaining text after the loop
+        if (partialText.trim()) {
+            processRecord2(partialText.trim(), Busid);
+        }
+
+        // If no records were processed
+        if (!recordsFound) {
+            document.getElementById('totalRecords').textContent = '0 - Records';
+        }
 
     } catch (error) {
         console.error('Failed to load data:', error);
         document.getElementById('totalRecords').textContent = '0 - Records';
     }
 }
+
 function processRecord2(jsonLine, Busid) {
     try {
         const item = JSON.parse(jsonLine);
 
+        // Check if BusinessID is in the Busid array
         if (Busid.includes(String(item.BusinessID))) {
+            totalressss++; // Increment the total records count
             updateUI(item); // Update the UI with the filtered item
+
+            // Update the total records count display
+            document.getElementById('totalRecords').textContent = `${totalressss} - Records`;
         }
     } catch (error) {
-        console.error('Error parsing JSON line:', error, jsonLine);
+        console.error('Error processing record:', error);
     }
 }
+
+
+
+
+
+
 function updateButtonState() {
     const loadDataButton = document.getElementById('loadDataButton');
     loadDataButton.innerHTML = isLoading
@@ -417,7 +493,7 @@ let isLoading = false;
 async function loadShortageReports() {
     try {
         const Busid = getUserSessionFromStorage();
-        let totalRecords = 1; // Initialize totalRecords to 0 at the beginning
+        let totalRecords = 0; // Initialize totalRecords to 0 at the beginning
         let recordsFound = false; // Flag to check if any records were processed
         isLoading = true;
         updateButtonState();
@@ -450,15 +526,19 @@ async function loadShortageReports() {
                 processRecord(jsonLine, Busid);  // Process the extracted record
                 totalRecords++;  // Increment the totalRecords count
                 recordsFound = true;  // Set flag to true if any records are processed
+                
             }
+            document.getElementById('totalRecords').textContent = `${totalRecords} - Records`;
+
+           
         }
 
         // After reading all chunks, process the final partial record if exists
-        if (partialText.trim()) {
-            processRecord(partialText.trim(), Busid);
-            totalRecords++;
-            recordsFound = true;
-        }
+        //if (partialText.trim()) {
+        //    processRecord(partialText.trim(), Busid);
+        //    totalRecords++;
+        //    recordsFound = true;
+        //}
 
         // If no records found, set totalRecords to 0
         if (!recordsFound) totalRecords = 0;
@@ -485,7 +565,6 @@ function processRecord(jsonLine, Busid) {
             updateUI(item);  // Update the UI with the filtered item
         }
     } catch (error) {
-        console.error('Error parsing JSON line:', error, jsonLine);
     }
 }
 
@@ -499,21 +578,23 @@ async function handleInvoiceClick(invoices) {
         const invoice = JSON.parse(jsonString);
 
         // Step 1: Define the base URL
-        const urlPrefix = "https://191.96.196.61/";
+        const urlPrefix = "https://www.shakoorfms.com/img/";
 
+        if (invoice.FileLocation == null) {
+            invoice.FileLocation = "";
+        }
         // Replace local path with URL prefix
         const newLocation = invoice.FileLocation.replace("C:\\ScannedDocs\\", urlPrefix);
-
+     
         // Step 2: Handle based on InvoiceType
         let invoiceUrl = "";
 
         if (invoice.InvoiceType === "pk" && invoice.BusinessID == 1) {
             if (invoice.isInvoiceGenerated) {
-                const InvoicesResponse = await fetch(`https://localhost:7025/api/Invoice/GetInvoiceByID/${invoice.STO}`);
+                const InvoicesResponse = await fetch(`https://www.shakoorfms.com/Fleetiva/api/Invoice/GetInvoiceByID/${invoice.STO}`);
 
                 if (!InvoicesResponse.ok) throw new Error('Network response was not ok');
                 const Invoices = await InvoicesResponse.json(); // Parse the JSON response
-                console.log(Invoices);
                 Invoices.IsFromDisplay = true;
                 Invoices.IsView = "Update";
 
@@ -526,17 +607,17 @@ async function handleInvoiceClick(invoices) {
             } else {
                 const Invoice = {
                     Details: {
-                        STONo: invoice.STO,
-                        Product: invoice.Product,
-                        TankLorryNO: invoice.Vehicle,
+                        STONo: invoice.STO??"",
+                        Product: invoice.Product??"",
+                        TankLorryNO: invoice.Vehicle??"",
                         Date: invoice.InvoiceDate || new Date(0).toISOString(),
-                        ReceivingLocation: invoice.ReceivingLocation,
-                        SupplyPoint: invoice.ShippingLocation,
+                        ReceivingLocation: invoice.ReceivingLocation??"",
+                        SupplyPoint: invoice.ShippingLocation??"",
                         Contractor: "Shakoor & Co."
                     },
-                    InvoiceFilePath: newLocation,
+                    InvoiceFilePath: newLocation??"",
                     IsOCR: true,
-                    ExtractedID: invoice.OCRID
+                    ExtarctedID : invoice.OCRID??0
                 };
 
                 // Serialize, Base64 encode, and URL-encode
@@ -551,22 +632,24 @@ async function handleInvoiceClick(invoices) {
         }
         else if (invoice.BusinessID == 13) {
             const Invoice = {
-                STONo: invoice.STO,
-                Product: invoice.Product,
-                VehicleNo: invoice.Vehicle,
-                InvoiceDate: invoice.InvoiceDate || new Date(0).toISOString(),
-                ReceivingLoc: invoice.ReceivingLocation,
-                ShippingLoc: invoice.ShippingLocation,
+                STONo: invoice.STO ?? "",
+                Product: invoice.Product ?? "",
+                VehicleNo: invoice.Vehicle ?? "",
+                InvoiceDate: invoice.InvoiceDate ? new Date(invoice.InvoiceDate).toISOString() : new Date(0).toISOString(),
+                ReceivingLoc: invoice.ReceivingLocation ?? "",
+                ShippingLoc: invoice.ShippingLocation ?? "",
                 Contractor: "Shakoor & Co.",
-                FileLocation: newLocation,
-                ExtractedID: invoice.OCRID,
-                BusinessID: invoice.BusinessID,
-                InvoiceType: invoice.InvoiceType
+                FileLocation: newLocation ?? "",
+                ExtractedID: invoice.OCRID ?? 0,
+                BusinessID: invoice.BusinessID ?? 0,
+                InvoiceType: invoice.InvoiceType ?? ""
             };
 
             // Serialize, Base64 encode, and URL-encode
-            const base64EncodedJson = btoa(JSON.stringify(Invoice));
+            const base64EncodedJson = encodeToBase64Unicode(JSON.stringify(Invoice));
             const encodedJson = encodeURIComponent(base64EncodedJson);
+
+
 
             // Construct the URL
             invoiceUrl = `/AddEuroInvoice?OCR=${encodedJson}`;
@@ -585,6 +668,11 @@ async function handleInvoiceClick(invoices) {
         console.error("Error in handleInvoiceClick:", error);
     }
 }
+
+function encodeToBase64Unicode(str) {
+    return btoa(unescape(encodeURIComponent(str)));
+}
+
 let componentInstance;
 
 function registerComponentInstance(instance) {
@@ -629,15 +717,15 @@ async function handleSecondaryClick(item) {
 //    //        item.InvoiceDate !== null) {
 
 //    //        // Call the API endpoint to check if the STONO exists
-//    //        const response = await fetch(`https://localhost:7025/api/Invoice/DoesStonoExist?stono=${encodeURIComponent(item.STO)}`);
+//    //        const response = await fetch(`https://www.shakoorfms.com/Fleetiva/api/Invoice/DoesStonoExist?stono=${encodeURIComponent(item.STO)}`);
 //    //        const stonoExists = await response.json();
 
 //    //        if (stonoExists) {
-//    //            const response2 = await fetch(`https://localhost:7025/api/Invoice/GetTotalChamberQty?vehicleID=${encodeURIComponent(item.Vehicle)}`);
+//    //            const response2 = await fetch(`https://www.shakoorfms.com/Fleetiva/api/Invoice/GetTotalChamberQty?vehicleID=${encodeURIComponent(item.Vehicle)}`);
 //    //            const totalchamberQty = await response2.json();
 
 
-//    //            const response3 = await fetch(`https://localhost:7025/api/Invoice/LoadChamberDetails?Vehicle=${encodeURIComponent(item.Vehicle)}&startDate=${encodeURIComponent(item.InvoiceDate)}`);
+//    //            const response3 = await fetch(`https://www.shakoorfms.com/Fleetiva/api/Invoice/LoadChamberDetails?Vehicle=${encodeURIComponent(item.Vehicle)}&startDate=${encodeURIComponent(item.InvoiceDate)}`);
 //    //            if (!response3.ok) throw new Error('Network response was not ok');
 
 //    //            const reader = response3.body.getReader();
@@ -784,7 +872,7 @@ function updateUI(item) {
 //const filteredItems = [];
 //function loadAll() {
 //    filteredItems = [];
-//    const response = await fetch(`https://localhost:7025/api/Invoice/shortageReporting`);
+//    const response = await fetch(`https://www.shakoorfms.com/Fleetiva/api/Invoice/shortageReporting`);
 
 
 //    if (!response.ok) throw new Error('Network response was not ok');
@@ -873,7 +961,7 @@ async function filterInComplete(isPrimary) {
         const tbody = document.getElementById('dataContainer').querySelector('tbody');
         tbody.innerHTML = '';  // Clears the existing table rows
 
-        const response = await fetch(`https://localhost:7025/api/Invoice/GetFilteredShortageReports`);
+        const response = await fetch(`https://www.shakoorfms.com/Fleetiva/api/Invoice/GetFilteredShortageReports`);
         if (!response.ok) throw new Error('Network response was not ok');
 
         const reader = response.body.getReader();
