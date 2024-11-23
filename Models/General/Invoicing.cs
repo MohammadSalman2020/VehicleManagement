@@ -42,6 +42,9 @@ namespace VehicleManagement.Models.General
         [JsonProperty("ExtarctedID")]
 
         public int ExtarctedID { get; set; } = 0;
+        [JsonProperty("invoiceType")]
+
+        public string invoiceType { get; set; } = string.Empty;
     }
 
     public class ReceivingDetail
