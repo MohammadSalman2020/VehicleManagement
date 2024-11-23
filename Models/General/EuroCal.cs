@@ -32,6 +32,8 @@
 
     public class SummaryData
     {
+        public string Status => CarriageShortage<0 ? "Short" : "Extra";
+
         public double DispatchTemperature { get; set; }
         public double DispatchSG { get; set; }
         public double ReceivingTemperature { get; set; }
@@ -45,7 +47,7 @@
         public double Percentage { get; set; }
     }
 
-  
+
     public class EuroCal
     {
         public string? VehicleNo { get; set; }

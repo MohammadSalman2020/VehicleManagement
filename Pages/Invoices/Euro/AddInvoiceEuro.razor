@@ -154,318 +154,318 @@
         text-align: center;
     }
 </style>
-<AuthorizeView>
-    <Authorized>
+@* <AuthorizeView>
+    <Authorized> *@
 
 
-        <Nav PageName="@InvoiceType" />
+<Nav PageName="@InvoiceType" />
 
-        <div class="container-fluid">
-            <div class="row">
-                <div class="col-12">
-                    <div class="card mb-4">
-                        <div class="card-body px-0 pt-0 pb-2">
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="card mb-4">
+                <div class="card-body px-0 pt-0 pb-2">
 
 
-                            <div class="row">
-                                <div class="col-lgg-6">
-                                    <div class="container">
+                    <div class="row">
+                        <div class="col-lgg-6">
+                            <div class="container">
 
-                                        <table class="details">
+                                <table class="details">
+                                    <tr>
+                                        <td>Tank Lorry No</td>
+                                        <td> <input type="text" tabindex="1" id="vehicleID" required placeholder="Tank Lorry No" @onchange="GetChambersQuantity" onkeyup="altercolspan()" value="@Invoices.VehicleNo" class="form-control"></td>
+                                        <td>Date</td>
+                                        <td>  <input type="date" tabindex="2" placeholder="Date" @bind-value="@Invoices.InvoiceDate" class="form-control"></td>
+                                    </tr>
+                                    <tr>
+                                        <td>STO NO</td>
+                                        <td>   <input type="text" tabindex="3" placeholder="STO No" @bind-value="@Invoices.STONo" class="form-control"></td>
+                                        <td>Shipping Location</td>
+                                        <td>  <input type="text" tabindex="4" placeholder="Supply Point" @bind-value="@Invoices.ShippingLoc" class="form-control"></td>
+                                    </tr>
+                                    <tr>
+                                        <td>User</td>
+                                        <td> @Invoices.User</td>
+                                        <td>Receiving Location</td>
+                                        <td>   <input type="text" tabindex="5" placeholder="Receiving Location" @bind-value="@Invoices.ReceivingLoc" class="form-control"></td>
+                                    </tr>
+                                    <tr>
+                                        <td>Product</td>
+                                        <td>  <input type="text" tabindex="6" placeholder="Product" @bind-value="@Invoices.Product" class="form-control"></td>
+                                        <td>Contractor</td>
+                                        <td>  <input type="text" tabindex="7" placeholder="Contractor" @bind-value="@Invoices.Contractor" class="form-control"></td>
+                                    </tr>
+                                </table>
+
+
+
+                                @if (Invoices.Chambers!=null)
+                                {
+                                    @if (Invoices.Chambers.Count>0)
+                                    {
+                                        <table class="shipping" style="margin-top:7px;">
+                                            <tr class="header">
+                                                <td>Chamber (Shipping)</td>
+                                                @foreach (var item in Invoices.Chambers)
+                                                {
+                                                    <td>
+                                                        @item.ChamberNumber
+
+                                                        <img style="height:20px;cursor:pointer;" @onclick="@(()=>RemoveChamber(item))" src="css/minus.png" />
+                                                    </td>
+                                                }
+                                                @if (Invoices.Chambers.Count!=5)
+                                                {
+                                                    <td>
+                                                        <img style="height:20px;cursor:pointer;" @onclick="AddNewChamber" src="css/plus.png" />
+                                                    </td>
+                                                }
+                                            </tr>
+
                                             <tr>
-                                                <td>Tank Lorry No</td>
-                                                <td> <input type="text" tabindex="1" id="vehicleID" required placeholder="Tank Lorry No" @onchange="GetChambersQuantity" onkeyup="altercolspan()" value="@Invoices.VehicleNo" class="form-control"></td>
-                                                <td>Date</td>
-                                                <td>  <input type="date" tabindex="2" placeholder="Date" @bind-value="@Invoices.InvoiceDate" class="form-control"></td>
+                                                <td>Temp F</td>
+                                                <td colspan="5">  <input type="number" tabindex="8" placeholder="Temp F" @bind-value="Invoices.SummaryDetails.DispatchTemperature" class="form-control" id="TempD" onfocus="selectAllInputValue('TempD')"></td>
                                             </tr>
                                             <tr>
-                                                <td>STO NO</td>
-                                                <td>   <input type="text" tabindex="3" placeholder="STO No" @bind-value="@Invoices.STONo" class="form-control"></td>
-                                                <td>Shipping Location</td>
-                                                <td>  <input type="text" tabindex="4" placeholder="Supply Point" @bind-value="@Invoices.ShippingLoc" class="form-control"></td>
+                                                <td>S.G</td>
+                                                <td colspan="5"><input step="0.01" type="number" tabindex="9" placeholder="Gravity" @bind-value="Invoices.SummaryDetails.DispatchSG" class="form-control" id="SGD" onfocus="selectAllInputValue('SGD')"></td>
+                                            </tr>
+
+                                            <tr>
+                                                <td>Chamber Quantity</td>
+                                                @foreach (var item in Invoices.Chambers.Select((value, index) => new { value, index }))
+                                                {
+                                                    @if (item.index == Invoices.Chambers.Count() - 1)
+                                                    {
+                                                        @if (item.value.Capacity == 0)
+                                                        {
+                                                            <td colspan="5">
+                                                                <input type="number" placeholder="Chamber Qty" id="@item.value.ChamberNumber" onfocus="selectAllInputValue(@item.value.ChamberNumber)" @bind-value="@item.value.Capacity" class="form-control">
+                                                            </td>
+                                                        }
+                                                        else
+                                                        {
+                                                            <td colspan="5">
+                                                                @item.value.Capacity
+                                                            </td>
+                                                        }
+                                                    }
+                                                    else
+                                                    {
+                                                        @if (item.value.Capacity == 0)
+                                                        {
+                                                            <td>
+                                                                <input type="number" placeholder="Chamber Qty" @bind-value="@item.value.Capacity" class="form-control" id="@item.value.ChamberNumber" onfocus="selectAllInputValue(@item.value.ChamberNumber)">
+                                                            </td>
+                                                        }
+                                                        else
+                                                        {
+                                                            <td>
+                                                                @item.value.Capacity
+                                                            </td>
+                                                        }
+                                                    }
+                                                }
+
+
+
                                             </tr>
                                             <tr>
-                                                <td>User</td>
-                                                <td> @Invoices.User</td>
-                                                <td>Receiving Location</td>
-                                                <td>   <input type="text" tabindex="5" placeholder="Receiving Location" @bind-value="@Invoices.ReceivingLoc" class="form-control"></td>
+                                                <td>Tank Lorry Product Dips(MM)</td>
+                                                @foreach (var item in Invoices.Chambers.Select((value, index) => new { value, index }))
+                                                {
+                                                    if (item.index == Invoices.Chambers.Count() - 1)
+                                                    {
+                                                        if (item.value.DispatchDips == 0)
+                                                        {
+                                                            <td colspan="5">
+                                                                <input type="number" placeholder="Chamber Qty" @bind-value="@item.value.DispatchDips" class="form-control" id="@item.value.DispatchDips" onfocus="selectAllInputValue(@item.value.DispatchDips)">
+                                                            </td>
+                                                        }
+                                                        else
+                                                        {
+                                                            <td colspan="5">
+                                                                @item.value.DispatchDips
+                                                            </td>
+                                                        }
+                                                    }
+                                                    else
+                                                    {
+                                                        if (item.value.DispatchDips == 0)
+                                                        {
+                                                            <td>
+                                                                <input type="number" placeholder="Chamber Qty" @bind-value="@item.value.DispatchDips" id="@item.value.DispatchDips" onfocus="selectAllInputValue(@item.value.DispatchDips)" class="form-control">
+                                                            </td>
+                                                        }
+                                                        else
+                                                        {
+                                                            <td>
+                                                                @item.value.DispatchDips
+                                                            </td>
+                                                        }
+                                                    }
+                                                }
+
+
+
+                                            </tr>
+                                        </table>
+
+                                        <table class="receiving">
+                                            <tr class="header">
+                                                <td>Chamber (Receiving)</td>
+                                                @foreach (var item in Invoices.Chambers)
+                                                {
+                                                    <td>@item.ChamberNumber</td>
+                                                }
                                             </tr>
                                             <tr>
-                                                <td>Product</td>
-                                                <td>  <input type="text" tabindex="6" placeholder="Product" @bind-value="@Invoices.Product" class="form-control"></td>
-                                                <td>Contractor</td>
-                                                <td>  <input type="text" tabindex="7" placeholder="Contractor" @bind-value="@Invoices.Contractor" class="form-control"></td>
+                                                <td>Temp F</td>
+                                                <td colspan="5">
+                                                    <input type="number" tabindex="20" placeholder="Tempreture F" @bind-value="Invoices.SummaryDetails.ReceivingTemperature" id="TempR" onfocus="selectAllInputValue('TempR')" class="form-control">
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td>S.G</td>
+                                                <td colspan="5">
+                                                    <input type="number" tabindex="21" placeholder="Gravity" @bind-value="Invoices.SummaryDetails.ReceivingSG" id="SGR" onfocus="selectAllInputValue('SGR')" class="form-control">
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td>Chamber Quantity</td>
+                                                @foreach (var item in Invoices.Chambers)
+                                                {
+                                                    <td>
+                                                        @Math.Round(item.ReceivedQuantity)
+                                                    </td>
+                                                }
+                                            </tr>
+                                            <tr>
+                                                <td>Tank Lorry Product Dips(MM)</td>
+
+                                                @foreach (var item in Invoices.Chambers)
+                                                {
+                                                    <td>
+                                                        <input type="number" tabindex="22" placeholder=" Tank Lorry Product Dips(MM)" @bind-value="item.ReceivingDips" class="form-control" id="@item.ReceivingDips" onfocus="selectAllInputValue(@item.ReceivingDips)">
+                                                    </td>
+                                                }
                                             </tr>
                                         </table>
 
 
+                                        <table class="receiving">
+                                            <tr>
 
-                                        @if (Invoices.Chambers!=null)
-                                        {
-                                            @if (Invoices.Chambers.Count>0)
-                                            {
-                                                <table class="shipping" style="margin-top:7px;">
-                                                    <tr class="header">
-                                                        <td>Chamber (Shipping)</td>
-                                                        @foreach (var item in Invoices.Chambers)
-                                                        {
-                                                            <td>
-                                                                @item.ChamberNumber
-
-                                                                <img style="height:20px;cursor:pointer;" @onclick="@(()=>RemoveChamber(item))" src="css/minus.png" />
-                                                            </td>
-                                                        }
-                                                        @if (Invoices.Chambers.Count!=5)
-                                                        {
-                                                            <td>
-                                                                <img style="height:20px;cursor:pointer;" @onclick="AddNewChamber" src="css/plus.png" />
-                                                            </td>
-                                                        }
-                                                    </tr>
-
-                                                    <tr>
-                                                        <td>Temp F</td>
-                                                        <td colspan="5">  <input type="number" tabindex="8" placeholder="Temp F" @bind-value="Invoices.SummaryDetails.DispatchTemperature" class="form-control" id="TempD" onfocus="selectAllInputValue('TempD')"></td>
-                                                    </tr>
-                                                    <tr>
-                                                        <td>S.G</td>
-                                                        <td colspan="5"><input step="0.01" type="number" tabindex="9" placeholder="Gravity" @bind-value="Invoices.SummaryDetails.DispatchSG" class="form-control" id="SGD" onfocus="selectAllInputValue('SGD')"></td>
-                                                    </tr>
-
-                                                    <tr>
-                                                        <td>Chamber Quantity</td>
-                                                        @foreach (var item in Invoices.Chambers.Select((value, index) => new { value, index }))
-                                                        {
-                                                            @if (item.index == Invoices.Chambers.Count() - 1)
-                                                            {
-                                                                @if (item.value.Capacity == 0)
-                                                                {
-                                                                    <td colspan="5">
-                                                                        <input type="number" placeholder="Chamber Qty" id="@item.value.ChamberNumber" onfocus="selectAllInputValue(@item.value.ChamberNumber)" @bind-value="@item.value.Capacity" class="form-control">
-                                                                    </td>
-                                                                }
-                                                                else
-                                                                {
-                                                                    <td colspan="5">
-                                                                        @item.value.Capacity
-                                                                    </td>
-                                                                }
-                                                            }
-                                                            else
-                                                            {
-                                                                @if (item.value.Capacity == 0)
-                                                                {
-                                                                    <td>
-                                                                        <input type="number" placeholder="Chamber Qty" @bind-value="@item.value.Capacity" class="form-control" id="@item.value.ChamberNumber" onfocus="selectAllInputValue(@item.value.ChamberNumber)">
-                                                                    </td>
-                                                                }
-                                                                else
-                                                                {
-                                                                    <td>
-                                                                        @item.value.Capacity
-                                                                    </td>
-                                                                }
-                                                            }
-                                                        }
-
-
-
-                                                    </tr>
-                                                    <tr>
-                                                        <td>Tank Lorry Product Dips(MM)</td>
-                                                        @foreach (var item in Invoices.Chambers.Select((value, index) => new { value, index }))
-                                                        {
-                                                            if (item.index == Invoices.Chambers.Count() - 1)
-                                                            {
-                                                                if (item.value.DispatchDips == 0)
-                                                                {
-                                                                    <td colspan="5">
-                                                                        <input type="number" placeholder="Chamber Qty" @bind-value="@item.value.DispatchDips" class="form-control" id="@item.value.DispatchDips" onfocus="selectAllInputValue(@item.value.DispatchDips)">
-                                                                    </td>
-                                                                }
-                                                                else
-                                                                {
-                                                                    <td colspan="5">
-                                                                        @item.value.DispatchDips
-                                                                    </td>
-                                                                }
-                                                            }
-                                                            else
-                                                            {
-                                                                if (item.value.DispatchDips == 0)
-                                                                {
-                                                                    <td>
-                                                                        <input type="number" placeholder="Chamber Qty" @bind-value="@item.value.DispatchDips" id="@item.value.DispatchDips" onfocus="selectAllInputValue(@item.value.DispatchDips)" class="form-control">
-                                                                    </td>
-                                                                }
-                                                                else
-                                                                {
-                                                                    <td>
-                                                                        @item.value.DispatchDips
-                                                                    </td>
-                                                                }
-                                                            }
-                                                        }
-
-
-
-                                                    </tr>
-                                                </table>
-
-                                                <table class="receiving">
-                                                    <tr class="header">
-                                                        <td>Chamber (Receiving)</td>
-                                                        @foreach (var item in Invoices.Chambers)
-                                                        {
-                                                            <td>@item.ChamberNumber</td>
-                                                        }
-                                                    </tr>
-                                                    <tr>
-                                                        <td>Temp F</td>
-                                                        <td colspan="5">
-                                                            <input type="number" tabindex="20" placeholder="Tempreture F" @bind-value="Invoices.SummaryDetails.ReceivingTemperature" id="TempR" onfocus="selectAllInputValue('TempR')" class="form-control">
-                                                        </td>
-                                                    </tr>
-                                                    <tr>
-                                                        <td>S.G</td>
-                                                        <td colspan="5">
-                                                            <input type="number" tabindex="21" placeholder="Gravity" @bind-value="Invoices.SummaryDetails.ReceivingSG" id="SGR" onfocus="selectAllInputValue('SGR')" class="form-control">
-                                                        </td>
-                                                    </tr>
-                                                    <tr>
-                                                        <td>Chamber Quantity</td>
-                                                        @foreach (var item in Invoices.Chambers)
-                                                        {
-                                                            <td>
-                                                                @Math.Round(item.ReceivedQuantity)
-                                                            </td>
-                                                        }
-                                                    </tr>
-                                                    <tr>
-                                                        <td>Tank Lorry Product Dips(MM)</td>
-
-                                                        @foreach (var item in Invoices.Chambers)
-                                                        {
-                                                            <td>
-                                                                <input type="number" tabindex="22" placeholder=" Tank Lorry Product Dips(MM)" @bind-value="item.ReceivingDips" class="form-control" id="@item.ReceivingDips" onfocus="selectAllInputValue(@item.ReceivingDips)">
-                                                            </td>
-                                                        }
-                                                    </tr>
-                                                </table>
-
-
-                                                <table class="receiving">
-                                                    <tr>
-
-                                                        <td>Temp. Difference (Desp. vs Rec.)</td>
-                                                        @{
-                                                            string color4;
-                                                            string value4 = FormatValueWithColor(Invoices.SummaryDetails.TempDifference, out color4);
-                                                        }
-                                                        <td style="color: @color4;">@value4</td>
-                                                        <td>Dispatch 85</td>
-                                                        <td>@Invoices.SummaryDetails.DispatchAt85F</td>
-                                                        <td>Recieve 85</td>
-                                                        <td>@Invoices.SummaryDetails.ReceivedAt85F</td>
-                                                    </tr>
-                                                    <tr>
-                                                        <td>Company Share On Shortage</td>
-                                                        @{
-                                                            string color1;
-                                                            string value1 = FormatValueWithColor(Invoices.SummaryDetails.CompanyShareOnShortage, out color1);
-                                                        }
-                                                        <td style="color: @color1;">@value1</td>
-                                                        <td>Percentage</td>
-                                                        @{
-                                                            string color2;
-                                                            string value2 = FormatPerWithColor(Invoices.SummaryDetails.Percentage, out color2);
-                                                        }
-                                                        <td style="color: @color2;">@value2</td>
-
-
-
-                                                        <td>Carriage Shortage</td>
-                                                        @{
-                                                            string color3;
-                                                            string value3 = FormatValueWithColor(Invoices.SummaryDetails.CarriageShortage, out color3);
-                                                        }
-                                                        <td style="color: @color3;">@value3</td>
-
-
-
-                                                    </tr>
-                                                    <tr>
-                                                        <td colspan="3">Status</td>
-                                                        <td colspan="3" style="color:@(Invoices.SummaryDetails.CarriageShortage<0?"Red":"Blue")">@(Invoices.SummaryDetails.CarriageShortage<0 ? "Short" : "Extra")</td>
-                                                    </tr>
-                                                </table>
-                                            }
-                                        }
-
-
-
-
-
-
-
-                                        <div class="col-md-12" style="margin-top: 7px;">
-                                            <div class="row">
-
-
-                                                <div class="col-md-12">
-                                                    <div class="form-group" style="text-align:center;">
-
-                                                        <button class="btn btn-danger btn-sm ms-auto" @onclick="Save">Save</button>
-                                                        <button class="btn btn-warning btn-sm ms-auto" @onclick="Cal">Refresh Calculation</button>
-                                                    </div>
-                                                </div>
-
-                                                @if (AddChamber)
-                                                {
-                                                    <div class="col-md-12">
-                                                        <div class="form-group" style="text-align:center;">
-
-
-                                                            <button class="btn btn-info btn-sm ms-auto" @onclick="Navigate">Add Chamber</button>
-
-                                                        </div>
-                                                    </div>
-
+                                                <td>Temp. Difference (Desp. vs Rec.)</td>
+                                                @{
+                                                    string color4;
+                                                    string value4 = FormatValueWithColor(Invoices.SummaryDetails.TempDifference, out color4);
                                                 }
+                                                <td style="color: @color4;">@value4</td>
+                                                <td>Dispatch 85</td>
+                                                <td>@Invoices.SummaryDetails.DispatchAt85F</td>
+                                                <td>Recieve 85</td>
+                                                <td>@Invoices.SummaryDetails.ReceivedAt85F</td>
+                                            </tr>
+                                            <tr>
+                                                <td>Company Share On Shortage</td>
+                                                @{
+                                                    string color1;
+                                                    string value1 = FormatShareWithColor(Invoices.SummaryDetails.CompanyShareOnShortage, out color1);
+                                                }
+                                                <td style="color: @color1;">@value1</td>
+                                                <td>Percentage</td>
+                                                @{
+                                                    string color2;
+                                                    string value2 = FormatPerWithColor(Invoices.SummaryDetails.Percentage, out color2);
+                                                }
+                                                <td style="color: @color2;">@value2</td>
+
+
+
+                                                <td>Carriage Shortage</td>
+                                                @{
+                                                    string color3;
+                                                    string value3 = FormatValueWithColor(Invoices.SummaryDetails.CarriageShortage, out color3);
+                                                }
+                                                <td style="color: @color3;">@value3</td>
+
+
+
+                                            </tr>
+                                            <tr>
+                                                <td colspan="3">Status</td>
+                                                <td colspan="3" style="color:@(Invoices.SummaryDetails.CarriageShortage<0?"Red":"Blue")">@Invoices.SummaryDetails.Status</td>
+                                            </tr>
+                                        </table>
+                                    }
+                                }
+
+
+
+
+
+
+
+                                <div class="col-md-12" style="margin-top: 7px;">
+                                    <div class="row">
+
+
+                                        <div class="col-md-12">
+                                            <div class="form-group" style="text-align:center;">
+
+                                                <button class="btn btn-danger btn-sm ms-auto" @onclick="Save">Save</button>
+                                                <button class="btn btn-warning btn-sm ms-auto" @onclick="Cal">Refresh Calculation</button>
                                             </div>
                                         </div>
 
+                                        @if (AddChamber)
+                                        {
+                                            <div class="col-md-12">
+                                                <div class="form-group" style="text-align:center;">
 
 
+                                                    <button class="btn btn-info btn-sm ms-auto" @onclick="Navigate">Add Chamber</button>
 
+                                                </div>
+                                            </div>
+
+                                        }
                                     </div>
                                 </div>
 
-                                <div class="col-lgg-6">
-                                    <div class="table-responsive inv-img">
-                                        <div class="image-container">
-                                            <img id="mainImage2" src="@FileLocation" alt="Zoomable Image">
 
-                                        </div>
-
-
-
-                                    </div>
-                                </div>
 
 
                             </div>
-
-
-
                         </div>
+
+                        <div class="col-lgg-6">
+                            <div class="table-responsive inv-img">
+                                <div class="image-container">
+                                    <img id="mainImage2" src="@FileLocation" alt="Zoomable Image">
+
+                                </div>
+
+
+
+                            </div>
+                        </div>
+
+
                     </div>
+
+
+
                 </div>
             </div>
         </div>
+    </div>
+</div>
 
 
-    </Authorized>
+@*   </Authorized>
     <NotAuthorized>
         @if (_isJsReady)
         {
@@ -477,7 +477,7 @@
         }
 
     </NotAuthorized>
-</AuthorizeView>
+</AuthorizeView> *@
 
 
 @code {
@@ -569,37 +569,224 @@ ProductName=@ProductName
 
     public async Task Save()
     {
-        OCRSecData obj = new OCRSecData();
-
-        if(Invoices==null)
+        try
         {
-            toastService.ShowError("Data is null");
-            return;
+            if (Invoices.InvoiceType=="pk")
+            {
+                // Assuming `Invoices` is of type `EuroCal`
+                Invoicing objs = new Invoicing();
+
+                // Map GeneralDetails
+                objs.Details.Product = Invoices.Product;
+                objs.Details.TankLorryNO = Invoices.VehicleNo;
+                objs.Details.Contractor = Invoices.Contractor;
+                objs.Details.Date = Invoices.InvoiceDate;
+                objs.Details.ReceivingLocation = Invoices.ReceivingLoc;
+                objs.Details.STONo = Invoices.STONo;
+                objs.Details.SupplyPoint = Invoices.ShippingLoc;
+
+                // Map general properties
+                objs.User = Invoices.User;
+                objs.ExtarctedID = Invoices.ExtractedID;
+                objs.InvoiceFilePath = Invoices.FileLocation;
+
+                objs.ShippingDetail.TempF = (float)Invoices.SummaryDetails.DispatchTemperature;
+                objs.ShippingDetail.SG = (float)Invoices.SummaryDetails.DispatchSG;
+                objs.ReceivingDetail.TempF = (float)Invoices.SummaryDetails.ReceivingTemperature;
+                objs.ReceivingDetail.SG = (float)Invoices.SummaryDetails.ReceivingSG;
+
+                // Map Chambers to Shipping and Receiving details
+                foreach (var chamber in Invoices.Chambers)
+                {
+                    switch (chamber.ChamberNumber)
+                    {
+                        case 1:
+                            objs.ShippingDetail.Chamber1.ChamberQuantity = chamber.Capacity;
+                            objs.ShippingDetail.Chamber1.LorryDip = chamber.DispatchDips;
+                            objs.ShippingDetail.Chamber1.Quantity = 0;
+
+                            objs.ReceivingDetail.Chamber1.ChamberQuantity = (int)chamber.ReceivedQuantity;
+                            objs.ReceivingDetail.Chamber1.LorryDip = chamber.ReceivingDips;
+                            objs.ReceivingDetail.Chamber1.Quantity = 0;
+
+                            objs.ShortageCalculation.Chamber1.ShortageMM = (int)chamber.DiffInDipsMm;
+                            objs.ShortageCalculation.Chamber1.TotalShortageLtr = (int)chamber.ShortByDipLiters;
+
+
+                            break;
+
+                        case 2:
+                            objs.ShippingDetail.Chamber2.ChamberQuantity = chamber.Capacity;
+                            objs.ShippingDetail.Chamber2.LorryDip = chamber.DispatchDips;
+                            objs.ShippingDetail.Chamber2.Quantity = 0;
+
+                            objs.ReceivingDetail.Chamber2.ChamberQuantity = (int)chamber.ReceivedQuantity;
+                            objs.ReceivingDetail.Chamber2.LorryDip = chamber.ReceivingDips;
+                            objs.ReceivingDetail.Chamber2.Quantity = 0;
+
+
+                            objs.ShortageCalculation.Chamber2.ShortageMM = (int)chamber.DiffInDipsMm;
+                            objs.ShortageCalculation.Chamber2.TotalShortageLtr = (int)chamber.ShortByDipLiters;
+
+                            break;
+
+                        case 3:
+                            objs.ShippingDetail.Chamber3.ChamberQuantity = chamber.Capacity;
+                            objs.ShippingDetail.Chamber3.LorryDip = chamber.DispatchDips;
+                            objs.ShippingDetail.Chamber3.Quantity = 0;
+
+                            objs.ReceivingDetail.Chamber3.ChamberQuantity = (int)chamber.ReceivedQuantity;
+                            objs.ReceivingDetail.Chamber3.LorryDip = chamber.ReceivingDips;
+                            objs.ReceivingDetail.Chamber3.Quantity = 0;
+
+
+
+                            objs.ShortageCalculation.Chamber3.ShortageMM = (int)chamber.DiffInDipsMm;
+                            objs.ShortageCalculation.Chamber3.TotalShortageLtr = (int)chamber.ShortByDipLiters;
+
+
+                            break;
+
+                        case 4:
+                            objs.ShippingDetail.Chamber4.ChamberQuantity = chamber.Capacity;
+                            objs.ShippingDetail.Chamber4.LorryDip = chamber.DispatchDips;
+                            objs.ShippingDetail.Chamber4.Quantity = 0;
+
+                            objs.ReceivingDetail.Chamber4.ChamberQuantity = (int)chamber.ReceivedQuantity;
+                            objs.ReceivingDetail.Chamber4.LorryDip = chamber.ReceivingDips;
+                            objs.ReceivingDetail.Chamber4.Quantity =0;
+
+
+                            objs.ShortageCalculation.Chamber4.ShortageMM = (int)chamber.DiffInDipsMm;
+                            objs.ShortageCalculation.Chamber4.TotalShortageLtr = (int)chamber.ShortByDipLiters;
+
+
+                            break;
+
+                        case 5:
+                            objs.ShippingDetail.Chamber5.ChamberQuantity = chamber.Capacity;
+                            objs.ShippingDetail.Chamber5.LorryDip = chamber.DispatchDips;
+                            objs.ShippingDetail.Chamber5.Quantity = 0;
+
+                            objs.ReceivingDetail.Chamber5.ChamberQuantity = (int)chamber.ReceivedQuantity;
+                            objs.ReceivingDetail.Chamber5.LorryDip = chamber.ReceivingDips;
+                            objs.ReceivingDetail.Chamber5.Quantity = 0;
+
+
+                            objs.ShortageCalculation.Chamber5.ShortageMM = (int)chamber.DiffInDipsMm;
+                            objs.ShortageCalculation.Chamber5.TotalShortageLtr = (int)chamber.ShortByDipLiters;
+
+                            break;
+                    }
+
+
+                }
+
+                // Map Summary Data
+                objs.CalculationDifference.TempDiff = (float)Math.Round(Invoices.SummaryDetails.TempDifference);
+                objs.CalculationDifference.Shortage1FTemp = (float)Math.Round(Invoices.SummaryDetails.Short1FTemp);
+                objs.CalculationDifference.QtyShouldRecieved = (float)Math.Round(Invoices.TotalReceivedQty);
+                objs.CalculationDifference.TotalShortageByDip = (float)Math.Round(Invoices.TotalShortByDipLiters);
+                objs.CalculationDifference.ShortOnTemp = 0;
+                objs.CalculationDifference.ShortageCharge = (float)Math.Round(Invoices.SummaryDetails.CompanyShareOnShortage);
+                objs.CalculationDifference.Status = Invoices.SummaryDetails.Status;
+
+                // Now the `objs` instance is fully populated
+                objs.IsView = "false";
+
+
+                string jsonData = Newtonsoft.Json.JsonConvert.SerializeObject(objs);
+                var AddUser = await API.PostRequest($"Invoice/AddInvoice", jsonData);
+                string Result = Newtonsoft.Json.JsonConvert.DeserializeObject<string>(AddUser);
+                if (Result == "200")
+                {
+                    OCRSecData obj = new OCRSecData();
+
+                    if (Invoices==null)
+                    {
+                        toastService.ShowError("Data is null");
+                        return;
+                    }
+
+                    obj.ExtractedID=Invoices.ExtractedID;
+                    obj.Product=Invoices.Product;
+                    obj.StoNo = Invoices.STONo;
+                    obj.ShippingLocation=Invoices.ShippingLoc;
+                    obj.FileLocation=Invoices.FileLocation.Replace("191.96.196.61", "www.shakoorfms.com/imgs");
+                    obj.FillingDate=Invoices.InvoiceDate;
+                    obj.RecievingLocation = Invoices.ReceivingLoc;
+                    obj.VehicleNo=Invoices.VehicleNo;
+                    obj.User = Invoices.User;
+
+
+
+                    bool Update = UpdateExtractedData(obj);
+                    if (!Update)
+                    {
+                        toastService.ShowError("Invoice is Added but Data from Ocr is not updated");
+                        NavigationManager.NavigateTo("/addinvoice");
+                        return;
+                    }
+                    toastService.ShowSuccess("Invoice Added Success");
+                    NavigationManager.NavigateTo("/addinvoice");
+                }
+                else if (Result == "403")
+                {
+                    toastService.ShowError("Empty STO No");
+                }
+                else if (Result == "504")
+                {
+                    toastService.ShowError($"Invoice Already Exists: {objs.Details.STONo}");
+                }
+                else if (Result == "204")
+                {
+                    toastService.ShowWarning($"Please Mark the Driver Attendance for Date {objs.Details.Date.ToString("MM-dd-yyyy")}");
+                }
+                else
+                {
+                    toastService.ShowError("Error while adding invoice");
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+
         }
 
-        obj.ExtractedID=Invoices.ExtractedID;
-        obj.Product=Invoices.Product;
-        obj.StoNo = Invoices.STONo;
-        obj.ShippingLocation=Invoices.ShippingLoc;
-        obj.FileLocation=Invoices.FileLocation.Replace("191.96.196.61","www.shakoorfms.com/imgs");
-        obj.FillingDate=Invoices.InvoiceDate;
-        obj.RecievingLocation = Invoices.ReceivingLoc;
-        obj.VehicleNo=Invoices.VehicleNo;
-        obj.User = Invoices.User;
-        
 
 
-        bool Update = UpdateExtractedData(obj);
-        if (Update)
-        {
-            toastService.ShowSuccess("Update Invoice Success");
-            await JS.InvokeVoidAsync("closeCurrentTab");
-        }
-        else
-        {
-            toastService.ShowError("Error While Updating");
 
-        }
+        // OCRSecData obj = new OCRSecData();
+
+        // if(Invoices==null)
+        // {
+        //     toastService.ShowError("Data is null");
+        //     return;
+        // }
+
+        // obj.ExtractedID=Invoices.ExtractedID;
+        // obj.Product=Invoices.Product;
+        // obj.StoNo = Invoices.STONo;
+        // obj.ShippingLocation=Invoices.ShippingLoc;
+        // obj.FileLocation=Invoices.FileLocation.Replace("191.96.196.61","www.shakoorfms.com/imgs");
+        // obj.FillingDate=Invoices.InvoiceDate;
+        // obj.RecievingLocation = Invoices.ReceivingLoc;
+        // obj.VehicleNo=Invoices.VehicleNo;
+        // obj.User = Invoices.User;
+
+
+
+        // bool Update = UpdateExtractedData(obj);
+        // if (Update)
+        // {
+        //     toastService.ShowSuccess("Update Invoice Success");
+        //     await JS.InvokeVoidAsync("closeCurrentTab");
+        // }
+        // else
+        // {
+        //     toastService.ShowError("Error While Updating");
+
+        // }
 
     }
 
@@ -640,6 +827,20 @@ ProductName=@ProductName
             return value.ToString();
         }
     }
+    string FormatShareWithColor(double value, out string color)
+    {
+        if (value > 0)
+        {
+            color = "red";
+            value=Math.Round(value);
+            return Math.Abs(value).ToString();
+        }
+        else
+        {
+            color = "blue";
+            return value.ToString();
+        }
+    }
 
     string FormatPerWithColor(double value, out string color)
     {
@@ -662,6 +863,7 @@ ProductName=@ProductName
             int ChamberStatus = await GetShippingChamberDetails(e.Value.ToString());
             if (ChamberStatus==404)
             {
+                AddChamber = true;
                 toastService.ShowError("No Chambers Found for this Vehicle");
             }
 
@@ -750,13 +952,14 @@ ProductName=@ProductName
                 {
                     AddChamber = true;
                     toastService.ShowError($"No Chamber Details for Vehicle {Invoices.VehicleNo}");
+
                 }
             }
             // Display the image if the path is already set
             if (!string.IsNullOrEmpty(Invoices.FileLocation))
             {
                 //await JS.InvokeVoidAsync("showImageFromPath", Invoices.InvoiceFilePath);
-                FileLocation = Invoices.FileLocation.Replace("191.96.196.61","www.shakoorfms.com/imgs");
+                FileLocation = Invoices.FileLocation.Replace("191.96.196.61", "www.shakoorfms.com/imgs");
             }
         }
 
