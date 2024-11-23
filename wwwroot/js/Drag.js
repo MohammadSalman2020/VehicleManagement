@@ -385,7 +385,7 @@ function initializeDotNetReference(dotNetHelper) {
 //            // Update the total records count display
 //        }
 
-      
+
 
 //    } catch (error) {
 //        console.error('Failed to load data:', error);
@@ -397,7 +397,7 @@ let totalressss = 0;
 
 //function processRecord2(jsonLine, Busid) {
 //    try {
-       
+
 //        const item = JSON.parse(jsonLine);
 
 //        if (Busid.includes(String(item.BusinessID))) {
@@ -412,53 +412,123 @@ let totalressss = 0;
 
 async function loadShortageReportbyMonth(selectedDate) {
     try {
-        console.log(selectedDate);
-        totalressss = 0; // Reset total records count
         const Busid = getUserSessionFromStorage();
+        document.getElementById('totalRecords').textContent = 'Getting Records...'; // Initialize count display
 
-        let recordsFound = false; // Flag to check if any records were processed
+        let totalRecords = 0; // Keep track of total records
+        isLoading = true;
+        updateButtonState();
 
         // Clear the table body before loading new data
         const tbody = document.getElementById('dataContainer').querySelector('tbody');
-        tbody.innerHTML = ''; // Clear existing table rows
+        tbody.innerHTML = '';  // Clears the existing table rows
 
-        const response = await fetch(`https://www.shakoorfms.com/Fleetiva/api/Invoice/LoadShortageReportByMonth?startDate=${selectedDate}`);
+       // const response = await fetch(`https://www.shakoorfms.com/Fleetiva/api/Invoice/LoadShortageReportByMonth`, {
+        const response = await fetch(`https://localhost:7025/api/Invoice/LoadShortageReportByMonth`, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+                startDate: selectedDate,
+                busIds: Busid
+            })
+        });
+
         if (!response.ok) throw new Error('Network response was not ok');
 
         const reader = response.body.getReader();
         const decoder = new TextDecoder("utf-8");
-        let partialText = '';
+        let partialText = ''; // Buffer for incomplete JSON
 
         while (true) {
             const { done, value } = await reader.read();
-            if (done) break;
+            if (done) break; // Exit when all data is read
 
             partialText += decoder.decode(value, { stream: true });
 
-            // Handle boundaries between JSON objects
+            // Split JSON objects if delimited by "}{"
             let boundaryIndex;
             while ((boundaryIndex = partialText.indexOf('}{')) !== -1) {
-                const jsonLine = partialText.slice(0, boundaryIndex + 1); // Extract complete JSON object
-                partialText = partialText.slice(boundaryIndex + 1); // Update remaining text
-                processRecord2(jsonLine, Busid); // Process each record
-                recordsFound = true; // Flag that records were processed
+                const jsonLine = partialText.slice(0, boundaryIndex + 1); // Extract one complete JSON object
+                partialText = partialText.slice(boundaryIndex + 1); // Update buffer with remaining text
+                totalRecords++;
+
+                processRecord(jsonLine); // Process the complete JSON object
+
             }
         }
 
-        // Process any remaining text after the loop
+        // After the loop, process any remaining complete JSON object
         if (partialText.trim()) {
-            processRecord2(partialText.trim(), Busid);
+            processRecord(partialText.trim());
+            totalRecords++;
+
         }
 
-        // If no records were processed
-        if (!recordsFound) {
-            document.getElementById('totalRecords').textContent = '0 - Records';
-        }
+        document.getElementById('totalRecords').textContent = `${totalRecords} - Records`;
+
 
     } catch (error) {
         console.error('Failed to load data:', error);
         document.getElementById('totalRecords').textContent = '0 - Records';
+
+    } finally {
+        // Set loading to false and update the button text after completion
+        isLoading = false;
+        updateButtonState();
     }
+
+
+
+    //try {
+    //    console.log(selectedDate);
+    //    totalressss = 0; // Reset total records count
+    //    const Busid = getUserSessionFromStorage();
+
+    //    let recordsFound = false; // Flag to check if any records were processed
+
+    //    // Clear the table body before loading new data
+    //    const tbody = document.getElementById('dataContainer').querySelector('tbody');
+    //    tbody.innerHTML = ''; // Clear existing table rows
+
+    //    const response = await fetch(`https://www.shakoorfms.com/Fleetiva/api/Invoice/LoadShortageReportByMonth?startDate=${selectedDate}`);
+    //    if (!response.ok) throw new Error('Network response was not ok');
+
+    //    const reader = response.body.getReader();
+    //    const decoder = new TextDecoder("utf-8");
+    //    let partialText = '';
+
+    //    while (true) {
+    //        const { done, value } = await reader.read();
+    //        if (done) break;
+
+    //        partialText += decoder.decode(value, { stream: true });
+
+    //        // Handle boundaries between JSON objects
+    //        let boundaryIndex;
+    //        while ((boundaryIndex = partialText.indexOf('}{')) !== -1) {
+    //            const jsonLine = partialText.slice(0, boundaryIndex + 1); // Extract complete JSON object
+    //            partialText = partialText.slice(boundaryIndex + 1); // Update remaining text
+    //            processRecord2(jsonLine, Busid); // Process each record
+    //            recordsFound = true; // Flag that records were processed
+    //        }
+    //    }
+
+    //    // Process any remaining text after the loop
+    //    if (partialText.trim()) {
+    //        processRecord2(partialText.trim(), Busid);
+    //    }
+
+    //    // If no records were processed
+    //    if (!recordsFound) {
+    //        document.getElementById('totalRecords').textContent = '0 - Records';
+    //    }
+
+    //} catch (error) {
+    //    console.error('Failed to load data:', error);
+    //    document.getElementById('totalRecords').textContent = '0 - Records';
+    //}
 }
 
 function processRecord2(jsonLine, Busid) {
@@ -493,8 +563,9 @@ let isLoading = false;
 async function loadShortageReports() {
     try {
         const Busid = getUserSessionFromStorage();
-        let totalRecords = 0; // Initialize totalRecords to 0 at the beginning
-        let recordsFound = false; // Flag to check if any records were processed
+        document.getElementById('totalRecords').textContent = 'Getting Records...'; // Initialize count display
+
+        let totalRecords = 0; // Keep track of total records
         isLoading = true;
         updateButtonState();
 
@@ -503,48 +574,50 @@ async function loadShortageReports() {
         tbody.innerHTML = '';  // Clears the existing table rows
 
         const currentDate = new Date().toISOString().split('T')[0];
-        const response = await fetch(`https://www.shakoorfms.com/Fleetiva/api/Invoice/loadShortageReport?startDate=${currentDate}`);
+        const response = await fetch(`https://localhost:7025/api/Invoice/loadShortageReport`, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+                startDate: currentDate,
+                busIds: Busid
+            })
+        });
 
         if (!response.ok) throw new Error('Network response was not ok');
 
         const reader = response.body.getReader();
         const decoder = new TextDecoder("utf-8");
-        let partialText = '';  // Accumulate incomplete JSON objects
+        let partialText = ''; // Buffer for incomplete JSON
 
         while (true) {
             const { done, value } = await reader.read();
-            if (done) break;  // Exit when all data has been processed
+            if (done) break; // Exit when all data is read
 
             partialText += decoder.decode(value, { stream: true });
 
-            // Process the data chunk into individual JSON objects
+            // Split JSON objects if delimited by "}{"
             let boundaryIndex;
             while ((boundaryIndex = partialText.indexOf('}{')) !== -1) {
-                const jsonLine = partialText.slice(0, boundaryIndex + 1); // Extract complete JSON object
-                partialText = partialText.slice(boundaryIndex + 1); // Update remaining text
+                const jsonLine = partialText.slice(0, boundaryIndex + 1); // Extract one complete JSON object
+                partialText = partialText.slice(boundaryIndex + 1); // Update buffer with remaining text
+                totalRecords++;
 
-                processRecord(jsonLine, Busid);  // Process the extracted record
-                totalRecords++;  // Increment the totalRecords count
-                recordsFound = true;  // Set flag to true if any records are processed
-                
+                processRecord(jsonLine); // Process the complete JSON object
+
             }
-            document.getElementById('totalRecords').textContent = `${totalRecords} - Records`;
-
-           
         }
 
-        // After reading all chunks, process the final partial record if exists
-        //if (partialText.trim()) {
-        //    processRecord(partialText.trim(), Busid);
-        //    totalRecords++;
-        //    recordsFound = true;
-        //}
+        // After the loop, process any remaining complete JSON object
+        if (partialText.trim()) {
+            processRecord(partialText.trim());
+            totalRecords++;
 
-        // If no records found, set totalRecords to 0
-        if (!recordsFound) totalRecords = 0;
+        }
 
-        // Update the total records count display
         document.getElementById('totalRecords').textContent = `${totalRecords} - Records`;
+
 
     } catch (error) {
         console.error('Failed to load data:', error);
@@ -558,15 +631,23 @@ async function loadShortageReports() {
 }
 
 // Helper function to process each record
-function processRecord(jsonLine, Busid) {
+function processRecord(jsonLine) {
     try {
-        const item = JSON.parse(jsonLine);
-        if (Busid.includes(String(item.BusinessID))) {
-            updateUI(item);  // Update the UI with the filtered item
+        const item = JSON.parse(jsonLine); // Parse the JSON string into an object
+
+        if (Array.isArray(item)) {
+            // If it's an array of records, process each record
+            item.forEach(record => updateUI(record));
+        } else {
+            // If it's a single record, process it
+            updateUI(item);
         }
+
     } catch (error) {
+        console.error("Error processing record:", error, jsonLine); // Debug any issues
     }
 }
+
 
 async function handleInvoiceClick(invoices) {
     try {
@@ -585,7 +666,7 @@ async function handleInvoiceClick(invoices) {
         }
         // Replace local path with URL prefix
         const newLocation = invoice.FileLocation.replace("C:\\ScannedDocs\\", urlPrefix);
-     
+
         // Step 2: Handle based on InvoiceType
         let invoiceUrl = "";
 
@@ -607,17 +688,17 @@ async function handleInvoiceClick(invoices) {
             } else {
                 const Invoice = {
                     Details: {
-                        STONo: invoice.STO??"",
-                        Product: invoice.Product??"",
-                        TankLorryNO: invoice.Vehicle??"",
+                        STONo: invoice.STO ?? "",
+                        Product: invoice.Product ?? "",
+                        TankLorryNO: invoice.Vehicle ?? "",
                         Date: invoice.InvoiceDate || new Date(0).toISOString(),
-                        ReceivingLocation: invoice.ReceivingLocation??"",
-                        SupplyPoint: invoice.ShippingLocation??"",
+                        ReceivingLocation: invoice.ReceivingLocation ?? "",
+                        SupplyPoint: invoice.ShippingLocation ?? "",
                         Contractor: "Shakoor & Co."
                     },
-                    InvoiceFilePath: newLocation??"",
+                    InvoiceFilePath: newLocation ?? "",
                     IsOCR: true,
-                    ExtarctedID : invoice.OCRID??0
+                    ExtarctedID: invoice.OCRID ?? 0
                 };
 
                 // Serialize, Base64 encode, and URL-encode
@@ -996,7 +1077,7 @@ async function filterInComplete(isPrimary) {
             // Update the total records count display
             document.getElementById('totalRecords').textContent = `${totalRecords} - Records`;
         }
-       
+
 
 
     } catch (error) {
