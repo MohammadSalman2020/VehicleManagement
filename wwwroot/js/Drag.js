@@ -424,7 +424,7 @@ async function loadShortageReportbyMonth(selectedDate) {
         tbody.innerHTML = '';  // Clears the existing table rows
 
        // const response = await fetch(`https://www.shakoorfms.com/Fleetiva/api/Invoice/LoadShortageReportByMonth`, {
-        const response = await fetch(`https://localhost:7025/api/Invoice/LoadShortageReportByMonth`, {
+        const response = await fetch(`https://www.shakoorfms.com/Fleetiva/api/Invoice/LoadShortageReportByMonth`, {
             method: "POST",
             headers: {
                 "Content-Type": "application/json"
@@ -574,7 +574,7 @@ async function loadShortageReports() {
         tbody.innerHTML = '';  // Clears the existing table rows
 
         const currentDate = new Date().toISOString().split('T')[0];
-        const response = await fetch(`https://localhost:7025/api/Invoice/loadShortageReport`, {
+        const response = await fetch(`https://www.shakoorfms.com/Fleetiva/api/Invoice/loadShortageReport`, {
             method: "POST",
             headers: {
                 "Content-Type": "application/json"
