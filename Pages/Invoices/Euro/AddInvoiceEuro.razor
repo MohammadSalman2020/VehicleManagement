@@ -747,6 +747,38 @@ ProductName=@ProductName
                     toastService.ShowError("Error while adding invoice");
                 }
             }
+            else if(Invoices.InvoiceType=="sc")
+            {
+                OCRSecData obj = new OCRSecData();
+
+                if (Invoices==null)
+                {
+                    toastService.ShowError("Data is null");
+                    return;
+                }
+
+                obj.ExtractedID=Invoices.ExtractedID;
+                obj.Product=Invoices.Product;
+                obj.StoNo = Invoices.STONo;
+                obj.ShippingLocation=Invoices.ShippingLoc;
+                obj.FileLocation=Invoices.FileLocation.Replace("191.96.196.61", "www.shakoorfms.com/imgs");
+                obj.FillingDate=Invoices.InvoiceDate;
+                obj.RecievingLocation = Invoices.ReceivingLoc;
+                obj.VehicleNo=Invoices.VehicleNo;
+                obj.User = Invoices.User;
+
+
+
+                bool Update = UpdateExtractedData(obj);
+                if (!Update)
+                {
+                    toastService.ShowSuccess("Error While saving...");
+
+                    return;
+                }
+                toastService.ShowSuccess("Invoice Added Success");
+                NavigationManager.NavigateTo("/addinvoice");
+            }
         }
         catch (Exception ex)
         {
