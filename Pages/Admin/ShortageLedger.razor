@@ -248,7 +248,7 @@
                                                                 </a>
                                                             </td>
                                                             <td class="align-middle">
-                                                                <a @onclick="@(()=>EditButton(item.invoiceNumber))" class="text-secondary font-weight-bold text-xs cursor-pointer">
+                                                                <a @onclick="@(()=>EditButton(item.invoiceNumber,item.busid))" class="text-secondary font-weight-bold text-xs cursor-pointer">
                                                                     Edit
                                                                 </a>
                                                             </td>
@@ -568,7 +568,7 @@
 
 
     }
-    private async Task EditButton(string StoNo)
+    private async Task EditButton(string StoNo,int BusID)
     {
         try
         {
@@ -581,8 +581,17 @@
                 string base64EncodedJson = Convert.ToBase64String(Encoding.UTF8.GetBytes(jsonString));
                 string encodedJson = HttpUtility.UrlEncode(base64EncodedJson);
 
-               // NavigationManager.NavigateTo($"/Invoice?Edit={encodedJson}");
-                await JSRuntime.InvokeVoidAsync("openInNewTab2", $"/invoice?Edit={encodedJson}");
+                if(BusID==13)//Euro
+                {
+                    await JSRuntime.InvokeVoidAsync("openInNewTab2", $"/AddEuroInvoice?Edit={encodedJson}");
+
+                }
+                else /* if(BusID == 1) // HTL */
+                {
+                    await JSRuntime.InvokeVoidAsync("openInNewTab2", $"/invoice?Edit={encodedJson}");
+
+                }
+                // NavigationManager.NavigateTo($"/Invoice?Edit={encodedJson}");
                 //  var url = $"/invoicepanel?Edit={encodedJson}";
                 // await JSRuntime.InvokeVoidAsync("openInNewTab", url);
             }
