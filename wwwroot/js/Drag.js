@@ -651,6 +651,7 @@ function processRecord(jsonLine) {
 
 async function handleInvoiceClick(invoices) {
     try {
+
         // Serialize the model to JSON and pass it to the C# function
         // Step 1: Convert the JavaScript object to a JSON string
         const jsonString = JSON.stringify(invoices);
@@ -700,7 +701,6 @@ async function handleInvoiceClick(invoices) {
                     IsOCR: true,
                     ExtarctedID: invoice.OCRID ?? 0
                 };
-
                 // Serialize, Base64 encode, and URL-encode
                 const base64EncodedJson = btoa(JSON.stringify(Invoice));
                 const encodedJson = encodeURIComponent(base64EncodedJson);
@@ -712,11 +712,14 @@ async function handleInvoiceClick(invoices) {
             invoiceUrl = `/insertSec?View=${invoice.OCRID}`;
         }
         else if (invoice.BusinessID == 13) {
+
+
             if (invoice.isInvoiceGenerated) {
                 const InvoicesResponse = await fetch(`https://www.shakoorfms.com/Fleetiva/api/Invoice/GetInvoiceByID/${invoice.STO}`);
-
                 if (!InvoicesResponse.ok) throw new Error('Network response was not ok');
                 const Invoices = await InvoicesResponse.json(); // Parse the JSON response
+             
+
                 Invoices.IsFromDisplay = true;
                 Invoices.IsView = "Update";
                 Invoices.invoiceType = invoice.InvoiceType;
@@ -733,7 +736,9 @@ async function handleInvoiceClick(invoices) {
                     STONo: invoice.STO ?? "",
                     Product: invoice.Product ?? "",
                     VehicleNo: invoice.Vehicle ?? "",
-                    InvoiceDate: invoice.InvoiceDate ? new Date(invoice.InvoiceDate).toISOString() : new Date(0).toISOString(),
+                    InvoiceDate: invoice.InvoiceDate
+                        ? new Date(invoice.InvoiceDate).toLocaleDateString('en-CA') // Output: "2024-10-04"
+                        : new Date(0).toLocaleDateString('en-CA'),
                     ReceivingLoc: invoice.ReceivingLocation ?? "",
                     ShippingLoc: invoice.ShippingLocation ?? "",
                     Contractor: "Shakoor & Co.",
@@ -742,7 +747,6 @@ async function handleInvoiceClick(invoices) {
                     BusinessID: invoice.BusinessID ?? 0,
                     InvoiceType: invoice.InvoiceType ?? ""
                 };
-
                 // Serialize, Base64 encode, and URL-encode
                 const base64EncodedJson = encodeToBase64Unicode(JSON.stringify(Invoice));
                 const encodedJson = encodeURIComponent(base64EncodedJson);

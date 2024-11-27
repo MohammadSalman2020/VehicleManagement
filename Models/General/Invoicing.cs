@@ -176,8 +176,18 @@ namespace VehicleManagement.Models.General
     {
         [JsonProperty("tempDiff")]
         public float TempDiff { get; set; }
+
+        private float _shortage1FTemp;
         [JsonProperty("shortage1FTemp")]
-        public float Shortage1FTemp { get; set; }
+        public float Shortage1FTemp
+        {
+            get => _shortage1FTemp;
+            set
+            {
+                // Replace Infinity with a default value (e.g., 0)
+                _shortage1FTemp = float.IsInfinity(value) ? 0 : value;
+            }
+        }
         [JsonProperty("qtyShouldRecieved")]
         public float QtyShouldRecieved { get; set; }
         [JsonProperty("totalShortageByDip")]
