@@ -8,10 +8,14 @@
 @using System.Reflection
 @using Microsoft.Data.SqlClient
 @using Newtonsoft.Json
+@using System.Data
+@using System.Text.Json.Serialization
 @using VehicleManagement.ApiService
 @using VehicleManagement.Models.General
 @using VehicleManagement.Models.General.Login
 @using VehicleManagement.Pages.Redirects;
+@using static VehicleManagement.Pages.Invoices.ReceiveSecondary
+@using static VehicleManagement.Pages.Invoices.AddSecondarInvoice
 @inject IWebHostEnvironment Environment
 @inject IToastService toastService
 @inject NavigationManager NavigationManager
@@ -156,9 +160,15 @@
 </style>
 @* <AuthorizeView>
     <Authorized> *@
-
-
 <Nav PageName="@InvoiceType" />
+
+
+
+
+
+
+
+
 
 <div class="container-fluid">
     <div class="row">
@@ -196,6 +206,17 @@
                                         <td>Contractor</td>
                                         <td>  <input type="text" tabindex="7" placeholder="Contractor" @bind-value="@Invoices.Contractor" class="form-control"></td>
                                     </tr>
+                                    @if (IsSecondary)
+                                    {
+                                        <tr>
+                                            <td colspan="12" style="text-align:center; vertical-align:middle;">
+                                                <div class="form-group d-flex justify-content-center align-items-center" style="height:100%;">
+                                                    <button class="btn btn-success btn-sm" @onclick="OpenModal">Link Primary</button>
+                                                </div>
+                                            </td>
+                                        </tr>
+
+                                    }
                                 </table>
 
 
@@ -471,6 +492,135 @@
         </div>
     </div>
 </div>
+<Modal @ref="modal" Title="Primary Invoices">
+    <Body>
+        <div class="col-md-12">
+            <div class="card" style="height:410px;overflow-x:scroll;">
+
+                <div class="card-body">
+                    <div class="row">
+                        <div class="card-body px-0 pt-0 pb-2">
+                            <div class="table-responsive p-0">
+                                <table class="table align-items-center mb-0" id="GetPrimariesTable">
+
+                                    <thead>
+                                        <tr>
+                                            <th class="text-uppercase font-colors  text-xxs font-weight-bolder opacity-7 text-center"></th>
+
+                                            <th class="text-uppercase font-colors  text-xxs font-weight-bolder opacity-7 text-center">STO No</th>
+                                            <th class="text-uppercase font-colors  text-xxs font-weight-bolder opacity-7 text-center">Shipping Location</th>
+                                            <th class="text-uppercase font-colors  text-xxs font-weight-bolder opacity-7 text-center">Receiving Location</th>
+                                            <th class="text-uppercase font-colors  text-xxs font-weight-bolder opacity-7 text-center">Vehicle #</th>
+                                            <th class="text-uppercase font-colors  text-xxs font-weight-bolder opacity-7 text-center">Date</th>
+                                            <th class="text-uppercase font-colors  text-xxs font-weight-bolder opacity-7 text-center">Product</th>
+
+                                        </tr>
+                                    </thead>
+
+
+                                    <tbody>
+                                        @if (PrimaryInvoices.Count>0)
+                                        {
+
+
+                                            @foreach (var item in PrimaryInvoices)
+                                            {
+                                                // Check if the current STO is the selected one
+                                                bool isSelected = item.STO == PrimarySTO;
+                                                string rowClass = isSelected ? "text-white" : "";
+                                                string rostyle = isSelected ? "background:#2196F3 !important;" : "";
+
+                                                <tr class="@rowClass" style="@rostyle">
+                                                    <td class="align-middle text-center" style="text-align:center;">
+                                                        <p class="text-xs font-weight-bold mb-0 text-center" style="cursor:pointer;color:black;" @onclick="() => SelectPrimarySTO(item.STO)">@(isSelected ? "Remove" : "Select")</p>
+                                                    </td>
+                                                    <td class="align-middle text-center" style="text-align:center;">
+                                                        <p class="text-xs font-weight-bold mb-0 text-center">@item.STO</p>
+                                                    </td>
+                                                    <td class="align-middle text-center" style="text-align:center;">
+                                                        <p class="text-xs font-weight-bold mb-0 text-center">@item.ShippingLocation</p>
+                                                    </td>
+                                                    <td class="align-middle text-center" style="text-align:center;">
+                                                        <p class="text-xs font-weight-bold mb-0 text-center">@item.ReceivingLocation</p>
+                                                    </td>
+                                                    <td class="align-middle text-center" style="text-align:center;">
+                                                        <p class="text-xs font-weight-bold mb-0 text-center">@item.Vehicle</p>
+                                                    </td>
+                                                    <td class="align-middle text-center" style="text-align:center;">
+                                                        <p class="text-xs font-weight-bold mb-0 text-center">@item.InvoiceDate?.ToString("dd-MM-yyyy")</p>
+                                                    </td>
+                                                    <td class="align-middle text-center" style="text-align:center;">
+                                                        <p class="text-xs font-weight-bold mb-0 text-center">@item.Product</p>
+                                                    </td>
+                                                </tr>
+                                            }
+                                            @if (PrimarySTO==null || PrimarySTO!="none")
+                                            {
+                                                <tr style="background:red;color:white;">
+                                                    <td class="align-middle text-center" style="text-align:center;" colspan="12">
+                                                        <p class="text-xs font-weight-bold mb-0 text-center">
+                                                            Do you want to Mark this as
+                                                            <a style="text-decoration:underline;color:black;cursor:pointer;" @onclick="AddNone">  Indiviual?</a>
+                                                        </p>
+                                                    </td>
+                                                </tr>
+                                            }
+                                            else if (PrimarySTO=="none")
+                                            {
+                                                <tr style="background:blue;color:white;">
+                                                    <td class="align-middle text-center" style="text-align:center;" colspan="12">
+                                                        <p class="text-xs font-weight-bold mb-0 text-center">
+                                                            Invoice Selected as Indiviual
+
+                                                        </p>
+                                                    </td>
+                                                </tr>
+                                            }
+
+                                        }
+                                        else
+                                        {
+                                            if (PrimarySTO=="none")
+                                            {
+                                                <tr style="background:blue;color:white;">
+                                                    <td class="align-middle text-center" style="text-align:center;" colspan="12">
+                                                        <p class="text-xs font-weight-bold mb-0 text-center">
+                                                            Invoice Selected as Indiviual
+                                                            <br />
+                                                            <a style="text-decoration:underline;color:black;cursor:pointer;font-weight:bolder;" @onclick="RemoveNone">Remove?</a>
+
+                                                        </p>
+                                                    </td>
+                                                </tr>
+                                            }
+                                            else
+                                            {
+                                                <tr style="background:red;color:white;">
+                                                    <td class="align-middle text-center" style="text-align:center;" colspan="12">
+                                                        <p class="text-xs font-weight-bold mb-0 text-center">
+                                                            No Primary Invoice for this Secondary <br> Do you want to Mark this as
+                                                            <a style="text-decoration:underline;color:black;cursor:pointer;" @onclick="AddNone"> Indiviual?</a>
+                                                        </p>
+                                                    </td>
+                                                </tr>
+                                            }
+
+
+                                        }
+
+                                    </tbody>
+
+
+
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </Body>
+</Modal>
 
 
 @*   </Authorized>
@@ -489,14 +639,56 @@
 
 
 @code {
+    private Modal modal;
 
     private bool _isJsReady = false;
     private string FileLocation = string.Empty;
     private string InvoiceType = string.Empty;
     private bool AddChamber = false;
     private bool IsEdit = false;
+    private bool IsSecondary = false;
+    private string? PrimarySTO; // Variable to store the selected STO
+    private void SelectPrimarySTO(string sto)
+    {
+        int ID = GetInvoiceID(sto);
+        if (ID!=0)
+        {
+            if (PrimarySTO == sto)
+            {
+                // Deselect if already selected
+                PrimarySTO = null;
+            }
+            else
+            {
+                // Select the new STO
+                PrimarySTO = sto;
+            }
+        }
+        else
+        {
+            modal.CloseModal();
+            toastService.ShowError("Add this primary invoice first");
+        }
 
+
+    }
+    private void AddNone()
+    {
+        PrimarySTO = "none";
+    }
+    private void RemoveNone()
+    {
+        PrimarySTO = null;
+    }
     public EuroCal Invoices { get; set; } = new EuroCal();
+    public List<OCRData> PrimaryInvoices { get; set; } = new List<OCRData>();
+
+    private async Task OpenModal()
+    {
+        modal.Show();
+        PrimaryInvoices = await GetPrimary(Invoices.ExtractedID);
+    }
+
     private void AddNewChamber()
     {
         // Find the missing chamber number within the range of 1 to 5
@@ -525,7 +717,52 @@
         }
 
     }
+    public async Task<List<OCRData>> GetPrimary(int ExtID)
+    {
+        string connectionString = _configuration.GetConnectionString("Con"); // Replace with your actual connection string
+        List<OCRData> result = new List<OCRData>();
 
+        using (SqlConnection connection = new SqlConnection(connectionString))
+        {
+            await connection.OpenAsync();
+
+            using (SqlCommand command = new SqlCommand("GetPrimaryInvoicesForSC", connection))
+            {
+                command.CommandType = CommandType.StoredProcedure;
+
+                // Add the VehicleID parameter
+                command.Parameters.AddWithValue("@scExtractedID", ExtID);
+
+                // Execute the stored procedure and read the result
+                using (SqlDataReader reader = await command.ExecuteReaderAsync())
+                {
+                    while (await reader.ReadAsync())
+                    {
+                        OCRData data = new OCRData
+                            {
+                                InvoiceDate = reader.IsDBNull(reader.GetOrdinal("FillingDate"))
+                                                                                                                                                ? (DateTime?)null
+                                                                                                                                                : reader.GetDateTime(reader.GetOrdinal("FillingDate")),
+                                STO = reader.IsDBNull(reader.GetOrdinal("STONO")) ? "" : reader.GetString(reader.GetOrdinal("STONO")),
+                                Vehicle = reader.IsDBNull(reader.GetOrdinal("VehicleNo")) ? "" : reader.GetString(reader.GetOrdinal("VehicleNo")),
+                                BusinessID = reader.IsDBNull(reader.GetOrdinal("BusinessID")) ? 0 : reader.GetInt32(reader.GetOrdinal("BusinessID")),
+                                OCRID = reader.IsDBNull(reader.GetOrdinal("ExtractedID")) ? 0 : reader.GetInt32(reader.GetOrdinal("ExtractedID")),
+                                ShippingLocation = reader.IsDBNull(reader.GetOrdinal("ShippingLocation")) ? "" : reader.GetString(reader.GetOrdinal("ShippingLocation")),
+                                ReceivingLocation = reader.IsDBNull(reader.GetOrdinal("RecievingLocation")) ? "" : reader.GetString(reader.GetOrdinal("RecievingLocation")),
+                                InvoiceType = reader.IsDBNull(reader.GetOrdinal("InvoiceType")) ? "" : reader.GetString(reader.GetOrdinal("InvoiceType")),
+                                Product = reader.IsDBNull(reader.GetOrdinal("ProductName")) ? "" : reader.GetString(reader.GetOrdinal("ProductName")),
+                                FileLocation = reader.IsDBNull(reader.GetOrdinal("FileLocation")) ? "" : reader.GetString(reader.GetOrdinal("FileLocation")),
+                                isInvoiceGenerated = reader.IsDBNull(reader.GetOrdinal("isInvoiceGenerated")) ? false : reader.GetBoolean(reader.GetOrdinal("isInvoiceGenerated"))
+                            };
+
+                        result.Add(data);
+                    }
+                }
+            }
+        }
+
+        return result;
+    }
     public bool UpdateExtractedData(OCRSecData invoiceData)
     {
         try
@@ -578,33 +815,41 @@ ProductName=@ProductName
     {
         try
         {
-            var rec = MapInvoicing();
+            if (Invoices.InvoiceType=="pk")
+            {
+                var rec = MapInvoicing();
 
 
-            string jsonData = Newtonsoft.Json.JsonConvert.SerializeObject(rec);
-            var AddUser = await API.PostRequest($"Invoice/EditInvoice", jsonData);
-            string Result = Newtonsoft.Json.JsonConvert.DeserializeObject<string>(AddUser);
-            if (Result == "200")
-            {
-                toastService.ShowSuccess("Invoice Update Success");
-                NavigationManager.NavigateTo("/addinvoice");
+                string jsonData = Newtonsoft.Json.JsonConvert.SerializeObject(rec);
+                var AddUser = await API.PostRequest($"Invoice/EditInvoice", jsonData);
+                string Result = Newtonsoft.Json.JsonConvert.DeserializeObject<string>(AddUser);
+                if (Result == "200")
+                {
+                    toastService.ShowSuccess("Invoice Update Success");
+                    NavigationManager.NavigateTo("/addinvoice");
+                }
+                else if (Result == "404")
+                {
+                    toastService.ShowError("STO No is null or it cannot be edit");
+                }
+                else if (Result == "504")
+                {
+                    toastService.ShowError($"Invoice Already Exists: {Invoices.STONo}");
+                }
+                else if (Result == "204")
+                {
+                    toastService.ShowWarning($"Please Mark the Driver Attendance for Date {Invoices.InvoiceDate.ToString("MM-dd-yyyy")}");
+                }
+                else
+                {
+                    toastService.ShowError("Error while Updating invoice");
+                }
             }
-            else if (Result == "404")
+            else if (Invoices.InvoiceType=="sc")
             {
-                toastService.ShowError("STO No is null or it cannot be edit");
+                await AddInd();
             }
-            else if (Result == "504")
-            {
-                toastService.ShowError($"Invoice Already Exists: {Invoices.STONo}");
-            }
-            else if (Result == "204")
-            {
-                toastService.ShowWarning($"Please Mark the Driver Attendance for Date {Invoices.InvoiceDate.ToString("MM-dd-yyyy")}");
-            }
-            else
-            {
-                toastService.ShowError("Error while Updating invoice");
-            }
+
         }
         catch (Exception ex)
         {
@@ -659,6 +904,7 @@ ProductName=@ProductName
         objs.User = Invoices.User;
         objs.ExtarctedID = Invoices.ExtractedID;
         objs.InvoiceFilePath = Invoices.FileLocation;
+        objs.invoiceType = Invoices.InvoiceType;
 
         // Map Shipping and Receiving details
         objs.ShippingDetail = new ShippingDetails
@@ -702,103 +948,413 @@ ProductName=@ProductName
     {
         try
         {
-            if (Invoices.InvoiceType=="pk")
+            if (Invoices == null)
             {
+                toastService.ShowError("Data is null");
+                return;
+            }
 
+            OCRSecData obj = new OCRSecData
+                {
+                    ExtractedID = Invoices.ExtractedID,
+                    Product = Invoices.Product,
+                    StoNo = Invoices.STONo,
+                    ShippingLocation = Invoices.ShippingLoc,
+                    FileLocation = Invoices.FileLocation?.Replace("191.96.196.61", "www.shakoorfms.com/imgs"),
+                    FillingDate = Invoices.InvoiceDate,
+                    RecievingLocation = Invoices.ReceivingLoc,
+                    VehicleNo = Invoices.VehicleNo,
+                    User = Invoices.User
+                };
+
+            if (Invoices.InvoiceType == "pk")
+            {
                 var rec = MapInvoicing();
+                JsonSerializerOptions options = new JsonSerializerOptions
+                    {
+                        WriteIndented = true,
+                        ReferenceHandler = null,
+                        NumberHandling = JsonNumberHandling.AllowNamedFloatingPointLiterals
 
-                string jsonData = Newtonsoft.Json.JsonConvert.SerializeObject(rec);
-                var AddUser = await API.PostRequest($"Invoice/AddInvoice", jsonData);
-                string Result = Newtonsoft.Json.JsonConvert.DeserializeObject<string>(AddUser);
-                if (Result == "200")
+                    };
+                string jsonData = System.Text.Json.JsonSerializer.Serialize(rec, options);
+
+                // API request to add the invoice
+                var addUserResponse = await API.PostRequest("Invoice/AddInvoice", jsonData);
+                string result = JsonConvert.DeserializeObject<string>(addUserResponse);
+
+                // Handle API response
+                switch (result)
                 {
-                    OCRSecData obj = new OCRSecData();
-
-                    if (Invoices==null)
-                    {
-                        toastService.ShowError("Data is null");
-                        return;
-                    }
-
-                    obj.ExtractedID=Invoices.ExtractedID;
-                    obj.Product=Invoices.Product;
-                    obj.StoNo = Invoices.STONo;
-                    obj.ShippingLocation=Invoices.ShippingLoc;
-                    obj.FileLocation=Invoices.FileLocation.Replace("191.96.196.61", "www.shakoorfms.com/imgs");
-                    obj.FillingDate=Invoices.InvoiceDate;
-                    obj.RecievingLocation = Invoices.ReceivingLoc;
-                    obj.VehicleNo=Invoices.VehicleNo;
-                    obj.User = Invoices.User;
-
-
-
-                    bool Update = UpdateExtractedData(obj);
-                    if (!Update)
-                    {
-                        toastService.ShowError("Invoice is Added but Data from Ocr is not updated");
+                    case "200":
+                        if (!UpdateExtractedData(obj))
+                        {
+                            toastService.ShowError("Invoice is added but OCR data is not updated");
+                            NavigationManager.NavigateTo("/addinvoice");
+                            return;
+                        }
+                        toastService.ShowSuccess("Invoice added successfully");
                         NavigationManager.NavigateTo("/addinvoice");
-                        return;
-                    }
-                    toastService.ShowSuccess("Invoice Added Success");
-                    NavigationManager.NavigateTo("/addinvoice");
-                }
-                else if (Result == "403")
-                {
-                    toastService.ShowError("Empty STO No");
-                }
-                else if (Result == "504")
-                {
-                    toastService.ShowError($"Invoice Already Exists: {Invoices.STONo}");
-                }
-                else if (Result == "204")
-                {
-                    toastService.ShowWarning($"Please Mark the Driver Attendance for Date {Invoices.InvoiceDate.ToString("MM-dd-yyyy")}");
-                }
-                else
-                {
-                    toastService.ShowError("Error while adding invoice");
+                        break;
+
+                    case "403":
+                        toastService.ShowError("Empty STO No");
+                        break;
+
+                    case "504":
+                        toastService.ShowError($"Invoice already exists: {Invoices.STONo}");
+                        break;
+
+                    case "204":
+                        toastService.ShowWarning($"Please mark the driver attendance for {Invoices.InvoiceDate:MM-dd-yyyy}");
+                        break;
+
+                    default:
+                        toastService.ShowError("Error while adding invoice");
+                        break;
                 }
             }
-            else if (Invoices.InvoiceType=="sc")
+            else if (Invoices.InvoiceType == "sc")
             {
-                OCRSecData obj = new OCRSecData();
-
-                if (Invoices==null)
-                {
-                    toastService.ShowError("Data is null");
-                    return;
-                }
-
-                obj.ExtractedID=Invoices.ExtractedID;
-                obj.Product=Invoices.Product;
-                obj.StoNo = Invoices.STONo;
-                obj.ShippingLocation=Invoices.ShippingLoc;
-                obj.FileLocation=Invoices.FileLocation.Replace("191.96.196.61", "www.shakoorfms.com/imgs");
-                obj.FillingDate=Invoices.InvoiceDate;
-                obj.RecievingLocation = Invoices.ReceivingLoc;
-                obj.VehicleNo=Invoices.VehicleNo;
-                obj.User = Invoices.User;
-
-
-
-                bool Update = UpdateExtractedData(obj);
-                if (!Update)
-                {
-                    toastService.ShowSuccess("Error While saving...");
-
-                    return;
-                }
-                toastService.ShowSuccess("Invoice Added Success");
-                NavigationManager.NavigateTo("/addinvoice");
+                await AddInd();
             }
         }
         catch (Exception ex)
         {
+            // Log the exception or handle it appropriately
+            toastService.ShowError("An unexpected error occurred");
+        }
 
+
+    }
+    public async Task AddInd()
+    {
+
+        if (PrimarySTO==null)
+        {
+            toastService.ShowError("Please Add any reference of this invoice Primary or None");
+            return;
+        }
+
+        OCRSecDTO objj = new OCRSecDTO();
+        objj.ProductName=Invoices.Product;
+        objj.PrimaryInvoiceNumber = PrimarySTO;
+        objj.ShippingLocation=Invoices.ShippingLoc;
+        objj.RecievingLocation=Invoices.ReceivingLoc;
+        objj.FileLocation=Invoices.FileLocation;
+        objj.STONO=Invoices.STONo;
+        objj.VehicleNo = Invoices.VehicleNo;
+        objj.ExtractedID = Invoices.ExtractedID;
+        objj.FillingDate = Invoices.InvoiceDate;
+        objj.ChamberDetails = new List<ChamberDetailsDTO>();
+        //  Invoices.Chambers = new List<ChambersDetailsSec>();
+        foreach (var chamber in Invoices.Chambers)
+        {
+            objj.ChamberDetails.Add(new ChamberDetailsDTO
+                {
+                    ChamberDip = chamber.DispatchDips,
+                    ChamberNo=chamber.ChamberNumber,
+                    ChamberQuantity=chamber.Capacity,
+                    RecDip=chamber.ReceivingDips,
+                    ShortExcess=chamber.DiffInDipsMm,
+                    RecLiters=Math.Round(chamber.ShortByDipLiters),
+                    ogra=chamber.Capacity,
+                    rec_dip=chamber.ReceivingDips,
+
+                });
+        }
+
+        // Continue with further logic if no zero RecDip is found
+
+        bool isRecordUpdated = UpdateExtractedAddSecData(objj);
+        await DeleteInvoiceRecordsAsync(objj.STONO);
+        List<string> chambers = new List<string>();
+        @foreach (var item2 in objj.ChamberDetails)
+        {
+            if (item2.ChamberNo == 1)
+            {
+                chambers.Add("chamber1");
+            }
+            if (item2.ChamberNo == 2)
+            {
+                chambers.Add("chamber2");
+            }
+            if (item2.ChamberNo == 3)
+            {
+                chambers.Add("chamber3");
+            }
+            if (item2.ChamberNo == 4)
+            {
+                chambers.Add("chamber4");
+            }
+            if (item2.ChamberNo == 5)
+            {
+                chambers.Add("chamber5");
+            }
+        }
+
+        var obj = new SecondaryInvoice
+            {
+                primaryreference =PrimarySTO,
+                vehicle =objj.VehicleNo,
+                scondaryinvoice = objj.STONO,
+                _date = objj.FillingDate.Value.Date,
+                supplypoint = objj.ShippingLocation,
+                product = objj.ProductName,
+                receiivingpoint = objj.RecievingLocation,
+                contractor = "Shakoor & Co.",
+                chambers = chambers,
+                user = Invoices.User
+            };
+        JsonSerializerOptions options = new JsonSerializerOptions
+            {
+                WriteIndented = true,
+                ReferenceHandler = null
+            };
+        string jsonData = System.Text.Json.JsonSerializer.Serialize(obj, options);
+
+        var scinvoice = await API.PostRequest($"Invoice/SaveSecondaryInvoice", jsonData);
+        string Result = System.Text.Json.JsonSerializer.Deserialize<string>(scinvoice);
+        if (Result == "200")
+        {
+            int InvoiceID = GetInvoiceID(objj.STONO);
+
+            List<RecInv> receivingChambers = new List<RecInv>();
+            foreach (var x in objj.ChamberDetails)
+            {
+                receivingChambers.Add(new RecInv
+                    {
+                        ch_no = x.ChamberNo,
+                        disp_dip = x.ChamberQuantity,
+                        dis_liters = x.ChamberDip,
+                        invoiceno = InvoiceID,
+                        InvoicePath = objj.FileLocation,
+                        primarySTO = PrimarySTO,
+                        RecDip = x.RecDip,
+                        RecLiters = Math.Round(x.RecLiters),
+                        rec_dip = x.rec_dip,
+                        ShortExcess = x.ShortExcess,
+                        ogra = x.ogra,
+                    });
+            }
+            JsonSerializerOptions options2 = new JsonSerializerOptions
+                {
+                    WriteIndented = true,
+                    ReferenceHandler = null
+                };
+            string jsonData2 = System.Text.Json.JsonSerializer.Serialize(receivingChambers, options2);
+
+            var scinvoice2 = await API.PostRequest($"Invoice/SaveSecondaryWithImage", jsonData2);
+            string Result2 = System.Text.Json.JsonSerializer.Deserialize<string>(scinvoice);
+            var pointDetailsList = new List<PointDetails>
+{
+    new PointDetails { InvoiceID = InvoiceID, TempF = Invoices.SummaryDetails.DispatchTemperature, SG =  Invoices.SummaryDetails.DispatchSG, Point = "S" },
+    new PointDetails { InvoiceID = InvoiceID, TempF =  Invoices.SummaryDetails.ReceivingTemperature, SG =  Invoices.SummaryDetails.ReceivingSG, Point = "R" }
+};
+
+            InsertPointDetails(pointDetailsList);
+
+            await JS.InvokeVoidAsync("closeCurrentTab");
         }
 
     }
+    public void InsertPointDetails(List<PointDetails> pointDetailsList)
+    {
+        // SQL query template
+        string query = @"
+        INSERT INTO tblPointDetails (InvoiceID, TempF, SG, Point)
+        VALUES (@invoiceID, @tempF, @sg, @point);";
 
+        using (var connection = new SqlConnection(_configuration.GetConnectionString("Con")))
+        {
+            connection.Open();
+
+            using (var transaction = connection.BeginTransaction())
+            {
+                try
+                {
+                    // Prepare a single command object
+                    using (var command = new SqlCommand(query, connection, transaction))
+                    {
+                        // Add parameters (reuse them)
+                        command.Parameters.Add("@invoiceID", SqlDbType.Int);
+                        command.Parameters.Add("@tempF", SqlDbType.Float);
+                        command.Parameters.Add("@sg", SqlDbType.Float);
+                        command.Parameters.Add("@point", SqlDbType.NVarChar);
+
+                        // Iterate over the list and add records
+                        foreach (var pointDetails in pointDetailsList)
+                        {
+                            command.Parameters["@invoiceID"].Value = pointDetails.InvoiceID;
+                            command.Parameters["@tempF"].Value = pointDetails.TempF;
+                            command.Parameters["@sg"].Value = pointDetails.SG;
+                            command.Parameters["@point"].Value = pointDetails.Point;
+
+                            // Execute the insert for this record
+                            command.ExecuteNonQuery();
+                        }
+                    }
+
+                    // Commit transaction after all inserts
+                    transaction.Commit();
+                }
+                catch (Exception)
+                {
+                    // Rollback transaction if any issue occurs
+                    transaction.Rollback();
+                    throw; // Re-throw the exception to handle it outside
+                }
+            }
+        }
+    }
+
+    public class PointDetails
+    {
+        public int PointDetailID { get; set; } // Not used during insert, auto-generated
+        public int InvoiceID { get; set; }
+        public double TempF { get; set; }
+        public double SG { get; set; }
+        public string Point { get; set; }
+    }
+
+    public int GetInvoiceID(string stono)
+    {
+        // SQL query to check if STONO exists
+        string query = "SELECT invoiceid FROM tblinvoices WHERE STONO = @stono";
+
+        using (var connection = new SqlConnection(_configuration.GetConnectionString("Con")))
+        {
+            connection.Open();
+
+            using (var command = new SqlCommand(query, connection))
+            {
+                // Add the parameter to the query
+                command.Parameters.AddWithValue("@stono", stono);
+
+                // Execute the query and get the result
+                int count = Convert.ToInt32(command.ExecuteScalar() ?? 0);
+
+                // If the count is greater than 0, the STONO exists
+                return count;
+            }
+        }
+    }
+    public string GetInvoiceprimaryRef(string stono)
+    {
+        // SQL query to check if STONO exists
+        string query = "SELECT primaryReference FROM tblinvoices WHERE STONO = @stono";
+
+        using (var connection = new SqlConnection(_configuration.GetConnectionString("Con")))
+        {
+            connection.Open();
+
+            using (var command = new SqlCommand(query, connection))
+            {
+                // Add the parameter to the query
+                command.Parameters.AddWithValue("@stono", stono);
+
+                // Execute the query and get the result
+                object result = command.ExecuteScalar();
+
+                // If result is null, return an empty string or handle accordingly
+                return result?.ToString() ?? string.Empty;
+            }
+        }
+    }
+
+
+    public async Task DeleteInvoiceRecordsAsync(string secondaryInvoiceNo)
+    {
+        using (SqlConnection connection = new SqlConnection(_configuration.GetConnectionString("Con")))
+        {
+            await connection.OpenAsync();
+
+            string query = @"
+       DECLARE @SecondaryInvoiceNo NVARCHAR(50) = @InvoiceNo;
+DECLARE @InvoiceID INT;
+
+DECLARE InvoiceCursor CURSOR FOR
+SELECT InvoiceID FROM tblInvoices WHERE STONo = @SecondaryInvoiceNo;
+
+OPEN InvoiceCursor;
+
+FETCH NEXT FROM InvoiceCursor INTO @InvoiceID;
+
+WHILE @@FETCH_STATUS = 0
+BEGIN
+    -- Delete related records in other tables for the current InvoiceID
+    DELETE FROM tblSecondaryTrips WHERE PrimaryReference = @SecondaryInvoiceNo;
+    DELETE FROM tblInvoiceDetails WHERE InvoiceID = @InvoiceID;
+    DELETE FROM tblDriverShortageLedger WHERE InvoiceNumber = @SecondaryInvoiceNo;
+
+    -- Delete the record in tblInvoices for the current InvoiceID
+    DELETE FROM tblInvoices WHERE InvoiceID = @InvoiceID;
+
+    FETCH NEXT FROM InvoiceCursor INTO @InvoiceID;
+END
+
+CLOSE InvoiceCursor;
+DEALLOCATE InvoiceCursor;
+
+        ";
+
+            using (SqlCommand command = new SqlCommand(query, connection))
+            {
+                command.Parameters.AddWithValue("@InvoiceNo", secondaryInvoiceNo);
+
+                await command.ExecuteNonQueryAsync();
+            }
+        }
+    }
+
+    public bool UpdateExtractedAddSecData(OCRSecDTO invoiceData)
+    {
+        try
+        {
+            // SQL update query for tblExtracted_Data
+            string sqlUpdateQuery = @"
+        UPDATE tblExtracted_Data
+        SET
+            STONO = @STONO,
+            RecievingLocation = @RecievingLocation,
+            ShippingLocation = @ShippingLocation,
+            VehicleNo = @VehicleNo,
+            FillingDate = @FillingDate,
+IsInvoiceGenerated='True',
+ProductName=@ProductName
+        WHERE ExtractedID = @ExtractedID";
+
+            using (SqlConnection connection = new SqlConnection(_configuration.GetConnectionString("Con")))
+            {
+                connection.Open();
+
+                // Update tblExtracted_Data
+                using (SqlCommand command = new SqlCommand(sqlUpdateQuery, connection))
+                {
+                    command.Parameters.AddWithValue("@STONO", invoiceData.STONO);
+                    command.Parameters.AddWithValue("@RecievingLocation", invoiceData.RecievingLocation);
+                    command.Parameters.AddWithValue("@ShippingLocation", invoiceData.ShippingLocation);
+                    command.Parameters.AddWithValue("@VehicleNo", invoiceData.VehicleNo);
+                    command.Parameters.AddWithValue("@FillingDate", invoiceData.FillingDate);
+                    command.Parameters.AddWithValue("@ExtractedID", invoiceData.ExtractedID);
+                    command.Parameters.AddWithValue("@ProductName", invoiceData.ProductName);
+
+                    int rowsAffected = command.ExecuteNonQuery();
+                    if (rowsAffected <= 0)
+                    {
+                        return false; // No rows updated in tblExtracted_Data
+                    }
+                }
+            }
+
+            return true; // Update and insert successful
+        }
+        catch (Exception ex)
+        {
+            // Handle or log the exception as necessary
+            return false;
+        }
+    }
 
     private async Task Cal()
     {
@@ -936,69 +1492,63 @@ ProductName=@ProductName
     protected override async void OnInitialized()
     {
         string encodedJson = NavigationManager.ToAbsoluteUri(NavigationManager.Uri).Query;
-        if (encodedJson.Contains("OCR="))
+
+        if (encodedJson.Contains("OCR=") || encodedJson.Contains("Edit="))
         {
-            // Extract the value of the "json" query parameter
-            encodedJson = encodedJson.Split("OCR=")[1];
-
-            // Decode the URL-safe Base64 string
+            // Determine the query type and decode the Base64 string
+            string queryKey = encodedJson.Contains("OCR=") ? "OCR=" : "Edit=";
+            encodedJson = encodedJson.Split(queryKey)[1];
             string base64EncodedJson = HttpUtility.UrlDecode(encodedJson);
-
-            // Convert the Base64 string back to UTF-8 encoded bytes
             byte[] base64EncodedBytes = Convert.FromBase64String(base64EncodedJson);
-
-            // Decode the UTF-8 bytes back to the original JSON string
             string jsonString = Encoding.UTF8.GetString(base64EncodedBytes);
 
-            // Deserialize the JSON string back into the Invoices object
-            Invoices = JsonConvert.DeserializeObject<EuroCal>(jsonString);
-
-
-            if (Invoices.VehicleNo!=null || Invoices.VehicleNo!=string.Empty|| Invoices.VehicleNo!="")
+            if (queryKey == "OCR=")
             {
-                int ChamberStatus = await GetShippingChamberDetails(Invoices.VehicleNo);
-                if (ChamberStatus==404)
-                {
-                    AddChamber = true;
-                    toastService.ShowError($"No Chamber Details for Vehicle {Invoices.VehicleNo}");
+                // Deserialize the JSON string into EuroCal
+                Invoices = JsonConvert.DeserializeObject<EuroCal>(jsonString);
 
+                if (!string.IsNullOrWhiteSpace(Invoices?.VehicleNo))
+                {
+                    int chamberStatus = await GetShippingChamberDetails(Invoices.VehicleNo);
+                    if (chamberStatus == 404)
+                    {
+                        AddChamber = true;
+                        toastService.ShowError($"No Chamber Details for Vehicle {Invoices.VehicleNo}");
+                    }
+                }
+
+                // Handle file location
+                if (!string.IsNullOrEmpty(Invoices?.FileLocation))
+                {
+                    FileLocation = Invoices.FileLocation.Replace("191.96.196.61", "www.shakoorfms.com/imgs");
                 }
             }
-            // Display the image if the path is already set
-            if (!string.IsNullOrEmpty(Invoices.FileLocation))
+            else if (queryKey == "Edit=")
             {
-                //await JS.InvokeVoidAsync("showImageFromPath", Invoices.InvoiceFilePath);
-                FileLocation = Invoices.FileLocation.Replace("191.96.196.61", "www.shakoorfms.com/imgs");
+                // Deserialize the JSON string into Invoicing
+                var rec = JsonConvert.DeserializeObject<Invoicing>(jsonString);
+                if (rec != null)
+                {
+                    Invoices = MapInvoice(rec);
+                    PrimarySTO = GetInvoiceprimaryRef(rec.Details.STONo);
+                    await Cal();
+                }
+                IsEdit = true;
             }
-        }
-        else if (encodedJson.Contains("Edit="))
-        {
-            encodedJson = encodedJson.Split("Edit=")[1];
 
-            // Decode the URL-safe Base64 string
-            string base64EncodedJson = HttpUtility.UrlDecode(encodedJson);
+            // Determine InvoiceType
+            IsSecondary = Invoices?.InvoiceType == "sc";
+            InvoiceType = Invoices?.InvoiceType == "pk"
+                ? "Add Euro Primary Invoice"
+                : "Add Euro Secondary Invoice";
 
-            // Convert the Base64 string back to UTF-8 encoded bytes
-            byte[] base64EncodedBytes = Convert.FromBase64String(base64EncodedJson);
+            // Set the user
+            var authState = await _authenticationStateProvider.GetAuthenticationStateAsync();
+            Invoices.User = authState.User.Identity.Name ??"";
 
-            // Decode the UTF-8 bytes back to the original JSON string
-            string jsonString = Encoding.UTF8.GetString(base64EncodedBytes);
-
-            // Deserialize the JSON string back into the Invoices object
-            var rec = JsonConvert.DeserializeObject<Invoicing>(jsonString);
-            if (rec!=null)
-            {
-                Invoices = MapInvoice(rec);
-                await Cal();
-            }
-            IsEdit = true;
-
+            StateHasChanged();
         }
 
-        var authState = await _authenticationStateProvider.GetAuthenticationStateAsync();
-        Invoices.User = authState.User.Identity.Name;
-        InvoiceType = Invoices.InvoiceType == "pk" ? "Add Euro Primary Invoice" : "Add Euro Secondary Invoice";
-        StateHasChanged();
     }
     private int GetChamberCapacity(int chamberNumber, ShippingDetails shippingDetail)
     {
