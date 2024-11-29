@@ -291,7 +291,13 @@ function getUserSessionFromStorage() {
         console.log("No UserSession found in sessionStorage");
     }
 }
-
+document.addEventListener('keydown', function (event) {
+    // Check if the Ctrl key and Z key are pressed
+    if (event.ctrlKey && event.key === 'z') {
+        toggleFilterPanel();
+        event.preventDefault(); // Prevent default behavior if necessary
+    }
+});
 function toggleFilterPanel() {
     document.querySelector('.filter-slider-panel').classList.toggle('hidden-panel');
 }
@@ -534,7 +540,7 @@ async function loadShortageReportbyMonth(selectedDate) {
 function processRecord2(jsonLine, Busid) {
     try {
         const item = JSON.parse(jsonLine);
-
+        console.log(item);
         // Check if BusinessID is in the Busid array
         if (Busid.includes(String(item.BusinessID))) {
             totalressss++; // Increment the total records count
@@ -634,7 +640,6 @@ async function loadShortageReports() {
 function processRecord(jsonLine) {
     try {
         const item = JSON.parse(jsonLine); // Parse the JSON string into an object
-
         if (Array.isArray(item)) {
             // If it's an array of records, process each record
             item.forEach(record => updateUI(record));
@@ -867,109 +872,211 @@ async function handleSecondaryClick(item) {
 //    //    console.error("An error occurred:", error);
 //    //}
 //}
-
 function updateUI(item) {
-    const tbody = document.getElementById('dataContainer').querySelector('tbody');
-    const row = document.createElement('tr');
+    const container = document.getElementById('dataContainer');
+    if (!container) {
+        console.error('Container with ID "dataContainer" not found.');
+        return;
+    }
 
-    // Function to truncate long strings for fields like ShippingLocation
-    const truncateString = (str, maxLength = 40) => {
-        if (!str) return ''; // Return empty if the string is null or undefined
-        return str.length > maxLength ? str.substring(0, maxLength) + "..." : str;
+    const tbody = container.querySelector('tbody');
+    if (!tbody) {
+        console.error('Tbody element inside #dataContainer not found.');
+        return;
+    }
+
+    // Utility function to check for null/undefined and return a fallback value
+    const safeValue = (value, fallback = "Not Found") => {
+        return value == null || value === '' ? fallback : value;
     };
 
-    // Format the InvoiceDate to show only the date part (without time)
+    const truncateString = (str, maxLength = 40) => {
+        const value = safeValue(str, "Not Found");
+        return value.length > maxLength ? value.substring(0, maxLength) + "..." : value;
+    };
+
     const formatDate = (dateString) => {
-        if (!dateString) return '';
+        if (!dateString) return "Not Found";
         const date = new Date(dateString);
+        if (isNaN(date.getTime())) return "Not Found";
 
-        // Ensure the date is valid
-        if (isNaN(date.getTime())) return '';
-
-        // Extract month, day, and year
-        const month = String(date.getMonth() + 1).padStart(2, '0'); // Months are zero-based
+        const month = String(date.getMonth() + 1).padStart(2, '0');
         const day = String(date.getDate()).padStart(2, '0');
         const year = date.getFullYear();
 
         return `${month}-${day}-${year}`;
     };
 
+    const escapeHtml = (str) => {
+        return safeValue(str, "Not Found").replace(/[&<>"']/g, (match) =>
+            ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[match])
+        );
+    };
 
-
-
-    // Determine row style based on invoice status
-    let rowStyle = '';
+    const row = document.createElement('tr');
+    row.className = 'tbl-accordion-header';
 
     if (item.isInvoiceAdded) {
-        rowStyle = 'background: #00bcd4;';
+        row.style.background = '#00bcd4';
+    } else if (item.isInvoiceGenerated && item.InvoiceType === 'sc') {
+        row.style.background = '#caf588';
+    } else if (item.isInvoiceGenerated && item.InvoiceType === 'pk') {
+        row.style.background = '#DCDCDC';
     }
+    row.style.transition = 'background-color 0.3s ease-in-out';
+    row.style.fontSize = '13px';
+    row.style.color = 'black';
 
-    else if (item.isInvoiceGenerated && item.InvoiceType == 'sc') {
-        rowStyle = 'background: #caf588;'; // Green for generated invoices
-    } else if (item.isInvoiceGenerated && item.InvoiceType == 'pk') {
-        rowStyle = 'background-color: #DCDCDC;'; // Yellow for added invoices
-    }
-
-    row.className = 'tbl-accordion-header';
-    row.setAttribute('style', rowStyle + 'transition: background-color 0.3s ease-in-out;font-size:13px;color:black;');
-
-    // Build the row with dynamic content
     row.innerHTML = `
-    <td class="align-middle text-center" style="border: #cccccc 1px solid;">${item.STO}</td>
-    <td class="align-middle text-center" style="border: #cccccc 1px solid;">${item.Vehicle}</td>
-    <td class="align-middle text-center" style="border: #cccccc 1px solid;">${item.BusinessName.toUpperCase()}</td>
-    <td class="align-middle text-center" style="border: #cccccc 1px solid;">${formatDate(item.InvoiceDate)}</td>
-    <td class="align-middle text-center" style="border: #cccccc 1px solid;">${truncateString(item.ShippingLocation)}</td>
-    <td class="align-middle text-center" style="border: #cccccc 1px solid;">${truncateString(item.ReceivingLocation)}</td>
-    <td class="align-middle text-center" style="border: #cccccc 1px solid;">
-        ${item.InvoiceType === 'pk' ? 'Primary' : item.InvoiceType === 'sc' ? 'Secondary' : 'Unidentified'}
-    </td>
-    <td class="align-middle text-center" style="border: #cccccc 1px solid;">${item.Product}</td>
-    <td class="align-middle text-center" style="border: #cccccc 1px solid;">
-        <a class="view-button" style="cursor:pointer;">View</a>
-    </td>
-    ${item.InvoiceType === 'pk' ? `
+        <td class="align-middle text-center" style="border: #cccccc 1px solid;">${escapeHtml(safeValue(item.STO))}</td>
+        <td class="align-middle text-center" style="border: #cccccc 1px solid;">${escapeHtml(safeValue(item.Vehicle))}</td>
+        <td class="align-middle text-center" style="border: #cccccc 1px solid;">${escapeHtml(safeValue(item.BusinessName).toUpperCase())}</td>
+        <td class="align-middle text-center" style="border: #cccccc 1px solid;">${formatDate(item.InvoiceDate)}</td>
+        <td class="align-middle text-center" style="border: #cccccc 1px solid;">${truncateString(item.ShippingLocation)}</td>
+        <td class="align-middle text-center" style="border: #cccccc 1px solid;">${truncateString(item.ReceivingLocation)}</td>
         <td class="align-middle text-center" style="border: #cccccc 1px solid;">
-            <a class="add-secondary-button" style="cursor:pointer;">Add Secondary</a>
-        </td>` : ` <td class="align-middle text-center" style="border: #cccccc 1px solid;">
-          
-        </td>`}
-`;
+            ${safeValue(item.InvoiceType === 'pk' ? 'Primary' : item.InvoiceType === 'sc' ? 'Secondary' : 'Unidentified')}
+        </td>
+        <td class="align-middle text-center" style="border: #cccccc 1px solid;">${escapeHtml(safeValue(item.Product))}</td>
+        <td class="align-middle text-center" style="border: #cccccc 1px solid;">
+            <a class="view-button" style="cursor:pointer;">View</a>
+        </td>
+        ${item.InvoiceType === 'pk' && item.BusinessID === 1 ? `
+            <td class="align-middle text-center" style="border: #cccccc 1px solid;">
+                <a class="add-secondary-button" style="cursor:pointer;">Add Secondary</a>
+            </td>` : `
+            <td class="align-middle text-center" style="border: #cccccc 1px solid;"></td>`}
+    `;
 
-    // Attach the click event for the "Add Secondary" button if it exists
-    if (item.InvoiceType === 'pk') {
-        row.querySelector('.add-secondary-button').addEventListener('click', async (event) => {
-            // Show loading spinner in the button
+    const viewButton = row.querySelector('.view-button');
+    viewButton.addEventListener('click', () => handleInvoiceClick(item));
+
+    const secondaryButton = row.querySelector('.add-secondary-button');
+    if (secondaryButton) {
+        secondaryButton.addEventListener('click', async (event) => {
             const button = event.target;
             button.innerHTML = `<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span> Processing...`;
-            button.style.pointerEvents = 'none'; // Disable further clicks while loading
+            button.style.pointerEvents = 'none';
 
-            // Perform the "Add Secondary" action
-            await handleSecondaryClick(item);
+            try {
+                await handleSecondaryClick(item);
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Failed to process. Please try again.');
+            }
 
-            // Restore the button text and re-enable clicks
             button.innerHTML = `Add Secondary`;
             button.style.pointerEvents = 'auto';
         });
     }
 
-
-    row.querySelector('.view-button').addEventListener('click', () => handleInvoiceClick(item));
-    // Add hover effect to the row for better user interaction
-    //row.addEventListener('mouseover', function () {
-    //    row.style.backgroundColor = '#f1f1f1'; // Light hover effect
-    //    row.style.color = 'black';
-    //});
-
-    //row.addEventListener('mouseout', function () {
-    //    row.style.backgroundColor = item.isInvoiceGenerated ? '#4CAF50' :
-    //        item.isInvoiceAdded ? '#FFEB3B' : '#f9f9f9'; // Revert back to original
-    //    row.style.color = 'black';
-    //});
-
-    // Append the new row to the table body
     tbody.appendChild(row);
 }
+
+
+//Last Update UI
+//function updateUI(item) {
+//    const tbody = document.getElementById('dataContainer').querySelector('tbody');
+//    const row = document.createElement('tr');
+
+//    // Function to truncate long strings for fields like ShippingLocation
+//    const truncateString = (str, maxLength = 40) => {
+//        if (!str) return ''; // Return empty if the string is null or undefined
+//        return str.length > maxLength ? str.substring(0, maxLength) + "..." : str;
+//    };
+
+//    // Format the InvoiceDate to show only the date part (without time)
+//    const formatDate = (dateString) => {
+//        if (!dateString) return '';
+//        const date = new Date(dateString);
+
+//        // Ensure the date is valid
+//        if (isNaN(date.getTime())) return '';
+
+//        // Extract month, day, and year
+//        const month = String(date.getMonth() + 1).padStart(2, '0'); // Months are zero-based
+//        const day = String(date.getDate()).padStart(2, '0');
+//        const year = date.getFullYear();
+
+//        return `${month}-${day}-${year}`;
+//    };
+
+
+
+
+//    // Determine row style based on invoice status
+//    let rowStyle = '';
+
+//    if (item.isInvoiceAdded) {
+//        rowStyle = 'background: #00bcd4;';
+//    }
+
+//    else if (item.isInvoiceGenerated && item.InvoiceType == 'sc') {
+//        rowStyle = 'background: #caf588;'; // Green for generated invoices
+//    } else if (item.isInvoiceGenerated && item.InvoiceType == 'pk') {
+//        rowStyle = 'background-color: #DCDCDC;'; // Yellow for added invoices
+//    }
+
+//    row.className = 'tbl-accordion-header';
+//    row.setAttribute('style', rowStyle + 'transition: background-color 0.3s ease-in-out;font-size:13px;color:black;');
+
+//    // Build the row with dynamic content
+//    row.innerHTML = `
+//    <td class="align-middle text-center" style="border: #cccccc 1px solid;">${item.STO}</td>
+//    <td class="align-middle text-center" style="border: #cccccc 1px solid;">${item.Vehicle}</td>
+//    <td class="align-middle text-center" style="border: #cccccc 1px solid;">${item.BusinessName.toUpperCase()}</td>
+//    <td class="align-middle text-center" style="border: #cccccc 1px solid;">${formatDate(item.InvoiceDate)}</td>
+//    <td class="align-middle text-center" style="border: #cccccc 1px solid;">${truncateString(item.ShippingLocation)}</td>
+//    <td class="align-middle text-center" style="border: #cccccc 1px solid;">${truncateString(item.ReceivingLocation)}</td>
+//    <td class="align-middle text-center" style="border: #cccccc 1px solid;">
+//        ${item.InvoiceType === 'pk' ? 'Primary' : item.InvoiceType === 'sc' ? 'Secondary' : 'Unidentified'}
+//    </td>
+//    <td class="align-middle text-center" style="border: #cccccc 1px solid;">${item.Product}</td>
+//    <td class="align-middle text-center" style="border: #cccccc 1px solid;">
+//        <a class="view-button" style="cursor:pointer;">View</a>
+//    </td>
+//    ${item.InvoiceType === 'pk' && item.BusinessID===1 ? `
+//        <td class="align-middle text-center" style="border: #cccccc 1px solid;">
+//            <a class="add-secondary-button" style="cursor:pointer;">Add Secondary</a>
+//        </td>` : ` <td class="align-middle text-center" style="border: #cccccc 1px solid;">
+          
+//        </td>`}
+//`;
+
+//    // Attach the click event for the "Add Secondary" button if it exists
+//    if (item.InvoiceType === 'pk') {
+//        row.querySelector('.add-secondary-button').addEventListener('click', async (event) => {
+//            // Show loading spinner in the button
+//            const button = event.target;
+//            button.innerHTML = `<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span> Processing...`;
+//            button.style.pointerEvents = 'none'; // Disable further clicks while loading
+
+//            // Perform the "Add Secondary" action
+//            await handleSecondaryClick(item);
+
+//            // Restore the button text and re-enable clicks
+//            button.innerHTML = `Add Secondary`;
+//            button.style.pointerEvents = 'auto';
+//        });
+//    }
+
+
+//    row.querySelector('.view-button').addEventListener('click', () => handleInvoiceClick(item));
+//    // Add hover effect to the row for better user interaction
+//    //row.addEventListener('mouseover', function () {
+//    //    row.style.backgroundColor = '#f1f1f1'; // Light hover effect
+//    //    row.style.color = 'black';
+//    //});
+
+//    //row.addEventListener('mouseout', function () {
+//    //    row.style.backgroundColor = item.isInvoiceGenerated ? '#4CAF50' :
+//    //        item.isInvoiceAdded ? '#FFEB3B' : '#f9f9f9'; // Revert back to original
+//    //    row.style.color = 'black';
+//    //});
+
+//    // Append the new row to the table body
+//    tbody.appendChild(row);
+//}
 
 
 
@@ -1160,6 +1267,5 @@ function exportTableToExcelCon() {
     const wb = XLSX.utils.table_to_book(table, { sheet: 'Sheet1' });
     XLSX.writeFile(wb, 'ShortageReport.xlsx');
 }
-
 
 
