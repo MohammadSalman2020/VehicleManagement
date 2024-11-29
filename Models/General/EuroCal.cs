@@ -40,7 +40,17 @@
         public double ReceivingSG { get; set; }
         public double TempDifference => ReceivingTemperature- DispatchTemperature;
         public double CompanyShareOnShortage { get; set; }
-        public double Short1FTemp => CompanyShareOnShortage/TempDifference;
+        public double Short1FTemp
+        {
+            get
+            {
+                if (TempDifference == 0 || double.IsNaN(TempDifference))
+                {
+                    return 0; // Or another fallback value, such as `double.PositiveInfinity`
+                }
+                return CompanyShareOnShortage / TempDifference;
+            }
+        }
         public double DispatchAt85F { get; set; }
         public double ReceivedAt85F { get; set; }
         public double CarriageShortage => ReceivedAt85F-DispatchAt85F;

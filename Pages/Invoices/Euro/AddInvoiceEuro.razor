@@ -158,9 +158,9 @@
         text-align: center;
     }
 </style>
-@* <AuthorizeView>
-    <Authorized> *@
-<Nav PageName="@InvoiceType" />
+<AuthorizeView>
+    <Authorized>
+        <Nav PageName="@InvoiceType" />
 
 
 
@@ -170,460 +170,482 @@
 
 
 
-<div class="container-fluid">
-    <div class="row">
-        <div class="col-12">
-            <div class="card mb-4">
-                <div class="card-body px-0 pt-0 pb-2">
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col-12">
+                    <div class="card mb-4">
+                        <div class="card-body px-0 pt-0 pb-2">
 
 
-                    <div class="row">
-                        <div class="col-lgg-6">
-                            <div class="container">
+                            <div class="row">
+                                <div class="col-lgg-6">
+                                    <div class="container">
 
-                                <table class="details">
-                                    <tr>
-                                        <td>Tank Lorry No</td>
-                                        <td> <input type="text" tabindex="1" id="vehicleID" required placeholder="Tank Lorry No" @onchange="GetChambersQuantity" onkeyup="altercolspan()" value="@Invoices.VehicleNo" class="form-control"></td>
-                                        <td>Date</td>
-                                        <td>  <input type="date" tabindex="2" placeholder="Date" @bind-value="@Invoices.InvoiceDate" class="form-control"></td>
-                                    </tr>
-                                    <tr>
-                                        <td>STO NO</td>
-                                        <td>   <input type="text" tabindex="3" placeholder="STO No" @bind-value="@Invoices.STONo" class="form-control"></td>
-                                        <td>Shipping Location</td>
-                                        <td>  <input type="text" tabindex="4" placeholder="Supply Point" @bind-value="@Invoices.ShippingLoc" class="form-control"></td>
-                                    </tr>
-                                    <tr>
-                                        <td>User</td>
-                                        <td> @Invoices.User</td>
-                                        <td>Receiving Location</td>
-                                        <td>   <input type="text" tabindex="5" placeholder="Receiving Location" @bind-value="@Invoices.ReceivingLoc" class="form-control"></td>
-                                    </tr>
-                                    <tr>
-                                        <td>Product</td>
-                                        <td>  <input type="text" tabindex="6" placeholder="Product" @bind-value="@Invoices.Product" class="form-control"></td>
-                                        <td>Contractor</td>
-                                        <td>  <input type="text" tabindex="7" placeholder="Contractor" @bind-value="@Invoices.Contractor" class="form-control"></td>
-                                    </tr>
-                                    @if (IsSecondary)
-                                    {
-                                        <tr>
-                                            <td colspan="12" style="text-align:center; vertical-align:middle;">
-                                                <div class="form-group d-flex justify-content-center align-items-center" style="height:100%;">
-                                                    <button class="btn btn-success btn-sm" @onclick="OpenModal">Link Primary</button>
-                                                </div>
-                                            </td>
-                                        </tr>
-
-                                    }
-                                </table>
-
-
-
-                                @if (Invoices.Chambers!=null)
-                                {
-                                    @if (Invoices.Chambers.Count>0)
-                                    {
-                                        <table class="shipping" style="margin-top:7px;">
-                                            <tr class="header">
-                                                <td>Chamber (Shipping)</td>
-                                                @foreach (var item in Invoices.Chambers)
-                                                {
-                                                    <td>
-                                                        @item.ChamberNumber
-
-                                                        <img style="height:20px;cursor:pointer;" @onclick="@(()=>RemoveChamber(item))" src="css/minus.png" />
+                                        <table class="details">
+                                            <tr>
+                                                <td>Tank Lorry No</td>
+                                                <td> <input type="text" tabindex="1" id="vehicleID" required placeholder="Tank Lorry No" @onchange="GetChambersQuantity" onkeyup="altercolspan()" value="@Invoices.VehicleNo" class="form-control"></td>
+                                                <td>Date</td>
+                                                <td>  <input type="date" tabindex="2" placeholder="Date" @bind-value="@Invoices.InvoiceDate" class="form-control"></td>
+                                            </tr>
+                                            <tr>
+                                                <td>STO NO</td>
+                                                <td>   <input type="text" tabindex="3" placeholder="STO No" @bind-value="@Invoices.STONo" class="form-control"></td>
+                                                <td>Shipping Location</td>
+                                                <td>  <input type="text" tabindex="4" placeholder="Supply Point" @bind-value="@Invoices.ShippingLoc" class="form-control"></td>
+                                            </tr>
+                                            <tr>
+                                                <td>User</td>
+                                                <td> @Invoices.User</td>
+                                                <td>Receiving Location</td>
+                                                <td>   <input type="text" tabindex="5" placeholder="Receiving Location" @bind-value="@Invoices.ReceivingLoc" class="form-control"></td>
+                                            </tr>
+                                            <tr>
+                                                <td>Product</td>
+                                                <td>  <input type="text" tabindex="6" placeholder="Product" @bind-value="@Invoices.Product" class="form-control"></td>
+                                                <td>Contractor</td>
+                                                <td>  <input type="text" tabindex="7" placeholder="Contractor" @bind-value="@Invoices.Contractor" class="form-control"></td>
+                                            </tr>
+                                            @if (IsSecondary)
+                                            {
+                                                <tr>
+                                                    <td colspan="12" style="text-align:center; vertical-align:middle;">
+                                                        <div class="form-group d-flex justify-content-center align-items-center" style="height:100%;">
+                                                            <button class="btn btn-success btn-sm" @onclick="OpenModal">Link Primary</button>
+                                                        </div>
                                                     </td>
-                                                }
-                                                @if (Invoices.Chambers.Count!=5)
+                                                </tr>
+
+                                                @if(PrimarySTO is not null)
                                                 {
-                                                    <td>
-                                                        <img style="height:20px;cursor:pointer;" @onclick="AddNewChamber" src="css/plus.png" />
-                                                    </td>
+                                                    <tr>
+                                                        <td colspan="12" style="text-align:center; vertical-align:middle;">
+                                                            <div class="form-group d-flex justify-content-center align-items-center" style="height:100%;">
+                                                                <label style="font-size:large;color:#5e72e4;">Primary Reference - @PrimarySTO</label>
+                                                            </div>
+                                                        </td>
+                                                    </tr>
                                                 }
-                                            </tr>
+                                         
 
-                                            <tr>
-                                                <td>Temp F</td>
-                                                <td colspan="5">  <input type="number" tabindex="8" placeholder="Temp F" @bind-value="Invoices.SummaryDetails.DispatchTemperature" class="form-control" id="TempD" onfocus="selectAllInputValue('TempD')"></td>
-                                            </tr>
-                                            <tr>
-                                                <td>S.G</td>
-                                                <td colspan="5"><input step="0.01" type="number" tabindex="9" placeholder="Gravity" @bind-value="Invoices.SummaryDetails.DispatchSG" class="form-control" id="SGD" onfocus="selectAllInputValue('SGD')"></td>
-                                            </tr>
-
-                                            <tr>
-                                                <td>Chamber Quantity</td>
-                                                @foreach (var item in Invoices.Chambers.Select((value, index) => new { value, index }))
-                                                {
-                                                    @if (item.index == Invoices.Chambers.Count() - 1)
-                                                    {
-                                                        @if (item.value.Capacity == 0)
-                                                        {
-                                                            <td colspan="5">
-                                                                <input type="number" placeholder="Chamber Qty" id="@item.value.ChamberNumber" onfocus="selectAllInputValue(@item.value.ChamberNumber)" @bind-value="@item.value.Capacity" class="form-control">
-                                                            </td>
-                                                        }
-                                                        else
-                                                        {
-                                                            <td colspan="5">
-                                                                @item.value.Capacity
-                                                            </td>
-                                                        }
-                                                    }
-                                                    else
-                                                    {
-                                                        @if (item.value.Capacity == 0)
-                                                        {
-                                                            <td>
-                                                                <input type="number" placeholder="Chamber Qty" @bind-value="@item.value.Capacity" class="form-control" id="@item.value.ChamberNumber" onfocus="selectAllInputValue(@item.value.ChamberNumber)">
-                                                            </td>
-                                                        }
-                                                        else
-                                                        {
-                                                            <td>
-                                                                @item.value.Capacity
-                                                            </td>
-                                                        }
-                                                    }
-                                                }
-
-
-
-                                            </tr>
-                                            <tr>
-                                                <td>Tank Lorry Product Dips(MM)</td>
-                                                @foreach (var item in Invoices.Chambers.Select((value, index) => new { value, index }))
-                                                {
-                                                    if (item.index == Invoices.Chambers.Count() - 1)
-                                                    {
-                                                        if (item.value.DispatchDips == 0)
-                                                        {
-                                                            <td colspan="5">
-                                                                <input type="number" placeholder="Chamber Qty" @bind-value="@item.value.DispatchDips" class="form-control" id="@item.value.DispatchDips" onfocus="selectAllInputValue(@item.value.DispatchDips)">
-                                                            </td>
-                                                        }
-                                                        else
-                                                        {
-                                                            <td colspan="5">
-                                                                @item.value.DispatchDips
-                                                            </td>
-                                                        }
-                                                    }
-                                                    else
-                                                    {
-                                                        if (item.value.DispatchDips == 0)
-                                                        {
-                                                            <td>
-                                                                <input type="number" placeholder="Chamber Qty" @bind-value="@item.value.DispatchDips" id="@item.value.DispatchDips" onfocus="selectAllInputValue(@item.value.DispatchDips)" class="form-control">
-                                                            </td>
-                                                        }
-                                                        else
-                                                        {
-                                                            <td>
-                                                                @item.value.DispatchDips
-                                                            </td>
-                                                        }
-                                                    }
-                                                }
-
-
-
-                                            </tr>
-                                        </table>
-
-                                        <table class="receiving">
-                                            <tr class="header">
-                                                <td>Chamber (Receiving)</td>
-                                                @foreach (var item in Invoices.Chambers)
-                                                {
-                                                    <td>@item.ChamberNumber</td>
-                                                }
-                                            </tr>
-                                            <tr>
-                                                <td>Temp F</td>
-                                                <td colspan="5">
-                                                    <input type="number" tabindex="20" placeholder="Tempreture F" @bind-value="Invoices.SummaryDetails.ReceivingTemperature" id="TempR" onfocus="selectAllInputValue('TempR')" class="form-control">
-                                                </td>
-                                            </tr>
-                                            <tr>
-                                                <td>S.G</td>
-                                                <td colspan="5">
-                                                    <input type="number" tabindex="21" placeholder="Gravity" @bind-value="Invoices.SummaryDetails.ReceivingSG" id="SGR" onfocus="selectAllInputValue('SGR')" class="form-control">
-                                                </td>
-                                            </tr>
-                                            <tr>
-                                                <td>Chamber Quantity</td>
-                                                @foreach (var item in Invoices.Chambers)
-                                                {
-                                                    <td>
-                                                        @Math.Round(item.ReceivedQuantity)
-                                                    </td>
-                                                }
-                                            </tr>
-                                            <tr>
-                                                <td>Tank Lorry Product Dips(MM)</td>
-
-                                                @foreach (var item in Invoices.Chambers)
-                                                {
-                                                    <td>
-                                                        <input type="number" tabindex="22" placeholder=" Tank Lorry Product Dips(MM)" @bind-value="item.ReceivingDips" class="form-control" id="@item.ReceivingDips" onfocus="selectAllInputValue(@item.ReceivingDips)">
-                                                    </td>
-                                                }
-                                            </tr>
+                                            }
                                         </table>
 
 
-                                        <table class="receiving">
-                                            <tr>
 
-                                                <td>Temp. Difference (Desp. vs Rec.)</td>
-                                                @{
-                                                    string color4;
-                                                    string value4 = FormatValueWithColor(Invoices.SummaryDetails.TempDifference, out color4);
-                                                }
-                                                <td style="color: @color4;">@value4</td>
-                                                <td>Dispatch 85</td>
-                                                <td>@Invoices.SummaryDetails.DispatchAt85F</td>
-                                                <td>Recieve 85</td>
-                                                <td>@Invoices.SummaryDetails.ReceivedAt85F</td>
-                                            </tr>
-                                            <tr>
-                                                <td>Company Share On Shortage</td>
-                                                @{
-                                                    string color1;
-                                                    string value1 = FormatShareWithColor(Invoices.SummaryDetails.CompanyShareOnShortage, out color1);
-                                                }
-                                                <td style="color: @color1;">@value1</td>
-                                                <td>Percentage</td>
-                                                @{
-                                                    string color2;
-                                                    string value2 = FormatPerWithColor(Invoices.SummaryDetails.Percentage, out color2);
-                                                }
-                                                <td style="color: @color2;">@value2</td>
+                                        @if (Invoices.Chambers!=null)
+                                        {
+                                            @if (Invoices.Chambers.Count>0)
+                                            {
+                                                <table class="shipping" style="margin-top:7px;">
+                                                    <tr class="header">
+                                                        <td>Chamber (Shipping)</td>
+                                                        @foreach (var item in Invoices.Chambers)
+                                                        {
+                                                            <td>
+                                                                @item.ChamberNumber
 
+                                                                <img style="height:20px;cursor:pointer;" @onclick="@(()=>RemoveChamber(item))" src="css/minus.png" />
+                                                            </td>
+                                                        }
+                                                        @if (Invoices.Chambers.Count!=5)
+                                                        {
+                                                            <td>
+                                                                <img style="height:20px;cursor:pointer;" @onclick="AddNewChamber" src="css/plus.png" />
+                                                            </td>
+                                                        }
+                                                    </tr>
 
+                                                    <tr>
+                                                        <td>Temp F</td>
+                                                        <td colspan="5">  <input type="number" tabindex="8" placeholder="Temp F" @bind-value="Invoices.SummaryDetails.DispatchTemperature" class="form-control" id="TempD" onfocus="selectAllInputValue('TempD')"></td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td>S.G</td>
+                                                        <td colspan="5"><input step="0.01" type="number" tabindex="9" placeholder="Gravity" @bind-value="Invoices.SummaryDetails.DispatchSG" class="form-control" id="SGD" onfocus="selectAllInputValue('SGD')"></td>
+                                                    </tr>
 
-                                                <td>Carriage Shortage</td>
-                                                @{
-                                                    string color3;
-                                                    string value3 = FormatValueWithColor(Invoices.SummaryDetails.CarriageShortage, out color3);
-                                                }
-                                                <td style="color: @color3;">@value3</td>
-
-
-
-                                            </tr>
-                                            <tr>
-                                                <td colspan="3">Status</td>
-                                                <td colspan="3" style="color:@(Invoices.SummaryDetails.CarriageShortage<0?"Red":"Blue")">@Invoices.SummaryDetails.Status</td>
-                                            </tr>
-                                        </table>
-                                    }
-                                }
-
-
-
-
-
-
-
-                                <div class="col-md-12" style="margin-top: 7px;">
-                                    <div class="row">
-
-
-                                        <div class="col-md-12">
-                                            <div class="form-group" style="text-align:center;">
-                                                @if (IsEdit)
-                                                {
-                                                    <button class="btn btn-danger btn-sm ms-auto" @onclick="Update">Update</button>
-
-                                                }
+                                                    <tr>
+                                                        <td>Chamber Quantity</td>
+                                                        @foreach (var item in Invoices.Chambers.Select((value, index) => new { value, index }))
+                                                        {
+                                                            @if (item.index == Invoices.Chambers.Count() - 1)
+                                                            {
+                                                                @*      @if (item.value.Capacity == 0)
+                                                { *@
+                                                                <td colspan="5">
+                                                                    <input type="number" placeholder="Chamber Qty" id="@item.value.ChamberNumber" onfocus="selectAllInputValue(@item.value.ChamberNumber)" @bind-value="@item.value.Capacity" class="form-control">
+                                                                </td>
+                                                                @*    }
                                                 else
                                                 {
-                                                    <button class="btn btn-danger btn-sm ms-auto" @onclick="Save">Save</button>
+                                                <td colspan="5">
+                                                @item.value.Capacity
+                                                </td>
+                                                } *@
+                                                            }
+                                                            else
+                                                            {
+                                                                @*   @if (item.value.Capacity == 0)
+                                                { *@
+                                                                <td>
+                                                                    <input type="number" placeholder="Chamber Qty" @bind-value="@item.value.Capacity" class="form-control" id="@item.value.ChamberNumber" onfocus="selectAllInputValue(@item.value.ChamberNumber)">
+                                                                </td>
+                                                                @*    }
+                                                else
+                                                {
+                                                <td>
+                                                @item.value.Capacity
+                                                </td>
+                                                } *@
+                                                            }
+                                                        }
+
+
+
+                                                    </tr>
+                                                    <tr>
+                                                        <td>Tank Lorry Product Dips(MM)</td>
+                                                        @foreach (var item in Invoices.Chambers.Select((value, index) => new { value, index }))
+                                                        {
+                                                            if (item.index == Invoices.Chambers.Count() - 1)
+                                                            {
+                                                                @*   if (item.value.DispatchDips == 0)
+                                                { *@
+                                                                <td colspan="5">
+                                                                    <input type="number" placeholder="Chamber Qty" @bind-value="@item.value.DispatchDips" class="form-control" id="@item.value.DispatchDips" onfocus="selectAllInputValue(@item.value.DispatchDips)">
+                                                                </td>
+                                                                @*   }
+                                                else
+                                                {
+                                                <td colspan="5">
+                                                @item.value.DispatchDips
+                                                </td>
+                                                } *@
+                                                            }
+                                                            else
+                                                            {
+                                                                @*    if (item.value.DispatchDips == 0)
+                                                { *@
+                                                                <td>
+                                                                    <input type="number" placeholder="Chamber Qty" @bind-value="@item.value.DispatchDips" id="@item.value.DispatchDips" onfocus="selectAllInputValue(@item.value.DispatchDips)" class="form-control">
+                                                                </td>
+                                                                @*    }
+                                                else
+                                                {
+                                                <td>
+                                                @item.value.DispatchDips
+                                                </td>
+                                                } *@
+                                                            }
+                                                        }
+
+
+
+                                                    </tr>
+                                                </table>
+
+                                                <table class="receiving">
+                                                    <tr class="header">
+                                                        <td>Chamber (Receiving)</td>
+                                                        @foreach (var item in Invoices.Chambers)
+                                                        {
+                                                            <td>@item.ChamberNumber</td>
+                                                        }
+                                                    </tr>
+                                                    <tr>
+                                                        <td>Temp F</td>
+                                                        <td colspan="5">
+                                                            <input type="number" tabindex="20" placeholder="Tempreture F" @bind-value="Invoices.SummaryDetails.ReceivingTemperature" id="TempR" onfocus="selectAllInputValue('TempR')" class="form-control">
+                                                        </td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td>S.G</td>
+                                                        <td colspan="5">
+                                                            <input type="number" tabindex="21" placeholder="Gravity" @bind-value="Invoices.SummaryDetails.ReceivingSG" id="SGR" onfocus="selectAllInputValue('SGR')" class="form-control">
+                                                        </td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td>Chamber Quantity</td>
+                                                        @foreach (var item in Invoices.Chambers)
+                                                        {
+                                                            <td>
+                                                                @Math.Round(item.ReceivedQuantity)
+                                                            </td>
+                                                        }
+                                                    </tr>
+                                                    <tr>
+                                                        <td>Tank Lorry Product Dips(MM)</td>
+
+                                                        @foreach (var item in Invoices.Chambers)
+                                                        {
+                                                            <td>
+                                                                <input type="number" tabindex="22" placeholder=" Tank Lorry Product Dips(MM)" @bind-value="item.ReceivingDips" class="form-control" id="@item.ReceivingDips" onfocus="selectAllInputValue(@item.ReceivingDips)">
+                                                            </td>
+                                                        }
+                                                    </tr>
+                                                </table>
+
+
+                                                <table class="receiving">
+                                                    <tr>
+
+                                                        <td>Temp. Difference (Desp. vs Rec.)</td>
+                                                        @{
+                                                            string color4;
+                                                            string value4 = FormatValueWithColor(Invoices.SummaryDetails.TempDifference, out color4);
+                                                        }
+                                                        <td style="color: @color4;">@value4</td>
+                                                        <td>Dispatch 85</td>
+                                                        <td>@Invoices.SummaryDetails.DispatchAt85F</td>
+                                                        <td>Recieve 85</td>
+                                                        <td>@Invoices.SummaryDetails.ReceivedAt85F</td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td>Company Share On Shortage</td>
+                                                        @{
+                                                            string color1;
+                                                            string value1 = FormatShareWithColor(Invoices.SummaryDetails.CompanyShareOnShortage, out color1);
+                                                        }
+                                                        <td style="color: @color1;">@value1</td>
+                                                        <td>Percentage</td>
+                                                        @{
+                                                            string color2;
+                                                            string value2 = FormatPerWithColor(Invoices.SummaryDetails.Percentage, out color2);
+                                                        }
+                                                        <td style="color: @color2;">@value2</td>
+
+
+
+                                                        <td>Carriage Shortage</td>
+                                                        @{
+                                                            string color3;
+                                                            string value3 = FormatValueWithColor(Invoices.SummaryDetails.CarriageShortage, out color3);
+                                                        }
+                                                        <td style="color: @color3;">@value3</td>
+
+
+
+                                                    </tr>
+                                                    <tr>
+                                                        <td colspan="3">Status</td>
+                                                        <td colspan="3" style="color:@(Invoices.SummaryDetails.CarriageShortage<0?"Red":"Blue")">@Invoices.SummaryDetails.Status</td>
+                                                    </tr>
+                                                </table>
+                                            }
+                                        }
+                                        else
+                                        {
+                                            <br />
+                                            <DataLoaderComponent IsLoading="@isChambersAvailable" LoadingText="Loading Chambers..." />
+                                        }
+
+
+
+
+
+
+
+                                        <div class="col-md-12" style="margin-top: 7px;">
+                                            <div class="row">
+
+                                                @if (Invoices!=null&&Invoices.Chambers!=null)
+                                                {
+                                                    @if (Invoices.STONo!="" && Invoices.VehicleNo!="" && Invoices.Chambers.Count>0)
+                                                    {
+                                                        <div class="col-md-12">
+                                                            <div class="form-group" style="text-align:center;">
+                                                                @if (IsEdit)
+                                                                {
+                                                                    <button class="btn btn-danger btn-sm ms-auto" @onclick="Update">Update</button>
+
+                                                                }
+                                                                else
+                                                                {
+                                                                    <button class="btn btn-danger btn-sm ms-auto" @onclick="Save">Save</button>
+
+                                                                }
+                                                                <button class="btn btn-warning btn-sm ms-auto" @onclick="Cal">Refresh Calculation</button>
+                                                            </div>
+                                                        </div>
+                                                    }
+                                                }
+
+
+                                                @if (AddChamber)
+                                                {
+                                                    <div class="col-md-12">
+                                                        <div class="form-group" style="text-align:center;">
+
+
+                                                            <button class="btn btn-info btn-sm ms-auto" @onclick="Navigate">Add Chamber</button>
+
+                                                        </div>
+                                                    </div>
 
                                                 }
-                                                <button class="btn btn-warning btn-sm ms-auto" @onclick="Cal">Refresh Calculation</button>
                                             </div>
                                         </div>
 
-                                        @if (AddChamber)
-                                        {
-                                            <div class="col-md-12">
-                                                <div class="form-group" style="text-align:center;">
 
 
-                                                    <button class="btn btn-info btn-sm ms-auto" @onclick="Navigate">Add Chamber</button>
 
-                                                </div>
-                                            </div>
+                                    </div>
+                                </div>
 
-                                        }
+                                <div class="col-lgg-6">
+                                    <div class="table-responsive inv-img">
+                                        <div class="image-container2">
+                                            <img id="mainImage2"
+                                                 src="@FileLocation"
+                                                 alt="Zoomable Image" />
+                                        </div>
                                     </div>
                                 </div>
 
 
 
-
                             </div>
+
+
+
                         </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <Modal @ref="modal" Title="Primary Invoices">
+            <Body>
+                <div class="col-md-12">
+                    <div class="card" style="height:410px;overflow-x:scroll;">
 
-                        <div class="col-lgg-6">
-                            <div class="table-responsive inv-img">
-                                <div class="image-container">
-                                    <img id="mainImage2" src="@FileLocation" alt="Zoomable Image">
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="card-body px-0 pt-0 pb-2">
+                                    <div class="table-responsive p-0">
+                                        <table class="table align-items-center mb-0" id="GetPrimariesTable">
 
+                                            <thead>
+                                                <tr>
+                                                    <th class="text-uppercase font-colors  text-xxs font-weight-bolder opacity-7 text-center"></th>
+
+                                                    <th class="text-uppercase font-colors  text-xxs font-weight-bolder opacity-7 text-center">STO No</th>
+                                                    <th class="text-uppercase font-colors  text-xxs font-weight-bolder opacity-7 text-center">Shipping Location</th>
+                                                    <th class="text-uppercase font-colors  text-xxs font-weight-bolder opacity-7 text-center">Receiving Location</th>
+                                                    <th class="text-uppercase font-colors  text-xxs font-weight-bolder opacity-7 text-center">Vehicle #</th>
+                                                    <th class="text-uppercase font-colors  text-xxs font-weight-bolder opacity-7 text-center">Date</th>
+                                                    <th class="text-uppercase font-colors  text-xxs font-weight-bolder opacity-7 text-center">Product</th>
+
+                                                </tr>
+                                            </thead>
+
+
+                                            <tbody>
+                                                @if (PrimaryInvoices.Count>0)
+                                                {
+
+
+                                                    @foreach (var item in PrimaryInvoices)
+                                                    {
+                                                        // Check if the current STO is the selected one
+                                                        bool isSelected = item.STO == PrimarySTO;
+                                                        string rowClass = isSelected ? "text-white" : "";
+                                                        string rostyle = isSelected ? "background:#2196F3 !important;" : "";
+
+                                                        <tr class="@rowClass" style="@rostyle">
+                                                            <td class="align-middle text-center" style="text-align:center;">
+                                                                <p class="text-xs font-weight-bold mb-0 text-center" style="cursor:pointer;color:black;" @onclick="() => SelectPrimarySTO(item.STO)">@(isSelected ? "Remove" : "Select")</p>
+                                                            </td>
+                                                            <td class="align-middle text-center" style="text-align:center;">
+                                                                <p class="text-xs font-weight-bold mb-0 text-center">@item.STO</p>
+                                                            </td>
+                                                            <td class="align-middle text-center" style="text-align:center;">
+                                                                <p class="text-xs font-weight-bold mb-0 text-center">@item.ShippingLocation</p>
+                                                            </td>
+                                                            <td class="align-middle text-center" style="text-align:center;">
+                                                                <p class="text-xs font-weight-bold mb-0 text-center">@item.ReceivingLocation</p>
+                                                            </td>
+                                                            <td class="align-middle text-center" style="text-align:center;">
+                                                                <p class="text-xs font-weight-bold mb-0 text-center">@item.Vehicle</p>
+                                                            </td>
+                                                            <td class="align-middle text-center" style="text-align:center;">
+                                                                <p class="text-xs font-weight-bold mb-0 text-center">@item.InvoiceDate?.ToString("dd-MM-yyyy")</p>
+                                                            </td>
+                                                            <td class="align-middle text-center" style="text-align:center;">
+                                                                <p class="text-xs font-weight-bold mb-0 text-center">@item.Product</p>
+                                                            </td>
+                                                        </tr>
+                                                    }
+                                                    @if (PrimarySTO==null || PrimarySTO!="none")
+                                                    {
+                                                        <tr style="background:red;color:white;">
+                                                            <td class="align-middle text-center" style="text-align:center;" colspan="12">
+                                                                <p class="text-xs font-weight-bold mb-0 text-center">
+                                                                    Do you want to Mark this as
+                                                                    <a style="text-decoration:underline;color:black;cursor:pointer;" @onclick="AddNone">  Indiviual?</a>
+                                                                </p>
+                                                            </td>
+                                                        </tr>
+                                                    }
+                                                    else if (PrimarySTO=="none")
+                                                    {
+                                                        <tr style="background:blue;color:white;">
+                                                            <td class="align-middle text-center" style="text-align:center;" colspan="12">
+                                                                <p class="text-xs font-weight-bold mb-0 text-center">
+                                                                    Invoice Selected as Indiviual
+
+                                                                </p>
+                                                            </td>
+                                                        </tr>
+                                                    }
+
+                                                }
+                                                else
+                                                {
+                                                    if (PrimarySTO=="none")
+                                                    {
+                                                        <tr style="background:blue;color:white;">
+                                                            <td class="align-middle text-center" style="text-align:center;" colspan="12">
+                                                                <p class="text-xs font-weight-bold mb-0 text-center">
+                                                                    Invoice Selected as Indiviual
+                                                                    <br />
+                                                                    <a style="text-decoration:underline;color:black;cursor:pointer;font-weight:bolder;" @onclick="RemoveNone">Remove?</a>
+
+                                                                </p>
+                                                            </td>
+                                                        </tr>
+                                                    }
+                                                    else
+                                                    {
+                                                        <tr style="background:red;color:white;">
+                                                            <td class="align-middle text-center" style="text-align:center;" colspan="12">
+                                                                <p class="text-xs font-weight-bold mb-0 text-center">
+                                                                    No Primary Invoice for this Secondary <br> Do you want to Mark this as
+                                                                    <a style="text-decoration:underline;color:black;cursor:pointer;" @onclick="AddNone"> Indiviual?</a>
+                                                                </p>
+                                                            </td>
+                                                        </tr>
+                                                    }
+
+
+                                                }
+
+                                            </tbody>
+
+
+
+                                        </table>
+                                    </div>
                                 </div>
-
-
-
-                            </div>
-                        </div>
-
-
-                    </div>
-
-
-
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-<Modal @ref="modal" Title="Primary Invoices">
-    <Body>
-        <div class="col-md-12">
-            <div class="card" style="height:410px;overflow-x:scroll;">
-
-                <div class="card-body">
-                    <div class="row">
-                        <div class="card-body px-0 pt-0 pb-2">
-                            <div class="table-responsive p-0">
-                                <table class="table align-items-center mb-0" id="GetPrimariesTable">
-
-                                    <thead>
-                                        <tr>
-                                            <th class="text-uppercase font-colors  text-xxs font-weight-bolder opacity-7 text-center"></th>
-
-                                            <th class="text-uppercase font-colors  text-xxs font-weight-bolder opacity-7 text-center">STO No</th>
-                                            <th class="text-uppercase font-colors  text-xxs font-weight-bolder opacity-7 text-center">Shipping Location</th>
-                                            <th class="text-uppercase font-colors  text-xxs font-weight-bolder opacity-7 text-center">Receiving Location</th>
-                                            <th class="text-uppercase font-colors  text-xxs font-weight-bolder opacity-7 text-center">Vehicle #</th>
-                                            <th class="text-uppercase font-colors  text-xxs font-weight-bolder opacity-7 text-center">Date</th>
-                                            <th class="text-uppercase font-colors  text-xxs font-weight-bolder opacity-7 text-center">Product</th>
-
-                                        </tr>
-                                    </thead>
-
-
-                                    <tbody>
-                                        @if (PrimaryInvoices.Count>0)
-                                        {
-
-
-                                            @foreach (var item in PrimaryInvoices)
-                                            {
-                                                // Check if the current STO is the selected one
-                                                bool isSelected = item.STO == PrimarySTO;
-                                                string rowClass = isSelected ? "text-white" : "";
-                                                string rostyle = isSelected ? "background:#2196F3 !important;" : "";
-
-                                                <tr class="@rowClass" style="@rostyle">
-                                                    <td class="align-middle text-center" style="text-align:center;">
-                                                        <p class="text-xs font-weight-bold mb-0 text-center" style="cursor:pointer;color:black;" @onclick="() => SelectPrimarySTO(item.STO)">@(isSelected ? "Remove" : "Select")</p>
-                                                    </td>
-                                                    <td class="align-middle text-center" style="text-align:center;">
-                                                        <p class="text-xs font-weight-bold mb-0 text-center">@item.STO</p>
-                                                    </td>
-                                                    <td class="align-middle text-center" style="text-align:center;">
-                                                        <p class="text-xs font-weight-bold mb-0 text-center">@item.ShippingLocation</p>
-                                                    </td>
-                                                    <td class="align-middle text-center" style="text-align:center;">
-                                                        <p class="text-xs font-weight-bold mb-0 text-center">@item.ReceivingLocation</p>
-                                                    </td>
-                                                    <td class="align-middle text-center" style="text-align:center;">
-                                                        <p class="text-xs font-weight-bold mb-0 text-center">@item.Vehicle</p>
-                                                    </td>
-                                                    <td class="align-middle text-center" style="text-align:center;">
-                                                        <p class="text-xs font-weight-bold mb-0 text-center">@item.InvoiceDate?.ToString("dd-MM-yyyy")</p>
-                                                    </td>
-                                                    <td class="align-middle text-center" style="text-align:center;">
-                                                        <p class="text-xs font-weight-bold mb-0 text-center">@item.Product</p>
-                                                    </td>
-                                                </tr>
-                                            }
-                                            @if (PrimarySTO==null || PrimarySTO!="none")
-                                            {
-                                                <tr style="background:red;color:white;">
-                                                    <td class="align-middle text-center" style="text-align:center;" colspan="12">
-                                                        <p class="text-xs font-weight-bold mb-0 text-center">
-                                                            Do you want to Mark this as
-                                                            <a style="text-decoration:underline;color:black;cursor:pointer;" @onclick="AddNone">  Indiviual?</a>
-                                                        </p>
-                                                    </td>
-                                                </tr>
-                                            }
-                                            else if (PrimarySTO=="none")
-                                            {
-                                                <tr style="background:blue;color:white;">
-                                                    <td class="align-middle text-center" style="text-align:center;" colspan="12">
-                                                        <p class="text-xs font-weight-bold mb-0 text-center">
-                                                            Invoice Selected as Indiviual
-
-                                                        </p>
-                                                    </td>
-                                                </tr>
-                                            }
-
-                                        }
-                                        else
-                                        {
-                                            if (PrimarySTO=="none")
-                                            {
-                                                <tr style="background:blue;color:white;">
-                                                    <td class="align-middle text-center" style="text-align:center;" colspan="12">
-                                                        <p class="text-xs font-weight-bold mb-0 text-center">
-                                                            Invoice Selected as Indiviual
-                                                            <br />
-                                                            <a style="text-decoration:underline;color:black;cursor:pointer;font-weight:bolder;" @onclick="RemoveNone">Remove?</a>
-
-                                                        </p>
-                                                    </td>
-                                                </tr>
-                                            }
-                                            else
-                                            {
-                                                <tr style="background:red;color:white;">
-                                                    <td class="align-middle text-center" style="text-align:center;" colspan="12">
-                                                        <p class="text-xs font-weight-bold mb-0 text-center">
-                                                            No Primary Invoice for this Secondary <br> Do you want to Mark this as
-                                                            <a style="text-decoration:underline;color:black;cursor:pointer;" @onclick="AddNone"> Indiviual?</a>
-                                                        </p>
-                                                    </td>
-                                                </tr>
-                                            }
-
-
-                                        }
-
-                                    </tbody>
-
-
-
-                                </table>
                             </div>
                         </div>
                     </div>
                 </div>
-            </div>
-        </div>
-    </Body>
-</Modal>
+            </Body>
+        </Modal>
 
 
-@*   </Authorized>
+    </Authorized>
     <NotAuthorized>
         @if (_isJsReady)
         {
@@ -635,7 +657,7 @@
         }
 
     </NotAuthorized>
-</AuthorizeView> *@
+</AuthorizeView>
 
 
 @code {
@@ -647,6 +669,7 @@
     private bool AddChamber = false;
     private bool IsEdit = false;
     private bool IsSecondary = false;
+    private bool isChambersAvailable = false;
     private string? PrimarySTO; // Variable to store the selected STO
     private void SelectPrimarySTO(string sto)
     {
@@ -683,10 +706,9 @@
     public EuroCal Invoices { get; set; } = new EuroCal();
     public List<OCRData> PrimaryInvoices { get; set; } = new List<OCRData>();
 
-    private async Task OpenModal()
+    private void OpenModal()
     {
         modal.Show();
-        PrimaryInvoices = await GetPrimary(Invoices.ExtractedID);
     }
 
     private void AddNewChamber()
@@ -741,8 +763,8 @@
                         OCRData data = new OCRData
                             {
                                 InvoiceDate = reader.IsDBNull(reader.GetOrdinal("FillingDate"))
-                                                                                                                                                ? (DateTime?)null
-                                                                                                                                                : reader.GetDateTime(reader.GetOrdinal("FillingDate")),
+                                                                                                                                                                ? (DateTime?)null
+                                                                                                                                                                : reader.GetDateTime(reader.GetOrdinal("FillingDate")),
                                 STO = reader.IsDBNull(reader.GetOrdinal("STONO")) ? "" : reader.GetString(reader.GetOrdinal("STONO")),
                                 Vehicle = reader.IsDBNull(reader.GetOrdinal("VehicleNo")) ? "" : reader.GetString(reader.GetOrdinal("VehicleNo")),
                                 BusinessID = reader.IsDBNull(reader.GetOrdinal("BusinessID")) ? 0 : reader.GetInt32(reader.GetOrdinal("BusinessID")),
@@ -1424,6 +1446,7 @@ ProductName=@ProductName
     {
         if (e.Value != "")
         {
+            isChambersAvailable = true;
             Invoices.VehicleNo = e.Value.ToString();
             int ChamberStatus = await GetShippingChamberDetails(e.Value.ToString());
             if (ChamberStatus==404)
@@ -1431,7 +1454,7 @@ ProductName=@ProductName
                 AddChamber = true;
                 toastService.ShowError("No Chambers Found for this Vehicle");
             }
-
+            isChambersAvailable = false;
         }
     }
     public async Task<int> GetShippingChamberDetails(string VehicleID)
@@ -1509,12 +1532,20 @@ ProductName=@ProductName
 
                 if (!string.IsNullOrWhiteSpace(Invoices?.VehicleNo))
                 {
+                    isChambersAvailable = true;
                     int chamberStatus = await GetShippingChamberDetails(Invoices.VehicleNo);
                     if (chamberStatus == 404)
                     {
                         AddChamber = true;
                         toastService.ShowError($"No Chamber Details for Vehicle {Invoices.VehicleNo}");
                     }
+                    isChambersAvailable = false;
+
+                }
+                else
+                {
+                    toastService.ShowError($"No Vehicle..");
+
                 }
 
                 // Handle file location
@@ -1530,7 +1561,10 @@ ProductName=@ProductName
                 if (rec != null)
                 {
                     Invoices = MapInvoice(rec);
-                    PrimarySTO = GetInvoiceprimaryRef(rec.Details.STONo);
+                    if (rec.Details.STONo!=null)
+                    {
+                        PrimarySTO = GetInvoiceprimaryRef(rec.Details.STONo);
+                    }
                     await Cal();
                 }
                 IsEdit = true;
@@ -1545,6 +1579,7 @@ ProductName=@ProductName
             // Set the user
             var authState = await _authenticationStateProvider.GetAuthenticationStateAsync();
             Invoices.User = authState.User.Identity.Name ??"";
+            PrimaryInvoices = await GetPrimary(Invoices.ExtractedID);
 
             StateHasChanged();
         }
