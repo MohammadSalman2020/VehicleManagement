@@ -216,7 +216,7 @@
                                                     </td>
                                                 </tr>
 
-                                                @if(PrimarySTO is not null)
+                                                @if (PrimarySTO is not null)
                                                 {
                                                     <tr>
                                                         <td colspan="12" style="text-align:center; vertical-align:middle;">
@@ -226,7 +226,7 @@
                                                         </td>
                                                     </tr>
                                                 }
-                                         
+
 
                                             }
                                         </table>
@@ -516,127 +516,84 @@
         </div>
         <Modal @ref="modal" Title="Primary Invoices">
             <Body>
-                <div class="col-md-12">
-                    <div class="card" style="height:410px;overflow-x:scroll;">
+                <div class="row">
+                    <!-- Left Column: List of STO Numbers -->
+                    <div class="col-md-4">
+                        <div class="card" style="height: 410px; overflow-y: auto;">
+                            <div class="card-body">
+                                <h6 class="text-uppercase font-weight-bold">STO Numbers</h6>
+                                <ul class="list-group">
+                                    @foreach (var item in PrimaryInvoices)
+                                    {
+                                        bool isSelected = item.STO == PrimarySTO;
+                                        string listItemClass = isSelected ? "list-group-item active" : "list-group-item";
+                                        <li class="@listItemClass" style="cursor: pointer;"
+                                            @onclick="() => SelectPrimarySTO(item.STO)">
+                                            @item.STO
+                                        </li>
+                                    }
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
 
-                        <div class="card-body">
-                            <div class="row">
-                                <div class="card-body px-0 pt-0 pb-2">
-                                    <div class="table-responsive p-0">
-                                        <table class="table align-items-center mb-0" id="GetPrimariesTable">
+                    <!-- Right Column: STO Details Card -->
+                    <div class="col-md-8">
+                        <div class="card" style="height: 410px;">
+                            <div class="card-body">
+                                @if (PrimarySTO != null && PrimarySTO!="None")
+                                {
+                                    var selectedInvoice = PrimaryInvoices.FirstOrDefault(i => i.STO == PrimarySTO);
+                                    if (selectedInvoice != null)
+                                    {
+                                        <h5 class="card-title">Details for STO: @selectedInvoice.STO</h5>
+                                        <p class="text-muted">Shipping Location: @selectedInvoice.ShippingLocation</p>
+                                        <p class="text-muted">Receiving Location: @selectedInvoice.ReceivingLocation</p>
+                                        <p class="text-muted">Vehicle #: @selectedInvoice.Vehicle</p>
+                                        <p class="text-muted">Date: @selectedInvoice.InvoiceDate?.ToString("dd-MM-yyyy")</p>
+                                        <p class="text-muted">Product: @selectedInvoice.Product</p>
+                                        <button class="btn btn-danger" @onclick="RemoveSelection">Remove Selection</button>
+                                    }
+                                    else
+                                    {
+                                        if (PrimarySTO=="none")
+                                        {
+                                            <p class="text-xs font-weight-bold mb-0 text-center">
+                                                Invoice Selected as Indiviual
+                                                <br />
+                                                <a style="text-decoration:underline;color:black;cursor:pointer;font-weight:bolder;" @onclick="RemoveNone">Remove?</a>
 
-                                            <thead>
-                                                <tr>
-                                                    <th class="text-uppercase font-colors  text-xxs font-weight-bolder opacity-7 text-center"></th>
+                                            </p>
+                                        }
+                                        else
+                                        {
+                                            <p class="text-xs font-weight-bold mb-0 text-center">
+                                                No Primary Invoice for this Secondary <br> Do you want to Mark this as
+                                                <a style="text-decoration:underline;color:black;cursor:pointer;" @onclick="AddNone"> Indiviual?</a>
+                                            </p>
+                                        }
+                                    }
+                                }
+                                else
+                                {
+                                    if (PrimarySTO=="none")
+                                    {
+                                        <p class="text-xs font-weight-bold mb-0 text-center">
+                                            Invoice Selected as Indiviual
+                                            <br />
+                                            <a style="text-decoration:underline;color:black;cursor:pointer;font-weight:bolder;" @onclick="RemoveNone">Remove?</a>
 
-                                                    <th class="text-uppercase font-colors  text-xxs font-weight-bolder opacity-7 text-center">STO No</th>
-                                                    <th class="text-uppercase font-colors  text-xxs font-weight-bolder opacity-7 text-center">Shipping Location</th>
-                                                    <th class="text-uppercase font-colors  text-xxs font-weight-bolder opacity-7 text-center">Receiving Location</th>
-                                                    <th class="text-uppercase font-colors  text-xxs font-weight-bolder opacity-7 text-center">Vehicle #</th>
-                                                    <th class="text-uppercase font-colors  text-xxs font-weight-bolder opacity-7 text-center">Date</th>
-                                                    <th class="text-uppercase font-colors  text-xxs font-weight-bolder opacity-7 text-center">Product</th>
+                                        </p>
+                                    }
+                                    else
+                                    {
+                                        <p class="text-xs font-weight-bold mb-0 text-center">
+                                            No Primary Invoice for this Secondary <br> Do you want to Mark this as
+                                            <a style="text-decoration:underline;color:black;cursor:pointer;" @onclick="AddNone"> Indiviual?</a>
+                                        </p>
+                                    }
 
-                                                </tr>
-                                            </thead>
-
-
-                                            <tbody>
-                                                @if (PrimaryInvoices.Count>0)
-                                                {
-
-
-                                                    @foreach (var item in PrimaryInvoices)
-                                                    {
-                                                        // Check if the current STO is the selected one
-                                                        bool isSelected = item.STO == PrimarySTO;
-                                                        string rowClass = isSelected ? "text-white" : "";
-                                                        string rostyle = isSelected ? "background:#2196F3 !important;" : "";
-
-                                                        <tr class="@rowClass" style="@rostyle">
-                                                            <td class="align-middle text-center" style="text-align:center;">
-                                                                <p class="text-xs font-weight-bold mb-0 text-center" style="cursor:pointer;color:black;" @onclick="() => SelectPrimarySTO(item.STO)">@(isSelected ? "Remove" : "Select")</p>
-                                                            </td>
-                                                            <td class="align-middle text-center" style="text-align:center;">
-                                                                <p class="text-xs font-weight-bold mb-0 text-center">@item.STO</p>
-                                                            </td>
-                                                            <td class="align-middle text-center" style="text-align:center;">
-                                                                <p class="text-xs font-weight-bold mb-0 text-center">@item.ShippingLocation</p>
-                                                            </td>
-                                                            <td class="align-middle text-center" style="text-align:center;">
-                                                                <p class="text-xs font-weight-bold mb-0 text-center">@item.ReceivingLocation</p>
-                                                            </td>
-                                                            <td class="align-middle text-center" style="text-align:center;">
-                                                                <p class="text-xs font-weight-bold mb-0 text-center">@item.Vehicle</p>
-                                                            </td>
-                                                            <td class="align-middle text-center" style="text-align:center;">
-                                                                <p class="text-xs font-weight-bold mb-0 text-center">@item.InvoiceDate?.ToString("dd-MM-yyyy")</p>
-                                                            </td>
-                                                            <td class="align-middle text-center" style="text-align:center;">
-                                                                <p class="text-xs font-weight-bold mb-0 text-center">@item.Product</p>
-                                                            </td>
-                                                        </tr>
-                                                    }
-                                                    @if (PrimarySTO==null || PrimarySTO!="none")
-                                                    {
-                                                        <tr style="background:red;color:white;">
-                                                            <td class="align-middle text-center" style="text-align:center;" colspan="12">
-                                                                <p class="text-xs font-weight-bold mb-0 text-center">
-                                                                    Do you want to Mark this as
-                                                                    <a style="text-decoration:underline;color:black;cursor:pointer;" @onclick="AddNone">  Indiviual?</a>
-                                                                </p>
-                                                            </td>
-                                                        </tr>
-                                                    }
-                                                    else if (PrimarySTO=="none")
-                                                    {
-                                                        <tr style="background:blue;color:white;">
-                                                            <td class="align-middle text-center" style="text-align:center;" colspan="12">
-                                                                <p class="text-xs font-weight-bold mb-0 text-center">
-                                                                    Invoice Selected as Indiviual
-
-                                                                </p>
-                                                            </td>
-                                                        </tr>
-                                                    }
-
-                                                }
-                                                else
-                                                {
-                                                    if (PrimarySTO=="none")
-                                                    {
-                                                        <tr style="background:blue;color:white;">
-                                                            <td class="align-middle text-center" style="text-align:center;" colspan="12">
-                                                                <p class="text-xs font-weight-bold mb-0 text-center">
-                                                                    Invoice Selected as Indiviual
-                                                                    <br />
-                                                                    <a style="text-decoration:underline;color:black;cursor:pointer;font-weight:bolder;" @onclick="RemoveNone">Remove?</a>
-
-                                                                </p>
-                                                            </td>
-                                                        </tr>
-                                                    }
-                                                    else
-                                                    {
-                                                        <tr style="background:red;color:white;">
-                                                            <td class="align-middle text-center" style="text-align:center;" colspan="12">
-                                                                <p class="text-xs font-weight-bold mb-0 text-center">
-                                                                    No Primary Invoice for this Secondary <br> Do you want to Mark this as
-                                                                    <a style="text-decoration:underline;color:black;cursor:pointer;" @onclick="AddNone"> Indiviual?</a>
-                                                                </p>
-                                                            </td>
-                                                        </tr>
-                                                    }
-
-
-                                                }
-
-                                            </tbody>
-
-
-
-                                        </table>
-                                    </div>
-                                </div>
+                                }
                             </div>
                         </div>
                     </div>
@@ -671,29 +628,30 @@
     private bool IsSecondary = false;
     private bool isChambersAvailable = false;
     private string? PrimarySTO; // Variable to store the selected STO
-    private void SelectPrimarySTO(string sto)
+    private async void SelectPrimarySTO(string sto)
     {
+        if (PrimarySTO==sto)
+        {
+            return;
+        }
+
         int ID = GetInvoiceID(sto);
         if (ID!=0)
         {
-            if (PrimarySTO == sto)
-            {
-                // Deselect if already selected
-                PrimarySTO = null;
-            }
-            else
-            {
-                // Select the new STO
-                PrimarySTO = sto;
-            }
+            PrimarySTO = sto;
         }
         else
         {
             modal.CloseModal();
             toastService.ShowError("Add this primary invoice first");
+            await JS.InvokeVoidAsync("OpenEuroPrimaryInvoice", sto);
         }
 
 
+    }
+    private void RemoveSelection()
+    {
+        PrimarySTO = null;
     }
     private void AddNone()
     {
@@ -763,8 +721,8 @@
                         OCRData data = new OCRData
                             {
                                 InvoiceDate = reader.IsDBNull(reader.GetOrdinal("FillingDate"))
-                                                                                                                                                                ? (DateTime?)null
-                                                                                                                                                                : reader.GetDateTime(reader.GetOrdinal("FillingDate")),
+                                                                                                                                                                            ? (DateTime?)null
+                                                                                                                                                                            : reader.GetDateTime(reader.GetOrdinal("FillingDate")),
                                 STO = reader.IsDBNull(reader.GetOrdinal("STONO")) ? "" : reader.GetString(reader.GetOrdinal("STONO")),
                                 Vehicle = reader.IsDBNull(reader.GetOrdinal("VehicleNo")) ? "" : reader.GetString(reader.GetOrdinal("VehicleNo")),
                                 BusinessID = reader.IsDBNull(reader.GetOrdinal("BusinessID")) ? 0 : reader.GetInt32(reader.GetOrdinal("BusinessID")),
@@ -1078,7 +1036,6 @@ ProductName=@ProductName
                     ChamberNo=chamber.ChamberNumber,
                     ChamberQuantity=chamber.Capacity,
                     RecDip=chamber.ReceivingDips,
-                    ShortExcess=chamber.DiffInDipsMm,
                     RecLiters=Math.Round(chamber.ShortByDipLiters),
                     ogra=chamber.Capacity,
                     rec_dip=chamber.ReceivingDips,
