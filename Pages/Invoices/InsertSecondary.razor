@@ -8,11 +8,13 @@
 @using System.Reflection
 @using Microsoft.AspNetCore.SignalR
 @using Microsoft.Data.SqlClient
+@using System.Data
 @using VehicleManagement.ApiService
 @using VehicleManagement.Authentication
 @using VehicleManagement.Models.General
 @using VehicleManagement.Models.General.Login
 @using VehicleManagement.Pages.Redirects;
+@using static VehicleManagement.Pages.OCR.OcrFiltered
 @using static VehicleManagement.Pages.Invoices.ReceiveSecondary
 @using static VehicleManagement.Pages.Invoices.AddSecondarInvoice
 @inject IWebHostEnvironment Environment
@@ -279,10 +281,14 @@
                                         }
                                         else
                                         {
+
                                             @if (generalDetailsList.Count > 0)
                                             {
+                                                <img src="css/plus.png" @onclick="@(()=>OpenModal2(generalDetailsList[0].VehicleNo,generalDetailsList[0].FillingDate))" />
+
                                                 @foreach (var item in generalDetailsList.DistinctBy(p => p.STONO))
                                                 {
+
                                                     <br />
                                                     <h4>Invoice # @item.STONO</h4>
 
@@ -324,7 +330,7 @@
 
                                                     <table class="shipping" style="margin-top:7px;">
                                                         <tr class="header">
-                                                            <td colspan="6"> Loaded Chambers ( <a @onclick="@(()=>ShowImagesGeneral(item.FileLocation))" style="color:black;cursor:pointer;">View Image</a> )</td>
+                                                            <td colspan="6"> Loaded Chambers ( <a @onclick="@(()=>ShowImagesGeneral(item.FileLocation))" style="color:black;cursor:pointer;">View Image</a> ) &nbsp; <img src="css/minus.png" @onclick="@(()=>RemoveInvoice(item.STONO))" style="height:25px;cursor:pointer;"></img> </td>
 
                                                         </tr>
 
@@ -390,17 +396,17 @@
                                 </div>
 
                                 <div class="col-lgg-6">
-                               @*      <div class="table-responsive inv-img">
+                                    @*      <div class="table-responsive inv-img">
 
-                                        @*     <div id="dropzone" class="dropzone">
-                                        <div id="preview" class="preview"></div>
-                                        </div> 
-                                        <img src="@FileLocation" style="width:600px;" />
+                                    @*     <div id="dropzone" class="dropzone">
+                                    <div id="preview" class="preview"></div>
+                                    </div>
+                                    <img src="@FileLocation" style="width:600px;" />
                                     </div> *@
-                                <div class="image-container">
+                                    <div class="image-container">
                                         <img id="mainImage" src="@FileLocation" alt="Zoomable Image">
-                                  
-                                </div>
+
+                                    </div>
                                 </div>
 
 
@@ -516,6 +522,128 @@
 
         @* End Policy Modal *@
 
+        @*Policy Modal *@
+        <Modal @ref="Modal2" Title="Select Secondary Invoices">
+            <Body>
+                <div class="col-md-12">
+                    <div class="card">
+
+                        <div class="card-body">
+
+                            <div class="row">
+                                <div class="card-body px-0 pt-0 pb-2" style="overflow-x: auto;    height: 400px;">
+
+                                    <div class="row col-md-12">
+                                        <div class="col-md-8">
+                                            <div class="form-group">
+                                                <input type="text" tabindex="1" id="vehicleID" @bind-value="@SearchSTO" required placeholder="Search Secondary Invoice" class="form-control">
+
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="form-group">
+                                                <button class="btn btn-primary" @onclick="SearchSecInvoice">Search Invoice</button>
+                                            </div>
+                                        </div>
+
+                                    </div>
+
+                                    <div class="table-responsive p-0">
+                                        <table class="table align-items-center mb-0">
+                                            @if (ValidSecondary.Count > 0)
+                                            {
+                                                <thead>
+                                                    <tr>
+                                                        <th class="text-uppercase font-colors  text-xxs font-weight-bolder opacity-7 text-center"></th>
+                                                        <th class="text-uppercase font-colors  text-xxs font-weight-bolder opacity-7 text-center">STO No</th>
+                                                        <th class="text-uppercase font-colors  text-xxs font-weight-bolder opacity-7 text-center">Vehicle No</th>
+                                                        <th class="text-uppercase font-colors  text-xxs font-weight-bolder opacity-7 text-center">Date</th>
+                                                        <th class="text-uppercase font-colors  text-xxs font-weight-bolder opacity-7 text-center">Shipping Location</th>
+                                                        <th class="text-uppercase font-colors  text-xxs font-weight-bolder opacity-7 text-center">Recieving Location</th>
+                                                        <th class="text-uppercase font-colors  text-xxs font-weight-bolder opacity-7 text-center">Product</th>
+
+                                                    </tr>
+                                                </thead>
+
+
+                                                <tbody>
+                                                    @foreach (var item in ValidSecondary)
+                                                    {
+
+                                                        <tr style="@(IsInvoiceAlreadyExisits(item.STO)?"background: orangered;color: white;":"")">
+                                                            <td class="align-middle text-center" style="text-align:center;">
+                                                                @if (IsInvoiceAlreadyExisits(item.STO))
+                                                                {
+                                                                    <p class="text-xs font-weight-bold mb-0  text-center" style="cursor:pointer;color:black;" @onclick=@(()=>RemoveInvoice(item.STO))>Remove</p>
+
+                                                                }
+                                                                else
+                                                                {
+                                                                    <p class="text-xs font-weight-bold mb-0  text-center" style="cursor:pointer;color:blue;" @onclick=@(()=>SelectInvoice(item))>@SelectText</p>
+
+                                                                }
+
+                                                            </td>
+                                                            <td class="align-middle text-center" style="text-align:center;">
+                                                                <p class="text-xs font-weight-bold mb-0  text-center">@item.STO</p>
+
+                                                            </td>
+
+                                                            <td class="align-middle text-center" style="text-align:center;">
+                                                                <p class="text-xs font-weight-bold mb-0  text-center">@item.Vehicle</p>
+
+                                                            </td>
+                                                            <td class="align-middle text-center" style="text-align:center;">
+                                                                <p class="text-xs font-weight-bold mb-0  text-center">@item.InvoiceDate?.ToString("MMMM-dd-yy")</p>
+
+                                                            </td>
+
+                                                            <td class="align-middle text-center" style="text-align:center;">
+                                                                <p class="text-xs font-weight-bold mb-0  text-center">@item.ShippingLocation</p>
+
+                                                            </td>
+                                                            <td class="align-middle text-center" style="text-align:center;">
+                                                                <p class="text-xs font-weight-bold mb-0  text-center">@item.ReceivingLocation</p>
+
+                                                            </td>
+                                                            <td class="align-middle text-center" style="text-align:center;">
+                                                                <p class="text-xs font-weight-bold mb-0  text-center">@item.Product</p>
+
+                                                            </td>
+
+
+
+
+
+
+
+                                                        </tr>
+
+                                                    }
+                                                </tbody>
+                                            }
+                                            else
+                                            {
+
+                                                <DataLoaderComponent IsLoading="@IsValidLoading" LoadingText="Loading Expected Secondary Invoices..." />
+
+
+                                            }
+
+
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+            </Body>
+        </Modal>
+
+        @* End Policy Modal *@
+
         <Loader isLoading="@IsLoading" />
     </Authorized>
     <NotAuthorized>
@@ -533,20 +661,31 @@
 
 @code {
     private Modal PolicyModal;
+    private Modal Modal2;
     private bool _isJsReady = false;
     public List<VehicleDTO> VehicleList = new List<VehicleDTO>();
     private bool IsLoading = false;
+    private bool IsValidLoading = false;
     private bool isView = false;
     private bool IsInd = false;
     public List<OCRSecData> Invoices = new List<OCRSecData>();
     public List<VehiclesChamber> Vehicles = new List<VehiclesChamber>();
     public List<OCRSecDTO> generalDetailsList = new List<OCRSecDTO>();
+    public List<OCRData> ValidSecondary = new List<OCRData>();
     public string PrimaryReference;
     public string? User;
     public string? FileLocation;
+    public string? SearchSTO;
     private void OnCheckboxChanged(ChangeEventArgs e)
     {
         IsInd = !IsInd;
+    }
+    private async Task OpenModal2(string VehicleID, DateTime? Date)
+    {
+        IsValidLoading = true;
+        Modal2.Show();
+        ValidSecondary =await GetValidSec(VehicleID, Date);
+        IsValidLoading = false;
     }
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
@@ -625,6 +764,17 @@
     public bool IsChamberAlreadyExisits(VehiclesChamber item)
     {
         if (Invoices[0].Chambers.Any(p => p.ChamberNo == item.ChamberNo))
+        {
+            return true;
+        }
+        else
+        {
+            return false;
+        }
+    }
+    public bool IsInvoiceAlreadyExisits(string item)
+    {
+        if (generalDetailsList.Any(p => p.STONO == item))
         {
             return true;
         }
@@ -1052,6 +1202,10 @@ DEALLOCATE InvoiceCursor;
                 if (rec!=null)
                 {
                     generalDetailsList = rec.DistinctBy(p => p.STONO).ToList();
+                    if (generalDetailsList.Count>0)
+                    {
+                        PrimaryReference = generalDetailsList[0].PrimaryInvoiceNumber;
+                    }
 
                 }
 
@@ -1121,6 +1275,137 @@ DEALLOCATE InvoiceCursor;
             FileLocation = newLocation;
         }
     }
+
+    public void RemoveInvoice(string STO)
+    {
+        if(generalDetailsList.Count==1)
+        {
+            toastService.ShowWarning("You cannot remove if only one secondary in the list");
+            return;
+        }
+
+
+        var itemToRemove = generalDetailsList.FirstOrDefault(p => p.STONO == STO);
+        if (itemToRemove != null)
+        {
+            generalDetailsList.Remove(itemToRemove);
+        }
+        SelectText = "Select";
+    }
+    public async Task SearchSecInvoice()
+    {
+        if (SearchSTO==null || ValidSecondary.Any(p => p.STO==SearchSTO))
+        {
+            return;
+        }
+        var rec = await GetSingleSec(SearchSTO);
+        if(rec.STO==null)
+        {
+            toastService.ShowError("Invoice Not Found");
+            return;
+        }
+        ValidSecondary.Add(rec);
+        SelectText = "Select";
+        SearchSTO = string.Empty;
+    }
+
+    public string SelectText { get; set; } = string.Empty;
+    public async Task SelectInvoice(OCRData item)
+    {
+        SelectText = "Selecting...";
+        if (generalDetailsList.Any(p => p.STONO==item.STO))
+        {
+            return;
+        }
+
+        List<OCRSecDTO> TempList = new List<OCRSecDTO>();
+
+        // Add an OCRSecDTO object to the TempList
+        TempList.Add(new OCRSecDTO
+            {
+                ExtractedID = item.OCRID,
+                FileLocation = item.FileLocation,
+                FillingDate = item.InvoiceDate,
+                ProductName = item.Product,
+                RecievingLocation = item.ReceivingLocation,
+                ShippingLocation = item.ShippingLocation,
+                STONO = item.STO,
+                VehicleNo = item.Vehicle,
+                PrimaryInvoiceNumber = PrimaryReference,
+                ChamberDetails = new List<ChamberDetailsDTO>() // Initialize the ChamberDetails property
+            });
+
+        // Retrieve chambers based on the OCRID and PrimaryReference
+        var ressss = await GetChambersByExtractedId(item.OCRID, PrimaryReference);
+
+        // Access the first (and only) OCRSecDTO object in TempList and add ChamberDetails
+        foreach (var chamber in ressss)
+        {
+            // Only add chamber if there's at least one value in ChamberQty or ChamberDip
+            if (chamber.ChamberQtyR != 0 || chamber.ChamberDipR != 0)
+            {
+                TempList[0].ChamberDetails.Add(new ChamberDetailsDTO // Access the first item in TempList
+                    {
+                        ChamberDip = chamber.ChamberDipR,
+                        ChamberNo = chamber.ChamberNo,
+                        ChamberQuantity = chamber.ChamberQtyR,
+                        ExtractedID = chamber.ExtractedID,
+                        STONO = item.STO,
+                        InvoiceLorryDip = chamber.ChamberDipR,
+                        InvoiceChamberQuantity = chamber.ChamberQtyR,
+                        ogra = chamber.ChamberDipS,
+                        CumulativeChamberQuantity = 0,
+                        TotalVehicleChamberQuantity = 0,
+                        ShortExcess=0,
+                    });
+            }
+        }
+
+        generalDetailsList.AddRange(TempList);
+        TempList = new List<OCRSecDTO>();
+        SelectText = "Select";
+
+    }
+
+
+
+    public async Task<List<ChamberDto>> GetChambersByExtractedId(int extractedId, string STO)
+    {
+        var chambers = new List<ChamberDto>();
+        string connectionString = _configuration.GetConnectionString("Con");
+
+        using (var connection = new SqlConnection(connectionString))
+        {
+            await connection.OpenAsync();
+
+            using (var command = new SqlCommand("usp_GetChambersByExtractedIdAndSTO", connection))
+            {
+                command.CommandType = CommandType.StoredProcedure;
+                command.Parameters.AddWithValue("@ExtractedID", extractedId);
+                command.Parameters.AddWithValue("@STONo", STO);
+
+                using (var reader = await command.ExecuteReaderAsync())
+                {
+                    while (await reader.ReadAsync())
+                    {
+                        var chamber = new ChamberDto
+                            {
+                                ExtractedID = extractedId,
+                                ChamberNo = reader.IsDBNull(0) ? 0 : reader.GetInt32(0),
+                                ChamberQtyR = reader.IsDBNull(1) ? 0 : reader.GetInt32(1),
+                                ChamberQtyS = reader.IsDBNull(2) ? 0 : reader.GetInt32(2),
+                                ChamberDipR = reader.IsDBNull(3) ? 0 : reader.GetInt32(3),
+                                ChamberDipS = reader.IsDBNull(4) ? 0 : reader.GetInt32(4)
+                            };
+                        chambers.Add(chamber);
+                    }
+                }
+            }
+        }
+
+        return chambers;
+    }
+
     public async Task ShowImages(OCRSecData obj)
     {
         if (!string.IsNullOrEmpty(obj.FileLocation))
@@ -1334,7 +1619,7 @@ ORDER BY FillingDate, ChamberNo;";
                                 VehicleNo = reader.IsDBNull(4) ? "" : reader.GetString(4),
                                 FillingDate = reader.IsDBNull(7) ? DateTime.MinValue : reader.GetDateTime(7),
                                 Product = reader.IsDBNull(8) ? "" : reader.GetString(8),
-                                FileLocation = reader.IsDBNull(9) ? "":reader.GetString(9),
+                                FileLocation = reader.IsDBNull(9) ? "" : reader.GetString(9),
                                 isView = true
                             };
                         invoiceDataList.Add(invoiceData);
@@ -1662,6 +1947,103 @@ ProductName=@ProductName
         }
     }
 
+
+    public async Task<List<OCRData>> GetValidSec(string vehicleID, DateTime? date)
+    {
+        string connectionString = _configuration.GetConnectionString("Con"); // Replace with your actual connection string
+        List<OCRData> result = new List<OCRData>();
+
+        using (SqlConnection connection = new SqlConnection(connectionString))
+        {
+            await connection.OpenAsync();
+
+            using (SqlCommand command = new SqlCommand("GetValidSecondaryRecords", connection))
+            {
+                command.CommandType = CommandType.StoredProcedure;
+
+                // Add the VehicleID parameter
+                command.Parameters.AddWithValue("@Vehicle", vehicleID);
+                command.Parameters.AddWithValue("@InvoiceDate", date?.Date);  // Fixed parameter name
+
+                // Execute the stored procedure and read the result
+                using (SqlDataReader reader = await command.ExecuteReaderAsync())
+                {
+                    while (await reader.ReadAsync())
+                    {
+                        OCRData data = new OCRData
+                            {
+                                InvoiceDate = reader.IsDBNull(reader.GetOrdinal("FillingDate"))
+                                                                                                            ? (DateTime?)null
+                                                                                                            : reader.GetDateTime(reader.GetOrdinal("FillingDate")),
+                                STO = reader.IsDBNull(reader.GetOrdinal("STONO")) ? "" : reader.GetString(reader.GetOrdinal("STONO")),
+                                BusinessName = reader.IsDBNull(reader.GetOrdinal("busdesc")) ? "" : reader.GetString(reader.GetOrdinal("busdesc")),
+                                Vehicle = reader.IsDBNull(reader.GetOrdinal("VehicleNo")) ? "" : reader.GetString(reader.GetOrdinal("VehicleNo")),
+                                BusinessID = reader.IsDBNull(reader.GetOrdinal("BusinessID")) ? 0 : reader.GetInt32(reader.GetOrdinal("BusinessID")),
+                                OCRID = reader.IsDBNull(reader.GetOrdinal("ExtractedID")) ? 0 : reader.GetInt32(reader.GetOrdinal("ExtractedID")),
+                                ShippingLocation = reader.IsDBNull(reader.GetOrdinal("ShippingLocation")) ? "" : reader.GetString(reader.GetOrdinal("ShippingLocation")),
+                                ReceivingLocation = reader.IsDBNull(reader.GetOrdinal("RecievingLocation")) ? "" : reader.GetString(reader.GetOrdinal("RecievingLocation")),
+                                InvoiceType = reader.IsDBNull(reader.GetOrdinal("InvoiceType")) ? "" : reader.GetString(reader.GetOrdinal("InvoiceType")),
+                                Product = reader.IsDBNull(reader.GetOrdinal("ProductName")) ? "" : reader.GetString(reader.GetOrdinal("ProductName")),
+                                FileLocation = reader.IsDBNull(reader.GetOrdinal("FileLocation")) ? "" : reader.GetString(reader.GetOrdinal("FileLocation")),
+                                isInvoiceGenerated = reader.IsDBNull(reader.GetOrdinal("isInvoiceGenerated")) ? false : reader.GetBoolean(reader.GetOrdinal("isInvoiceGenerated"))
+                            };
+
+                        result.Add(data);
+                    }
+                }
+            }
+        }
+
+        return result;
+    }
+
+    public async Task<OCRData> GetSingleSec(string STONO)
+    {
+        string connectionString = _configuration.GetConnectionString("Con"); // Replace with your actual connection string
+        OCRData result = new OCRData();
+
+        using (SqlConnection connection = new SqlConnection(connectionString))
+        {
+            await connection.OpenAsync();
+
+            using (SqlCommand command = new SqlCommand("GetSecInvoice", connection))
+            {
+                command.CommandType = CommandType.StoredProcedure;
+
+                // Add the VehicleID parameter
+                command.Parameters.AddWithValue("@STO", STONO);
+
+                // Execute the stored procedure and read the result
+                using (SqlDataReader reader = await command.ExecuteReaderAsync())
+                {
+                    while (await reader.ReadAsync())
+                    {
+                        result = new OCRData
+                            {
+                                InvoiceDate = reader.IsDBNull(reader.GetOrdinal("FillingDate"))
+                                                                                                             ? (DateTime?)null
+                                                                                                             : reader.GetDateTime(reader.GetOrdinal("FillingDate")),
+                                STO = reader.IsDBNull(reader.GetOrdinal("STONO")) ? "" : reader.GetString(reader.GetOrdinal("STONO")),
+                                BusinessName = reader.IsDBNull(reader.GetOrdinal("busdesc")) ? "" : reader.GetString(reader.GetOrdinal("busdesc")),
+                                Vehicle = reader.IsDBNull(reader.GetOrdinal("VehicleNo")) ? "" : reader.GetString(reader.GetOrdinal("VehicleNo")),
+                                BusinessID = reader.IsDBNull(reader.GetOrdinal("BusinessID")) ? 0 : reader.GetInt32(reader.GetOrdinal("BusinessID")),
+                                OCRID = reader.IsDBNull(reader.GetOrdinal("ExtractedID")) ? 0 : reader.GetInt32(reader.GetOrdinal("ExtractedID")),
+                                ShippingLocation = reader.IsDBNull(reader.GetOrdinal("ShippingLocation")) ? "" : reader.GetString(reader.GetOrdinal("ShippingLocation")),
+                                ReceivingLocation = reader.IsDBNull(reader.GetOrdinal("RecievingLocation")) ? "" : reader.GetString(reader.GetOrdinal("RecievingLocation")),
+                                InvoiceType = reader.IsDBNull(reader.GetOrdinal("InvoiceType")) ? "" : reader.GetString(reader.GetOrdinal("InvoiceType")),
+                                Product = reader.IsDBNull(reader.GetOrdinal("ProductName")) ? "" : reader.GetString(reader.GetOrdinal("ProductName")),
+                                FileLocation = reader.IsDBNull(reader.GetOrdinal("FileLocation")) ? "" : reader.GetString(reader.GetOrdinal("FileLocation")),
+                                isInvoiceGenerated = reader.IsDBNull(reader.GetOrdinal("isInvoiceGenerated")) ? false : reader.GetBoolean(reader.GetOrdinal("isInvoiceGenerated"))
+                            };
+
+
+                    }
+                }
+            }
+        }
+
+        return result;
+    }
 
 
 
