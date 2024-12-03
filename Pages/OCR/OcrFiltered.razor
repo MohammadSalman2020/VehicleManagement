@@ -100,7 +100,11 @@
                                                     <div class="form-group">
                                                         <button style="border: white;" onclick="filterInComplete(true)" class="btn-primary">Primary</button>
                                                         <button style="border: white;" onclick="filterInComplete(false)" class="btn-primary">Secondary</button>
-                                                        <button style="border: white;" onclick="fetchDuplicateSTONO()" class="btn-primary">Duplicates</button>
+                                                        <br />
+                                                        <br />
+                                                        <br />
+
+                                                        <button id="showModalButton" class="btn btn-warning" onclick="fetchDuplicateSTONO()">Show Duplicate Records</button>
 
 
                                                     </div>
@@ -209,7 +213,47 @@
 
                 </div>
 
+                <!-- Modal Structure -->
+                <div id="duplicateSTOModal" class="modal fade" tabindex="-1" role="dialog">
+                    <div class="modal-dialog modal-lg" role="document">
+                        <div class="modal-content">
+                            <div class="modal-header" style="justify-content: center;">
+                                <div id="duplicateSTOrecWrapper">
+                                    <span id="duplicateSTOrec">Getting Records...</span>
+                                    <span id="spinner" class="spinner-border spinner-border-sm text-primary" role="status" aria-hidden="true" style="display: none;"></span>
+                                </div>
+                            </div>
+                            <div class="modal-body">
+                                <div class="row">
+                                    <!-- Left Column: List of STO Numbers -->
+                                    <div class="col-md-4">
+                                        <div class="card" style="height: 410px; overflow-y: auto;">
+                                            <div class="card-body">
+                                                <h6 class="text-uppercase font-weight-bold">STO Numbers</h6>
+                                                <ul id="stoList" class="list-group">
+                                                    <!-- STO items will be dynamically added here -->
+                                                </ul>
+                                            </div>
+                                        </div>
+                                    </div>
 
+                                    <!-- Right Column: STO Details -->
+                                    <div class="col-md-8">
+                                        <div id="stoDetails" class="card" style="height: 410px;">
+                                            <div class="card-body">
+                                                <p class="text-center">Select an STO to view details</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-danger" onclick="deletebulk()" data-dismiss="modal">Bulk Delete</button>
+                                <button type="button" class="btn btn-secondary" onclick="HideMo()" data-dismiss="modal">Close</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </Authorized>
             <NotAuthorized>
                 @if (_isJsReady)
@@ -224,6 +268,7 @@
 @code {
 
     private bool _isJsReady = false;
+    private Modal modal;
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
@@ -243,6 +288,10 @@
                 _isJsReady = false; // JavaScript is not yet ready
             }
         }
+    }
+    private void OpenModal()
+    {
+        modal.Show();
     }
     // [JSInvokable]
     // public async Task ShowMessage2()

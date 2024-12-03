@@ -655,21 +655,25 @@ function processRecord(jsonLine) {
         console.error("Error processing record:", error, jsonLine); // Debug any issues
     }
 }
-
 async function fetchDuplicateSTONO() {
     try {
         const Busid = getUserSessionFromStorage();
-        document.getElementById('totalRecords').textContent = 'Getting Records...'; // Initialize count display
+        const recordLabel = document.getElementById('duplicateSTOrec');
+        const spinner = document.getElementById('spinner');
 
-        let totalRecords = 0; // Keep track of total records
-        isLoading = true;
-        updateButtonState();
+        // Show the spinner and initialize the label
+        recordLabel.textContent = 'Getting Records...';
+        spinner.style.display = 'inline-block'; // Show spinner
+        // Show the modal after populating the data
+        $('#duplicateSTOModal').modal('show');
+        let totalRecords = 0;
 
-        // Clear the table body before loading new data
-        const tbody = document.getElementById('dataContainer').querySelector('tbody');
-        tbody.innerHTML = '';  // Clears the existing table rows
+        // Clear existing list and details
+        const stoList = document.getElementById('stoList');
+        const stoDetails = document.getElementById('stoDetails');
+        stoList.innerHTML = '';
+        stoDetails.innerHTML = '<p class="text-center">Select an STO to view details</p>';
 
-        const currentDate = new Date().toISOString().split('T')[0];
         const response = await fetch(`${apiBaseUrl}Invoice/GetDuplicateSTONO`, {
             method: "POST",
             headers: {
@@ -683,49 +687,222 @@ async function fetchDuplicateSTONO() {
 
         if (!response.ok) throw new Error('Network response was not ok');
 
-        const reader = response.body.getReader();
-        const decoder = new TextDecoder("utf-8");
-        let partialText = ''; // Buffer for incomplete JSON
+        const responseText = await response.text();
 
-        while (true) {
-            const { done, value } = await reader.read();
-            if (done) break; // Exit when all data is read
 
-            partialText += decoder.decode(value, { stream: true });
+        // Handle potential concatenated JSON
+        const jsonObjects = responseText.split('}{').map((chunk, index, array) => {
+            if (index === 0) return chunk + '}';
+            if (index === array.length - 1) return '{' + chunk;
+            return '{' + chunk + '}';
+        });
 
-            // Split JSON objects if delimited by "}{"
-            let boundaryIndex;
-            while ((boundaryIndex = partialText.indexOf('}{')) !== -1) {
-                const jsonLine = partialText.slice(0, boundaryIndex + 1); // Extract one complete JSON object
-                partialText = partialText.slice(boundaryIndex + 1); // Update buffer with remaining text
-                totalRecords++;
+        const data = jsonObjects.map(json => JSON.parse(json)); // Parse each JSON object
 
-                processRecord(jsonLine); // Process the complete JSON object
-
+        data.forEach(sto => {
+            // Create a list item for each STO
+            const listItem = document.createElement('li');
+            listItem.className = 'list-group-item';
+            listItem.textContent = sto.STO;
+            if (sto.isInvoiceGenerated) {
+                listItem.style.background = 'rgb(202, 245, 136)';
+                listItem.style.color = 'Black';
             }
-        }
+            listItem.style.cursor = 'pointer';
+            listItem.onclick = () => showSTODetails(sto);
 
-        // After the loop, process any remaining complete JSON object
-        if (partialText.trim()) {
-            processRecord(partialText.trim());
-            totalRecords++;
+            stoList.appendChild(listItem);
+        });
 
-        }
-
-        document.getElementById('totalRecords').textContent = `${totalRecords} - Records`;
-
+        totalRecords = data.length;
+        recordLabel.textContent = `${totalRecords} - Records`;
 
     } catch (error) {
         console.error('Failed to load data:', error);
-        document.getElementById('totalRecords').textContent = '0 - Records';
-
+        document.getElementById('duplicateSTOrec').textContent = '0 - Records';
     } finally {
-        // Set loading to false and update the button text after completion
-        isLoading = false;
-        updateButtonState();
+        document.getElementById('spinner').style.display = 'none'; // Hide spinner
+
     }
+}
+if (navigator.connection) {
+    const speed = navigator.connection.downlink;
+
+    if (speed < 5) {
+        // Show the custom modal
+        const modal = document.getElementById('alert-modal');
+        modal.style.display = 'flex';
+
+        // Close the modal when the button is clicked
+        const closeButton = document.getElementById('close-btn');
+        closeButton.addEventListener('click', () => {
+            modal.style.display = 'none';
+        });
+    } else {
+        console.log("Network information is not available on this device.");
+    }
+}
+
+function showSTODetails(sto) {
+    const stoDetails = document.getElementById('stoDetails');
+    stoDetails.innerHTML = `
+        <div class="card-body">
+            <h5 class="card-title">Details for STO: <strong>${sto.STO}</strong></h5>
+            <p class="text-muted">ID: <strong>${sto.OCRID}</strong></p>
+            <p class="text-muted">Shipping Location: <strong>${sto.ShippingLocation}</strong></p>
+            <p class="text-muted">Invoice Type: <strong>${sto.InvoiceType=="sc"?"Secondary":"Primary"}</strong></p>
+            <p class="text-muted">Receiving Location: <strong>${sto.ReceivingLocation}</strong></p>
+            <p class="text-muted">Vehicle #: <strong>${sto.Vehicle}</strong></p>
+            <p class="text-muted">Date: <strong>${new Date(sto.InvoiceDate).toLocaleDateString()}</strong></p>
+            <p class="text-muted">Product: <strong>${sto.Product}</strong></p>
+            <button class="btn btn-danger" onclick="clearSTODetails('${sto.OCRID}','${sto.STO}')">Delete Record</button>
+        </div>
+    `;
+}
+
+async function clearSTODetails(OCRID, STONumber) {
+    try {
+        const stoDetails = document.getElementById('stoDetails');
+        const stoList = document.getElementById('stoList'); // Get the list of STO numbers
+
+        // Make the API call to delete the record
+        const response = await fetch(`${apiBaseUrl}Invoice/delete/${OCRID}`, {
+            method: 'DELETE',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        });
+
+        const data = await response.json();
+
+        if (response.ok) {
+            // Show success message in the details section
+            stoDetails.innerHTML = '<p class="text-center" style="font-weight:bold;color:green;">Record Deleted Successfully.</p>';
+
+            // Find and remove all corresponding list items that match the STONumber
+            const listItemsToDelete = Array.from(stoList.getElementsByTagName('li')).filter(
+                item => item.textContent.includes(STONumber)
+            );
+
+            // Loop through all matching list items and remove them
+            listItemsToDelete.forEach(item => {
+                stoList.removeChild(item);
+            });
+        }
+        else {
+            stoDetails.innerHTML = '<p class="text-center" style="font-weight:bold;color:red;">Error Deleting Record.</p>';
+        }
+    }
+    catch (error) {
+        stoDetails.innerHTML = '<p class="text-center" style="font-weight:bold;color:red;">Error Deleting Record.</p>';
+    }
+}
+async function deletebulk() {
+    try {
+        const stoDetails = document.getElementById('stoDetails');
+        const stoList = document.getElementById('stoList'); // Get the list of STO numbers
+
+        // Make the API call to delete the record
+        const response = await fetch(`${apiBaseUrl}Invoice/deletebulk`, {
+            method: 'DELETE',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        });
+
+        const data = await response.json();
+
+        if (response.ok) {
+            // Show success message in the details section
+            stoDetails.innerHTML = '<p class="text-center" style="font-weight:bold;color:green;">Record Deleted Successfully.</p>';
+            
+        }
+        else {
+            stoDetails.innerHTML = '<p class="text-center" style="font-weight:bold;color:red;">Error Deleting Record.</p>';
+        }
+    }
+    catch (error) {
+        stoDetails.innerHTML = '<p class="text-center" style="font-weight:bold;color:red;">Error Deleting Record.</p>';
+    }
+}
+
+function HideMo() {
+    $('#duplicateSTOModal').modal('hide');
 
 }
+
+
+
+//async function fetchDuplicateSTONO() {
+//    try {
+//        const Busid = getUserSessionFromStorage();
+//        document.getElementById('totalRecords').textContent = 'Getting Records...'; // Initialize count display
+
+//        let totalRecords = 0; // Keep track of total records
+//        isLoading = true;
+//        updateButtonState();
+
+//        // Clear the table body before loading new data
+//        const tbody = document.getElementById('duplicatecontainer').querySelector('tbody');
+//        tbody.innerHTML = '';  // Clears the existing table rows
+
+//        const currentDate = new Date().toISOString().split('T')[0];
+//        const response = await fetch(`${apiBaseUrl}Invoice/GetDuplicateSTONO`, {
+//            method: "POST",
+//            headers: {
+//                "Content-Type": "application/json"
+//            },
+//            body: JSON.stringify({
+//                startDate: '',
+//                busIds: Busid
+//            })
+//        });
+
+//        if (!response.ok) throw new Error('Network response was not ok');
+
+//        const reader = response.body.getReader();
+//        const decoder = new TextDecoder("utf-8");
+//        let partialText = ''; // Buffer for incomplete JSON
+
+//        while (true) {
+//            const { done, value } = await reader.read();
+//            if (done) break; // Exit when all data is read
+
+//            partialText += decoder.decode(value, { stream: true });
+
+//            // Split JSON objects if delimited by "}{"
+//            let boundaryIndex;
+//            while ((boundaryIndex = partialText.indexOf('}{')) !== -1) {
+//                const jsonLine = partialText.slice(0, boundaryIndex + 1); // Extract one complete JSON object
+//                partialText = partialText.slice(boundaryIndex + 1); // Update buffer with remaining text
+//                totalRecords++;
+
+//                processRecord(jsonLine); // Process the complete JSON object
+
+//            }
+//        }
+
+//        // After the loop, process any remaining complete JSON object
+//        if (partialText.trim()) {
+//            processRecord(partialText.trim());
+//            totalRecords++;
+
+//        }
+
+//        document.getElementById('totalRecords').textContent = `${totalRecords} - Records`;
+
+
+//    } catch (error) {
+//        console.error('Failed to load data:', error);
+//        document.getElementById('totalRecords').textContent = '0 - Records';
+
+//    } finally {
+//        // Set loading to false and update the button text after completion
+//        isLoading = false;
+//        updateButtonState();
+//    }
+
+//}
 
 // Helper function to process each duplicate STONO record
 
@@ -910,75 +1087,6 @@ async function handleSecondaryClick(item) {
     }
 }
 
-
-
-//async function handleSecondaryClick(item) {
-
-
-//    if (componentInstance) {
-//        try {
-//            await componentInstance.invokeMethodAsync('AddSecondary', item, filteredItems);
-//        } catch (error) {
-//            console.error("Error calling ShowMessage2", error);
-//        }
-//    } else {
-//        console.error("Component instance is not registered");
-//    }
-
-
-
-//    //try {
-//    //    if (item.STO !== "Not Found" && item.STO !== "" && item.STO !== null &&
-//    //        item.Vehicle !== "" && item.Vehicle !== null &&
-//    //        item.InvoiceDate !== null) {
-
-//    //        // Call the API endpoint to check if the STONO exists
-//    //        const response = await fetch(`${apiBaseUrl}Invoice/DoesStonoExist?stono=${encodeURIComponent(item.STO)}`);
-//    //        const stonoExists = await response.json();
-
-//    //        if (stonoExists) {
-//    //            const response2 = await fetch(`${apiBaseUrl}Invoice/GetTotalChamberQty?vehicleID=${encodeURIComponent(item.Vehicle)}`);
-//    //            const totalchamberQty = await response2.json();
-
-
-//    //            const response3 = await fetch(`${apiBaseUrl}Invoice/LoadChamberDetails?Vehicle=${encodeURIComponent(item.Vehicle)}&startDate=${encodeURIComponent(item.InvoiceDate)}`);
-//    //            if (!response3.ok) throw new Error('Network response was not ok');
-
-//    //            const reader = response3.body.getReader();
-//    //            const decoder = new TextDecoder("utf-8");
-//    //            let partialText = '';
-//    //            while (true) {
-//    //                const { done, value } = await reader.read();
-//    //                if (done) break;
-
-//    //                partialText += decoder.decode(value, { stream: true });
-//    //                const lines = partialText.split('}{');
-
-//    //                lines.slice(0, -1).forEach(line => {
-//    //                    const jsonLine = line.startsWith('{') ? line : '{' + line;
-//    //                    const item = JSON.parse(jsonLine + '}');
-//    //                    console.log(item);
-
-//    //                });
-
-//    //                partialText = lines[lines.length - 1];
-
-//    //            }
-
-
-
-
-//    //        } else {
-//    //            console.log("STONO does not exist.");
-//    //        }
-
-//    //    } else {
-//    //        console.log("Conditions not met.");
-//    //    }
-//    //} catch (error) {
-//    //    console.error("An error occurred:", error);
-//    //}
-//}
 function updateUI(item) {
     const container = document.getElementById('dataContainer');
     if (!container) {
