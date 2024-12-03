@@ -43,7 +43,13 @@
     @* <div class="min-height-300 bg-primary position-absolute w-100"></div> *@
     @RenderBody()
 
-   
+    <div id="alert-modal" class="wifi-speed">
+        <div class="modal-content">
+            <h2>Low Wi-Fi Speed</h2>
+            <p>Your Wi-Fi speed is less than 5 Mbps. Please check your connection.</p>
+            <button id="close-btn">Close</button>
+        </div>
+    </div>
     <!--   Core JS Files   -->
  @*    <script src="css/clipboard.js"></script> *@
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
