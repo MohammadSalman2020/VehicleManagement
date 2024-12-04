@@ -12,6 +12,7 @@
         public string DriverName1 { get; set; }
         public string DriverID2 { get; set; }
         public string DriverName2 { get; set; }
+        public string ShortType { get; set; }
         public int businessID { get; set; }
         public string busdesc { get; set; }
         public double Primary { get; set; }
