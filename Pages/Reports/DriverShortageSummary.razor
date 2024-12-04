@@ -16,7 +16,7 @@
                     <div class="">
 
                         <div class="">
-                            <div class="row col-md-12" >
+                            <div class="row col-md-12">
                                 <!-- Filter Button -->
                                 <div class="col-md-6">
                                     <h4>Press ctrl+shift+L for Filters</h4>
@@ -24,7 +24,7 @@
                                 <div class="col-md-6" style="text-align:end;">
                                     <img style="cursor:pointer;" src="css/filter.png" @onclick="ToggleFilterPanel" />
                                 </div>
-                              
+
 
                             </div>
 
@@ -130,7 +130,7 @@
                                                     STO No
                                                     <input type="text" class="filter-input" placeholder="Filter by STO No..." @bind="filters.stono" />
                                                 </th>
-                                               
+
                                                 <th class="text-center font-colors text-uppercase text-xxs font-weight-bolder opacity-7"
                                                     style="position: sticky; top: 0; background-color: #ffffff; z-index: 1; border: #cccccc 1px solid;">
                                                     Primary Reference
@@ -184,28 +184,33 @@
                                                 <th class="text-center font-colors text-uppercase text-xxs font-weight-bolder opacity-7"
                                                     style="position: sticky; top: 0; background-color: #ffffff; z-index: 1; border: #cccccc 1px solid;">
                                                     Primary
-@*                                                     <input type="text" class="filter-input" placeholder="Filter by Primary..." @bind="filters.Primary" />
- *@                                                </th>
+                                                    @*                                                     <input type="text" class="filter-input" placeholder="Filter by Primary..." @bind="filters.Primary" />
+                                                    *@
+                                                </th>
                                                 <th class="text-center font-colors text-uppercase text-xxs font-weight-bolder opacity-7"
                                                     style="position: sticky; top: 0; background-color: #ffffff; z-index: 1; border: #cccccc 1px solid;">
                                                     Secondary
-@*                                                     <input type="text" class="filter-input" placeholder="Filter by Secondary..." @bind="filters.Secondary" />
- *@                                                </th>
+                                                    @*                                                     <input type="text" class="filter-input" placeholder="Filter by Secondary..." @bind="filters.Secondary" />
+                                                    *@
+                                                </th>
                                                 <th class="text-center font-colors text-uppercase text-xxs font-weight-bolder opacity-7"
                                                     style="position: sticky; top: 0; background-color: #ffffff; z-index: 1; border: #cccccc 1px solid;">
                                                     Total
-@*                                                     <input type="text" class="filter-input" placeholder="Filter by Total..." @bind="filters.Total" />
- *@                                                </th>
+                                                    @*                                                     <input type="text" class="filter-input" placeholder="Filter by Total..." @bind="filters.Total" />
+                                                    *@
+                                                </th>
                                                 <th class="text-center font-colors text-uppercase text-xxs font-weight-bolder opacity-7"
                                                     style="position: sticky; top: 0; background-color: #ffffff; z-index: 1; border: #cccccc 1px solid;">
                                                     Exempted
-@*                                                     <input type="text" class="filter-input" placeholder="Filter by Exempted..." @bind="filters.Exempted" />
- *@                                                </th>
+                                                    @*                                                     <input type="text" class="filter-input" placeholder="Filter by Exempted..." @bind="filters.Exempted" />
+                                                    *@
+                                                </th>
                                                 <th class="text-center font-colors text-uppercase text-xxs font-weight-bolder opacity-7"
                                                     style="position: sticky; top: 0; background-color: #ffffff; z-index: 1; border: #cccccc 1px solid;">
                                                     Shortage Deduction
-@*                                                     <input type="text" class="filter-input" placeholder="Filter by Shortage Deduction..." @bind="filters.ShortageDeduction" />
- *@                                                </th>
+                                                    @*                                                     <input type="text" class="filter-input" placeholder="Filter by Shortage Deduction..." @bind="filters.ShortageDeduction" />
+                                                    *@
+                                                </th>
 
 
 
@@ -224,13 +229,15 @@
                                                             continue;
                                                         }
 
+                                                     
+
                                                         <tr class="tbl-accordion-header">
 
 
                                                             <td class="align-middle text-center" style="border: #cccccc 1px solid;">
                                                                 <span class="text-secondary text-xs font-weight-bold">@item.stono</span>
                                                             </td>
-                                                            
+
                                                             <td class="align-middle text-center" style="border: #cccccc 1px solid;">
                                                                 <span class="text-secondary text-xs font-weight-bold">@item.primaryreference</span>
                                                             </td>
@@ -283,31 +290,70 @@
                                                                     @((item.DriverName2 != "" ? item.DriverName2 : "No Attendance"))
                                                                 </span>
                                                             </td>
+                                                            @if (item.type=="sc")
+                                                            {
+                                                                <td class="align-middle text-center" style="border: #cccccc 1px solid;">
+                                                                    <span class="text-secondary text-xs font-weight-bold">0 </span>
+                                                                </td>
+                                                                <td class="align-middle text-center" style="border: #cccccc 1px solid;">
+                                                                    @if (item.ShortType=="Short")
+                                                                    {
+
+                                                                        <span class="badge badge-sm bg-gradient-danger">@item.Secondary</span>
+
+                                                                    }
+                                                                    else
+                                                                    {
+                                                                        <span class="badge badge-sm bg-gradient-success">@item.Secondary</span>
+
+                                                                    }
+                                                                </td>
+                                                            }
+                                                            else if (item.type=="pk")
+                                                            {
+                                                                <td class="align-middle text-center" style="border: #cccccc 1px solid;">
+                                                                    @if (item.ShortType=="Short")
+                                                                    {
+
+                                                                        <span class="badge badge-sm bg-gradient-danger">@item.Primary</span>
+
+                                                                    }
+                                                                    else
+                                                                    {
+                                                                        <span class="badge badge-sm bg-gradient-success">@item.Primary</span>
+
+                                                                    }
+                                                                </td>
+                                                                <td class="align-middle text-center" style="border: #cccccc 1px solid;">
+                                                                    <span class="text-secondary text-xs font-weight-bold">0 </span>
+                                                                </td>
+                                                            }
+
 
 
 
                                                             @if (item.type == "sc" && item.primaryreference != PR)
                                                             {
                                                                 int? count = Items.Where(p => p.primaryreference == item.primaryreference && p.type == "sc" && item.primaryreference != "none").ToList().Count;
+                                                                int? SumofTotal = Items
+                                                                .Where(p => p.primaryreference == item.primaryreference && p.type == "sc" && item.primaryreference != "none"  && p.ShortType=="Short")
+                                                                .Sum(p => (int?)p.Secondary);  // Use (int?) to allow for null values
+                                                                count = item.primaryreference == "none" ? 1 : count;
+                                                                int? ShortageDeduct = SumofTotal-item.Exempted;
+
+
 
                                                                 count = item.primaryreference == "none" ? 1 : count;
 
                                                                 <td class="align-middle text-center" style="border: #cccccc 1px solid;" rowspan="@count">
-                                                                    <span class="text-secondary text-xs font-weight-bold">0 </span>
-                                                                </td>
-                                                                <td class="align-middle text-center" style="border: #cccccc 1px solid;" rowspan="@count">
-                                                                    <span class="text-secondary text-xs font-weight-bold">@item.Secondary </span>
-                                                                </td>
-
-                                                                <td class="align-middle text-center" style="border: #cccccc 1px solid;" rowspan="@count">
-                                                                    @if (item.Total > item.Exempted)
+                                                                    @if (SumofTotal> item.Exempted)
                                                                     {
-                                                                        <span class="badge badge-sm bg-gradient-danger">@item.Total</span>
+                                                                        <span class="badge badge-sm bg-gradient-danger">@SumofTotal</span>
 
                                                                     }
                                                                     else
                                                                     {
-                                                                        <span class="text-secondary text-xs font-weight-bold">@item.Total </span>
+                                                                        <span class="text-secondary text-xs font-weight-bold">@SumofTotal </span>
 
                                                                     }
 
@@ -317,14 +363,16 @@
                                                                     <span class="text-secondary text-xs font-weight-bold">@item.Exempted </span>
                                                                 </td>
                                                                 <td class="align-middle text-center" style="border: #cccccc 1px solid;" rowspan="@count">
-                                                                    @if (item.ShortageDeduction == 0)
+
+
+                                                                    @if (ShortageDeduct <= 0)
                                                                     {
-                                                                        <span class="text-secondary text-xs font-weight-bold">@item.ShortageDeduction </span>
+                                                                        <span class="text-secondary text-xs font-weight-bold">0 </span>
 
                                                                     }
                                                                     else
                                                                     {
-                                                                        <span class="badge badge-sm bg-gradient-danger">@item.ShortageDeduction</span>
+                                                                        <span class="badge badge-sm bg-gradient-danger">@ShortageDeduct</span>
 
                                                                     }
 
@@ -334,16 +382,22 @@
                                                             }
                                                             else if (item.type == "pk" || item.primaryreference == "none")
                                                             {
-                                                                if (item.type == "pk")
-                                                                {
-                                                                    <td class="align-middle text-center" style="border: #cccccc 1px solid;">
-                                                                        <span class="text-secondary text-xs font-weight-bold">@item.Primary </span>
-                                                                    </td>
-                                                                    <td class="align-middle text-center" style="border: #cccccc 1px solid;">
-                                                                        <span class="text-secondary text-xs font-weight-bold">0</span>
-                                                                    </td>
-                                                                }
-                                                                else if (item.type == "sc")
+                                                                int? PrimaryTotal = Items
+                                                                .Where(p => p.primaryreference == item.primaryreference && p.type == "pk" && item.primaryreference != "none" && p.ShortType=="Short")
+                                                                .Sum(p => (int?)p.Primary);  // Use (int?) to allow for null values
+
+                                                                int? ShortageDeduct = PrimaryTotal-item.Exempted;
+
+                                                                @*     if (item.type == "pk")
+                                                {
+                                                <td class="align-middle text-center" style="border: #cccccc 1px solid;">
+                                                <span class="text-secondary text-xs font-weight-bold">@item.Primary </span>
+                                                </td>
+                                                <td class="align-middle text-center" style="border: #cccccc 1px solid;">
+                                                <span class="text-secondary text-xs font-weight-bold">0</span>
+                                                </td>
+                                                } *@
+                                                                if (item.type == "sc")
                                                                 {
                                                                     <td class="align-middle text-center" style="border: #cccccc 1px solid;">
                                                                         <span class="text-secondary text-xs font-weight-bold">0 </span>
@@ -356,14 +410,14 @@
 
 
                                                                 <td class="align-middle text-center" style="border: #cccccc 1px solid;">
-                                                                    @if (item.Total > item.Exempted)
+                                                                    @if (PrimaryTotal > item.Exempted)
                                                                     {
-                                                                        <span class="badge badge-sm bg-gradient-danger">@item.Total</span>
+                                                                        <span class="badge badge-sm bg-gradient-danger">@PrimaryTotal</span>
 
                                                                     }
                                                                     else
                                                                     {
-                                                                        <span class="text-secondary text-xs font-weight-bold">@item.Total </span>
+                                                                        <span class="text-secondary text-xs font-weight-bold">@PrimaryTotal </span>
 
                                                                     }
 
@@ -373,14 +427,14 @@
                                                                     <span class="text-secondary text-xs font-weight-bold">@item.Exempted </span>
                                                                 </td>
                                                                 <td class="align-middle text-center" style="border: #cccccc 1px solid;">
-                                                                    @if (item.ShortageDeduction == 0)
+                                                                    @if (ShortageDeduct <= 0)
                                                                     {
-                                                                        <span class="text-secondary text-xs font-weight-bold">@item.ShortageDeduction </span>
+                                                                        <span class="text-secondary text-xs font-weight-bold">0 </span>
 
                                                                     }
                                                                     else
                                                                     {
-                                                                        <span class="badge badge-sm bg-gradient-danger font-weight-bold">@item.ShortageDeduction</span>
+                                                                        <span class="badge badge-sm bg-gradient-danger font-weight-bold">@ShortageDeduct</span>
 
                                                                     }
 
@@ -463,12 +517,12 @@
                   && (string.IsNullOrEmpty(filters.DriverName1) || i.DriverName1.Contains(filters.DriverName1, StringComparison.OrdinalIgnoreCase))
                   && (string.IsNullOrEmpty(filters.DriverName2) || i.DriverName2.Contains(filters.DriverName2, StringComparison.OrdinalIgnoreCase))
                   && (string.IsNullOrEmpty(filters.primaryreference) || i.primaryreference.Contains(filters.primaryreference, StringComparison.OrdinalIgnoreCase))
-                  // Handling numeric filters correctly by checking parsed value
-                  // && filters.Primary==0 || i.Primary == filters.Primary
-                  // && filters.Secondary == 0 || i.Secondary == filters.Secondary
-                  // && filters.Exempted==0  ||  i.Exempted == filters.Exempted
-                  // && filters.Total == 0 || i.Total == filters.Total
-                  // && filters.ShortageDeduction == 0 || i.ShortageDeduction == filters.ShortageDeduction
+      // Handling numeric filters correctly by checking parsed value
+      // && filters.Primary==0 || i.Primary == filters.Primary
+      // && filters.Secondary == 0 || i.Secondary == filters.Secondary
+      // && filters.Exempted==0  ||  i.Exempted == filters.Exempted
+      // && filters.Total == 0 || i.Total == filters.Total
+      // && filters.ShortageDeduction == 0 || i.ShortageDeduction == filters.ShortageDeduction
       )
       .ToList();
     private DriverShortageSummaries filters = new DriverShortageSummaries();
@@ -664,148 +718,148 @@
         {
             string query = $@"
 SELECT * FROM vw_DriverShortage ORDER BY primaryreference, type, Date, stono;";
-//             string query = $@"
-// WITH DriverShortage AS (
-//     SELECT
-//         inv.stono,
-//         inv.TankLorryNo AS [VehicleNo],
-//         CONCAT(inv.SupplyPoint, '-', inv.ReceivingLocation) AS [Location],
-//         FORMAT(inv._Date, 'dd-MMM-yy') AS [Date],
-//         inv.primaryreference,
-//         inv.type AS invoiceType,
-//         drv.driverid AS DriverID1,
-//         drv.Fullname AS DriverName1,
-//         drv2.driverid AS DriverID2,
-//         drv2.Fullname AS DriverName2,
-//         dvm.businessID,
-//         bus.busdesc,
-//         dsl.ShortageLtr * 2 AS [Primary],
-//         dsl.ShortageLtr * 2 AS [Secondary],
-//         dsl.ShortageLtr * 2 AS [Total]
-//     FROM
-//         tblDriverShortageLedger dsl
-//     JOIN
-//         tblinvoices inv ON dsl.InvoiceNumber = inv.STONo
-//     JOIN
-//         tbldriver drv ON dsl.DriverID = drv.DriverID
-//     LEFT JOIN
-//         tbldriver drv2 ON dsl.Driver2ID = drv2.DriverID
-//     JOIN
-//         tbldrivervehiclemap dvm ON inv.TankLorryNo = dvm.vehicleid
-//     JOIN
-//         tblbusiness bus ON dvm.businessID = bus.busid
-//     GROUP BY
-//         inv.stono,
-//         inv.TankLorryNo,
-//         CONCAT(inv.SupplyPoint, '-', inv.ReceivingLocation),
-//         FORMAT(inv._Date, 'dd-MMM-yy'),
-//         drv.Fullname,
-//         drv.driverid,
-//         drv2.Fullname,
-//         drv2.driverid,
-//         inv.primaryreference,
-//         inv.type,
-//         dvm.businessID,
-//         bus.busdesc,
-//         dsl.ShortageLtr
-// )
+            //             string query = $@"
+            // WITH DriverShortage AS (
+            //     SELECT
+            //         inv.stono,
+            //         inv.TankLorryNo AS [VehicleNo],
+            //         CONCAT(inv.SupplyPoint, '-', inv.ReceivingLocation) AS [Location],
+            //         FORMAT(inv._Date, 'dd-MMM-yy') AS [Date],
+            //         inv.primaryreference,
+            //         inv.type AS invoiceType,
+            //         drv.driverid AS DriverID1,
+            //         drv.Fullname AS DriverName1,
+            //         drv2.driverid AS DriverID2,
+            //         drv2.Fullname AS DriverName2,
+            //         dvm.businessID,
+            //         bus.busdesc,
+            //         dsl.ShortageLtr * 2 AS [Primary],
+            //         dsl.ShortageLtr * 2 AS [Secondary],
+            //         dsl.ShortageLtr * 2 AS [Total]
+            //     FROM
+            //         tblDriverShortageLedger dsl
+            //     JOIN
+            //         tblinvoices inv ON dsl.InvoiceNumber = inv.STONo
+            //     JOIN
+            //         tbldriver drv ON dsl.DriverID = drv.DriverID
+            //     LEFT JOIN
+            //         tbldriver drv2 ON dsl.Driver2ID = drv2.DriverID
+            //     JOIN
+            //         tbldrivervehiclemap dvm ON inv.TankLorryNo = dvm.vehicleid
+            //     JOIN
+            //         tblbusiness bus ON dvm.businessID = bus.busid
+            //     GROUP BY
+            //         inv.stono,
+            //         inv.TankLorryNo,
+            //         CONCAT(inv.SupplyPoint, '-', inv.ReceivingLocation),
+            //         FORMAT(inv._Date, 'dd-MMM-yy'),
+            //         drv.Fullname,
+            //         drv.driverid,
+            //         drv2.Fullname,
+            //         drv2.driverid,
+            //         inv.primaryreference,
+            //         inv.type,
+            //         dvm.businessID,
+            //         bus.busdesc,
+            //         dsl.ShortageLtr
+            // )
 
-// , Aggregated AS (
-//     SELECT
-//         primaryreference,
-//         invoiceType AS type,
-//         SUM(Secondary) AS AggregatedSecondary,
-//         COUNT(*) AS scCount
-//     FROM
-//         DriverShortage
-//     WHERE
-//         invoiceType = 'sc'
-//     GROUP BY
-//         primaryreference,
-//         invoiceType
-// )
+            // , Aggregated AS (
+            //     SELECT
+            //         primaryreference,
+            //         invoiceType AS type,
+            //         SUM(Secondary) AS AggregatedSecondary,
+            //         COUNT(*) AS scCount
+            //     FROM
+            //         DriverShortage
+            //     WHERE
+            //         invoiceType = 'sc'
+            //     GROUP BY
+            //         primaryreference,
+            //         invoiceType
+            // )
 
-// SELECT
-//     ds.stono,
-//     ds.VehicleNo,
-//     ds.Location,
-//     ds.Date,
-//     ds.primaryreference,
-//     ds.invoiceType AS type,
-//     ds.DriverID1,
-//     ds.DriverName1,
-//     ds.DriverID2,
-//     ds.DriverName2,
-//     ds.businessID,
-//     ds.busdesc,
-//     ds.[Primary] AS Primary1,
-//     CASE
-//         WHEN ds.primaryreference = 'none' THEN ds.[Secondary]
-//         ELSE COALESCE(
-//             CASE
-//                 WHEN ds.invoiceType = 'sc' THEN agg.AggregatedSecondary
-//                 ELSE ds.[Secondary]
-//             END,
-//             ds.[Secondary]
-//         )
-//     END AS Secondary1,
-//     CASE
-//         WHEN ds.primaryreference = 'none' THEN ds.[Total]
-//         ELSE COALESCE(
-//             CASE
-//                 WHEN ds.invoiceType = 'sc' THEN agg.AggregatedSecondary
-//                 ELSE ds.[Total]
-//             END,
-//             ds.[Total]
-//         )
-//     END AS Total1,
-//     CASE
-//         WHEN ds.primaryreference = 'none' THEN
-//             CASE
-//                 WHEN ds.invoiceType = 'pk' THEN 100
-//                 ELSE 50
-//             END
-//         ELSE
-//             CASE
-//                 WHEN ds.invoiceType = 'pk' THEN 100
-//                 ELSE 50
-//             END
-//     END AS Exempted,
-//     CASE
-//         WHEN ds.primaryreference = 'none' THEN
-// 		CASE
-//                 WHEN ds.[Total] < 50 THEN 0
-//                 ELSE ds.[Total] - 50
-//             END
-//         WHEN ds.invoiceType = 'sc' THEN
-//             CASE
-//                 WHEN agg.AggregatedSecondary < 50 THEN 0
-//                 ELSE agg.AggregatedSecondary - 50
-//             END
-//         ELSE
-//             CASE
-//                 WHEN ds.invoiceType = 'sc' AND agg.AggregatedSecondary < 50 THEN 0
-//                 WHEN ds.invoiceType = 'pk' AND ds.[Total] < 100 THEN 0
-//                 WHEN ds.invoiceType = 'sc' THEN ds.[Total] - 50
-//                 ELSE ds.[Total] - 100
-//             END
-//     END AS ShortageDeduction,
-//     CASE
-//         WHEN ds.primaryreference = 'none' THEN NULL
-//         WHEN ds.invoiceType = 'sc' THEN agg.scCount
-//         ELSE NULL
-//     END AS scCount
-// FROM
-//     DriverShortage ds
-// LEFT JOIN
-//     Aggregated agg ON ds.primaryreference = agg.primaryreference AND ds.invoiceType = agg.type
-// ORDER BY
-//     ds.primaryreference,
-//     ds.invoiceType,
-//     ds.Date,
-//     ds.stono;
+            // SELECT
+            //     ds.stono,
+            //     ds.VehicleNo,
+            //     ds.Location,
+            //     ds.Date,
+            //     ds.primaryreference,
+            //     ds.invoiceType AS type,
+            //     ds.DriverID1,
+            //     ds.DriverName1,
+            //     ds.DriverID2,
+            //     ds.DriverName2,
+            //     ds.businessID,
+            //     ds.busdesc,
+            //     ds.[Primary] AS Primary1,
+            //     CASE
+            //         WHEN ds.primaryreference = 'none' THEN ds.[Secondary]
+            //         ELSE COALESCE(
+            //             CASE
+            //                 WHEN ds.invoiceType = 'sc' THEN agg.AggregatedSecondary
+            //                 ELSE ds.[Secondary]
+            //             END,
+            //             ds.[Secondary]
+            //         )
+            //     END AS Secondary1,
+            //     CASE
+            //         WHEN ds.primaryreference = 'none' THEN ds.[Total]
+            //         ELSE COALESCE(
+            //             CASE
+            //                 WHEN ds.invoiceType = 'sc' THEN agg.AggregatedSecondary
+            //                 ELSE ds.[Total]
+            //             END,
+            //             ds.[Total]
+            //         )
+            //     END AS Total1,
+            //     CASE
+            //         WHEN ds.primaryreference = 'none' THEN
+            //             CASE
+            //                 WHEN ds.invoiceType = 'pk' THEN 100
+            //                 ELSE 50
+            //             END
+            //         ELSE
+            //             CASE
+            //                 WHEN ds.invoiceType = 'pk' THEN 100
+            //                 ELSE 50
+            //             END
+            //     END AS Exempted,
+            //     CASE
+            //         WHEN ds.primaryreference = 'none' THEN
+            // 		CASE
+            //                 WHEN ds.[Total] < 50 THEN 0
+            //                 ELSE ds.[Total] - 50
+            //             END
+            //         WHEN ds.invoiceType = 'sc' THEN
+            //             CASE
+            //                 WHEN agg.AggregatedSecondary < 50 THEN 0
+            //                 ELSE agg.AggregatedSecondary - 50
+            //             END
+            //         ELSE
+            //             CASE
+            //                 WHEN ds.invoiceType = 'sc' AND agg.AggregatedSecondary < 50 THEN 0
+            //                 WHEN ds.invoiceType = 'pk' AND ds.[Total] < 100 THEN 0
+            //                 WHEN ds.invoiceType = 'sc' THEN ds.[Total] - 50
+            //                 ELSE ds.[Total] - 100
+            //             END
+            //     END AS ShortageDeduction,
+            //     CASE
+            //         WHEN ds.primaryreference = 'none' THEN NULL
+            //         WHEN ds.invoiceType = 'sc' THEN agg.scCount
+            //         ELSE NULL
+            //     END AS scCount
+            // FROM
+            //     DriverShortage ds
+            // LEFT JOIN
+            //     Aggregated agg ON ds.primaryreference = agg.primaryreference AND ds.invoiceType = agg.type
+            // ORDER BY
+            //     ds.primaryreference,
+            //     ds.invoiceType,
+            //     ds.Date,
+            //     ds.stono;
 
-// ";
+            // ";
             var connectionString = _configuration.GetConnectionString("Con");
 
             using (var connection = new SqlConnection(connectionString))
@@ -829,9 +883,9 @@ SELECT * FROM vw_DriverShortage ORDER BY primaryreference, type, Date, stono;";
                                 DriverName2 = reader.IsDBNull(reader.GetOrdinal("DriverName2")) ? "" : reader.GetString(reader.GetOrdinal("DriverName2")),
                                 Exempted = reader.IsDBNull(reader.GetOrdinal("Exempted")) ? 0 : reader.GetInt32(reader.GetOrdinal("Exempted")),
                                 scCount = reader.IsDBNull(reader.GetOrdinal("scCount")) ? 0 : reader.GetInt32(reader.GetOrdinal("scCount")),
-                                businessID = reader.IsDBNull(reader.GetOrdinal("businessID")) ? 0 : reader.GetInt32(reader.GetOrdinal("businessID")),
+                                businessID = reader.IsDBNull(reader.GetOrdinal("businessID")) ? 13 : reader.GetInt32(reader.GetOrdinal("businessID")),
 
-                                busdesc = reader.IsDBNull(reader.GetOrdinal("busdesc")) ? "" : reader.GetString(reader.GetOrdinal("busdesc")),
+                                busdesc = reader.IsDBNull(reader.GetOrdinal("busdesc")) ? "Euro" : reader.GetString(reader.GetOrdinal("busdesc")),
                                 Location = reader.IsDBNull(reader.GetOrdinal("Location")) ? "" : reader.GetString(reader.GetOrdinal("Location")),
                                 Primary = reader.IsDBNull(reader.GetOrdinal("Primary1")) ? 0 : reader.GetDouble(reader.GetOrdinal("Primary1")),
 
@@ -843,6 +897,7 @@ SELECT * FROM vw_DriverShortage ORDER BY primaryreference, type, Date, stono;";
 
                                 type = reader.IsDBNull(reader.GetOrdinal("type")) ? "" : reader.GetString(reader.GetOrdinal("type")),
                                 VehicleNo = reader.IsDBNull(reader.GetOrdinal("VehicleNo")) ? "" : reader.GetString(reader.GetOrdinal("VehicleNo")),
+                                ShortType = reader.IsDBNull(reader.GetOrdinal("ShortType")) ? "" : reader.GetString(reader.GetOrdinal("ShortType")),
 
                             };
                         obj.Add(dv);
