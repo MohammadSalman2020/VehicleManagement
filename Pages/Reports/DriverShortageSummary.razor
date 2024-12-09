@@ -229,7 +229,7 @@
                                                             continue;
                                                         }
 
-                                                     
+
 
                                                         <tr class="tbl-accordion-header">
 
@@ -290,13 +290,13 @@
                                                                     @((item.DriverName2 != "" ? item.DriverName2 : "No Attendance"))
                                                                 </span>
                                                             </td>
-                                                            @if (item.type=="sc")
+                                                            @if (item.type == "sc")
                                                             {
                                                                 <td class="align-middle text-center" style="border: #cccccc 1px solid;">
                                                                     <span class="text-secondary text-xs font-weight-bold">0 </span>
                                                                 </td>
                                                                 <td class="align-middle text-center" style="border: #cccccc 1px solid;">
-                                                                    @if (item.ShortType=="Short")
+                                                                    @if (item.ShortType == "Short")
                                                                     {
 
                                                                         <span class="badge badge-sm bg-gradient-danger">@item.Secondary</span>
@@ -309,10 +309,10 @@
                                                                     }
                                                                 </td>
                                                             }
-                                                            else if (item.type=="pk")
+                                                            else if (item.type == "pk")
                                                             {
                                                                 <td class="align-middle text-center" style="border: #cccccc 1px solid;">
-                                                                    @if (item.ShortType=="Short")
+                                                                    @if (item.ShortType == "Short")
                                                                     {
 
                                                                         <span class="badge badge-sm bg-gradient-danger">@item.Primary</span>
@@ -336,17 +336,17 @@
                                                             {
                                                                 int? count = Items.Where(p => p.primaryreference == item.primaryreference && p.type == "sc" && item.primaryreference != "none").ToList().Count;
                                                                 int? SumofTotal = Items
-                                                                .Where(p => p.primaryreference == item.primaryreference && p.type == "sc" && item.primaryreference != "none"  && p.ShortType=="Short")
+                                                                .Where(p => p.primaryreference == item.primaryreference && p.type == "sc" && item.primaryreference != "none" && p.ShortType == "Short")
                                                                 .Sum(p => (int?)p.Secondary);  // Use (int?) to allow for null values
                                                                 count = item.primaryreference == "none" ? 1 : count;
-                                                                int? ShortageDeduct = SumofTotal-item.Exempted;
+                                                                int? ShortageDeduct = SumofTotal - item.Exempted;
 
 
 
                                                                 count = item.primaryreference == "none" ? 1 : count;
 
                                                                 <td class="align-middle text-center" style="border: #cccccc 1px solid;" rowspan="@count">
-                                                                    @if (SumofTotal> item.Exempted)
+                                                                    @if (SumofTotal > item.Exempted)
                                                                     {
                                                                         <span class="badge badge-sm bg-gradient-danger">@SumofTotal</span>
 
@@ -383,29 +383,19 @@
                                                             else if (item.type == "pk" || item.primaryreference == "none")
                                                             {
                                                                 int? PrimaryTotal = Items
-                                                                .Where(p => p.primaryreference == item.primaryreference && p.type == "pk" && item.primaryreference != "none" && p.ShortType=="Short")
+                                                                .Where(p => p.primaryreference == item.primaryreference && p.type == "pk" && item.primaryreference != "none" && p.ShortType == "Short")
                                                                 .Sum(p => (int?)p.Primary);  // Use (int?) to allow for null values
 
-                                                                int? ShortageDeduct = PrimaryTotal-item.Exempted;
-
-                                                                @*     if (item.type == "pk")
+                                                                int? ShortageDeduct = PrimaryTotal - item.Exempted;
+                                                                @*      if (item.type == "sc")
                                                 {
                                                 <td class="align-middle text-center" style="border: #cccccc 1px solid;">
-                                                <span class="text-secondary text-xs font-weight-bold">@item.Primary </span>
+                                                <span class="text-secondary text-xs font-weight-bold">0 </span>
                                                 </td>
                                                 <td class="align-middle text-center" style="border: #cccccc 1px solid;">
-                                                <span class="text-secondary text-xs font-weight-bold">0</span>
+                                                <span class="text-secondary text-xs font-weight-bold">@item.Secondary</span>
                                                 </td>
                                                 } *@
-                                                                if (item.type == "sc")
-                                                                {
-                                                                    <td class="align-middle text-center" style="border: #cccccc 1px solid;">
-                                                                        <span class="text-secondary text-xs font-weight-bold">0 </span>
-                                                                    </td>
-                                                                    <td class="align-middle text-center" style="border: #cccccc 1px solid;">
-                                                                        <span class="text-secondary text-xs font-weight-bold">@item.Secondary</span>
-                                                                    </td>
-                                                                }
 
 
 
@@ -429,7 +419,19 @@
                                                                 <td class="align-middle text-center" style="border: #cccccc 1px solid;">
                                                                     @if (ShortageDeduct <= 0)
                                                                     {
-                                                                        <span class="text-secondary text-xs font-weight-bold">0 </span>
+                                                                        @if (item.type == "sc" && item.primaryreference == "none" && (decimal)item.Secondary > Math.Abs((decimal)ShortageDeduct) && item.ShortType=="Short")
+
+                                                                        {
+                                                                            double de = Math.Abs((double)ShortageDeduct);
+                                                                            double? deduct = item.Secondary - de;
+                                                                            <span class="badge badge-sm bg-gradient-danger font-weight-bold">@deduct </span>
+
+                                                                        }
+                                                                        else
+                                                                        {
+                                                                            <span class="text-secondary text-xs font-weight-bold">0 </span>
+
+                                                                        }
 
                                                                     }
                                                                     else
