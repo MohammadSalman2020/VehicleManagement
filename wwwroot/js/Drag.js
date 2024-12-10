@@ -976,6 +976,7 @@ async function handleInvoiceClick(invoices) {
                 if (!InvoicesResponse.ok) throw new Error('Network response was not ok');
                 const Invoices = await InvoicesResponse.json(); // Parse the JSON response
              
+                Invoices.BusinessID = 13;
 
                 Invoices.IsFromDisplay = true;
                 Invoices.IsView = "Update";
@@ -1015,7 +1016,53 @@ async function handleInvoiceClick(invoices) {
             }
            
         }
+        else if (invoice.BusinessID == 9) {
 
+
+            if (invoice.isInvoiceGenerated) {
+                const InvoicesResponse = await fetch(`${apiBaseUrl}Invoice/GetInvoiceByID/${invoice.STO}`);
+                if (!InvoicesResponse.ok) throw new Error('Network response was not ok');
+                const Invoices = await InvoicesResponse.json(); // Parse the JSON response
+
+                Invoices.BusinessID = 9;
+                Invoices.IsFromDisplay = true;
+                Invoices.IsView = "Update";
+                Invoices.invoiceType = invoice.InvoiceType;
+                Invoices.ExtarctedID = invoice.OCRID;
+                // Serialize, Base64 encode, and URL-encode
+                const base64EncodedJson = btoa(JSON.stringify(Invoices));
+                const encodedJson = encodeURIComponent(base64EncodedJson);
+
+                // Construct the URL
+                invoiceUrl = `/HascolInvoice?Edit=${encodedJson}`;
+            }
+            else {
+                const Invoice = {
+                    STONo: invoice.STO ?? "",
+                    Product: invoice.Product ?? "",
+                    VehicleNo: invoice.Vehicle ?? "",
+                    InvoiceDate: invoice.InvoiceDate
+                        ? new Date(invoice.InvoiceDate).toLocaleDateString('en-CA') // Output: "2024-10-04"
+                        : new Date(0).toLocaleDateString('en-CA'),
+                    ReceivingLoc: invoice.ReceivingLocation ?? "",
+                    ShippingLoc: invoice.ShippingLocation ?? "",
+                    Contractor: "Shakoor & Co.",
+                    FileLocation: newLocation ?? "",
+                    ExtractedID: invoice.OCRID ?? 0,
+                    BusinessID: invoice.BusinessID ?? 0,
+                    InvoiceType: invoice.InvoiceType ?? ""
+                };
+                // Serialize, Base64 encode, and URL-encode
+                const base64EncodedJson = encodeToBase64Unicode(JSON.stringify(Invoice));
+                const encodedJson = encodeURIComponent(base64EncodedJson);
+
+
+
+                // Construct the URL
+                invoiceUrl = `/HascolInvoice?OCR=${encodedJson}`;
+            }
+
+        }
         else {
             invoiceUrl = newLocation;
         }
