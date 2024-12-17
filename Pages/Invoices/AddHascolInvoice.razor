@@ -1252,14 +1252,14 @@ ProductName=@ProductName
 
                 if (!string.IsNullOrWhiteSpace(Invoices?.VehicleNo))
                 {
-                    isChambersAvailable = true;
-                    int chamberStatus = await GetShippingChamberDetails(Invoices.VehicleNo);
-                    if (chamberStatus == 404)
-                    {
-                        AddChamber = true;
-                        toastService.ShowError($"No Chamber Details for Vehicle {Invoices.VehicleNo}");
-                    }
-                    isChambersAvailable = false;
+                    // isChambersAvailable = true;
+                    // int chamberStatus = await GetShippingChamberDetails(Invoices.VehicleNo);
+                    // if (chamberStatus == 404)
+                    // {
+                    //     AddChamber = true;
+                    //     toastService.ShowError($"No Chamber Details for Vehicle {Invoices.VehicleNo}");
+                    // }
+                    // isChambersAvailable = false;
 
                 }
                 else
