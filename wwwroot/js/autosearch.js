@@ -158,20 +158,35 @@ function filterTabless(jsonDataString) {
 }
 
 
-
 function exportTableToExcel(dataJson) {
     var table = document.getElementById('invoiceTables');
+
+    // Apply foreground color to the "Status" column based on its value
+    var rows = table.rows;
+    for (var i = 0; i < rows.length; i++) {
+        var cells = rows[i].cells;
+        for (var j = 0; j < cells.length; j++) {
+            var cell = cells[j];
+            if (cell.innerText.trim() === "Short") {
+                cell.style.color = "red"; // Set text color to red
+            } else if (cell.innerText.trim() === "Extra") {
+                cell.style.color = "blue"; // Set text color to blue
+            }
+        }
+    }
+
+    // Convert the styled table to a workbook
     var workbook = XLSX.utils.table_to_book(table, { sheet: "Sheet1" });
     var worksheet = workbook.Sheets['Sheet1'];
 
-    // Optional: Adding styles to the workbook
+    // Optional: Adjust column widths
     worksheet['!cols'] = [
-        { wpx: 150 }, // Adjust column width if needed
+        { wpx: 150 },
         { wpx: 100 },
         { wpx: 120 }
     ];
 
-    // Add styling to the cells
+    // Add alignment styles to cells
     var range = XLSX.utils.decode_range(worksheet['!ref']);
     for (var R = range.s.r; R <= range.e.r; ++R) {
         for (var C = range.s.c; C <= range.e.c; ++C) {
@@ -209,7 +224,6 @@ function exportTableToExcel(dataJson) {
     link.click();
     document.body.removeChild(link);
 }
-
 
 function copyTableToClipboard() {
     try {

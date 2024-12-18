@@ -1,4 +1,4 @@
-﻿  @page "/DriverSummary"
+﻿  @page "/Summary2"
 @using Microsoft.Data.SqlClient
 @using VehicleManagement.Authentication
 @using VehicleManagement.Models.General
@@ -14,84 +14,101 @@
 
                 <div class="col-md-12">
                     <div class="">
-
                         <div class="">
                             <div class="row col-md-12">
                                 <!-- Filter Button -->
-                                <div class="col-md-6">
-                                    <h4>Press ctrl+shift+L for Filters</h4>
+                                <div class="row col-md-8">
+                                    <div class="row col-md-12">
+                                        <div class="col-md-3">
+                                            <h4>OCR Records</h4>
+                                        </div>
+
+                                        <div class="col-md-3">
+                                            <button id="loadDataButton" style="border: white;" class="btn-danger" onclick="fetchItems()">
+                                                <span id="buttonText">Load Data</span>
+                                                <span id="spinner" class="spinner-border spinner-border-sm" role="status" aria-hidden="true" style="display: none;"></span>
+                                            </button>
+
+
+                                        </div>
+
+                                        <div class="col-md-3">
+                                            <h6 id="totalRecords"></h6>
+                                        </div>
+
+
+
+                                    </div>
+
+
+
+
                                 </div>
-                                <div class="col-md-6" style="text-align:end;">
-                                    <img style="cursor:pointer;" src="css/filter.png" @onclick="ToggleFilterPanel" />
+
+
+                                <div class="col-md-4" style="text-align:end;">
+                                    <img style="cursor:pointer;" src="css/filter.png" onclick="toggleFilterPanel()" />
                                 </div>
 
 
                             </div>
-
-
                             <div class="row">
 
                                 <div class="col-md-2">
                                     <!-- Filter Button -->
                                     <!-- Slider Panel -->
-                                    <div class="filter-slider-panel" style="@PanelStyle">
+                                    <div class="filter-slider-panel hidden-panel">
                                         <div class="filter-header">
                                             <h4>Export</h4>
-                                            <button class="close-btn" @onclick="ToggleFilterPanel">X</button>
+                                            <button class="close-btn" onclick="toggleFilterPanel()">X</button>
                                         </div>
                                         <!-- Filter Options -->
                                         <div class="filter-content">
                                             <!-- Add your filter controls here -->
-                                            @*  <div class="row col-md-12">
-
-                                            <div class="row filter-controls">
-                                            <div class="col-md-10">
-                                            <div class="form-group">
-                                            <input type="text" @bind="@searchTerm" class="form-control" id="searchInput" placeholder="STO/Driver Name/Driver ID...">
-
+                                            <div class="col-md-12" style="text-align:center;">
+                                                <div class="form-group">
+                                                    <button style="border: white;" onclick="fetchItems()" class="btn-danger">Reset</button>
+                                                </div>
                                             </div>
-                                            </div>
+                                            <div class="row col-md-12">
 
+                                                <div class="row filter-controls">
+                                                    <div class="col-md-12">
+                                                        <div class="form-group">
+                                                            <input type="text" class="form-control" id="searchInput"  placeholder="STO/Vehicle/Business...">
 
-                                            <div class="col-md-2" style="align-content: space-evenly;" title="Business/STO/Driver Name/Driver ID/Vehicle/Primary Reference">
-                                            <div class="form-group">
-                                            <img style="cursor:pointer;" src="css/search.png" @onclick="@(e => SearchRecords(searchTerm))">
-                                            </div>
-                                            </div>
-
-
-
-                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
 
 
                                             </div>
                                             <!-- Date Filter -->
                                             <div class="row col-md-12">
-                                            <div class="col-md-6">
-                                            <div class="form-group">
-                                            <label for="startDate">Start Date:</label>
-                                            <input type="date" @bind="@startDate" class="form-control" id="startDate">
-                                            </div>
-                                            </div>
-                                            <div class="col-md-6">
-                                            <div class="form-group">
-                                            <label for="endDate">End Date:</label>
-                                            <input type="date" @bind="@endDate" class="form-control" id="endDate">
-                                            </div>
-                                            </div>
-                                            <div class="col-md-12" style="text-align:center;">
-                                            <div class="form-group">
-                                            <button style="border: white;" class="btn-primary" @onclick="FilterByDateRange">Search</button>
-                                            <button style="border: white;" class="btn-danger" @onclick="Reset">Reset</button>
-
+                                                <div class="col-md-12">
+                                                    <div class="form-group">
+                                                        <label for="startDate">Select Month:</label>
+                                                        <input type="month" class="form-control"  id="startDate">
+                                                    </div>
+                                                </div>
 
                                             </div>
+                                            <div class="row col-md-12">
+                                                <div class="col-md-12" style="text-align:center;">
+                                                    <div class="form-group">
+                                                        <button style="border: white;" class="btn-primary">Primary</button>
+                                                        <button style="border: white;"  class="btn-primary">Secondary</button>
+                                                     
+
+
+                                                    </div>
+                                                </div>
+                                                <!-- Add more filter options as needed -->
                                             </div>
-                                            </div> *@
                                             <div class="row col-md-12">
                                                 <div class="col-md-6" style="text-align:center;" title="Export All Data to Excel">
                                                     <div class="form-group">
-                                                        <img style="cursor:pointer;" src="css/Excel Icon.png" @onclick="ExportToExcel" />
+                                                        <img style="cursor:pointer;" onclick="exportTableToExcelCon()" src="css/Excel Icon.png" />
                                                     </div>
                                                 </div>
                                                 <div class="col-md-6" style="text-align:center;" title="Copy Shown Data">
@@ -102,6 +119,7 @@
                                                 </div>
                                                 <!-- Add more filter options as needed -->
                                             </div>
+
                                         </div>
 
                                     </div>
@@ -220,258 +238,9 @@
 
 
                                             </tr>
-                                        </thead>
-                                        <tbody style="    background: white;">
-                                            @if (!IsLoading)
-                                            {
-                                                @if (Items.Count > 0)
-                                                {
-                                                    string PR = "";
-                                                    foreach (var item in Items)
-                                                    {
-                                                        @if (item.primaryreference == "")
-                                                        {
-                                                            continue;
-                                                        }
-
-
-
-                                                        <tr class="tbl-accordion-header">
-
-
-                                                            <td class="align-middle text-center" style="border: #cccccc 1px solid;">
-                                                                <span class="text-secondary text-xs font-weight-bold">@item.stono</span>
-                                                            </td>
-
-                                                            <td class="align-middle text-center" style="border: #cccccc 1px solid;">
-                                                                <span class="text-secondary text-xs font-weight-bold">@item.primaryreference</span>
-                                                            </td>
-
-                                                            <td class="align-middle text-center" style="border: #cccccc 1px solid;">
-                                                                <span class="text-secondary text-xs font-weight-bold">@item.busdesc</span>
-                                                            </td>
-                                                            <td class="align-middle text-center" style="border: #cccccc 1px solid;">
-                                                                <span class="text-secondary text-xs font-weight-bold">@item.VehicleNo</span>
-                                                            </td>
-                                                            <td class="align-middle text-center" style="border: #cccccc 1px solid;">
-                                                                <span class="text-secondary text-xs font-weight-bold">@item.Date</span>
-                                                            </td>
-                                                            <td class="align-middle text-center" style="border: #cccccc 1px solid;">
-                                                                <span class="text-secondary text-xs font-weight-bold">
-                                                                    @item.Location
-                                                                </span>
-                                                            </td>
-                                                            <td class="align-middle text-center text-sm" style="border: #cccccc 1px solid;">
-                                                                @if (item.type == "pk")
-                                                                {
-                                                                    <span class="text-secondary text-xs font-weight-bold">@(item.type == "pk" ? "Primary" : "Secondary")</span>
-
-                                                                }
-                                                                else
-                                                                {
-                                                                    <span class="text-secondary text-xs font-weight-bold">@(item.type == "pk" ? "Primary" : "Secondary")</span>
-
-                                                                }
-
-                                                            </td>
-                                                            <td class="align-middle text-center" style="border: #cccccc 1px solid;">
-                                                                <span class="text-secondary text-xs font-weight-bold">
-                                                                    @((item.DriverID1 != "" ? item.DriverID1 : "No Attendance"))
-                                                                </span>
-                                                            </td>
-                                                            <td class="align-middle text-center" style="border: #cccccc 1px solid;">
-                                                                <span class="text-secondary text-xs font-weight-bold">
-                                                                    @((item.DriverName1 != "" ? item.DriverName1 : "No Attendance"))
-                                                                </span>
-                                                            </td>
-
-                                                            <td class="align-middle text-center" style="border: #cccccc 1px solid;">
-                                                                <span class="text-secondary text-xs font-weight-bold">
-                                                                    @((item.DriverID2 != "" ? item.DriverID2 : "No Attendance"))
-                                                                </span>
-                                                            </td>
-                                                            <td class="align-middle text-center" style="border: #cccccc 1px solid;">
-                                                                <span class="text-secondary text-xs font-weight-bold">
-                                                                    @((item.DriverName2 != "" ? item.DriverName2 : "No Attendance"))
-                                                                </span>
-                                                            </td>
-                                                            <td class="align-middle text-center" style="border: #cccccc 1px solid;">
-                                                                <span class="text-secondary text-xs font-weight-bold">
-                                                                    @item.ShortType
-                                                                </span>
-                                                            </td>
-                                                            @if (item.type == "sc")
-                                                            {
-                                                                <td class="align-middle text-center" style="border: #cccccc 1px solid;">
-                                                                    <span class="text-secondary text-xs font-weight-bold">0 </span>
-                                                                </td>
-                                                                <td class="align-middle text-center" style="border: #cccccc 1px solid;">
-                                                                    @if (item.ShortType == "Short")
-                                                                    {
-
-                                                                        <span class="badge badge-sm bg-gradient-danger">@item.Secondary</span>
-
-                                                                    }
-                                                                    else
-                                                                    {
-                                                                        <span class="badge badge-sm bg-gradient-success">@item.Secondary</span>
-
-                                                                    }
-                                                                </td>
-                                                            }
-                                                            else if (item.type == "pk")
-                                                            {
-                                                                <td class="align-middle text-center" style="border: #cccccc 1px solid;">
-                                                                    @if (item.ShortType == "Short")
-                                                                    {
-
-                                                                        <span class="badge badge-sm bg-gradient-danger">@item.Primary</span>
-
-                                                                    }
-                                                                    else
-                                                                    {
-                                                                        <span class="badge badge-sm bg-gradient-success">@item.Primary</span>
-
-                                                                    }
-                                                                </td>
-                                                                <td class="align-middle text-center" style="border: #cccccc 1px solid;">
-                                                                    <span class="text-secondary text-xs font-weight-bold">0 </span>
-                                                                </td>
-                                                            }
-
-
-
-
-                                                            @if (item.type == "sc" && item.primaryreference != PR)
-                                                            {
-                                                                int? count = Items.Where(p => p.primaryreference == item.primaryreference && p.type == "sc" && item.primaryreference != "none").ToList().Count;
-                                                                int? SumofTotal = Items
-                                                                .Where(p => p.primaryreference == item.primaryreference && p.type == "sc" && item.primaryreference != "none" && p.ShortType == "Short")
-                                                                .Sum(p => (int?)p.Secondary);  // Use (int?) to allow for null values
-                                                                count = item.primaryreference == "none" ? 1 : count;
-                                                                int? ShortageDeduct = SumofTotal - item.Exempted;
-
-
-
-                                                                count = item.primaryreference == "none" ? 1 : count;
-
-                                                                <td class="align-middle text-center" style="border: #cccccc 1px solid;" rowspan="@count">
-                                                                    @if (SumofTotal > item.Exempted)
-                                                                    {
-                                                                        <span class="badge badge-sm bg-gradient-danger">@SumofTotal</span>
-
-                                                                    }
-                                                                    else
-                                                                    {
-                                                                        <span class="text-secondary text-xs font-weight-bold">@SumofTotal </span>
-
-                                                                    }
-
-                                                                </td>
-
-                                                                <td class="align-middle text-center" style="border: #cccccc 1px solid;" rowspan="@count">
-                                                                    <span class="text-secondary text-xs font-weight-bold">@item.Exempted </span>
-                                                                </td>
-                                                                <td class="align-middle text-center" style="border: #cccccc 1px solid;" rowspan="@count">
-
-
-                                                                    @if (ShortageDeduct <= 0)
-                                                                    {
-                                                                        <span class="text-secondary text-xs font-weight-bold">0 </span>
-
-                                                                    }
-                                                                    else
-                                                                    {
-                                                                        <span class="badge badge-sm bg-gradient-danger">@ShortageDeduct</span>
-
-                                                                    }
-
-
-                                                                </td>
-                                                                PR = item.primaryreference;
-                                                            }
-                                                            else if (item.type == "pk" || item.primaryreference == "none")
-                                                            {
-                                                                int? PrimaryTotal = Items
-                                                                .Where(p => p.primaryreference == item.primaryreference && p.type == "pk" && item.primaryreference != "none" && p.ShortType == "Short")
-                                                                .Sum(p => (int?)p.Primary);  // Use (int?) to allow for null values
-
-                                                                int? ShortageDeduct = PrimaryTotal - item.Exempted;
-                                                                @*      if (item.type == "sc")
-                                                {
-                                                <td class="align-middle text-center" style="border: #cccccc 1px solid;">
-                                                <span class="text-secondary text-xs font-weight-bold">0 </span>
-                                                </td>
-                                                <td class="align-middle text-center" style="border: #cccccc 1px solid;">
-                                                <span class="text-secondary text-xs font-weight-bold">@item.Secondary</span>
-                                                </td>
-                                                } *@
-
-
-
-                                                                <td class="align-middle text-center" style="border: #cccccc 1px solid;">
-                                                                    @if (PrimaryTotal > item.Exempted)
-                                                                    {
-                                                                        <span class="badge badge-sm bg-gradient-danger">@PrimaryTotal</span>
-
-                                                                    }
-                                                                    else
-                                                                    {
-                                                                        <span class="text-secondary text-xs font-weight-bold">@PrimaryTotal </span>
-
-                                                                    }
-
-                                                                </td>
-
-                                                                <td class="align-middle text-center" style="border: #cccccc 1px solid;">
-                                                                    <span class="text-secondary text-xs font-weight-bold">@item.Exempted </span>
-                                                                </td>
-                                                                <td class="align-middle text-center" style="border: #cccccc 1px solid;">
-                                                                    @if (ShortageDeduct <= 0)
-                                                                    {
-                                                                        @if (item.type == "sc" && item.primaryreference == "none" && (decimal)item.Secondary > Math.Abs((decimal)ShortageDeduct) && item.ShortType=="Short")
-
-                                                                        {
-                                                                            double de = Math.Abs((double)ShortageDeduct);
-                                                                            double? deduct = item.Secondary - de;
-                                                                            <span class="badge badge-sm bg-gradient-danger font-weight-bold">@deduct </span>
-
-                                                                        }
-                                                                        else
-                                                                        {
-                                                                            <span class="text-secondary text-xs font-weight-bold">0 </span>
-
-                                                                        }
-
-                                                                    }
-                                                                    else
-                                                                    {
-                                                                        <span class="badge badge-sm bg-gradient-danger font-weight-bold">@ShortageDeduct</span>
-
-                                                                    }
-
-
-                                                                </td>
-                                                            }
-
-
-
-
-
-
-                                                        </tr>
-
-                                                    }
-                                                }
-                                            }
-                                            else if (IsLoading)
-                                            {
-                                                <tr>
-                                                    <td colspan="18">
-                                                        <DataLoaderComponent IsLoading="@IsLoading" LoadingText="Loading Report..." />
-                                                    </td>
-                                                </tr>
-                                            }
+                                            </thead>
+                                        <tbody id="table-body" style="background:white;">
+                                            <!-- Table rows will be populated here -->
                                         </tbody>
                                     </table>
 
@@ -663,10 +432,10 @@
         try
         {
 
-            BusinessID = await UserClaimsService.GetBusinessIdsAsync();
+            // BusinessID = await UserClaimsService.GetBusinessIdsAsync();
 
-            await LoadShortagereport();
-            FilteredItems = obj;
+            // await LoadShortagereport();
+            // FilteredItems = obj;
 
             //  await LoadData();
 
@@ -677,7 +446,7 @@
         }
         IsLoading = false;
     }
- 
+
     public async Task LoadShortagereport()
     {
         try
