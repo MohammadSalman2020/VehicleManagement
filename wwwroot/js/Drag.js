@@ -430,7 +430,7 @@ async function loadShortageReportbyMonth(selectedDate) {
         const tbody = document.getElementById('dataContainer').querySelector('tbody');
         tbody.innerHTML = '';  // Clears the existing table rows
 
-       // const response = await fetch(`${apiBaseUrl}Invoice/LoadShortageReportByMonth`, {
+        // const response = await fetch(`${apiBaseUrl}Invoice/LoadShortageReportByMonth`, {
         const response = await fetch(`${apiBaseUrl}Invoice/LoadShortageReportByMonth`, {
             method: "POST",
             headers: {
@@ -750,7 +750,7 @@ function showSTODetails(sto) {
             <h5 class="card-title">Details for STO: <strong>${sto.STO}</strong></h5>
             <p class="text-muted">ID: <strong>${sto.OCRID}</strong></p>
             <p class="text-muted">Shipping Location: <strong>${sto.ShippingLocation}</strong></p>
-            <p class="text-muted">Invoice Type: <strong>${sto.InvoiceType=="sc"?"Secondary":"Primary"}</strong></p>
+            <p class="text-muted">Invoice Type: <strong>${sto.InvoiceType == "sc" ? "Secondary" : "Primary"}</strong></p>
             <p class="text-muted">Receiving Location: <strong>${sto.ReceivingLocation}</strong></p>
             <p class="text-muted">Vehicle #: <strong>${sto.Vehicle}</strong></p>
             <p class="text-muted">Date: <strong>${new Date(sto.InvoiceDate).toLocaleDateString()}</strong></p>
@@ -815,7 +815,7 @@ async function deletebulk() {
         if (response.ok) {
             // Show success message in the details section
             stoDetails.innerHTML = '<p class="text-center" style="font-weight:bold;color:green;">Record Deleted Successfully.</p>';
-            
+
         }
         else {
             stoDetails.innerHTML = '<p class="text-center" style="font-weight:bold;color:red;">Error Deleting Record.</p>';
@@ -975,7 +975,7 @@ async function handleInvoiceClick(invoices) {
                 const InvoicesResponse = await fetch(`${apiBaseUrl}Invoice/GetInvoiceByID/${invoice.STO}`);
                 if (!InvoicesResponse.ok) throw new Error('Network response was not ok');
                 const Invoices = await InvoicesResponse.json(); // Parse the JSON response
-             
+
                 Invoices.BusinessID = 13;
 
                 Invoices.IsFromDisplay = true;
@@ -1014,7 +1014,7 @@ async function handleInvoiceClick(invoices) {
                 // Construct the URL
                 invoiceUrl = `/AddEuroInvoice?OCR=${encodedJson}`;
             }
-           
+
         }
         else if (invoice.BusinessID == 9) {
 
@@ -1106,7 +1106,7 @@ async function OpenEuroPrimaryInvoice(sto) {
 
     // Construct the URL
     invoiceUrl = `/AddEuroInvoice?OCR=${encodedJson}`;
-     window.open(invoiceUrl, '_blank');
+    window.open(invoiceUrl, '_blank');
 }
 
 function encodeToBase64Unicode(str) {
@@ -1301,7 +1301,7 @@ function updateUI(item) {
 //        <td class="align-middle text-center" style="border: #cccccc 1px solid;">
 //            <a class="add-secondary-button" style="cursor:pointer;">Add Secondary</a>
 //        </td>` : ` <td class="align-middle text-center" style="border: #cccccc 1px solid;">
-          
+
 //        </td>`}
 //`;
 
@@ -1531,3 +1531,235 @@ function exportTableToExcelCon() {
 }
 
 
+
+
+let processedReferences = []; // Array to track processed primaryreference values
+
+// Replace with your actual API endpoint
+
+// Function to fetch items from the API
+async function fetchItems() {
+    // Get button and spinner elements
+    const loadButton = document.getElementById("loadDataButton");
+    const buttonText = document.getElementById("buttonText");
+    const spinner = document.getElementById("spinner");
+
+    // Show spinner and change button text to "Loading..."
+    buttonText.style.display = "none";
+    spinner.style.display = "inline-block";
+
+    try {
+        const InvoicesResponse = await fetch(`${apiBaseUrl}Invoice/GEtShortagesSummaryReport`, {
+            method: 'POST',  // Change the method to POST
+            headers: {
+                'Content-Type': 'application/json',
+            },
+        });
+
+        if (!InvoicesResponse.ok) {
+            throw new Error('Network response was not ok');
+        }
+
+        const Invoices = await InvoicesResponse.json(); // Parse the JSON response
+        renderTable(Invoices);  // Render the table with the data
+
+    } catch (error) {
+        console.error("Error fetching data:", error);
+    } finally {
+        // Hide the spinner and show the "Load Data" text again
+        spinner.style.display = "none";
+        buttonText.style.display = "inline";
+
+    }
+}
+
+
+// Function to render the table
+function renderTable(items) {
+    let tbody = document.getElementById("table-body"); // Use getElementById to select tbody
+    tbody.innerHTML = ""; // Clear the existing rows
+    processedReferences = [];
+    if (items.length > 0) {
+
+        items.forEach(item => {
+            if (item.primaryreference === "") return; // Skip if primaryreference is empty
+            // Call a function to build the row and append it to tbody
+            let row = buildTableRow(item, items);
+            tbody.appendChild(row);
+        });
+    } else {
+        let row = document.createElement('tr');
+        row.innerHTML = `
+            <td colspan="18">
+                <div>Loading Report...</div>
+            </td>
+        `;
+        tbody.appendChild(row);
+    }
+}
+
+
+// Function to build a table row
+function buildTableRow(item, items) {
+    let row = document.createElement('tr');
+    row.classList.add('tbl-accordion-header');
+
+    // Append columns for each property
+    row.innerHTML = `
+        <td class="align-middle text-center" style="border: #cccccc 1px solid;">
+            <span class="text-secondary text-xs font-weight-bold">${item.stono}</span>
+        </td>
+        <td class="align-middle text-center" style="border: #cccccc 1px solid;">
+            <span class="text-secondary text-xs font-weight-bold">${item.primaryreference}</span>
+        </td>
+        <td class="align-middle text-center" style="border: #cccccc 1px solid;">
+            <span class="text-secondary text-xs font-weight-bold">${item.busdesc.toUpperCase()}</span>
+        </td>
+        <td class="align-middle text-center" style="border: #cccccc 1px solid;">
+            <span class="text-secondary text-xs font-weight-bold">${item.vehicleNo}</span>
+        </td>
+        <td class="align-middle text-center" style="border: #cccccc 1px solid;">
+            <span class="text-secondary text-xs font-weight-bold">${item.date}</span>
+        </td>
+        <td class="align-middle text-center" style="border: #cccccc 1px solid;">
+            <span class="text-secondary text-xs font-weight-bold">${item.location}</span>
+        </td>
+        <td class="align-middle text-center text-sm" style="border: #cccccc 1px solid;">
+            <span class="text-secondary text-xs font-weight-bold">${item.type === "pk" ? "Primary" : "Secondary"}</span>
+        </td>
+        <td class="align-middle text-center" style="border: #cccccc 1px solid;">
+            <span class="text-secondary text-xs font-weight-bold">${item.driverID1 || "No Attendance"}</span>
+        </td>
+        <td class="align-middle text-center" style="border: #cccccc 1px solid;">
+            <span class="text-secondary text-xs font-weight-bold">${item.driverName1 || "No Attendance"}</span>
+        </td>
+        <td class="align-middle text-center" style="border: #cccccc 1px solid;">
+            <span class="text-secondary text-xs font-weight-bold">${item.driverID2 || "No Attendance"}</span>
+        </td>
+        <td class="align-middle text-center" style="border: #cccccc 1px solid;">
+            <span class="text-secondary text-xs font-weight-bold">${item.driverName2 || "No Attendance"}</span>
+        </td>
+        <td class="align-middle text-center" style="border: #cccccc 1px solid;">
+            <span class="text-secondary text-xs font-weight-bold">${item.shortType}</span>
+        </td>
+    `;
+
+    // Check for type "sc"
+    if (item.type === "sc" && item.primaryreference != "none") {
+
+        
+       
+      
+
+        
+        row.innerHTML += `
+            <td class="align-middle text-center" style="border: #cccccc 1px solid;">
+                <span>0</span>
+            </td>
+            <td class="align-middle text-center" style="border: #cccccc 1px solid;">
+                <span class="badge badge-sm bg-gradient-${item.shortType === "Short" ? "danger" : "success"}">${item.secondary}</span>
+            </td>
+           
+        `;
+
+        // Call a function to build the row and append it to tbody
+        let count = items.filter(p => p.primaryreference === item.primaryreference && p.type === "sc" && p.primaryreference !== "none").length;
+        let sumOfTotal = items.filter(p => p.primaryreference === item.primaryreference && p.type === "sc" && p.primaryreference !== "none" && p.shortType === "Short")
+            .reduce((sum, p) => sum + (p.secondary || 0), 0);
+        let shortageDeduct = sumOfTotal - item.exempted;
+        let rowspan = count > 0 ? count : 1;
+
+        if (!processedReferences.includes(item.primaryreference)) {
+            row.innerHTML += `
+            <td class="align-middle text-center" style="border: #cccccc 1px solid;" rowspan="${rowspan}">
+                <span class="badge badge-sm bg-gradient-${item.shortType === "Short" ? "danger" : "success"}">${sumOfTotal}</span>
+            </td>
+            <td class="align-middle text-center" style="border: #cccccc 1px solid;" rowspan="${rowspan}">
+                <span class="text-secondary text-xs font-weight-bold">${item.exempted}</span>
+            </td>
+            <td class="align-middle text-center" style="border: #cccccc 1px solid;" rowspan="${rowspan}">
+                <span class="badge badge-sm bg-gradient-${item.shortType === "Short" ? "danger" : "success"}">${shortageDeduct > 0 ? shortageDeduct : 0}</span>
+            </td>
+        `;
+        }
+        processedReferences.push(item.primaryreference);
+
+     
+    } else if (item.type === "pk" || item.primaryreference === "none") {
+
+        if (item.type === "pk") {
+            row.innerHTML += `
+            <td class="align-middle text-center" style="border: #cccccc 1px solid;">
+                <span class="badge badge-sm bg-gradient-${item.shortType === "Short" ? "danger" : "success"}">${item.primary}</span>
+            </td>
+            
+            <td class="align-middle text-center" style="border: #cccccc 1px solid;">
+                <span>0</span>
+            </td>
+        `;
+
+            // Calculate PrimaryTotal: sum of Primary for items with matching primaryreference and type "pk", and ShortType "Short"
+            let primaryTotal = items.filter(p => p.primaryreference === item.primaryreference && p.type === "pk" && p.shortType === "Short")
+                .reduce((sum, p) => sum + (p.primary || 0), 0);  // (p.Primary || 0) ensures we handle null values
+            // Calculate ShortageDeduct
+            let shortageDeduct = primaryTotal - item.exempted;
+
+            // Append the table rows
+            row.innerHTML += `
+        <td class="align-middle text-center" style="border: #cccccc 1px solid;">
+            <span class="badge badge-sm bg-gradient-${item.shortType === "Short" ? "danger" : "success"}">${primaryTotal}</span>
+        </td>
+        <td class="align-middle text-center" style="border: #cccccc 1px solid;">
+            <span class="text-secondary text-xs font-weight-bold">${item.exempted}</span>
+        </td>
+        <td class="align-middle text-center" style="border: #cccccc 1px solid;">
+            <span class="badge badge-sm bg-gradient-${item.shortType === "Short" ? "danger" : "success"}">
+                ${shortageDeduct <= 0 ? 0 : shortageDeduct}
+            </span>
+        </td>
+    `;
+
+        }
+        else if (item.primaryreference === "none") {
+
+            // Calculate ShortageDeduct
+            let shortageDeduct = 0;
+            if (item.shortType === "Short" && item.secondary > item.exempted) {
+                shortageDeduct = item.secondary - item.exempted;
+            }
+
+
+            row.innerHTML += `
+
+
+            <td class="align-middle text-center" style="border: #cccccc 1px solid;">
+                <span>0</span>
+            </td>
+            <td class="align-middle text-center" style="border: #cccccc 1px solid;">
+                <span class="badge badge-sm bg-gradient-${item.shortType === "Short" ? "danger" : "success"}">${item.secondary}</span>
+            </td>
+        `;
+
+            // Append the table rows
+            row.innerHTML += `
+        <td class="align-middle text-center" style="border: #cccccc 1px solid;">
+            <span class="badge badge-sm bg-gradient-${item.shortType === "Short" ? "danger" : "success"}">${item.secondary}</span>
+        </td>
+        <td class="align-middle text-center" style="border: #cccccc 1px solid;">
+            <span class="text-secondary text-xs font-weight-bold">${item.exempted}</span>
+        </td>
+        <td class="align-middle text-center" style="border: #cccccc 1px solid;">
+            <span class="badge badge-sm bg-gradient-${item.shortType === "Short" ? "danger" : "success"}">
+                ${shortageDeduct}
+            </span>
+        </td>
+    `;
+
+
+        }
+
+    }
+
+
+    return row;
+}
